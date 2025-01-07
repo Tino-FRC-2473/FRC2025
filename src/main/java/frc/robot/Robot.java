@@ -152,6 +152,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void simulationInit() {
 		System.out.println("-------- Simulation Init --------");
+		// don't preform simulated hardware init here, robotInit() still runs during sim
 	}
 
 	@Override
