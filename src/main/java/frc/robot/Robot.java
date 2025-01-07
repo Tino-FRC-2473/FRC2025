@@ -3,8 +3,19 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
+// Third Party Imports
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+
 // WPILib Imports
-import edu.wpi.first.wpilibj.TimedRobot;
+
 
 // Systems
 import frc.robot.systems.DriveFSMSystem;
@@ -17,7 +28,7 @@ import frc.robot.systems.AutoHandlerSystem.AutoPath;
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
 	private TeleopInput input;
 
 	// Systems
@@ -34,6 +45,22 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		System.out.println("robotInit");
+
+		Logger.recordMetadata("FRC2025", "Team2473"); // Set a metadata value
+
+		if (isReal()) {
+			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+			new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+		} else {
+			setUseTiming(false); // Run as fast as possible
+			String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope
+			Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+			Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+		}
+
+		Logger.start(); // Start logging!
+
 		input = new TeleopInput();
 
 		// Instantiate all systems here
