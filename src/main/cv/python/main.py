@@ -27,11 +27,12 @@ while True:
         annotated_frame = frame.copy()
         tagData = tag_module.estimate_3d_pose(frame, annotated_frame, ARUCO_LENGTH_METERS)
         annotated_frame = cv2.resize(annotated_frame, (320,240))
-        
-        
+        print("tagData.items:", tagData.items())
+        pose_list = [4000 for _ in range(16 * 6)]
         for key, value in tagData.items():
+            print("in for loop. key", key, " value: ", value)
             pose_list[(key - 1) * 6 : (key * 6)] = np.concatenate((value[0].flatten(), value[1].flatten()), axis=0).tolist()
-            
+            print("detected pose_list", pose_list)
         table = inst.getTable("datatable")
 
         xPub = table.getDoubleTopic("fps_incremented_value").publish()
@@ -43,7 +44,7 @@ while True:
         # outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
         # outputStreamPub.set(annotated_frame.flatten().tolist())
 
-        cv2.imshow('result', annotated_frame)
+#        cv2.imshow('result', annotated_frame)
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break
@@ -54,7 +55,8 @@ while True:
         break
     except Exception as error:
         print("An exception occurred:", error)
-    #print('Loop time: ' + str(time.time()-p))
+        print("not pose list:", pose_list)
+
     table = inst.getTable("datatable")
     tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
     tagDataPub.set(pose_list)
