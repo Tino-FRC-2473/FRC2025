@@ -44,7 +44,7 @@ while True:
         # outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
         # outputStreamPub.set(annotated_frame.flatten().tolist())
 
-#        cv2.imshow('result', annotated_frame)
+        #cv2.imshow('result', annotated_frame)
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break

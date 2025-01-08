@@ -11,8 +11,8 @@ import pupil_apriltags as apriltag
 class AprilTag():
 
     def __init__(self):
-        self.camera_matrix = np.load('calibration_data/camera1_matrix.npy')
-        self.dist_coeffs = np.load('calibration_data/camera1_dist.npy')
+        self.camera_matrix = np.load(os.path.dirname(os.path.abspath(__file__)) + '/calibration_data/camera1_matrix.npy')
+        self.dist_coeffs = np.load(os.path.dirname(os.path.abspath(__file__)) + '/calibration_data/camera1_dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         pass
 
