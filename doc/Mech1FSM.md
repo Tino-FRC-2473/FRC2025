@@ -2,13 +2,19 @@
 
 ```mermaid
 ---
-title: Mechanism 1 Subsystem State Diagram
+title: Mechanism 1 (Elevator) Subsystem State Diagram
 ---
 stateDiagram-v2
-  state "Start State" as START_STATE
-  state "Other State" as OTHER_STATE
+state "Manual movement" as MANUAL
+state "PID to L4" as L4
+state "PID to GROUND" as GROUND
+state "PID to SOURCE" as SOURCE
+[*] --> MANUAL: start
 
-  [*] --> START_STATE
-  START_STATE --> OTHER_STATE: Button pressed
-  OTHER_STATE --> START_STATE: Timer > 5 seconds
+MANUAL --> L4: △ button && !X button && !O button
+MANUAL --> GROUND: !△ button && !X button && O button
+MANUAL --> SOURCE: !△ button && X button && !O button
+L4 --> MANUAL: !△ button || Encoder in range of target
+SOURCE --> MANUAL: !Xbutton || Encoder in range of target
+GROUND --> MANUAL:  !O button || Encoder in range of target
 ```
