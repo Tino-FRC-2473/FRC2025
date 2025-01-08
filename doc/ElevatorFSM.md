@@ -1,8 +1,8 @@
-# Mechanism 1 FSM Spec
+# Elevator FSM Spec
 
 ```mermaid
 ---
-title: Mechanism 1 (Elevator) Subsystem State Diagram
+title: Elevator State Diagram
 ---
 stateDiagram-v2
 state "Manual movement" as MANUAL
