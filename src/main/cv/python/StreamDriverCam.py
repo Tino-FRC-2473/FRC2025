@@ -3,7 +3,7 @@ import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 port = 1181
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)
 class MJPEGStreamHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/stream.mjpg':
@@ -34,9 +34,9 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
 
 
 def StreamDriverCam():
-    server_address = ('0.0.0.0', port)
+    server_address = ('10.24.73.105', port)
     httpd = HTTPServer(server_address, MJPEGStreamHandler)
-    print(f'Streaming video at http://0.0.0.0:{port}/stream.mjpg')
+    print(f'Streaming video at http://10.24.73.105:{port}/stream.mjpg')
     httpd.serve_forever()
 
 StreamDriverCam()
