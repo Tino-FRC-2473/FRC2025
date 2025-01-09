@@ -12,6 +12,10 @@ public final class HardwareMap {
 	public static final int CAN_ID_SPARK_DRIVE_BACK_LEFT = 4;
 	public static final int CAN_ID_ELEVATOR = 5;
 
+	// sensor ports
+
+	public static final int PORT_ELEVATOR_LIMIT_SWITCH = 0;
+
 	/* ===== Hardware Availability ===== */
 	/**
 	 * Check if drive hardware is available to the RoboRIO.
