@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from apriltag import AprilTag
-from vision_input import VisionInput
+from visionInput import VisionInput
 import time
 
 RES = (640, 480)
