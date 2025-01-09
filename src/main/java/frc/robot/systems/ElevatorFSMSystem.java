@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -33,7 +34,7 @@ public class ElevatorFSMSystem {
 		L4
 	}
 
-	private static final double JOYSTICK_DEADBAND_WIDTH = 0.1;
+	private static final double JOYSTICK_DEADBAND = 0.1;
 
 	/* ======================== Private variables ======================== */
 	private ElevatorFSMState currentState;
@@ -263,11 +264,7 @@ public class ElevatorFSMSystem {
 				return;
 			}
 		}
-		if (Math.abs(signalInput) > JOYSTICK_DEADBAND_WIDTH / 2) {
-			elevatorMotor.set(signalInput);
-		} else {
-			elevatorMotor.set(0);
-		}
+		elevatorMotor.set(MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND, 1.0));
 	}
 
 	/**

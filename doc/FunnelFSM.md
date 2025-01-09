@@ -5,10 +5,10 @@
 title: Funnel State Diagram
 ---
 stateDiagram-v2
-  state "Outtake" as OUTTAKE
-  state "Idle" as IDLE
+  state "Outtake: motor on" as OUTTAKE
+  state "Idle: motor off" as IDLE
 
   [*] --> IDLE
   IDLE --> OUTTAKE: Outtake button pressed
-  OUTTAKE --> IDLE: No input
+  OUTTAKE --> IDLE: Outtake button pressed
 ```
