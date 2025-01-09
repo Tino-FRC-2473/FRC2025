@@ -61,7 +61,7 @@ public class TeleopInput {
 
 	/**
 	 * Get the manual elevator movement input (right stick Y).
-	 * @return A double in range [-1,1] representing the control input
+	 * @return A double in the range [-1,1] representing the control input
 	 */
 	public double getManualElevatorMovementInput() {
 		return mechController.getRightY();

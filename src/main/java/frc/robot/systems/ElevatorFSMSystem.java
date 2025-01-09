@@ -63,20 +63,21 @@ public class ElevatorFSMSystem {
 		var talonFXConfigs = new TalonFXConfiguration();
 		// set slot 0 gains
 		var slot0Configs = talonFXConfigs.Slot0;
-		slot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
-		slot0Configs.kG = Constants.MM_CONSTANT_G; // Voltage output to overcome gravity
-		slot0Configs.kS = Constants.MM_CONSTANT_S; // Voltage output to overcome static friction
-		slot0Configs.kV = Constants.MM_CONSTANT_V; // Voltage for velocity target of 1 rps
-		slot0Configs.kA = Constants.MM_CONSTANT_A; // Voltage for acceleration of 1 rps/s
-		slot0Configs.kP = Constants.MM_CONSTANT_P; // Account for position error of 1 rotations
-		slot0Configs.kI = Constants.MM_CONSTANT_I; // output for integrated error
-		slot0Configs.kD = Constants.MM_CONSTANT_D; // Account for velocity error of 1 rps
+		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+		// note: detail on constants in Constants.java
+		slot0Configs.kG = Constants.ELEVATOR_MM_CONSTANT_G;
+		slot0Configs.kS = Constants.ELEVATOR_MM_CONSTANT_S;
+		slot0Configs.kV = Constants.ELEVATOR_MM_CONSTANT_V;
+		slot0Configs.kA = Constants.ELEVATOR_MM_CONSTANT_A;
+		slot0Configs.kP = Constants.ELEVATOR_MM_CONSTANT_P;
+		slot0Configs.kI = Constants.ELEVATOR_MM_CONSTANT_I;
+		slot0Configs.kD = Constants.ELEVATOR_MM_CONSTANT_D;
 
 		// set Motion Magic settings
 		var motionMagicConfigs = talonFXConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = Constants.CONFIG_CONSTANT_CV; //Target velo
-		motionMagicConfigs.MotionMagicAcceleration = Constants.CONFIG_CONSTANT_A; //Target accel
-		motionMagicConfigs.MotionMagicJerk = Constants.CONFIG_CONSTANT_J; // Target jerk
+		motionMagicConfigs.MotionMagicCruiseVelocity = Constants.ELEVATOR_CONFIG_CONSTANT_CV;
+		motionMagicConfigs.MotionMagicAcceleration = Constants.ELEVATOR_CONFIG_CONSTANT_A;
+		motionMagicConfigs.MotionMagicJerk = Constants.ELEVATOR_CONFIG_CONSTANT_J;
 
 		elevatorMotor.getConfigurator().apply(talonFXConfigs);
 
@@ -90,7 +91,7 @@ public class ElevatorFSMSystem {
 		elevatorMotor.optimizeBusUtilization();
 
 		// Initialize ground limit switch
-		groundLimitSwitch = new DigitalInput(HardwareMap.PORT_ELEVATOR_LIMIT_SWITCH);
+		groundLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_LIMIT_SWITCH_PORT);
 
 		// Reset state machine
 		reset();
