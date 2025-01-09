@@ -10,5 +10,5 @@ stateDiagram-v2
 
   [*] --> IDLE
   IDLE --> OUTTAKE: Outtake button pressed
-  OUTTAKE --> IDLE: Outtake button pressed
+  OUTTAKE --> IDLE: !Outtake button pressed
 ```
