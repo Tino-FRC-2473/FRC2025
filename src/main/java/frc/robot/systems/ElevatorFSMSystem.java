@@ -24,17 +24,17 @@ import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 public class ElevatorFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
-	public enum FSMState {
+	public enum ElevatorFSMState {
 		MANUAL,
 		GROUND,
 		STATION,
 		L4
 	}
 
-	private static final double DEADBAND_WIDTH = 0.1;
+	private static final double JOYSTICK_DEADBAND_WIDTH = 0.1;
 
 	/* ======================== Private variables ======================== */
-	private FSMState currentState;
+	private ElevatorFSMState currentState;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -47,7 +47,7 @@ public class ElevatorFSMSystem {
 
 	/* ======================== Constructor ======================== */
 	/**
-	 * Create Mech2FSMSystem and initialize to starting state. Also perform any
+	 * Create ElevatorFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
 	 */
@@ -57,7 +57,7 @@ public class ElevatorFSMSystem {
 		//perform kraken init
 		elevatorMotor = new TalonFX(HardwareMap.CAN_ID_ELEVATOR);
 
-		// elevatorMotor.setPosition(0); // reset kraken encoder(only use when tuning)
+		// elevatorMotor.setPosition(0); // reset kraken encoder (only use when tuning)
 		elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
 
 		var talonFXConfigs = new TalonFXConfiguration();
@@ -89,6 +89,7 @@ public class ElevatorFSMSystem {
 
 		elevatorMotor.optimizeBusUtilization();
 
+		// Initialize ground limit switch
 		groundLimitSwitch = new DigitalInput(HardwareMap.PORT_ELEVATOR_LIMIT_SWITCH);
 
 		// Reset state machine
@@ -100,7 +101,7 @@ public class ElevatorFSMSystem {
 	 * Return current FSM state.
 	 * @return Current FSM state
 	 */
-	public FSMState getCurrentState() {
+	public ElevatorFSMState getCurrentState() {
 		return currentState;
 	}
 	/**
@@ -112,7 +113,7 @@ public class ElevatorFSMSystem {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FSMState.MANUAL;
+		currentState = ElevatorFSMState.MANUAL;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -129,7 +130,6 @@ public class ElevatorFSMSystem {
 			case MANUAL:
 				handleManualState(input);
 				break;
-
 			case GROUND:
 				handleGroundState(input);
 				break;
@@ -139,7 +139,6 @@ public class ElevatorFSMSystem {
 			case L4:
 				handleL4State(input);
 				break;
-
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -174,43 +173,43 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
 	 */
-	private FSMState nextState(TeleopInput input) {
+	private ElevatorFSMState nextState(TeleopInput input) {
 		switch (currentState) {
 			case MANUAL:
 				if (input.isGroundButtonPressed()
 					&& !input.isL4ButtonPressed()
 					&& !input.isStationButtonPressed()) {
-					return FSMState.GROUND;
+					return ElevatorFSMState.GROUND;
 				}
 				if (input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isStationButtonPressed()) {
-					return FSMState.L4;
+					return ElevatorFSMState.L4;
 				}
 				if (input.isStationButtonPressed()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()) {
-					return FSMState.STATION;
+					return ElevatorFSMState.STATION;
 				}
-				return FSMState.MANUAL;
+				return ElevatorFSMState.MANUAL;
 
 			case GROUND:
 				if (!input.isGroundButtonPressed()) {
-					return FSMState.MANUAL;
+					return ElevatorFSMState.MANUAL;
 				}
-				return FSMState.GROUND;
+				return ElevatorFSMState.GROUND;
 
 			case STATION:
 				if (!input.isStationButtonPressed()) {
-					return FSMState.MANUAL;
+					return ElevatorFSMState.MANUAL;
 				}
-				return FSMState.STATION;
+				return ElevatorFSMState.STATION;
 
 			case L4:
 				if (!input.isL4ButtonPressed()) {
-					return FSMState.L4;
+					return ElevatorFSMState.L4;
 				}
-				return FSMState.MANUAL;
+				return ElevatorFSMState.MANUAL;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -226,9 +225,10 @@ public class ElevatorFSMSystem {
 	private void handleManualState(TeleopInput input) {
 		if (groundLimitSwitch.get()) {
 			elevatorMotor.set(0);
+			elevatorMotor.setPosition(0);
 		} else {
 			double signalInput = input.getManualElevatorMovementInput();
-			if (Math.abs(signalInput) > DEADBAND_WIDTH / 2) {
+			if (Math.abs(signalInput) > JOYSTICK_DEADBAND_WIDTH / 2) {
 				elevatorMotor.set(signalInput);
 			}
 		}
@@ -242,6 +242,7 @@ public class ElevatorFSMSystem {
 	private void handleGroundState(TeleopInput input) {
 		if (groundLimitSwitch.get()) {
 			elevatorMotor.set(0);
+			elevatorMotor.setPosition(0);
 		} else {
 			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
 		}

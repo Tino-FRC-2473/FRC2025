@@ -38,29 +38,29 @@ public class TeleopInput {
 	// control mapping is hidden from other classes.
 
 	/**
-	 * Get the value of the source elevator target button.
-	 * @return True if button is pressed
+	 * Get the value of the source elevator target button (cross).
+	 * @return If the button is pressed
 	 */
 	public boolean isStationButtonPressed() {
 		return mechController.getCrossButton();
 	}
 	/**
-	 * Get the value of the L4 elevator target button.
-	 * @return True if button is pressed
+	 * Get the value of the L4 elevator target button (triangle).
+	 * @return If the button is pressed
 	 */
 	public boolean isL4ButtonPressed() {
 		return mechController.getTriangleButton();
 	}
 	/**
-	 * Get the value of the ground elevator target button.
-	 * @return True if button is pressed
+	 * Get the value of the ground elevator target button (circle).
+	 * @return If the button is pressed
 	 */
 	public boolean isGroundButtonPressed() {
 		return mechController.getCircleButton();
 	}
 
 	/**
-	 * Get the value of the control for manual elevator movement.
+	 * Get the manual elevator movement input (right stick Y).
 	 * @return A double in range [-1,1] representing the control input
 	 */
 	public double getManualElevatorMovementInput() {
