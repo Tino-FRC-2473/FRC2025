@@ -1,14 +1,14 @@
-# Mechanism 2 FSM Spec
+# Funnel FSM Spec
 
 ```mermaid
 ---
-title: Mechanism 2 Subsystem State Diagram
+title: Funnel State Diagram
 ---
 stateDiagram-v2
-  state "Start State" as START_STATE
-  state "Other State" as OTHER_STATE
+  state "Outtake" as OUTTAKE
+  state "Idle" as IDLE
 
-  [*] --> START_STATE
-  START_STATE --> OTHER_STATE: Button pressed
-  OTHER_STATE --> START_STATE: Timer > 5 seconds
+  [*] --> IDLE
+  IDLE --> OUTTAKE: Outtake button pressed
+  OUTTAKE --> IDLE: No input
 ```
