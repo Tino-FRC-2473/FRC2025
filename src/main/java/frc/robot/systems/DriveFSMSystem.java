@@ -35,7 +35,7 @@ public class DriveFSMSystem {
 	 */
 	public DriveFSMSystem() {
 		// Perform hardware init
-		exampleMotor = new SparkMax(HardwareMap.CAN_ID_SPARK_SHOOTER,
+		exampleMotor = new SparkMax(HardwareMap.CAN_ID_ELEVATOR,
 										SparkMax.MotorType.kBrushless);
 
 		// Reset state machine

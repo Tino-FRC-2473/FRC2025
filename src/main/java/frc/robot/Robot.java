@@ -33,8 +33,8 @@ public class Robot extends LoggedRobot {
 
 	// Systems
 	private DriveFSMSystem driveSystem;
-	private FunnelFSMSystem mech1System;
-	private ElevatorFSMSystem mech2System;
+	private FunnelFSMSystem elevatorSystem;
+	private ElevatorFSMSystem funnelSystem;
 
 	private AutoHandlerSystem autoHandler;
 
@@ -69,13 +69,13 @@ public class Robot extends LoggedRobot {
 		}
 
 		if (HardwareMap.isMech1HardwarePresent()) {
-			mech1System = new FunnelFSMSystem();
+			elevatorSystem = new FunnelFSMSystem();
 		}
 
 		if (HardwareMap.isMech2HardwarePresent()) {
-			mech2System = new ElevatorFSMSystem();
+			funnelSystem = new ElevatorFSMSystem();
 		}
-		autoHandler = new AutoHandlerSystem(driveSystem, mech1System, mech2System);
+		autoHandler = new AutoHandlerSystem(driveSystem, elevatorSystem, funnelSystem);
 	}
 
 	@Override
@@ -93,15 +93,15 @@ public class Robot extends LoggedRobot {
 	public void teleopInit() {
 		System.out.println("-------- Teleop Init --------");
 		driveSystem.reset();
-		mech1System.reset();
-		mech2System.reset();
+		elevatorSystem.reset();
+		funnelSystem.reset();
 	}
 
 	@Override
 	public void teleopPeriodic() {
 		driveSystem.update(input);
-		mech1System.update(input);
-		mech2System.update(input);
+		elevatorSystem.update(input);
+		funnelSystem.update(input);
 	}
 
 	@Override

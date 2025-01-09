@@ -1,31 +1,49 @@
 package frc.robot.systems;
 
+
 // WPILib Imports
 
 // Third party Hardware Imports
-import com.revrobotics.spark.SparkMax;
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.Constants;
+import frc.robot.HardwareMap;
 
 // Robot Imports
+
 import frc.robot.TeleopInput;
-import frc.robot.HardwareMap;
 import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
+
 
 public class ElevatorFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum FSMState {
-		START_STATE,
-		OTHER_STATE
+		MANUAL,
+		GROUND,
+		STATION,
+		L4
 	}
 
-	private static final float MOTOR_RUN_POWER = 0.1f;
+	private static final double DEADBAND_WIDTH = 0.1;
 
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
-	private SparkMax exampleMotor;
+
+	private TalonFX elevatorMotor;
+
+	private final MotionMagicVoltage mmVoltage = new MotionMagicVoltage(0);
+
+	private DigitalInput groundLimitSwitch;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -35,8 +53,43 @@ public class ElevatorFSMSystem {
 	 */
 	public ElevatorFSMSystem() {
 		// Perform hardware init
-		exampleMotor = new SparkMax(HardwareMap.CAN_ID_SPARK_SHOOTER,
-										SparkMax.MotorType.kBrushless);
+
+		//perform kraken init
+		elevatorMotor = new TalonFX(HardwareMap.CAN_ID_ELEVATOR);
+
+		// elevatorMotor.setPosition(0); // reset kraken encoder(only use when tuning)
+		elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+
+		var talonFXConfigs = new TalonFXConfiguration();
+		// set slot 0 gains
+		var slot0Configs = talonFXConfigs.Slot0;
+		slot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
+		slot0Configs.kG = Constants.MM_CONSTANT_G; // Voltage output to overcome gravity
+		slot0Configs.kS = Constants.MM_CONSTANT_S; // Voltage output to overcome static friction
+		slot0Configs.kV = Constants.MM_CONSTANT_V; // Voltage for velocity target of 1 rps
+		slot0Configs.kA = Constants.MM_CONSTANT_A; // Voltage for acceleration of 1 rps/s
+		slot0Configs.kP = Constants.MM_CONSTANT_P; // Account for position error of 1 rotations
+		slot0Configs.kI = Constants.MM_CONSTANT_I; // output for integrated error
+		slot0Configs.kD = Constants.MM_CONSTANT_D; // Account for velocity error of 1 rps
+
+		// set Motion Magic settings
+		var motionMagicConfigs = talonFXConfigs.MotionMagic;
+		motionMagicConfigs.MotionMagicCruiseVelocity = Constants.CONFIG_CONSTANT_CV; //Target velo
+		motionMagicConfigs.MotionMagicAcceleration = Constants.CONFIG_CONSTANT_A; //Target accel
+		motionMagicConfigs.MotionMagicJerk = Constants.CONFIG_CONSTANT_J; // Target jerk
+
+		elevatorMotor.getConfigurator().apply(talonFXConfigs);
+
+		BaseStatusSignal.setUpdateFrequencyForAll(
+			Constants.UPDATE_FREQUENCY_HZ,
+			elevatorMotor.getPosition(),
+			elevatorMotor.getVelocity(),
+			elevatorMotor.getAcceleration(),
+			elevatorMotor.getMotorVoltage());
+
+		elevatorMotor.optimizeBusUtilization();
+
+		groundLimitSwitch = new DigitalInput(HardwareMap.PORT_ELEVATOR_LIMIT_SWITCH);
 
 		// Reset state machine
 		reset();
@@ -59,7 +112,7 @@ public class ElevatorFSMSystem {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FSMState.START_STATE;
+		currentState = FSMState.MANUAL;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -73,12 +126,18 @@ public class ElevatorFSMSystem {
 	 */
 	public void update(TeleopInput input) {
 		switch (currentState) {
-			case START_STATE:
-				handleStartState(input);
+			case MANUAL:
+				handleManualState(input);
 				break;
 
-			case OTHER_STATE:
-				handleOtherState(input);
+			case GROUND:
+				handleGroundState(input);
+				break;
+			case STATION:
+				handleStationState(input);
+				break;
+			case L4:
+				handleL4State(input);
 				break;
 
 			default:
@@ -117,15 +176,41 @@ public class ElevatorFSMSystem {
 	 */
 	private FSMState nextState(TeleopInput input) {
 		switch (currentState) {
-			case START_STATE:
-				if (input != null) {
-					return FSMState.OTHER_STATE;
-				} else {
-					return FSMState.START_STATE;
+			case MANUAL:
+				if (input.isGroundButtonPressed()
+					&& !input.isL4ButtonPressed()
+					&& !input.isStationButtonPressed()) {
+					return FSMState.GROUND;
 				}
+				if (input.isL4ButtonPressed()
+					&& !input.isGroundButtonPressed()
+					&& !input.isStationButtonPressed()) {
+					return FSMState.L4;
+				}
+				if (input.isStationButtonPressed()
+					&& !input.isL4ButtonPressed()
+					&& !input.isGroundButtonPressed()) {
+					return FSMState.STATION;
+				}
+				return FSMState.MANUAL;
 
-			case OTHER_STATE:
-				return FSMState.OTHER_STATE;
+			case GROUND:
+				if (!input.isGroundButtonPressed()) {
+					return FSMState.MANUAL;
+				}
+				return FSMState.GROUND;
+
+			case STATION:
+				if (!input.isStationButtonPressed()) {
+					return FSMState.MANUAL;
+				}
+				return FSMState.STATION;
+
+			case L4:
+				if (!input.isL4ButtonPressed()) {
+					return FSMState.L4;
+				}
+				return FSMState.MANUAL;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -134,20 +219,50 @@ public class ElevatorFSMSystem {
 
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
-	 * Handle behavior in START_STATE.
+	 * Handle behavior in MANUAL.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleStartState(TeleopInput input) {
-		exampleMotor.set(0);
+	private void handleManualState(TeleopInput input) {
+		if (groundLimitSwitch.get()) {
+			elevatorMotor.set(0);
+		} else {
+			double signalInput = input.getManualElevatorMovementInput();
+			if (Math.abs(signalInput) > DEADBAND_WIDTH / 2) {
+				elevatorMotor.set(signalInput);
+			}
+		}
 	}
+
 	/**
-	 * Handle behavior in OTHER_STATE.
+	 * Handle behavior in GROUND.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleOtherState(TeleopInput input) {
-		exampleMotor.set(MOTOR_RUN_POWER);
+	private void handleGroundState(TeleopInput input) {
+		if (groundLimitSwitch.get()) {
+			elevatorMotor.set(0);
+		} else {
+			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
+		}
+	}
+
+	/**
+	 * Handle behavior in STATION.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleStationState(TeleopInput input) {
+		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_STATION));
+	}
+
+	/**
+	 * Handle behavior in L4.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleL4State(TeleopInput input) {
+		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
 	}
 
 	/**
