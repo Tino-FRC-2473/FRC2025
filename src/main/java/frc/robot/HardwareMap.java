@@ -30,15 +30,15 @@ public final class HardwareMap {
 	 * Check if mech 1 hardware is available to the RoboRIO.
 	 * @return true if mech hardware is present
 	 */
-	public static boolean isMech1HardwarePresent() {
-		return false;
+	public static boolean isElevatorHardwarePresent() {
+		return true;
 	}
 
 	/**
 	 * Check if mech 2 hardware is available to the RoboRIO.
 	 * @return true if mech 2 hardware is present
 	 */
-	public static boolean isMech2HardwarePresent() {
+	public static boolean isFunnelHardwarePresent() {
 		return false;
 	}
 

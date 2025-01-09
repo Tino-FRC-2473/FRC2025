@@ -52,6 +52,8 @@ public class Robot extends LoggedRobot {
 			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
 			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
 			new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+		} else if (isSimulation()) {
+			Logger.addDataReceiver(new NT4Publisher());
 		} else {
 			setUseTiming(false); // Run as fast as possible
 			String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope
@@ -64,16 +66,17 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
+		// TODO: MAKE AN ELSE CHECK TO AVOID NULLPOINTER ERROR
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
 
-		if (HardwareMap.isMech1HardwarePresent()) {
-			funnelSystem = new FunnelFSMSystem();
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			elevatorSystem = new ElevatorFSMSystem();
 		}
 
-		if (HardwareMap.isMech2HardwarePresent()) {
-			elevatorSystem = new ElevatorFSMSystem();
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			funnelSystem = new FunnelFSMSystem();
 		}
 		autoHandler = new AutoHandlerSystem(driveSystem, funnelSystem, elevatorSystem);
 	}
@@ -92,16 +95,28 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void teleopInit() {
 		System.out.println("-------- Teleop Init --------");
-		driveSystem.reset();
-		funnelSystem.reset();
-		elevatorSystem.reset();
+		if (driveSystem != null) {
+			driveSystem.reset();
+		}
+		if (funnelSystem != null) {
+			funnelSystem.reset();
+		}
+		if (elevatorSystem != null) {
+			elevatorSystem.reset();
+		}
 	}
 
 	@Override
 	public void teleopPeriodic() {
-		driveSystem.update(input);
-		funnelSystem.update(input);
-		elevatorSystem.update(input);
+		if (driveSystem != null) {
+			driveSystem.update(input);
+		}
+		if (funnelSystem != null) {
+			funnelSystem.update(input);
+		}
+		if (elevatorSystem != null) {
+			elevatorSystem.update(input);
+		}
 	}
 
 	@Override

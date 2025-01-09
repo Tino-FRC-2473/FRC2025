@@ -12,8 +12,10 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.HardwareMap;
+import frc.robot.Robot;
 
 // Robot Imports
 
@@ -127,6 +129,9 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
+		if (input == null) {
+			return;
+		}
 		switch (currentState) {
 			case MANUAL:
 				handleManualState(input);
@@ -144,6 +149,18 @@ public class ElevatorFSMSystem {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
+
+		// telemetry and logging
+
+		SmartDashboard.putNumber("Elevator encoder",
+			elevatorMotor.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("Elevator velocity",
+			elevatorMotor.getVelocity().getValueAsDouble());
+
+		SmartDashboard.putBoolean("Elevator limit switch pressed", isLimitReached());
+
+		SmartDashboard.putString("Elevator State", currentState.toString());
+
 	}
 
 	/**
@@ -175,6 +192,9 @@ public class ElevatorFSMSystem {
 	 * @return FSM state for the next iteration
 	 */
 	private ElevatorFSMState nextState(TeleopInput input) {
+		if (input == null) {
+			return ElevatorFSMState.MANUAL;
+		}
 		switch (currentState) {
 			case MANUAL:
 				if (input.isGroundButtonPressed()
@@ -208,13 +228,24 @@ public class ElevatorFSMSystem {
 
 			case L4:
 				if (!input.isL4ButtonPressed()) {
-					return ElevatorFSMState.L4;
+					return ElevatorFSMState.MANUAL;
 				}
-				return ElevatorFSMState.MANUAL;
+				return ElevatorFSMState.L4;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
+	}
+
+	/**
+	 * Getter for the result of the elevator's limit switch.
+	 * @return whether the limit is reached
+	 */
+	private boolean isLimitReached() {
+		if (Robot.isSimulation()) {
+			return elevatorMotor.getPosition().getValueAsDouble() < 0;
+		}
+		return !groundLimitSwitch.get();
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
@@ -224,14 +255,18 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleManualState(TeleopInput input) {
-		if (groundLimitSwitch.get()) {
-			elevatorMotor.set(0);
+		double signalInput = input.getManualElevatorMovementInput();
+		if (isLimitReached()) {
 			elevatorMotor.setPosition(0);
-		} else {
-			double signalInput = input.getManualElevatorMovementInput();
-			if (Math.abs(signalInput) > JOYSTICK_DEADBAND_WIDTH / 2) {
-				elevatorMotor.set(signalInput);
+			if (signalInput < 0) {
+				elevatorMotor.set(0);
+				return;
 			}
+		}
+		if (Math.abs(signalInput) > JOYSTICK_DEADBAND_WIDTH / 2) {
+			elevatorMotor.set(signalInput);
+		} else {
+			elevatorMotor.set(0);
 		}
 	}
 
@@ -241,7 +276,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleGroundState(TeleopInput input) {
-		if (groundLimitSwitch.get()) {
+		if (isLimitReached()) {
 			elevatorMotor.set(0);
 			elevatorMotor.setPosition(0);
 		} else {

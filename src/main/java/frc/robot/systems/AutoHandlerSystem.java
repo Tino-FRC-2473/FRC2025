@@ -26,8 +26,8 @@ public class AutoHandlerSystem {
 
 	//FSM Systems that the autoHandlerFSM uses
 	private DriveFSMSystem driveSystem;
-	private FunnelFSMSystem mech1System;
-	private ElevatorFSMSystem mech2System;
+	private FunnelFSMSystem elevatorSystem;
+	private ElevatorFSMSystem funnelSystem;
 
 	//Predefined auto paths
 	private static final AutoFSMState[] PATH1 = new AutoFSMState[]{
@@ -48,8 +48,8 @@ public class AutoHandlerSystem {
 	 */
 	public AutoHandlerSystem(DriveFSMSystem fsm1, FunnelFSMSystem fsm2, ElevatorFSMSystem fsm3) {
 		driveSystem = fsm1;
-		mech1System = fsm2;
-		mech2System = fsm3;
+		elevatorSystem = fsm2;
+		funnelSystem = fsm3;
 	}
 
 	/* ======================== Public methods ======================== */
@@ -75,12 +75,12 @@ public class AutoHandlerSystem {
 			driveSystem.reset();
 		}
 
-		if (HardwareMap.isMech1HardwarePresent()) {
-			mech1System.reset();
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			elevatorSystem.reset();
 		}
 
-		if (HardwareMap.isMech2HardwarePresent()) {
-			mech2System.reset();
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			funnelSystem.reset();
 		}
 
 		currentStateIndex = 0;
@@ -105,8 +105,8 @@ public class AutoHandlerSystem {
 		SmartDashboard.putString("Auto State", getCurrentState().toString());
 
 		isCurrentStateFinished &= driveSystem.updateAutonomous(getCurrentState());
-		isCurrentStateFinished &= mech1System.updateAutonomous(getCurrentState());
-		isCurrentStateFinished &= mech2System.updateAutonomous(getCurrentState());
+		isCurrentStateFinished &= elevatorSystem.updateAutonomous(getCurrentState());
+		isCurrentStateFinished &= funnelSystem.updateAutonomous(getCurrentState());
 
 		if (isCurrentStateFinished) {
 			currentStateIndex++;

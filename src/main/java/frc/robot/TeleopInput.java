@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.PS4Controller;
  */
 public class TeleopInput {
 	/* ======================== Constants ======================== */
-	private static final int MECH_CONTROLLER_PORT = 0;
-	private static final int DRIVE_CONTROLLER_PORT = 1;
+	private static final int DRIVE_CONTROLLER_PORT = 0;
+	private static final int MECH_CONTROLLER_PORT = 1;
 
 	/* ======================== Private variables ======================== */
 	// Input objects
