@@ -4,7 +4,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -32,9 +31,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain {
 	private static final Rotation2d RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.k180deg;
 	/* Keep track if we've ever applied the operator perspective before or not */
 	private boolean hasAppliedOperatorPerspective = false;
-
-	private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds =
-		new SwerveRequest.ApplyRobotSpeeds();
 
 	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
 		new SwerveRequest.ApplyFieldSpeeds();
@@ -110,8 +106,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain {
 	}
 
 	/**
-	 * Get the SwerveModulePosition for localized odo
-	 * @return
+	 * Get the SwerveModulePosition for localized odo.
+	 * @return swerve module position
 	 */
 	public SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] pos = new SwerveModulePosition[(2 + 2)];

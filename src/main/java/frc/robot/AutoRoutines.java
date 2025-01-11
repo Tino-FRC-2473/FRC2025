@@ -7,16 +7,17 @@ import frc.robot.systems.DriveFSMSystem;
 
 public class AutoRoutines {
 	private AutoFactory autoFactory;
-	private DriveFSMSystem system;
+	private DriveFSMSystem driveSystem;
 
 	/**
 	 * Constructs an AutoRoutines object with the specified AutoFactory.
 	 *
 	 * @param factory the AutoFactory to use for creating auto routines
+	 * @param system the DriveFSMSystem
 	 */
 	public AutoRoutines(AutoFactory factory, DriveFSMSystem system) {
 		autoFactory = factory;
-		this.system = system;
+		driveSystem = system;
 	}
 
 	/**
@@ -33,7 +34,7 @@ public class AutoRoutines {
 			path1.resetOdometry()
 			.andThen(path1.cmd())
 			.andThen(path2.cmd())
-			.andThen(system.brakeCommand())
+			.andThen(driveSystem.brakeCommand())
 		);
 		return routine;
 	}

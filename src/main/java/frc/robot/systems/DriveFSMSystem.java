@@ -2,9 +2,7 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,7 +35,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private final SlewRateLimiter xLimiter = new SlewRateLimiter(2);
 	private final SlewRateLimiter yLimiter = new SlewRateLimiter(0.5);
 	private final SlewRateLimiter rotLimiter = new SlewRateLimiter(0.5);
-	private final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+	private final double maxSpeed = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
 		// kSpeedAt12Volts desired top speed
 	private final double maxAngularRate =
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
@@ -169,8 +167,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		logger.applyStateLogging(drivetrain.getState());
 		drivetrain.applyOperatorPerspective();
 
-		applyVisionCorrection();
-
 		drivetrain.setControl(
 			drive.withVelocityX(-MathUtil.applyDeadband(
 				input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
@@ -201,6 +197,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 	}
 
+	/**
+	 * Returns a command that sets the drivetrain to brake mode.
+	 * @return A command that sets the drivetrain to brake mode.
+	 */
 	public Command brakeCommand() {
 		class BrakeCommand extends Command {
 			@Override
