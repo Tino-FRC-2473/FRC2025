@@ -1,31 +1,60 @@
 package frc.robot.systems;
 
 // WPILib Imports
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-// Third party Hardware Imports
-import com.revrobotics.spark.SparkMax;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+//CTRE Imports
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+
+import choreo.auto.AutoFactory;
+
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 // Robot Imports
 import frc.robot.TeleopInput;
-import frc.robot.HardwareMap;
-import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
+import frc.robot.constants.DriveConstants;
+import frc.robot.constants.TunerConstants;
+import frc.robot.SwerveLogging;
+import frc.robot.CommandSwerveDrivetrain;
 
-public class DriveFSMSystem {
+public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum FSMState {
-		START_STATE,
-		OTHER_STATE
+		TELEOP_STATE,
 	}
 
-	private static final float MOTOR_RUN_POWER = 0.1f;
+	private final SlewRateLimiter xLimiter = new SlewRateLimiter(2);
+	private final SlewRateLimiter yLimiter = new SlewRateLimiter(0.5);
+	private final SlewRateLimiter rotLimiter = new SlewRateLimiter(0.5);
+	private final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+		// kSpeedAt12Volts desired top speed
+	private final double maxAngularRate =
+		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
+		//3/4 rps angle velo
+
+	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+		.withDeadband(maxSpeed * DriveConstants.DRIVE_DEADBAND) // 20% deadband
+		.withRotationalDeadband(maxAngularRate * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
+	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+	private final SwerveLogging logger = new SwerveLogging(maxSpeed);
+	private CommandSwerveDrivetrain drivetrain;
 
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;
-
-	// Hardware devices should be owned by one and only one system. They must
-	// be private to their owner system and may not be used elsewhere.
-	private SparkMax exampleMotor;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -35,8 +64,7 @@ public class DriveFSMSystem {
 	 */
 	public DriveFSMSystem() {
 		// Perform hardware init
-		exampleMotor = new SparkMax(HardwareMap.CAN_ID_SPARK_SHOOTER,
-										SparkMax.MotorType.kBrushless);
+		drivetrain = TunerConstants.createDrivetrain();
 
 		// Reset state machine
 		reset();
@@ -59,7 +87,7 @@ public class DriveFSMSystem {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FSMState.START_STATE;
+		currentState = FSMState.TELEOP_STATE;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -72,13 +100,13 @@ public class DriveFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
-		switch (currentState) {
-			case START_STATE:
-				handleStartState(input);
-				break;
+		if (input == null) {
+			return;
+		}
 
-			case OTHER_STATE:
-				handleOtherState(input);
+		switch (currentState) {
+			case TELEOP_STATE:
+				handleTeleOpState(input);
 				break;
 
 			default:
@@ -89,20 +117,23 @@ public class DriveFSMSystem {
 
 	/**
 	 * Performs specific action based on the autoState passed in.
-	 * @param autoState autoState that the subsystem executes.
-	 * @return if the action carried out in this state has finished executing
 	 */
-	public boolean updateAutonomous(AutoFSMState autoState) {
-		switch (autoState) {
-			case STATE1:
-				return handleAutoState1();
-			case STATE2:
-				return handleAutoState2();
-			case STATE3:
-				return handleAutoState3();
-			default:
-				return true;
-		}
+	public void updateAutonomous() {
+		logger.applyStateLogging(drivetrain.getState());
+	}
+
+	/**
+	 * Follow the given trajectory sample.
+	 * @return An AutoFactory instance for creating autonomous routines.
+	 */
+	public AutoFactory createAutoFactory() {
+		return new AutoFactory(
+			() -> drivetrain.getState().Pose,
+			drivetrain::resetPose,
+			drivetrain::followTrajectory,
+			true,
+			this
+		);
 	}
 
 	/* ======================== Private methods ======================== */
@@ -116,16 +147,12 @@ public class DriveFSMSystem {
 	 * @return FSM state for the next iteration
 	 */
 	private FSMState nextState(TeleopInput input) {
-		switch (currentState) {
-			case START_STATE:
-				if (input != null) {
-					return FSMState.OTHER_STATE;
-				} else {
-					return FSMState.START_STATE;
-				}
 
-			case OTHER_STATE:
-				return FSMState.OTHER_STATE;
+		switch (currentState) {
+			case TELEOP_STATE:
+				if (input != null) {
+					return FSMState.TELEOP_STATE;
+				}
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -138,16 +165,52 @@ public class DriveFSMSystem {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleStartState(TeleopInput input) {
-		exampleMotor.set(0);
+	private void handleTeleOpState(TeleopInput input) {
+		logger.applyStateLogging(drivetrain.getState());
+		drivetrain.applyOperatorPerspective();
+
+		applyVisionCorrection();
+
+		drivetrain.setControl(
+			drive.withVelocityX(-MathUtil.applyDeadband(
+				input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
+				) * maxSpeed) // Drive forward with negative Y (forward)
+			.withVelocityY(
+				-MathUtil.applyDeadband(
+					input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
+					) * maxSpeed) // Drive left with negative X (left)
+			.withRotationalRate(
+				-MathUtil.applyDeadband(
+					input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
+					) * maxAngularRate) // Drive counterclockwise with negative X (left)
+		);
+
+		if (input.getDriveTriangleButton()) {
+			drivetrain.setControl(brake);
+		}
+
+		if (input.getDriveCircleButton()) {
+			drivetrain.setControl(
+				point.withModuleDirection(new Rotation2d(-input.getDriveLeftJoystickY(),
+					-input.getDriveLeftJoystickX()))
+			);
+		}
+
+		if (input.getDriveBackButtonPressed()) {
+			drivetrain.seedFieldCentric();
+		}
 	}
-	/**
-	 * Handle behavior in OTHER_STATE.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handleOtherState(TeleopInput input) {
-		exampleMotor.set(MOTOR_RUN_POWER);
+
+	public Command brakeCommand() {
+		class BrakeCommand extends Command {
+			@Override
+			public boolean isFinished() {
+				drivetrain.setControl(brake);
+				return true;
+			}
+		}
+
+		return new BrakeCommand();
 	}
 
 	/**
