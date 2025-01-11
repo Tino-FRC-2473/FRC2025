@@ -38,6 +38,9 @@ public class Robot extends LoggedRobot {
 
 	private AutoHandlerSystem autoHandler;
 
+	// Logger
+	private PowerDistribution powerLogger;
+
 	/**
 	 * This function is run when the robot is first started up and should be used for any
 	 * initialization code.
@@ -51,7 +54,8 @@ public class Robot extends LoggedRobot {
 		if (isReal()) {
 			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
 			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-			new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+			powerLogger = new PowerDistribution(1, ModuleType.kRev);
+				// Enables power distribution logging
 		} else if (isSimulation()) {
 			Logger.addDataReceiver(new NT4Publisher());
 		} else {
@@ -66,7 +70,6 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-		// TODO: MAKE AN ELSE CHECK TO AVOID NULLPOINTER ERROR
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
@@ -78,6 +81,8 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
+
+		// might cause issues down the line if some arguments are null
 		autoHandler = new AutoHandlerSystem(driveSystem, funnelSystem, elevatorSystem);
 	}
 
@@ -122,6 +127,10 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void disabledInit() {
 		System.out.println("-------- Disabled Init --------");
+		Logger.end(); // Stop logging!
+		if (powerLogger != null) {
+			powerLogger.close();
+		}
 	}
 
 	@Override
