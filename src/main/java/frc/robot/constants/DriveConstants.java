@@ -13,4 +13,6 @@ public class DriveConstants {
 
 	public static final double DRIVE_P = 0.1;
 	public static final double DRIVE_V = 0.124;
+
+	public static final double STEER_CURRENT_LIMIT = 60;
 }
