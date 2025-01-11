@@ -7,12 +7,7 @@ import time
 RES = (640, 480)
 
 tag_module = AprilTag()
-CALIB_DIR = 'cam1_photos'
-CALIB_SIZE_METERS = 0.015
-CALIB_WIDTH = 9
-CALIB_HEIGHT = 9
-#tag_module.calibrate(RES, CALIB_DIR, CALIB_SIZE_METERS, CALIB_WIDTH, CALIB_HEIGHT, visualize=True)
-#UNCOMMENT ABOVE IF CALIBRATION DATA is not in /calibration_data direcotry
+
 
 FOV = (50.28, 29.16)
 CAM_HEIGHT = 0.4

@@ -18,7 +18,8 @@ class AprilTag():
 
     def calibrate(self, RES, dirpath, square_size, width, height, blackandwhitecamera, visualize=False):
         """ Apply camera calibration operation for images in the given directory path. """
-        if(blackandwhitecamera == False):
+        if(not blackandwhitecamera):
+            print("notBlack&White")
             # termination criteria
             criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -33,6 +34,7 @@ class AprilTag():
             imgpoints = []  # 2d points in image plane.
 
             images = os.listdir(dirpath)
+            print(images)
             for fname in images:
                 print(fname)
                 img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
@@ -54,6 +56,7 @@ class AprilTag():
                     cv2.imshow('img',img)
                     cv2.waitKey(0)
 
+            print(gray.shape[::-1])
             ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
             self.camera_matrix = mtx
             self.dist_coeffs = dist
@@ -96,8 +99,8 @@ class AprilTag():
                 if visualize:
                     cv2.imshow('img',img)
                     cv2.waitKey(0)
-            print(img.shape)
-            ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[::-1], None, None)
+            #print(img.shape[:-1])
+            ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[:-1], None, None)
             self.camera_matrix = mtx
             self.dist_coeffs = dist
 

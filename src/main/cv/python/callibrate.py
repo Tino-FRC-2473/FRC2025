@@ -10,12 +10,12 @@ tag_module = AprilTag()
 #change this depending on which directory images for camera callibration are in
 CALIB_DIR = 'bw-cam1-images'
 CALIB_SIZE_METERS = 0.015
-CALIB_WIDTH = 9
-CALIB_HEIGHT = 9
-
+CALIB_WIDTH = 6
+CALIB_HEIGHT = 6
+ARUCO_LENGTH_METERS = 0.165
 
 #callibrate based on images
-tag_module.calibrate(RES, CALIB_DIR, CALIB_SIZE_METERS, CALIB_WIDTH, CALIB_HEIGHT,True, visualize=False)
+tag_module.calibrate(RES, CALIB_DIR, ARUCO_LENGTH_METERS/9, CALIB_WIDTH, CALIB_HEIGHT,True, visualize=False)
 #UNCOMMENT ABOVE IF CALIBRATION DATA is not in /calibration_data direcotry
 
 FOV = (50.28, 29.16)
