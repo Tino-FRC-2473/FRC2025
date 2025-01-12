@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
  * so it can be used in command-based projects easily.
  */
-@SuppressWarnings("rawtypes")
-public class CommandSwerveDrivetrain extends SwerveDrivetrain {
+
+public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
 
 	/* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
 	private static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
@@ -51,7 +51,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain {
 	 * @param drivetrainConstants the constants for the swerve drivetrain
 	 * @param modules the swerve modules
 	 */
-	@SuppressWarnings("unchecked")
+
 	public CommandSwerveDrivetrain(
 		SwerveDrivetrainConstants drivetrainConstants,
 		SwerveModuleConstants<?, ?, ?>... modules

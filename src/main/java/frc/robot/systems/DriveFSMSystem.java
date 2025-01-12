@@ -32,23 +32,23 @@ public class DriveFSMSystem extends SubsystemBase {
 		TELEOP_STATE,
 	}
 
-	private final SlewRateLimiter xLimiter = new SlewRateLimiter(2);
-	private final SlewRateLimiter yLimiter = new SlewRateLimiter(0.5);
-	private final SlewRateLimiter rotLimiter = new SlewRateLimiter(0.5);
-	private final double maxSpeed = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
+	private static final SlewRateLimiter X_LIMITER = new SlewRateLimiter(2);
+	private static final SlewRateLimiter Y_LIMITER = new SlewRateLimiter(0.5);
+	private static final SlewRateLimiter ROT_LIMITER = new SlewRateLimiter(0.5);
+	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
 		// kSpeedAt12Volts desired top speed
 	private final double maxAngularRate =
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
 		//3/4 rps angle velo
 
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-		.withDeadband(maxSpeed * DriveConstants.DRIVE_DEADBAND) // 20% deadband
+		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
 		.withRotationalDeadband(maxAngularRate * DriveConstants.ROTATION_DEADBAND) //10% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-	private final SwerveLogging logger = new SwerveLogging(maxSpeed);
+	private final SwerveLogging logger = new SwerveLogging(MAX_SPEED);
 	private CommandSwerveDrivetrain drivetrain;
 
 	/* ======================== Private variables ======================== */
@@ -170,11 +170,11 @@ public class DriveFSMSystem extends SubsystemBase {
 		drivetrain.setControl(
 			drive.withVelocityX(-MathUtil.applyDeadband(
 				input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
-				) * maxSpeed) // Drive forward with negative Y (forward)
+				) * MAX_SPEED) // Drive forward with negative Y (forward)
 			.withVelocityY(
 				-MathUtil.applyDeadband(
 					input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * maxSpeed) // Drive left with negative X (left)
+					) * MAX_SPEED) // Drive left with negative X (left)
 			.withRotationalRate(
 				-MathUtil.applyDeadband(
 					input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
