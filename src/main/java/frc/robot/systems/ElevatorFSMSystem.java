@@ -31,7 +31,7 @@ public class ElevatorFSMSystem {
 		MANUAL,
 		GROUND,
 		STATION,
-		L4
+		LEVEL4
 	}
 
 	private static final double JOYSTICK_DEADBAND = 0.1;
@@ -130,6 +130,12 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
+		BaseStatusSignal.refreshAll(
+			elevatorMotor.getPosition(),
+			elevatorMotor.getVelocity(),
+			elevatorMotor.getAcceleration(),
+			elevatorMotor.getMotorVoltage());
+
 		if (input == null) {
 			return;
 		}
@@ -143,7 +149,7 @@ public class ElevatorFSMSystem {
 			case STATION:
 				handleStationState(input);
 				break;
-			case L4:
+			case LEVEL4:
 				handleL4State(input);
 				break;
 			default:
@@ -206,7 +212,7 @@ public class ElevatorFSMSystem {
 				if (input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isStationButtonPressed()) {
-					return ElevatorFSMState.L4;
+					return ElevatorFSMState.LEVEL4;
 				}
 				if (input.isStationButtonPressed()
 					&& !input.isL4ButtonPressed()
@@ -227,11 +233,11 @@ public class ElevatorFSMSystem {
 				}
 				return ElevatorFSMState.STATION;
 
-			case L4:
+			case LEVEL4:
 				if (!input.isL4ButtonPressed()) {
 					return ElevatorFSMState.MANUAL;
 				}
-				return ElevatorFSMState.L4;
+				return ElevatorFSMState.LEVEL4;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -291,7 +297,7 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
-	 * Handle behavior in L4.
+	 * Handle behavior in LEVEL4.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */

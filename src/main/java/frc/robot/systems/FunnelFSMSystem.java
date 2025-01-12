@@ -3,11 +3,9 @@ package frc.robot.systems;
 // WPILib Imports
 
 // Third party Hardware Imports
-import com.revrobotics.spark.SparkMax;
 
 // Robot Imports
 import frc.robot.TeleopInput;
-import frc.robot.HardwareMap;
 import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
 public class FunnelFSMSystem {
@@ -18,14 +16,11 @@ public class FunnelFSMSystem {
 		OTHER_STATE
 	}
 
-	private static final float MOTOR_RUN_POWER = 0.1f;
-
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
-	private SparkMax exampleMotor;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -35,8 +30,6 @@ public class FunnelFSMSystem {
 	 */
 	public FunnelFSMSystem() {
 		// Perform hardware init
-		exampleMotor = new SparkMax(HardwareMap.CAN_ID_ELEVATOR,
-										SparkMax.MotorType.kBrushless);
 
 		// Reset state machine
 		reset();
@@ -139,7 +132,7 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleStartState(TeleopInput input) {
-		exampleMotor.set(0);
+
 	}
 	/**
 	 * Handle behavior in OTHER_STATE.
@@ -147,7 +140,7 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOtherState(TeleopInput input) {
-		exampleMotor.set(MOTOR_RUN_POWER);
+
 	}
 
 	/**

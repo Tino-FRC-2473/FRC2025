@@ -66,7 +66,6 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-		// TODO: MAKE AN ELSE CHECK TO AVOID NULLPOINTER ERROR
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
