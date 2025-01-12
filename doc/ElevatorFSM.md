@@ -18,5 +18,6 @@ L4 --> MANUAL: !△ button
 STATION --> MANUAL: !X button
 GROUND --> MANUAL:  !O button
 
+note: Limit switch at bottom zeroes encoder and stops downwards movement
 
 ```

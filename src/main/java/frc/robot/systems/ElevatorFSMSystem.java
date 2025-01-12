@@ -270,7 +270,7 @@ public class ElevatorFSMSystem {
 				return;
 			}
 		}
-		elevatorMotor.set(MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND, 1.0));
+		elevatorMotor.set(MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND));
 	}
 
 	/**
