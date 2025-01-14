@@ -9,7 +9,7 @@ package frc.robot.systems;
 import frc.robot.TeleopInput;
 import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
-public class DriveFSMSystem extends FSMSystem {
+public class DriveFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum FSMState {

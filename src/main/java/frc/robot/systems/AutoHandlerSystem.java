@@ -39,11 +39,12 @@ public class AutoHandlerSystem {
 	private static final AutoFSMState[] PATH3 = new AutoFSMState[]{
 		AutoFSMState.STATE1, AutoFSMState.STATE3, AutoFSMState.STATE2};
 	/* ======================== Constructor ======================== */
-
 	/**
 	 * Create FSMSystem and initialize to starting state.
 	 * Initializes any subsystems such as driveFSM, armFSM, ect.
-	 * @param robotSystems the subsystems that the auto handler will call functions on
+	 * @param fsm1 the first subsystem that the auto handler will call functions on
+	 * @param fsm2 the second subsystem that the auto handler will call functions on
+	 * @param fsm3 the third subsystem that the auto handler will call functions on
 	 */
 	public AutoHandlerSystem(DriveFSMSystem fsm1, FunnelFSMSystem fsm2, ElevatorFSMSystem fsm3) {
 		driveSystem = fsm1;
@@ -70,6 +71,9 @@ public class AutoHandlerSystem {
 	 * @param path the auto path to be executed
 	 */
 	public void reset(AutoPath path) {
+		if (HardwareMap.isDriveHardwarePresent()) {
+			driveSystem.reset();
+		}
 
 		if (HardwareMap.isElevatorHardwarePresent()) {
 			elevatorSystem.reset();

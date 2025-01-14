@@ -13,7 +13,6 @@ public final class HardwareMap {
 	public static final int ELEVATOR_LIMIT_SWITCH_PORT = 0;
 
 	/* ===== Hardware Availability ===== */
-
 	/**
 	 * Check if drive hardware is available to the RoboRIO.
 	 * @return true if drive hardware is present
