@@ -3,6 +3,7 @@ import cv2
 import os
 import math
 import pupil_apriltags as apriltag
+from pathlib import Path
 
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
@@ -11,14 +12,15 @@ import pupil_apriltags as apriltag
 class AprilTag():
 
     def __init__(self):
-        self.camera_matrix = np.load(os.path.dirname(os.path.abspath(__file__)) + '/calibration_data/camera1_matrix.npy')
-        self.dist_coeffs = np.load(os.path.dirname(os.path.abspath(__file__)) + '/calibration_data/camera1_dist.npy')
+        basePath = Path(__file__).resolve().parent
+        self.camera_matrix = np.load(os.path.join(basePath, 'calibration_data', 'camera1_matrix.npy'))
+        self.dist_coeffs = np.load(os.path.join(basePath, 'calibration_data', 'camera1_dist.npy'))
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         pass
 
-    def calibrate(self, RES, dirpath, square_size, width, height, blackandwhitecamera, visualize=False):
+    def calibrate(self, RES, dirpath, square_size, width, height, camera_bw, visualize=False):
         """ Apply camera calibration operation for images in the given directory path. """
-        if(not blackandwhitecamera):
+        if(not camera_bw):
             print("notBlack&White")
             # termination criteria
             criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -145,7 +147,6 @@ class AprilTag():
         try:
             # Define the 3D coordinates of the marker corners in the marker coordinate system
             marker_points_3d = np.array([[-marker_size/2, -marker_size/2, 0], [marker_size/2, -marker_size/2, 0], [marker_size/2, marker_size/2, 0], [-marker_size/2, marker_size/2, 0]], dtype=np.float32)
-            #marker_points_3d = np.array([[0,0,0], [marker_size,0,0], [marker_size, marker_size, 0], [0, marker_size, 0]])
             # Convert image points to float32
             image_points_2d = corners
 
