@@ -2,6 +2,17 @@
 import os
 import time
 import csv
+import subprocess
+
+def ping(ip):
+    try:
+        subprocess.check_call(["ping", "-c", "1", ip], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return "SUCCESS (0)"
+    except subprocess.CalledProcessError as e:
+        return f"FAIL ({e.returncode})"
+    except Exception as e:
+        return f"ERROR ({e})"
+
 def main():
     try:
         with open(f"pinglogs {time.ctime(time.time())}.csv", mode='w', newline='') as csvfile:
@@ -12,8 +23,7 @@ def main():
             while True:
                 replies = [time.ctime(time.time())]
                 for ip in ips:
-                    reply = os.system(f"ping -c 1 {ip} > /dev/null 2>&1")
-                    replies.append("SUCCESS (0)" if reply == 0 else f"FAIL ({reply})")
+                    replies.append(ping(ip))
                 writer.writerow(replies)
                 csvfile.flush()
                 print(replies)
