@@ -178,11 +178,19 @@ class AprilTag():
                     # Estimate the pose
                     tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
                     
-                    pose_data[ids[i]] = (cvec, tvec)
+                    pose_data[ids[i]] = (cvec, tvec, rvec)
                     
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
             else: 
                 return None
             return pose_data
+    
+    def get_pose_list_from_data(pose_data):
+        pose_list = [4000 for _ in range(22 * 6)]
+        for key, value in pose_data.items():
+            pose_list[(key - 1) * 6 : (key * 6)] = np.concatenate((value[0].flatten(), value[1].flatten()), axis=0).tolist()
+        return pose_list
+
+
 
 
