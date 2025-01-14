@@ -6,11 +6,11 @@ package frc.robot;
  */
 public final class HardwareMap {
 	// ID numbers for devices on the CAN bus
-	public static final int CAN_ID_SPARK_DRIVE_FRONT_RIGHT = 1;
-	public static final int CAN_ID_SPARK_DRIVE_BACK_RIGHT = 2;
-	public static final int CAN_ID_SPARK_DRIVE_FRONT_LEFT = 3;
-	public static final int CAN_ID_SPARK_DRIVE_BACK_LEFT = 4;
-	public static final int CAN_ID_SPARK_SHOOTER = 5;
+	public static final int CAN_ID_ELEVATOR = 5;
+
+	// sensor ports
+
+	public static final int ELEVATOR_LIMIT_SWITCH_PORT = 0;
 
 	/* ===== Hardware Availability ===== */
 	/**
@@ -22,18 +22,18 @@ public final class HardwareMap {
 	}
 
 	/**
-	 * Check if mech 1 hardware is available to the RoboRIO.
-	 * @return true if mech hardware is present
+	 * Check if elevator hardware is available to the RoboRIO.
+	 * @return true if elevator hardware is present
 	 */
-	public static boolean isMech1HardwarePresent() {
-		return false;
+	public static boolean isElevatorHardwarePresent() {
+		return true;
 	}
 
 	/**
-	 * Check if mech 2 hardware is available to the RoboRIO.
-	 * @return true if mech 2 hardware is present
+	 * Check if funnel hardware is available to the RoboRIO.
+	 * @return true if funnel hardware is present
 	 */
-	public static boolean isMech2HardwarePresent() {
+	public static boolean isFunnelHardwarePresent() {
 		return false;
 	}
 

@@ -17,8 +17,8 @@ public class TeleopInput {
 
 	/* ======================== Private variables ======================== */
 	// Input objects
-	private PS4Controller driveController;
 	private PS4Controller mechController;
+	private PS4Controller driveController;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -27,8 +27,9 @@ public class TeleopInput {
 	 * by WPILib until teleop mode.
 	 */
 	public TeleopInput() {
-		driveController = new PS4Controller(DRIVE_CONTROLLER_PORT);
 		mechController = new PS4Controller(MECH_CONTROLLER_PORT);
+
+		driveController = new PS4Controller(DRIVE_CONTROLLER_PORT);
 	}
 
 	/* ======================== Public methods ======================== */
@@ -80,20 +81,46 @@ public class TeleopInput {
 		return driveController.getShareButton();
 	}
 
-	/* ------------------------ Right Joystick ------------------------ */
+	/* ------------------------ Mech Controller ------------------------ */
+
 	/**
-	 * Get X axis of Right Joystick.
-	 * @return Axis value
+	 * Get the value of the source elevator target button (cross).
+	 * @return If the button is pressed
+	 */
+	public boolean isStationButtonPressed() {
+		return mechController.getCrossButton();
+	}
+
+	/**
+	 * Get the value of the L4 elevator target button (triangle).
+	 * @return If the button is pressed
+	 */
+	public boolean isL4ButtonPressed() {
+		return mechController.getTriangleButton();
+	}
+
+	/**
+	 * Get the value of the ground elevator target button (circle).
+	 * @return If the button is pressed
+	 */
+	public boolean isGroundButtonPressed() {
+		return mechController.getCircleButton();
+	}
+
+	/**
+	 * Get the manual elevator movement input (right stick Y).
+	 * @return A double in the range [-1,1] representing the control input
 	 */
 	public double getMechLeftJoystickX() {
 		return mechController.getLeftX();
 	}
+
 	/**
 	 * Get Y axis of Right Joystick.
 	 * @return Axis value
 	 */
-	public double getMechLeftJoystickY() {
-		return mechController.getLeftY();
+	public double getManualElevatorMovementInput() {
+		return mechController.getRightY();
 	}
 
 	/* ======================== Private methods ======================== */

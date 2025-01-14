@@ -3,27 +3,36 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-
+// Third Party Imports
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 // WPILib Imports
-import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.constants.TunerConstants;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+
 // Systems
+import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
-// import frc.robot.systems.Mech1FSMSystem;
-// import frc.robot.systems.Mech2FSMSystem;
-// import frc.robot.systems.AutoHandlerSystem;
-// import frc.robot.systems.AutoHandlerSystem.AutoPath;
+
+// Robot Imports
+import frc.robot.constants.TunerConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
 	private TeleopInput input;
 	private TunerConstants constants;
 
@@ -34,10 +43,12 @@ public class Robot extends TimedRobot {
 	private AutoRoutines autoRoutines;
 	private AutoChooser autoChooser = new AutoChooser();
 	private Command autCommand;
-	// private Mech1FSMSystem mech1System;
-	// private Mech2FSMSystem mech2System;
+	private FunnelFSMSystem funnelSystem;
+	private ElevatorFSMSystem elevatorSystem;
 
-	// private AutoHandlerSystem autoHandler;
+
+	// Logger
+	private PowerDistribution powerLogger;
 
 	/**
 	 * This function is run when the robot is first started up and should be used for any
@@ -46,6 +57,25 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		System.out.println("robotInit");
+
+		Logger.recordMetadata("FRC2025", "Team2473"); // Set a metadata value
+
+		if (isReal()) {
+			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+			powerLogger = new PowerDistribution(1, ModuleType.kRev);
+				// Enables power distribution logging
+		} else if (isSimulation()) {
+			Logger.addDataReceiver(new NT4Publisher());
+		} else {
+			setUseTiming(false); // Run as fast as possible
+			String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope
+			Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+			Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+		}
+
+		Logger.start(); // Start logging!
+
 		input = new TeleopInput();
 
 
@@ -59,16 +89,17 @@ public class Robot extends TimedRobot {
 		autoChooser.addRoutine("testPath", autoRoutines::testAuto);
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
-	// 	if (HardwareMap.isMech1HardwarePresent()) {
-	// 		mech1System = new Mech1FSMSystem();
-	// 	}
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			elevatorSystem = new ElevatorFSMSystem();
+		}
 
-	// 	if (HardwareMap.isMech2HardwarePresent()) {
-	// 		mech2System = new Mech2FSMSystem();
-	// 	}
-	// 	autoHandler = new AutoHandlerSystem(driveSystem, mech1System, mech2System);
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			funnelSystem = new FunnelFSMSystem();
+		}
 
-
+		if (HardwareMap.isDriveHardwarePresent()) {
+			driveSystem = new DriveFSMSystem();
+		}
 	}
 
 	@Override
@@ -92,21 +123,37 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopInit() {
 		System.out.println("-------- Teleop Init --------");
-		driveSystem.reset();
-		// mech1System.reset();
-		// mech2System.reset();
+		if (driveSystem != null) {
+			driveSystem.reset();
+		}
+		if (funnelSystem != null) {
+			funnelSystem.reset();
+		}
+		if (elevatorSystem != null) {
+			elevatorSystem.reset();
+		}
 	}
 
 	@Override
 	public void teleopPeriodic() {
-		driveSystem.update(input);
-		// mech1System.update(input);
-		// mech2System.update(input);
+		if (driveSystem != null) {
+			driveSystem.update(input);
+		}
+		if (funnelSystem != null) {
+			funnelSystem.update(input);
+		}
+		if (elevatorSystem != null) {
+			elevatorSystem.update(input);
+		}
 	}
 
 	@Override
 	public void disabledInit() {
 		System.out.println("-------- Disabled Init --------");
+		Logger.end(); // Stop logging!
+		if (powerLogger != null) {
+			powerLogger.close();
+		}
 	}
 
 	@Override
@@ -128,6 +175,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void simulationInit() {
 		System.out.println("-------- Simulation Init --------");
+		// don't preform simulated hardware init here, robotInit() still runs during sim
 	}
 
 	@Override
