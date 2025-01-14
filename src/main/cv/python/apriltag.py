@@ -13,8 +13,8 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(os.path.join(basePath, 'calibration_data', 'camera1_matrix.npy'))
-        self.dist_coeffs = np.load(os.path.join(basePath, 'calibration_data', 'camera1_dist.npy'))
+        self.camera_matrix = np.load(basePath / 'calibration_data/camera1_matrix.npy')
+        self.dist_coeffs = np.load(basePath / 'calibration_data/camera1_dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         pass
 
@@ -170,7 +170,7 @@ class AprilTag():
             ids = [r.tag_id for r in results]
             corners = [r.corners for r in results]
 
-            pose_data = {}
+            pose_list = []
             num_tags = len(ids) if ids is not None else 0
             if num_tags != 0:
                 # Estimate the pose of each detected marker
@@ -178,19 +178,12 @@ class AprilTag():
                     # Estimate the pose
                     tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
                     
-                    pose_data[ids[i]] = (cvec, tvec, rvec)
+                    pose_list.append([ids[i], cvec, tvec, rvec])
                     
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
             else: 
                 return None
-            return pose_data
-    
-    def get_pose_list_from_data(pose_data):
-        pose_list = [4000 for _ in range(22 * 6)]
-        for key, value in pose_data.items():
-            pose_list[(key - 1) * 6 : (key * 6)] = np.concatenate((value[0].flatten(), value[1].flatten()), axis=0).tolist()
-        return pose_list
-
+            return pose_list
 
 
 

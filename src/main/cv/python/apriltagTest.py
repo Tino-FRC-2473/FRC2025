@@ -15,11 +15,11 @@ CAM_ANGLE = -15
 input = VisionInput(FOV_DEGREES, RES, CAM_HEIGHT, CAM_ANGLE)
 TAG_LENGTH_METERS = 0.165
 NUM_TAGS = 22
-T
+
 while True:
     frame = input.getFrame()
     annotated_frame = frame.copy()
-    tagData = tag_module.estimate_3d_poqqse(frame, annotated_frame, TAG_LENGTH_METERS)
+    tagData = tag_module.estimate_3d_pose(frame, annotated_frame, TAG_LENGTH_METERS)
     print(tagData)
     
 #    cv2.imshow('result', annotated_frame)

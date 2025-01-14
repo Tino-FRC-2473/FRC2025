@@ -1,9 +1,10 @@
 import cv2
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import socket
 
 PORT = 1181
-SERVER_IP = '10.24.73.105'
+SERVER_IP = socket.gethostbyname(socket.gethostname())
 CAM_INDEX = 1
 
 camera = cv2.VideoCapture(CAM_INDEX)
