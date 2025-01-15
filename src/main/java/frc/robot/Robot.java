@@ -97,10 +97,6 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
-
-		if (HardwareMap.isDriveHardwarePresent()) {
-			driveSystem = new DriveFSMSystem();
-		}
 	}
 
 	@Override
