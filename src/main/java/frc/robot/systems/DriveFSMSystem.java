@@ -36,13 +36,13 @@ public class DriveFSMSystem extends SubsystemBase {
 	private static final SlewRateLimiter ROT_LIMITER = new SlewRateLimiter(0.5);
 	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
 		// kSpeedAt12Volts desired top speed
-	private final double maxAngularRate =
+	private final double MAX_ANGULAR_RATE =
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
 		//3/4 rps angle velo
 
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
-		.withRotationalDeadband(maxAngularRate * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -177,7 +177,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			.withRotationalRate(
 				-MathUtil.applyDeadband(
 					input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * maxAngularRate) // Drive counterclockwise with negative X (left)
+					) * MAX_ANGULAR_RATE) // Drive counterclockwise with negative X (left)
 		);
 
 		if (input.getDriveTriangleButton()) {
