@@ -11,11 +11,15 @@ from pathlib import Path
 # at 18 in -> max left/right was 4.5 in
 class AprilTag():
 
+    
+
     def __init__(self):
         basePath = Path(__file__).resolve().parent
         self.camera_matrix = np.load(basePath / 'bw_cam_1matrix.npy')
         self.dist_coeffs = np.load(basePath / 'bw_cam_1dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
+        self.NUM_TAGS = 22
+
         pass
 
     def calibrate_colored_cam(self, RES, dirpath, square_size, width, height,  file_name, visualize=False):
@@ -183,7 +187,7 @@ class AprilTag():
                     
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
             else: 
-                return None
+                return [4000 for _ in range(self.NUM_TAGS * 6)]
             return pose_list
 
 
