@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 // Systems
-import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 
@@ -43,7 +43,7 @@ public class Robot extends LoggedRobot {
 	private AutoRoutines autoRoutines;
 	private AutoChooser autoChooser = new AutoChooser();
 	private Command autCommand;
-	private FunnelFSMSystem funnelSystem;
+	private ClimberFSMSystem funnelSystem;
 	private ElevatorFSMSystem elevatorSystem;
 
 
@@ -94,7 +94,7 @@ public class Robot extends LoggedRobot {
 		}
 
 		if (HardwareMap.isFunnelHardwarePresent()) {
-			funnelSystem = new FunnelFSMSystem();
+			funnelSystem = new ClimberFSMSystem();
 		}
 
 		if (HardwareMap.isDriveHardwarePresent()) {

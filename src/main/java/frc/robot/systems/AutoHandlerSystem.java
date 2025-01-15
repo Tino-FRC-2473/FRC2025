@@ -26,7 +26,7 @@ public class AutoHandlerSystem {
 
 	//FSM Systems that the autoHandlerFSM uses
 	private DriveFSMSystem driveSystem;
-	private FunnelFSMSystem elevatorSystem;
+	private ClimberFSMSystem elevatorSystem;
 	private ElevatorFSMSystem funnelSystem;
 
 	//Predefined auto paths
@@ -46,7 +46,7 @@ public class AutoHandlerSystem {
 	 * @param fsm2 the second subsystem that the auto handler will call functions on
 	 * @param fsm3 the third subsystem that the auto handler will call functions on
 	 */
-	public AutoHandlerSystem(DriveFSMSystem fsm1, FunnelFSMSystem fsm2, ElevatorFSMSystem fsm3) {
+	public AutoHandlerSystem(DriveFSMSystem fsm1, ClimberFSMSystem fsm2, ElevatorFSMSystem fsm3) {
 		driveSystem = fsm1;
 		elevatorSystem = fsm2;
 		funnelSystem = fsm3;

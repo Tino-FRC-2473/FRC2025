@@ -5,9 +5,15 @@ public final class Constants {
 	public static final double INRANGE_VALUE = 0.5;
 
 	// Encoder Position Constants
+	public static final double TICKS_PER_REV = 2048;
+
 	public static final double ELEVATOR_PID_TARGET_L4 = 100;
 	public static final double ELEVATOR_PID_TARGET_GROUND = 100;
 	public static final double ELEVATOR_PID_TARGET_STATION = 100;
+
+	public static final double CLIMBER_PID_TARGET_LOW = 100;
+	public static final double CLIMBER_PID_TARGET_EXTEND = 100;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 100;
 
 	// Motion Magic Constants
 	public static final double ELEVATOR_MM_CONSTANT_G = 0.17;
@@ -25,9 +31,24 @@ public final class Constants {
 	public static final double ELEVATOR_MM_CONSTANT_D = 0.0;
 		//Voltage for Derivative error of 1 rps
 
+	// to be tuned for climber
+	public static final double CLIMBER_MM_CONSTANT_G = 0;
+	public static final double CLIMBER_MM_CONSTANT_S = 0;
+	public static final double CLIMBER_MM_CONSTANT_V = 0;
+	public static final double CLIMBER_MM_CONSTANT_A = 0;
+	public static final double CLIMBER_MM_CONSTANT_P = 0;
+	public static final double CLIMBER_MM_CONSTANT_I = 0;
+	public static final double CLIMBER_MM_CONSTANT_D = 0;
+
+
 	public static final double ELEVATOR_CONFIG_CONSTANT_CV = 14; // Cruise Velo in rps (10)
 	public static final double ELEVATOR_CONFIG_CONSTANT_A = 80; // Max acceleration in rps/s (80)
 	public static final double ELEVATOR_CONFIG_CONSTANT_J = 110; // Target jerk in rps/s/s (110)
+
+	// to be tuned for climber
+	public static final double CLIMBER_CONFIG_CONSTANT_CV = 0;
+	public static final double CLIMBER_CONFIG_CONSTANT_A = 0;
+	public static final double CLIMBER_CONFIG_CONSTANT_J = 0;
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;

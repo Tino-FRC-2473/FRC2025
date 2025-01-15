@@ -108,6 +108,30 @@ public class TeleopInput {
 	}
 
 	/**
+	 * Get the value of the extend climber target trigger (left).
+	 * @return If the button is pressed
+	 */
+	public boolean isExtendButtonPressed() {
+		return mechController.getL1ButtonPressed();
+	}
+
+	/**
+	 * Get the value of the climb climber target trigger (right).
+	 * @return If the button is pressed
+	 */
+	public boolean isClimbButtonPressed() {
+		return mechController.getL2ButtonPressed();
+	}
+
+	/**
+	 * Get the value of the reset button (options).
+	 * @return If the button is pressed
+	 */
+	public boolean isResetButtonPressed() {
+		return mechController.getOptionsButtonPressed();
+	}
+
+	/**
 	 * Get the manual elevator movement input (right stick Y).
 	 * @return A double in the range [-1,1] representing the control input
 	 */

@@ -10,9 +10,9 @@ state "PID to EXTENDED: target set to 90 degrees" as EXTENDED
 state "PID to CLIMB: target set to (TBD) degrees from the horizontal" as CLIMB
 [*] --> LOWERED: start
 
-LOWERED --> EXTENDED: climber button pressed
-EXTENDED --> CLIMB: climber button pressed
-EXTENDED --> LOWERED: manual override button pressed
-CLIMB --> LOWERED: limit switch triggered OR manual override button pressed
-```
+
+LOWERED --> EXTENDED: trigger 1 button pressed
+EXTENDED --> CLIMB: trigger 2 button pressed
+EXTENDED --> LOWERED: reset button pressed
+CLIMB --> LOWERED: reset button pressed
 
