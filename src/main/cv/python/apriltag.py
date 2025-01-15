@@ -13,8 +13,8 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(basePath / 'calibration_data/camera1_matrix.npy')
-        self.dist_coeffs = np.load(basePath / 'calibration_data/camera1_dist.npy')
+        self.camera_matrix = np.load(basePath / 'bw_cam_1matrix.npy')
+        self.dist_coeffs = np.load(basePath / 'bw_cam_1dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         pass
 
@@ -165,9 +165,9 @@ class AprilTag():
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
 
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-            results = self.detector.detect(gray)
+            results = self.detector.detect(image)
             ids = [r.tag_id for r in results]
             corners = [r.corners for r in results]
 
