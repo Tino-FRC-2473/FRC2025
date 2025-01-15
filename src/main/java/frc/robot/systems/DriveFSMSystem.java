@@ -2,9 +2,9 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -13,7 +13,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-
 import choreo.auto.AutoFactory;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -214,26 +213,88 @@ public class DriveFSMSystem extends SubsystemBase {
 	}
 
 	/**
-	 * Performs action for auto STATE1.
-	 * @return if the action carried out has finished executing
+	 * Command to align to any visible reef tags or not move if none are seen.
+	 * @param xOffset
+	 * @param tagID
+	 * @param yOffset
+	 * @return align to tag command.
 	 */
-	private boolean handleAutoState1() {
-		return true;
+	public Command alignToReefTagCommand(int tagID, double xOffset, double yOffset) {
+		class AlignToReefTagCommand extends Command {
+			private int id;
+			private double xOff;
+			private double yOff;
+			private boolean tagPositionAligned;
+
+			AlignToReefTagCommand(int tagID, double xOffset, double yOffset) {
+				id = tagID;
+				xOff = xOffset;
+				yOff = yOffset;
+				tagPositionAligned = false;
+			}
+
+			@Override
+			public void execute() {
+				if (rpi.getAprilTagX(id) != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT) {
+					double yDiff = rpi.getAprilTagY(id) - yOff;
+					double xDiff = rpi.getAprilTagX(id) - xOff;
+					double aDiff = rpi.getAprilTagXInv(id) * Math.PI / VisionConstants.N_180;
+					//TODO: x inv might not be correct for at angle.
+
+					double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
+						? SwerveUtils.clamp(
+							xDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
+							-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+							VisionConstants.MAX_SPEED_METERS_PER_SECOND
+						) : 0;
+					double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
+						? SwerveUtils.clamp(
+							yDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
+							-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+							VisionConstants.MAX_SPEED_METERS_PER_SECOND
+						) : 0;
+					double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
+						? -SwerveUtils.clamp(
+							aDiff / VisionConstants.REEF_ROTATIONAL_ACCEL_CONSTANT,
+							-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+							VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+						) : 0;
+
+					if (xSpeed == 0 && ySpeed == 0 && aSpeed == 0) {
+						tagPositionAligned = true;
+					}
+
+					drivetrain.setControl(
+						drive.withVelocityX(ySpeed)
+						.withVelocityY(xSpeed)
+						.withRotationalRate(aSpeed)
+					);
+
+				}
+			}
+
+			@Override
+			public boolean isFinished() {
+				return tagPositionAligned;
+			}
+
+			@Override
+			public void end(boolean interrupted) {
+				drivetrain.setControl(brake);
+			}
+		}
+
+		return new AlignToReefTagCommand(tagID, xOffset, yOffset);
 	}
 
 	/**
-	 * Performs action for auto STATE2.
-	 * @return if the action carried out has finished executing
+	 * Command to align to visible source tags.
+	 * @param stationID
+	 * @param xOffset
+	 * @param yOffset
+	 * @return align to station tag command.
 	 */
-	private boolean handleAutoState2() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE3.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState3() {
-		return true;
+	public Command alignToSourceTagCommand(int stationID, double xOffset, double yOffset) {
+		return Commands.none();
 	}
 }

@@ -19,7 +19,6 @@ public class TeleopInput {
 	// Input objects
 	private PS4Controller mechController;
 	private PS4Controller driveController;
-
 	/* ======================== Constructor ======================== */
 	/**
 	 * Create a TeleopInput and register input devices. Note that while inputs
@@ -27,14 +26,12 @@ public class TeleopInput {
 	 * by WPILib until teleop mode.
 	 */
 	public TeleopInput() {
-		mechController = new PS4Controller(MECH_CONTROLLER_PORT);
-
 		driveController = new PS4Controller(DRIVE_CONTROLLER_PORT);
+		mechController = new PS4Controller(MECH_CONTROLLER_PORT);
 	}
 
 	/* ======================== Public methods ======================== */
 	// Getter methods for fetch input values should be defined here.
-	// Method names should be descriptive of the behavior, so the
 	// control mapping is hidden from other classes.
 
 	/* ------------------------ Drive Controller ------------------------ */
@@ -121,6 +118,14 @@ public class TeleopInput {
 	 */
 	public double getManualElevatorMovementInput() {
 		return mechController.getRightY();
+	}
+
+	/**
+	 * Get Y axis of Left Joystick.
+	 * @return Axis value
+	 */
+	public double getMechLeftJoystickY() {
+		return mechController.getLeftY();
 	}
 
 	/* ======================== Private methods ======================== */
