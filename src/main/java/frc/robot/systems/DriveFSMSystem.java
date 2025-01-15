@@ -21,8 +21,11 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import frc.robot.TeleopInput;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
+import frc.robot.constants.VisionConstants;
+import frc.robot.utils.SwerveUtils;
 import frc.robot.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
+import frc.robot.RaspberryPI;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
@@ -31,9 +34,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		TELEOP_STATE,
 	}
 
-	private static final SlewRateLimiter X_LIMITER = new SlewRateLimiter(2);
-	private static final SlewRateLimiter Y_LIMITER = new SlewRateLimiter(0.5);
-	private static final SlewRateLimiter ROT_LIMITER = new SlewRateLimiter(0.5);
 	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
 		// kSpeedAt12Volts desired top speed
 	private final double MAX_ANGULAR_RATE =
@@ -49,6 +49,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private final SwerveLogging logger = new SwerveLogging(MAX_SPEED);
 	private CommandSwerveDrivetrain drivetrain;
+
+	private RaspberryPI rpi = new RaspberryPI();
 
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;

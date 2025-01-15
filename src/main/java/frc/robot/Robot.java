@@ -49,10 +49,8 @@ public class Robot extends LoggedRobot {
 
 	// Systems
 	private DriveFSMSystem driveSystem;
-	private CommandSwerveDrivetrain swerveDrivetrain;
-	private AutoFactory autoFactory;
 	private AutoRoutines autoRoutines;
-	private AutoChooser autoChooser = new AutoChooser();
+	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 	private Command autCommand;
 	private FunnelFSMSystem funnelSystem;
 	private ElevatorFSMSystem elevatorSystem;
@@ -60,16 +58,6 @@ public class Robot extends LoggedRobot {
 
 	// Logger
 	private PowerDistribution powerLogger;
-	
-	// Systems
-	private DriveFSMSystem driveSystem;
-	private AutoRoutines autoRoutines;
-	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
-	private Command autoWorkflow;
-	// private Mech1FSMSystem mech1System;
-	// private Mech2FSMSystem mech2System;
-
-	// private AutoHandlerSystem autoHandler;
 
 	private static final Object[] PATH_1 = new Object[] {
 		"S1_R2",
@@ -111,16 +99,11 @@ public class Robot extends LoggedRobot {
 
 		input = new TeleopInput();
 
-
 		// Instantiate all systems here
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 
-			autoFactory = driveSystem.createAutoFactory();
-			autoRoutines = new AutoRoutines(autoFactory, driveSystem);
-
-			autoChooser.addRoutine("testPath", autoRoutines::testAuto);
-			SmartDashboard.putData("AUTO CHOOSER", autoChooser);
+			autoRoutines = new AutoRoutines(driveSystem);
 		}
 
 		autoRoutines = new AutoRoutines(driveSystem);
@@ -128,15 +111,6 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("Path 1",
 			autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
-
-	// 	if (HardwareMap.isMech1HardwarePresent()) {
-	// 		mech1System = new Mech1FSMSystem();
-	// 	}
-
-	// 	if (HardwareMap.isMech2HardwarePresent()) {
-	// 		mech2System = new Mech2FSMSystem();
-	// 	}
-	// 	autoHandler = new AutoHandlerSystem(driveSystem, mech1System, mech2System);
 
 	}
 
@@ -229,6 +203,6 @@ public class Robot extends LoggedRobot {
 	 * @return the selected autonomous command
 	 */
 	public Command getAutonomousCommand() {
-		return autoChooser.selectedCommand();
+		return autoChooser.getSelected();
 	}
 }

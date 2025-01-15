@@ -11,7 +11,6 @@ import choreo.trajectory.SwerveSample;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
->>>>>>> 553a582b88cdafbd767f33f6acbaf8257b28728a
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
