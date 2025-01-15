@@ -22,7 +22,7 @@ while True:
     tagData = tag_module.estimate_3d_pose(frame, annotated_frame, TAG_LENGTH_METERS)
     print(tagData)
     
-#    cv2.imshow('result', annotated_frame)
+    #cv2.imshow('result', annotated_frame)
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
         break
