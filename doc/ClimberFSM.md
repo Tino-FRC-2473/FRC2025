@@ -11,8 +11,11 @@ state "PID to CLIMB: target set to (TBD) degrees from the horizontal" as CLIMB
 [*] --> LOWERED: start
 
 
-LOWERED --> EXTENDED: trigger 1 button pressed
-EXTENDED --> CLIMB: trigger 2 button pressed
-EXTENDED --> LOWERED: reset button pressed
-CLIMB --> LOWERED: reset button pressed
+LOWERED --> EXTENDED: advance button pressed
+LOWERED --> CLIMB: regress button pressed
+EXTENDED --> CLIMB: advance button pressed
+EXTENDED --> LOWERED: regress button pressed
+CLIMB --> EXTENDED: advance button pressed
+CLIMB --> LOWERED: regress button pressed
+```
 

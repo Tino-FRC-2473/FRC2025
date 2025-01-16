@@ -5,7 +5,6 @@ public final class Constants {
 	public static final double INRANGE_VALUE = 0.5;
 
 	// Encoder Position Constants
-	public static final double TICKS_PER_REV = 2048;
 
 	public static final double ELEVATOR_PID_TARGET_L4 = 100;
 	public static final double ELEVATOR_PID_TARGET_GROUND = 100;

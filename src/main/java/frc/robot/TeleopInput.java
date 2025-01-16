@@ -108,26 +108,20 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get the value of the extend climber target trigger (left).
-	 * @return If the button is pressed
+	 * Gets the value of the options button.
+	 * Intended to signify when the climber should go to the next state.
+	 * @return If the share button was pressed this tick
 	 */
-	public boolean isExtendButtonPressed() {
-		return mechController.getL1ButtonPressed();
+	public boolean isClimbAdvanceStateButtonPressed() {
+		return mechController.getShareButtonPressed();
 	}
 
 	/**
-	 * Get the value of the climb climber target trigger (right).
-	 * @return If the button is pressed
+	 * Gets the value of the share button.
+	 * Intended to signify when the climber should go to the previous state.
+	 * @return If the share button was pressed this tick
 	 */
-	public boolean isClimbButtonPressed() {
-		return mechController.getL2ButtonPressed();
-	}
-
-	/**
-	 * Get the value of the reset button (options).
-	 * @return If the button is pressed
-	 */
-	public boolean isResetButtonPressed() {
+	public boolean isClimbRegressStateButtonPressed() {
 		return mechController.getOptionsButtonPressed();
 	}
 
