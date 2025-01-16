@@ -23,6 +23,7 @@ class VisionInput:
         if not ret:
             print('frame malf')
         exit
+        print("getting an image")
         return fr
 
 
