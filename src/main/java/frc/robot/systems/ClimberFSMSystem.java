@@ -24,15 +24,15 @@ public class ClimberFSMSystem {
 	public enum ClimberFSMState {
 		LOWERED,
 		EXTENDED,
-        CLIMB
+		CLIMB
 	}
 
 	/* ======================== Private variables ======================== */
 	private ClimberFSMState currentState;
-    private TalonFX climberMotor;
+	private TalonFX climberMotor;
 	private final MotionMagicVoltage mmVoltage = new MotionMagicVoltage(0);
 
-    private double currentPidPosition;
+	private double currentPidPosition;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -45,26 +45,26 @@ public class ClimberFSMSystem {
 	 */
 	public ClimberFSMSystem() {
 		// Perform hardware init
-        climberMotor = new TalonFX(HardwareMap.CAN_ID_CLIMBER);
-        climberMotor.setNeutralMode(NeutralModeValue.Brake);
+		climberMotor = new TalonFX(HardwareMap.CAN_ID_CLIMBER);
+		climberMotor.setNeutralMode(NeutralModeValue.Brake);
 
 		var talonFXConfigs = new TalonFXConfiguration();
-        var slot0Configs = talonFXConfigs.Slot0;
+		var slot0Configs = talonFXConfigs.Slot0;
 
-        slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
-        slot0Configs.kG = Constants.CLIMBER_MM_CONSTANT_G;
-        slot0Configs.kS = Constants.CLIMBER_MM_CONSTANT_S;
-        slot0Configs.kV = Constants.CLIMBER_MM_CONSTANT_V;
-        slot0Configs.kA = Constants.CLIMBER_MM_CONSTANT_A;
-        slot0Configs.kP = Constants.CLIMBER_MM_CONSTANT_P;
-        slot0Configs.kI = Constants.CLIMBER_MM_CONSTANT_I;
-        slot0Configs.kD = Constants.CLIMBER_MM_CONSTANT_D;
+		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+		slot0Configs.kG = Constants.CLIMBER_MM_CONSTANT_G;
+		slot0Configs.kS = Constants.CLIMBER_MM_CONSTANT_S;
+		slot0Configs.kV = Constants.CLIMBER_MM_CONSTANT_V;
+		slot0Configs.kA = Constants.CLIMBER_MM_CONSTANT_A;
+		slot0Configs.kP = Constants.CLIMBER_MM_CONSTANT_P;
+		slot0Configs.kI = Constants.CLIMBER_MM_CONSTANT_I;
+		slot0Configs.kD = Constants.CLIMBER_MM_CONSTANT_D;
 
-        talonFXConfigs.MotionMagic.MotionMagicCruiseVelocity = Constants.CLIMBER_CONFIG_CONSTANT_CV;
-        talonFXConfigs.MotionMagic.MotionMagicAcceleration = Constants.CLIMBER_CONFIG_CONSTANT_A;
-        talonFXConfigs.MotionMagic.MotionMagicJerk = Constants.CLIMBER_CONFIG_CONSTANT_J;
+		talonFXConfigs.MotionMagic.MotionMagicCruiseVelocity = Constants.CLIMBER_CONFIG_CONSTANT_CV;
+		talonFXConfigs.MotionMagic.MotionMagicAcceleration = Constants.CLIMBER_CONFIG_CONSTANT_A;
+		talonFXConfigs.MotionMagic.MotionMagicJerk = Constants.CLIMBER_CONFIG_CONSTANT_J;
 
-        climberMotor.getConfigurator().apply(talonFXConfigs);
+		climberMotor.getConfigurator().apply(talonFXConfigs);
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
 			Constants.UPDATE_FREQUENCY_HZ,
@@ -74,7 +74,7 @@ public class ClimberFSMSystem {
 			climberMotor.getMotorVoltage());
 
 		climberMotor.optimizeBusUtilization();
-        currentPidPosition = Constants.CLIMBER_PID_TARGET_LOW;
+		currentPidPosition = Constants.CLIMBER_PID_TARGET_LOW;
 		// Reset state machine
 		reset();
 	}
@@ -97,7 +97,7 @@ public class ClimberFSMSystem {
 	 */
 	public void reset() {
 		currentState = ClimberFSMState.LOWERED;
-        currentPidPosition = Constants.CLIMBER_PID_TARGET_LOW;
+		currentPidPosition = Constants.CLIMBER_PID_TARGET_LOW;
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
 	}
@@ -106,7 +106,7 @@ public class ClimberFSMSystem {
 	 * Update FSM based on new inputs. This function only calls the FSM state
 	 * specific handlers.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
+	 *	   the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
 		switch (currentState) {
@@ -117,19 +117,19 @@ public class ClimberFSMSystem {
 			case EXTENDED:
 				handleExtendedState(input);
 				break;
-            
-            case CLIMB:
-                handleClimbState(input);
-                break;
+
+			case CLIMB:
+				handleClimbState(input);
+				break;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
 
-        SmartDashboard.putNumber("Climber encoder", climberMotor.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putString("Elevator state", currentState.toString());
+		SmartDashboard.putNumber("Climber encoder", climberMotor.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
+		SmartDashboard.putString("Elevator state", currentState.toString());
 	}
 
 	/**
@@ -157,23 +157,29 @@ public class ClimberFSMSystem {
 	 * effects on outputs. In other words, this method should only read or get
 	 * values to decide what state to go to.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
+	 *	   the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
 	 */
 	private ClimberFSMState nextState(TeleopInput input) {
 		switch (currentState) {
 			case LOWERED:
-				if (input.isExtendButtonPressed()) return ClimberFSMState.EXTENDED;
-                return ClimberFSMState.LOWERED;
+				if (input.isExtendButtonPressed()) {
+					return ClimberFSMState.EXTENDED;
+				}
+			 	return ClimberFSMState.LOWERED;
 
 			case EXTENDED:
-				if (input.isClimbButtonPressed()) return ClimberFSMState.CLIMB;
-                if (input.isResetButtonPressed()) return ClimberFSMState.LOWERED;
-                return ClimberFSMState.EXTENDED;
-            
-            case CLIMB:
-                if (input.isResetButtonPressed()) return ClimberFSMState.LOWERED;
-                return ClimberFSMState.CLIMB;
+				if (input.isClimbButtonPressed()) {
+					return ClimberFSMState.CLIMB;
+				}
+				if (input.isResetButtonPressed()) {
+					return ClimberFSMState.LOWERED;
+				}
+			 	return ClimberFSMState.EXTENDED;
+		  
+		  case CLIMB:
+			 if (input.isResetButtonPressed()) return ClimberFSMState.LOWERED;
+			 return ClimberFSMState.CLIMB;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -184,36 +190,36 @@ public class ClimberFSMSystem {
 	/**
 	 * Handle behavior in LOWERED.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
+	 *	   the robot is in autonomous mode.
 	 */
 	private void handleLoweredState(TeleopInput input) {
-        if (currentPidPosition >= Constants.CLIMBER_PID_TARGET_CLIMB + Constants.TICKS_PER_REV) {
-            climberMotor.setPosition(0);
-            currentPidPosition = Constants.CLIMBER_PID_TARGET_LOW;
-        } else {
-            currentPidPosition += Constants.TICKS_PER_REV;
-        }
-        climberMotor.setControl(mmVoltage.withPosition(currentPidPosition));
+	   if (currentPidPosition >= Constants.CLIMBER_PID_TARGET_CLIMB + Constants.TICKS_PER_REV) {
+		  climberMotor.setPosition(0);
+		  currentPidPosition = Constants.CLIMBER_PID_TARGET_LOW;
+	   } else {
+		  currentPidPosition += Constants.TICKS_PER_REV;
+	   }
+	   climberMotor.setControl(mmVoltage.withPosition(currentPidPosition));
 	}
 
 	/**
 	 * Handle behavior in EXTENDED.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
+	 *	   the robot is in autonomous mode.
 	 */
 	private void handleExtendedState(TeleopInput input) {
-        currentPidPosition = Constants.CLIMBER_PID_TARGET_EXTEND;
-        climberMotor.setControl(mmVoltage.withPosition(currentPidPosition));
+	   currentPidPosition = Constants.CLIMBER_PID_TARGET_EXTEND;
+	   climberMotor.setControl(mmVoltage.withPosition(currentPidPosition));
 	}
 
     /**
 	 * Handle behavior in CLIMB.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
+	 *	   the robot is in autonomous mode.
 	 */
     private void handleClimbState(TeleopInput input) {
-        currentPidPosition = Constants.CLIMBER_PID_TARGET_CLIMB;
-        climberMotor.setControl(mmVoltage.withPosition(currentPidPosition));
+	   currentPidPosition = Constants.CLIMBER_PID_TARGET_CLIMB;
+	   climberMotor.setControl(mmVoltage.withPosition(currentPidPosition));
     }
 
 	/**
