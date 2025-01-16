@@ -4,8 +4,6 @@
 package frc.robot;
 
 // Third Party Imports
-import choreo.auto.AutoChooser;
-import choreo.auto.AutoFactory;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -19,11 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.auto.AutoRoutines;
 import frc.robot.constants.AutoConstants.AutoCommands;
 
@@ -60,10 +54,10 @@ public class Robot extends LoggedRobot {
 	private PowerDistribution powerLogger;
 
 	private static final Object[] PATH_1 = new Object[] {
-		"S1_R2",
+		//"S1_R2",
 		AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
 		// score_command,
-		"R2_StationL",
+		//"R2_StationL",
 		AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
 		// intake_command,
 		new Object[] {"StationL_R3", AutoCommands.DRIVE_BRAKE_CMD},

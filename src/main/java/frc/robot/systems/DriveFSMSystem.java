@@ -36,7 +36,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
 		// kSpeedAt12Volts desired top speed
-	private final double MAX_ANGULAR_RATE =
+	private static final double MAX_ANGULAR_RATE =
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
 		//3/4 rps angle velo
 
