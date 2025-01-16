@@ -256,6 +256,8 @@ public class DriveFSMSystem extends SubsystemBase {
 				.withVelocityY(xSpeed)
 				.withRotationalRate(aSpeed)
 			);
+		} else {
+			drivetrain.setControl(brake);
 		}
 	}
 
