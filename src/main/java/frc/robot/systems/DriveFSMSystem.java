@@ -4,7 +4,6 @@ package frc.robot.systems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -32,6 +31,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	// FSM state definitions
 	public enum FSMState {
 		TELEOP_STATE,
+		ALIGN_TO_TAG_STATE
 	}
 
 	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
@@ -50,7 +50,11 @@ public class DriveFSMSystem extends SubsystemBase {
 	private final SwerveLogging logger = new SwerveLogging(MAX_SPEED);
 	private CommandSwerveDrivetrain drivetrain;
 
+	/* -- cv constants -- */
 	private RaspberryPI rpi = new RaspberryPI();
+	private boolean tagPositionAligned;
+	private int tagID = (2 + 2 + 1);
+
 
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;
@@ -107,7 +111,9 @@ public class DriveFSMSystem extends SubsystemBase {
 			case TELEOP_STATE:
 				handleTeleOpState(input);
 				break;
-
+			case ALIGN_TO_TAG_STATE:
+				handleTagAlignment(input, tagID, 0, 0);
+				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -149,7 +155,15 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		switch (currentState) {
 			case TELEOP_STATE:
-				if (input != null) {
+				if (input.getDriveSquareButton()) {
+					return FSMState.ALIGN_TO_TAG_STATE;
+				} else {
+					return FSMState.TELEOP_STATE;
+				}
+			case ALIGN_TO_TAG_STATE:
+				if (input.getDriveSquareButton()) {
+					return FSMState.ALIGN_TO_TAG_STATE;
+				} else {
 					return FSMState.TELEOP_STATE;
 				}
 
@@ -199,6 +213,53 @@ public class DriveFSMSystem extends SubsystemBase {
 	}
 
 	/**
+	 * Handle tag alignment state.
+	 * @param input
+	 * @param id
+	 * @param xOff
+	 * @param yOff
+	 */
+	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
+		logger.applyStateLogging(drivetrain.getState());
+
+		if (rpi.getAprilTagX(id) != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT) {
+			double yDiff = rpi.getAprilTagY(id) - yOff;
+			double xDiff = rpi.getAprilTagX(id) - xOff;
+			double aDiff = rpi.getAprilTagXInv(id) * Math.PI / VisionConstants.N_180;
+			//TODO: x inv might not be correct for at angle.
+
+			double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					xDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				) : 0;
+			double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					yDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				) : 0;
+			double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
+				? -SwerveUtils.clamp(
+					aDiff / VisionConstants.REEF_ROTATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+					VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+				) : 0;
+
+			if (xSpeed == 0 && ySpeed == 0 && aSpeed == 0) {
+				tagPositionAligned = true;
+			}
+
+			drivetrain.setControl(
+				drive.withVelocityX(ySpeed)
+				.withVelocityY(xSpeed)
+				.withRotationalRate(aSpeed)
+			);
+		}
+	}
+
+	/**
 	 * Returns a command that sets the drivetrain to brake mode.
 	 * @return A command that sets the drivetrain to brake mode.
 	 */
@@ -216,63 +277,28 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	/**
 	 * Command to align to any visible reef tags or not move if none are seen.
-	 * @param xOffset
-	 * @param tagID
-	 * @param yOffset
+	 * @param xOffset the x offset for aligning to the tag
+	 * @param id the id of the tag to align to
+	 * @param yOffset the y offset for aligning to the tag
 	 * @return align to tag command.
 	 */
-	public Command alignToReefTagCommand(int tagID, double xOffset, double yOffset) {
+	public Command alignToTagCommand(int id, double xOffset, double yOffset) {
 		class AlignToReefTagCommand extends Command {
-			private int id;
-			private double xOff;
-			private double yOff;
-			private boolean tagPositionAligned;
 
-			AlignToReefTagCommand(int tagID, double xOffset, double yOffset) {
-				id = tagID;
-				xOff = xOffset;
-				yOff = yOffset;
-				tagPositionAligned = false;
+			private int tagID;
+			private double xOffset;
+			private double yOffset;
+
+			AlignToReefTagCommand(int id, double xo, double yo) {
+				this.tagID = id;
+				this.xOffset = xo;
+				this.yOffset = yo;
+				tagPositionAligned = false; //likely redundant.
 			}
 
 			@Override
 			public void execute() {
-				if (rpi.getAprilTagX(id) != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT) {
-					double yDiff = rpi.getAprilTagY(id) - yOff;
-					double xDiff = rpi.getAprilTagX(id) - xOff;
-					double aDiff = rpi.getAprilTagXInv(id) * Math.PI / VisionConstants.N_180;
-					//TODO: x inv might not be correct for at angle.
-
-					double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
-						? SwerveUtils.clamp(
-							xDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
-							-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-							VisionConstants.MAX_SPEED_METERS_PER_SECOND
-						) : 0;
-					double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
-						? SwerveUtils.clamp(
-							yDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
-							-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-							VisionConstants.MAX_SPEED_METERS_PER_SECOND
-						) : 0;
-					double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
-						? -SwerveUtils.clamp(
-							aDiff / VisionConstants.REEF_ROTATIONAL_ACCEL_CONSTANT,
-							-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-							VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-						) : 0;
-
-					if (xSpeed == 0 && ySpeed == 0 && aSpeed == 0) {
-						tagPositionAligned = true;
-					}
-
-					drivetrain.setControl(
-						drive.withVelocityX(ySpeed)
-						.withVelocityY(xSpeed)
-						.withRotationalRate(aSpeed)
-					);
-
-				}
+				handleTagAlignment(null, this.tagID, this.xOffset, this.yOffset);
 			}
 
 			@Override
@@ -283,20 +309,10 @@ public class DriveFSMSystem extends SubsystemBase {
 			@Override
 			public void end(boolean interrupted) {
 				drivetrain.setControl(brake);
+				tagPositionAligned = false;
 			}
 		}
 
 		return new AlignToReefTagCommand(tagID, xOffset, yOffset);
-	}
-
-	/**
-	 * Command to align to visible source tags.
-	 * @param stationID
-	 * @param xOffset
-	 * @param yOffset
-	 * @return align to station tag command.
-	 */
-	public Command alignToSourceTagCommand(int stationID, double xOffset, double yOffset) {
-		return Commands.none();
 	}
 }

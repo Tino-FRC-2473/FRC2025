@@ -168,61 +168,61 @@ public class AutoRoutines {
 		/* ---- All Red AprilTag Alignment Commands ---- */
 
 		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
 					AutoConstants.REEF_X_L_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
 					AutoConstants.REEF_X_R_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_3_TAG_ID,
 					AutoConstants.REEF_X_L_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF3_R_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_3_TAG_ID,
 					AutoConstants.REEF_X_R_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF5_L_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
 					AutoConstants.REEF_X_L_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF5_R_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
 					AutoConstants.REEF_X_R_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
 					AutoConstants.REEF_X_L_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF6_R_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
 					AutoConstants.REEF_X_R_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
-			driveSystem.alignToSourceTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.RED_L_STATION_ID,
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_STATION_R_TAG_CMD,
-			driveSystem.alignToSourceTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.RED_R_STATION_ID,
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET)
@@ -231,61 +231,61 @@ public class AutoRoutines {
 		/* ---- All Blue AprilTag Alignment Commands ---- */
 
 		commands.put(AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
 					AutoConstants.REEF_X_L_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
 					AutoConstants.REEF_X_R_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_3_TAG_ID,
 					AutoConstants.REEF_X_L_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF3_R_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_3_TAG_ID,
 					AutoConstants.REEF_X_R_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF5_L_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
 					AutoConstants.REEF_X_L_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF5_R_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
 					AutoConstants.REEF_X_R_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
 					AutoConstants.REEF_X_L_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF6_R_TAG_CMD,
-			driveSystem.alignToReefTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
 					AutoConstants.REEF_X_R_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
-			driveSystem.alignToSourceTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.BLUE_L_STATION_ID,
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_STATION_R_TAG_CMD,
-			driveSystem.alignToSourceTagCommand(
+			driveSystem.alignToTagCommand(
 					AutoConstants.BLUE_R_STATION_ID,
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET)

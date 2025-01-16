@@ -64,6 +64,13 @@ public class TeleopInput {
 		return driveController.getTriangleButton();
 	}
 	/**
+	 * Get Square Button Pressed for Drive Controller.
+	 * @return Axis value
+	 */
+	public boolean getDriveSquareButton() {
+		return driveController.getSquareButton();
+	}
+	/**
 	 * Get Circle Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
