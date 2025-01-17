@@ -9,7 +9,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 
@@ -81,7 +80,6 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 
 		// set the supply voltage of the TalonFX
 		talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-		SmartDashboard.putNumber("battery voltage", RobotController.getBatteryVoltage());
 
 		// get the motor voltage of the TalonFX
 		var motorVoltage = talonFXSim.getMotorVoltageMeasure();

@@ -1,5 +1,7 @@
 package frc.robot.systems;
 
+import static edu.wpi.first.units.Units.Revolutions;
+
 // WPILib Imports
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -8,7 +10,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // Third party Hardware Imports
@@ -18,7 +19,6 @@ import frc.robot.constants.Constants;
 import frc.robot.motors.TalonFXWrapper;
 import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 import frc.robot.HardwareMap;
-import frc.robot.Robot;
 import frc.robot.TeleopInput;
 
 public class ClimberFSMSystem {
@@ -30,11 +30,16 @@ public class ClimberFSMSystem {
 		CLIMB
 	}
 
+	private static final double PID_MARGIN_OF_ERROR = 0.01;
+
 	/* ======================== Private variables ======================== */
 	private ClimberFSMState currentState;
 	private TalonFX climberMotor;
-	private DigitalInput climberLimitSwitch;
 	private final MotionMagicVoltage mmVoltage = new MotionMagicVoltage(0);
+
+	private double currentLoweredPidTarget;
+	private double currentExtendedPidTarget;
+	private double currentClimbPidTarget;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -75,23 +80,18 @@ public class ClimberFSMSystem {
 			climberMotor.getAcceleration(),
 			climberMotor.getMotorVoltage());
 
-		// climberMotor.optimizeBusUtilization();
+		climberMotor.optimizeBusUtilization();
+
+		// initialize pid targets
+		currentLoweredPidTarget = Constants.CLIMBER_PID_TARGET_LOW;
+		currentExtendedPidTarget = Constants.CLIMBER_PID_TARGET_EXTEND;
+		currentClimbPidTarget = Constants.CLIMBER_PID_TARGET_CLIMB;
 
 		climberMotor.setPosition(0);
 
-		climberLimitSwitch = new DigitalInput(HardwareMap.CLIMBER_LIMIT_SWITCH_PORT);
 
 		// Reset state machine
 		reset();
-	}
-
-	private boolean isLimitSwitchPressed() {
-		if (Robot.isSimulation()) {
-			// weirdness to pass checkstyles ;S
-			return
-			climberMotor.getPosition().getValueAsDouble() < Constants.CLIMBER_PID_TARGET_CLIMB;
-		}
-		return !climberLimitSwitch.get();
 	}
 
 	/* ======================== Public methods ======================== */
@@ -184,26 +184,17 @@ public class ClimberFSMSystem {
 				if (input.isClimbAdvanceStateButtonPressed()) {
 					return ClimberFSMState.EXTENDED;
 				}
-				if (input.isClimbRegressStateButtonPressed()) {
-					return ClimberFSMState.CLIMB;
-				}
 				return ClimberFSMState.LOWERED;
 
 			case EXTENDED:
 				if (input.isClimbAdvanceStateButtonPressed()) {
 					return ClimberFSMState.CLIMB;
 				}
-				if (input.isClimbRegressStateButtonPressed()) {
-					return ClimberFSMState.LOWERED;
-				}
 				return ClimberFSMState.EXTENDED;
 
 			case CLIMB:
 				if (input.isClimbAdvanceStateButtonPressed()) {
 					return ClimberFSMState.LOWERED;
-				}
-				if (input.isClimbRegressStateButtonPressed()) {
-					return ClimberFSMState.EXTENDED;
 				}
 				return ClimberFSMState.CLIMB;
 
@@ -219,12 +210,11 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleLoweredState(TeleopInput input) {
-		if (isLimitSwitchPressed()) {
-			// assuming + is away from the robot
-			climberMotor.set(0);
-			return;
+		if (currentLoweredPidTarget < climberMotor.getPosition().getValue().in(Revolutions)
+			+ Constants.CLIMBER_EXTERNAL_GEAR_RATIO * PID_MARGIN_OF_ERROR) {
+			currentLoweredPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
 		}
-		climberMotor.setControl(mmVoltage.withPosition(Constants.CLIMBER_PID_TARGET_CLIMB));
+		climberMotor.setControl(mmVoltage.withPosition(currentLoweredPidTarget));
 	}
 
 	/**
@@ -233,7 +223,10 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleExtendedState(TeleopInput input) {
-		climberMotor.setControl(mmVoltage.withPosition(Constants.CLIMBER_PID_TARGET_EXTEND));
+		if (currentExtendedPidTarget < climberMotor.getPosition().getValue().in(Revolutions)) {
+			currentExtendedPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
+		}
+		climberMotor.setControl(mmVoltage.withPosition(currentExtendedPidTarget));
 	}
 
 	/**
@@ -242,12 +235,10 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleClimbState(TeleopInput input) {
-		if (isLimitSwitchPressed()) {
-			// assuming + is away from the robot
-			climberMotor.set(0);
-			return;
+		if (currentClimbPidTarget < climberMotor.getPosition().getValue().in(Revolutions)) {
+			currentClimbPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
 		}
-		climberMotor.setControl(mmVoltage.withPosition(Constants.CLIMBER_PID_TARGET_CLIMB));
+		climberMotor.setControl(mmVoltage.withPosition(currentClimbPidTarget));
 	}
 
 	/**

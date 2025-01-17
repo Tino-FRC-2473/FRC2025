@@ -13,7 +13,6 @@ state "PID to CLIMB: target set to (TBD) degrees from the horizontal" as CLIMB
 
 LOWERED --> EXTENDED: advance button pressed
 EXTENDED --> CLIMB: advance button pressed
-EXTENDED --> LOWERED: regress button pressed
-CLIMB --> EXTENDED: regress button pressed
+CLIMB --> LOWERED: advance button pressed
 ```
 

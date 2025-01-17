@@ -117,15 +117,6 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Gets the value of the share button.
-	 * Intended to signify when the climber should go to the previous state.
-	 * @return If the share button was pressed this tick
-	 */
-	public boolean isClimbRegressStateButtonPressed() {
-		return mechController.getShareButtonPressed();
-	}
-
-	/**
 	 * Get the manual elevator movement input (right stick Y).
 	 * @return A double in the range [-1,1] representing the control input
 	 */
