@@ -1,5 +1,5 @@
 from config import *
-from visionInput import VisionInput
+from visionInput import VisionInput, find_camera_index
 from apriltag import AprilTag
 import time
 import cv2
@@ -16,12 +16,13 @@ if ON_RPI:
     tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
     outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
 
+if ON_RPI:
+    index = find_camera_index(AT_CAM_USB_ID)
+else:
+    index = AT_CAM_INDEX
 
-FOV = (50.28, 29.16)
-RES = (640 , 380)
-CAM_HEIGHT = 0.4
-CAM_ANGLE = -15
-input = VisionInput(FOV, RES, CAM_HEIGHT, CAM_ANGLE)
+input = VisionInput(AT_FOV, AT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, index)
+
 tag_module = AprilTag()
 ARUCO_LENGTH_METERS = 0.165
 pose_list=[]
