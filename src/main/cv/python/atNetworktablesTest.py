@@ -1,18 +1,20 @@
+from config import *
 from visionInput import VisionInput
 from apriltag import AprilTag
 import time
-import ntcore
 import cv2
 import traceback
 
-inst = ntcore.NetworkTableInstance.getDefault()
-inst.startClient4("python")
-inst.setServerTeam(2473)
+if ON_RPI:
+    import ntcore
+    inst = ntcore.NetworkTableInstance.getDefault()
+    inst.startClient4("python")
+    inst.setServerTeam(2473)
 
-table = inst.getTable("datatable")
-framePub = table.getDoubleTopic("fps_incremented_value").publish()
-tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
-outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
+    table = inst.getTable("datatable")
+    framePub = table.getDoubleTopic("fps_incremented_value").publish()
+    tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
+    outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
 
 
 FOV = (50.28, 29.16)
@@ -43,10 +45,10 @@ while True:
         #     pose_list[(key - 1) * 6 : (key * 6)] = np.concatenate((value[0].flatten(), value[1].flatten()), axis=0).tolist()
         #     print("detected pose_list", pose_list)
         
-
-        framePub.set(frame.sum())
-        tagDataPub.set(pose_list)
-        outputStreamPub.set(annotated_frame.flatten().tolist())
+        if ON_RPI:
+            framePub.set(frame.sum())
+            tagDataPub.set(pose_list)
+            outputStreamPub.set(annotated_frame.flatten().tolist())
 
         cv2.imshow('result', annotated_frame)
         key = cv2.waitKey(1) & 0xFF
@@ -62,7 +64,8 @@ while True:
         traceback.print_exc()
         # print("not pose list:", pose_list)
 
-    table = inst.getTable("datatable")
-    tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
-    tagDataPub.set(pose_list)
+    if ON_RPI:
+        table = inst.getTable("datatable")
+        tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
+        tagDataPub.set(pose_list)
     print('Loop time: ' + str(time.time()-p))

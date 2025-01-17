@@ -1,0 +1,3 @@
+opencv-python
+pupil_apriltags
+linuxpy
