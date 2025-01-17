@@ -22,11 +22,13 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 // Systems
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.MechSimTestFSM;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.constants.TunerConstants;
+import frc.robot.motors.MotorManager;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -45,6 +47,7 @@ public class Robot extends LoggedRobot {
 	private Command autCommand;
 	private FunnelFSMSystem funnelSystem;
 	private ElevatorFSMSystem elevatorSystem;
+	private MechSimTestFSM testFSM;
 
 
 	// Logger
@@ -97,6 +100,7 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
+		testFSM = new MechSimTestFSM();
 	}
 
 	@Override
@@ -129,6 +133,7 @@ public class Robot extends LoggedRobot {
 		if (elevatorSystem != null) {
 			elevatorSystem.reset();
 		}
+		testFSM.reset();
 	}
 
 	@Override
@@ -142,6 +147,8 @@ public class Robot extends LoggedRobot {
 		if (elevatorSystem != null) {
 			elevatorSystem.update(input);
 		}
+		testFSM.update(input);
+		MotorManager.update();
 	}
 
 	@Override
