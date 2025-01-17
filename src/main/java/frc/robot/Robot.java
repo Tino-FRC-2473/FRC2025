@@ -159,7 +159,6 @@ public class Robot extends LoggedRobot {
 		if (elevatorSystem != null) {
 			elevatorSystem.update(input);
 		}
-
 		MotorManager.update();
 	}
 

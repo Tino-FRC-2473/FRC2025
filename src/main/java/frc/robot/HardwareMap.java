@@ -19,7 +19,7 @@ public final class HardwareMap {
 	 * @return true if drive hardware is present
 	 */
 	public static boolean isDriveHardwarePresent() {
-		return true;
+		return false;
 	}
 
 	/**
