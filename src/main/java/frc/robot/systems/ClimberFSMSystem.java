@@ -148,6 +148,9 @@ public class ClimberFSMSystem {
 		SmartDashboard.putNumber("Climber encoder", climberMotor.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
 		SmartDashboard.putString("Climber state", currentState.toString());
+		SmartDashboard.putNumber("Climber LOWERED target", currentLoweredPidTarget);
+		SmartDashboard.putNumber("Climber EXTENDED target", currentExtendedPidTarget);
+		SmartDashboard.putNumber("Climber CLIMB target", currentClimbPidTarget);
 	}
 
 	/**
@@ -211,7 +214,7 @@ public class ClimberFSMSystem {
 	 */
 	private void handleLoweredState(TeleopInput input) {
 		if (currentLoweredPidTarget < climberMotor.getPosition().getValue().in(Revolutions)
-			+ Constants.CLIMBER_EXTERNAL_GEAR_RATIO * PID_MARGIN_OF_ERROR) {
+			- Constants.CLIMBER_EXTERNAL_GEAR_RATIO * PID_MARGIN_OF_ERROR) {
 			currentLoweredPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
 		}
 		climberMotor.setControl(mmVoltage.withPosition(currentLoweredPidTarget));
@@ -223,7 +226,8 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleExtendedState(TeleopInput input) {
-		if (currentExtendedPidTarget < climberMotor.getPosition().getValue().in(Revolutions)) {
+		if (currentExtendedPidTarget < climberMotor.getPosition().getValue().in(Revolutions)
+			- Constants.CLIMBER_EXTERNAL_GEAR_RATIO * PID_MARGIN_OF_ERROR) {
 			currentExtendedPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
 		}
 		climberMotor.setControl(mmVoltage.withPosition(currentExtendedPidTarget));
@@ -235,7 +239,8 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleClimbState(TeleopInput input) {
-		if (currentClimbPidTarget < climberMotor.getPosition().getValue().in(Revolutions)) {
+		if (currentClimbPidTarget < climberMotor.getPosition().getValue().in(Revolutions)
+			- Constants.CLIMBER_EXTERNAL_GEAR_RATIO * PID_MARGIN_OF_ERROR) {
 			currentClimbPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
 		}
 		climberMotor.setControl(mmVoltage.withPosition(currentClimbPidTarget));

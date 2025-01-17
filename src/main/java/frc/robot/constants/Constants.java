@@ -12,10 +12,10 @@ public final class Constants {
 	public static final double ELEVATOR_PID_TARGET_STATION = 100;
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
-	public static final double CLIMBER_PID_TARGET_EXTEND = 200;
-	public static final double CLIMBER_PID_TARGET_CLIMB = -500;
+	public static final double CLIMBER_PID_TARGET_EXTEND = 25;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 75;
 
-	public static final double CLIMBER_EXTERNAL_GEAR_RATIO = 1;
+	public static final double CLIMBER_EXTERNAL_GEAR_RATIO = 100;
 
 	// Motion Magic Constants
 	public static final double ELEVATOR_MM_CONSTANT_G = 0.17;

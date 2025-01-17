@@ -246,7 +246,7 @@ public class ElevatorFSMSystem {
 	 */
 	private boolean isLimitReached() {
 		if (Robot.isSimulation()) {
-			return elevatorMotor.getPosition().getValueAsDouble() < 0;
+			return false;
 		}
 		return !groundLimitSwitch.get();
 	}
