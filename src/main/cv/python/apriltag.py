@@ -166,7 +166,7 @@ class AprilTag():
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
             gray = image[:, :, 0]
-            results = self.detector.detect(image)
+            results = self.detector.detect(gray)
             ids = [r.tag_id for r in results]
             corners = [r.corners for r in results]
 
