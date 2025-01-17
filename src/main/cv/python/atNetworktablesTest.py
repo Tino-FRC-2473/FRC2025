@@ -2,7 +2,6 @@ from visionInput import VisionInput
 from apriltag import AprilTag
 import time
 import ntcore
-import numpy as np
 import cv2
 import traceback
 

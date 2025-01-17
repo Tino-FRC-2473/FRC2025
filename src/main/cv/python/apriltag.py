@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 import os
-import math
 import pupil_apriltags as apriltag
 from pathlib import Path
 

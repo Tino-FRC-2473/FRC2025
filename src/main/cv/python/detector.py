@@ -1,9 +1,6 @@
 import cv2
-import math
 import numpy as np
 from target import Target
-import skimage.color
-import time
 
 class Detector:
 
@@ -38,7 +35,7 @@ class Detector:
         low_threshold = np.array([102.24340111, 21.13310021, 177.33784898]) #cv2.cvt 
 
         #high_threshold = np.array([0.18016434, 1.19385776, 1.0694635]) #skimage
-        high_threshold = np.array([121.78736932 305.52047777 293.13095836]) #cv2.cvt
+        high_threshold = np.array([121.78736932, 305.52047777, 293.13095836]) #cv2.cvt
 
         results = dict(zip(objectsToDetect, [None for i in range(len(objectsToDetect))]))
         colors = {
@@ -49,7 +46,7 @@ class Detector:
             #Converts the color format of the frame from BGR to HSV for usage with cv2
             #full_test_image = self.bgr_to_rgb(frame)
             #hsv_frame = skimage.color.rgb2hsv(full_test_image)
-            hsv_frame = cv2.cvtColor(full_test_image, cv2.COLOR_RGB2HSV)
+            hsv_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
             #hsv_frame = self.bgr_to_hsv(frame)
             #print("color conversion", str(time.time()-p))
 
