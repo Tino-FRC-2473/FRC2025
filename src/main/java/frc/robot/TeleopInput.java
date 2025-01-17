@@ -113,7 +113,7 @@ public class TeleopInput {
 	 * @return If the share button was pressed this tick
 	 */
 	public boolean isClimbAdvanceStateButtonPressed() {
-		return mechController.getShareButtonPressed();
+		return mechController.getOptionsButtonPressed();
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class TeleopInput {
 	 * @return If the share button was pressed this tick
 	 */
 	public boolean isClimbRegressStateButtonPressed() {
-		return mechController.getOptionsButtonPressed();
+		return mechController.getShareButtonPressed();
 	}
 
 	/**

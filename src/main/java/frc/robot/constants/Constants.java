@@ -5,14 +5,15 @@ public final class Constants {
 	public static final double INRANGE_VALUE = 0.5;
 
 	// Encoder Position Constants
+		// None of these are tuned at all
 
 	public static final double ELEVATOR_PID_TARGET_L4 = 100;
 	public static final double ELEVATOR_PID_TARGET_GROUND = 100;
 	public static final double ELEVATOR_PID_TARGET_STATION = 100;
 
-	public static final double CLIMBER_PID_TARGET_LOW = 100;
-	public static final double CLIMBER_PID_TARGET_EXTEND = 100;
-	public static final double CLIMBER_PID_TARGET_CLIMB = 100;
+	public static final double CLIMBER_PID_TARGET_LOW = 0;
+	public static final double CLIMBER_PID_TARGET_EXTEND = 200;
+	public static final double CLIMBER_PID_TARGET_CLIMB = -100;
 
 	// Motion Magic Constants
 	public static final double ELEVATOR_MM_CONSTANT_G = 0.17;

@@ -21,6 +21,7 @@ import frc.robot.Robot;
 
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
+import frc.robot.motors.TalonFXWrapper;
 import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
 
@@ -58,7 +59,7 @@ public class ElevatorFSMSystem {
 		// Perform hardware init
 
 		//perform kraken init
-		elevatorMotor = new TalonFX(HardwareMap.CAN_ID_ELEVATOR);
+		elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
 
 		// elevatorMotor.setPosition(0); // reset kraken encoder (only use when tuning)
 		elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -130,11 +131,6 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
-		BaseStatusSignal.refreshAll(
-			elevatorMotor.getPosition(),
-			elevatorMotor.getVelocity(),
-			elevatorMotor.getAcceleration(),
-			elevatorMotor.getMotorVoltage());
 
 		if (input == null) {
 			return;
@@ -263,14 +259,15 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleManualState(TeleopInput input) {
 		double signalInput = input.getManualElevatorMovementInput();
+		signalInput = MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND);
+		SmartDashboard.putNumber("input", signalInput);
 		if (isLimitReached()) {
 			elevatorMotor.setPosition(0);
 			if (signalInput < 0) {
-				elevatorMotor.set(0);
 				return;
 			}
 		}
-		elevatorMotor.set(MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND));
+		elevatorMotor.set(signalInput);
 	}
 
 	/**

@@ -23,10 +23,12 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 // Systems
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
+import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.constants.TunerConstants;
+import frc.robot.motors.MotorManager;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -43,7 +45,8 @@ public class Robot extends LoggedRobot {
 	private AutoRoutines autoRoutines;
 	private AutoChooser autoChooser = new AutoChooser();
 	private Command autCommand;
-	private ClimberFSMSystem funnelSystem;
+	private FunnelFSMSystem funnelSystem;
+	private ClimberFSMSystem climberSystem;
 	private ElevatorFSMSystem elevatorSystem;
 
 
@@ -94,7 +97,11 @@ public class Robot extends LoggedRobot {
 		}
 
 		if (HardwareMap.isFunnelHardwarePresent()) {
-			funnelSystem = new ClimberFSMSystem();
+			funnelSystem = new FunnelFSMSystem();
+		}
+
+		if (HardwareMap.isClimberHardwarePresent()) {
+			climberSystem = new ClimberFSMSystem();
 		}
 
 		if (HardwareMap.isDriveHardwarePresent()) {
@@ -129,6 +136,9 @@ public class Robot extends LoggedRobot {
 		if (funnelSystem != null) {
 			funnelSystem.reset();
 		}
+		if (climberSystem != null) {
+			climberSystem.reset();
+		}
 		if (elevatorSystem != null) {
 			elevatorSystem.reset();
 		}
@@ -142,9 +152,14 @@ public class Robot extends LoggedRobot {
 		if (funnelSystem != null) {
 			funnelSystem.update(input);
 		}
+		if (climberSystem != null) {
+			climberSystem.update(input);
+		}
 		if (elevatorSystem != null) {
 			elevatorSystem.update(input);
 		}
+
+		MotorManager.update();
 	}
 
 	@Override

@@ -10,15 +10,16 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.HardwareMap;
-import frc.robot.Robot;
-import frc.robot.TeleopInput;
 
 // Third party Hardware Imports
 
 // Robot Imports
 import frc.robot.constants.Constants;
+import frc.robot.motors.TalonFXWrapper;
 import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
+import frc.robot.HardwareMap;
+import frc.robot.Robot;
+import frc.robot.TeleopInput;
 
 public class ClimberFSMSystem {
 	/* ======================== Constants ======================== */
@@ -46,7 +47,7 @@ public class ClimberFSMSystem {
 	 */
 	public ClimberFSMSystem() {
 		// Perform hardware init
-		climberMotor = new TalonFX(HardwareMap.CAN_ID_CLIMBER);
+		climberMotor = new TalonFXWrapper(HardwareMap.CAN_ID_CLIMBER);
 		climberMotor.setNeutralMode(NeutralModeValue.Brake);
 
 		var talonFXConfigs = new TalonFXConfiguration();
@@ -74,7 +75,9 @@ public class ClimberFSMSystem {
 			climberMotor.getAcceleration(),
 			climberMotor.getMotorVoltage());
 
-		climberMotor.optimizeBusUtilization();
+		// climberMotor.optimizeBusUtilization();
+
+		climberMotor.setPosition(0);
 
 		climberLimitSwitch = new DigitalInput(HardwareMap.CLIMBER_LIMIT_SWITCH_PORT);
 
@@ -121,6 +124,9 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
+		if (input == null) {
+			return;
+		}
 		switch (currentState) {
 			case LOWERED:
 				handleLoweredState(input);
@@ -141,7 +147,7 @@ public class ClimberFSMSystem {
 
 		SmartDashboard.putNumber("Climber encoder", climberMotor.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
-		SmartDashboard.putString("Elevator state", currentState.toString());
+		SmartDashboard.putString("Climber state", currentState.toString());
 	}
 
 	/**
