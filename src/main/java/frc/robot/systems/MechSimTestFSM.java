@@ -7,6 +7,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 // WPILib Imports
 
 // Third party Hardware Imports
@@ -21,8 +24,9 @@ public class MechSimTestFSM {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum FSMState {
-		START_STATE,
-		OTHER_STATE
+		ONE,
+		TWO,
+		MANUAL
 	}
 
 	/* ======================== Private variables ======================== */
@@ -98,7 +102,7 @@ public class MechSimTestFSM {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FSMState.START_STATE;
+		currentState = FSMState.ONE;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -112,18 +116,31 @@ public class MechSimTestFSM {
 	 */
 	public void update(TeleopInput input) {
 		switch (currentState) {
-			case START_STATE:
-				handleStartState(input);
+			case ONE:
+				handleOneState(input);
 				break;
 
-			case OTHER_STATE:
-				handleOtherState(input);
+			case TWO:
+				handleTwoState(input);
+				break;
+
+			case MANUAL:
+				handleManualState(input);
 				break;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
+
+		// Logging
+
+		SmartDashboard.putNumber("Test Position",
+			testMotor.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("Test Velocity",
+			testMotor.getVelocity().getValueAsDouble());
+
+		SmartDashboard.putString("Test State", currentState.toString());
 	}
 
 	/**
@@ -156,15 +173,29 @@ public class MechSimTestFSM {
 	 */
 	private FSMState nextState(TeleopInput input) {
 		switch (currentState) {
-			case START_STATE:
-				if (input != null) {
-					return FSMState.OTHER_STATE;
-				} else {
-					return FSMState.START_STATE;
+			case ONE:
+				if (input != null && input.getDriveLeftJoystickX() > 0.1) {
+					return FSMState.TWO;
 				}
+				if (input != null && input.getDriveLeftJoystickY() > 0.1) {
+					return FSMState.MANUAL;
+				}
+				return FSMState.ONE;
 
-			case OTHER_STATE:
-				return FSMState.OTHER_STATE;
+			case TWO:
+				if (input != null && input.getDriveLeftJoystickX() < 0.1) {
+					return FSMState.ONE;
+				}
+				if (input != null && input.getDriveLeftJoystickY() > 0.1) {
+					return FSMState.MANUAL;
+				}
+				return FSMState.TWO;
+
+			case MANUAL:
+				if (input != null && input.getDriveLeftJoystickY() < 0.1) {
+					return FSMState.ONE;
+				}
+				return FSMState.MANUAL;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -173,20 +204,25 @@ public class MechSimTestFSM {
 
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
-	 * Handle behavior in START_STATE.
+	 * Handle behavior in ONE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *		the robot is in autonomous mode.
 	 */
-	private void handleStartState(TeleopInput input) {
-
+	private void handleOneState(TeleopInput input) {
+		testMotor.setControl(mmVoltage.withPosition(10));
 	}
 	/**
-	 * Handle behavior in OTHER_STATE.
+	 * Handle behavior in TWO.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *		the robot is in autonomous mode.
 	 */
-	private void handleOtherState(TeleopInput input) {
-		testMotor.setControl(mmVoltage.withPosition(1000));
+	private void handleTwoState(TeleopInput input) {
+		testMotor.setControl(mmVoltage.withPosition(100));
+	}
+
+	private void handleManualState(TeleopInput input) {
+		double signalInput = input.getDriveRightJoystickX();
+		testMotor.set(signalInput);
 	}
 
 	/**

@@ -21,6 +21,7 @@ import frc.robot.Robot;
 
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
+import frc.robot.motors.TalonFXWrapper;
 import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
 
@@ -58,7 +59,7 @@ public class ElevatorFSMSystem {
 		// Perform hardware init
 
 		//perform kraken init
-		elevatorMotor = new TalonFX(HardwareMap.CAN_ID_ELEVATOR);
+		elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
 
 		// elevatorMotor.setPosition(0); // reset kraken encoder (only use when tuning)
 		elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
