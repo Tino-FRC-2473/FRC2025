@@ -14,7 +14,7 @@ import frc.robot.Robot;
 public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 
 	// Attributes
-	private static final double K_GEAR_RATIO = 1.0;
+	private static final double K_GEAR_RATIO = 10.0;
 	private static final double INERTIA_CONSTANT = 0.001;
 
 	// Components

@@ -164,6 +164,9 @@ public class ElevatorFSMSystem {
 
 		SmartDashboard.putString("Elevator State", currentState.toString());
 
+		SmartDashboard.putString("Elevator control request",
+			elevatorMotor.getAppliedControl().toString());
+
 	}
 
 	/**

@@ -58,7 +58,7 @@ public class ClimberFSMSystem {
 		var talonFXConfigs = new TalonFXConfiguration();
 		var slot0Configs = talonFXConfigs.Slot0;
 
-		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+		slot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
 		slot0Configs.kG = Constants.CLIMBER_MM_CONSTANT_G;
 		slot0Configs.kS = Constants.CLIMBER_MM_CONSTANT_S;
 		slot0Configs.kV = Constants.CLIMBER_MM_CONSTANT_V;
@@ -87,7 +87,7 @@ public class ClimberFSMSystem {
 		currentExtendedPidTarget = Constants.CLIMBER_PID_TARGET_EXTEND;
 		currentClimbPidTarget = Constants.CLIMBER_PID_TARGET_CLIMB;
 
-		climberMotor.setPosition(0);
+		// climberMotor.setPosition(0);
 
 
 		// Reset state machine
@@ -151,6 +151,8 @@ public class ClimberFSMSystem {
 		SmartDashboard.putNumber("Climber LOWERED target", currentLoweredPidTarget);
 		SmartDashboard.putNumber("Climber EXTENDED target", currentExtendedPidTarget);
 		SmartDashboard.putNumber("Climber CLIMB target", currentClimbPidTarget);
+		SmartDashboard.putString("Climber control request",
+			climberMotor.getAppliedControl().toString());
 	}
 
 	/**
