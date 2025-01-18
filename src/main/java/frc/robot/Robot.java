@@ -149,7 +149,6 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void disabledInit() {
 		System.out.println("-------- Disabled Init --------");
-		Logger.end(); // Stop logging!
 		if (powerLogger != null) {
 			powerLogger.close();
 		}
