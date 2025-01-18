@@ -12,6 +12,7 @@ public final class HardwareMap {
 	// sensor ports
 
 	public static final int ELEVATOR_LIMIT_SWITCH_PORT = 1; // not confirmed with electrical
+	public static final int FUNNEL_SERVO_PORT = 2; // not confirmed with hardware
 
 	/* ===== Hardware Availability ===== */
 	/**
@@ -43,7 +44,7 @@ public final class HardwareMap {
 	 * @return true if funnel hardware is present
 	 */
 	public static boolean isFunnelHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
