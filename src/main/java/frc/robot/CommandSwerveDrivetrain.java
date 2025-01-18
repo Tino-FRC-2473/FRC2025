@@ -17,6 +17,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Notifier;
+import frc.robot.constants.SimConstants;
+import frc.robot.constants.TunerConstants;
+import frc.robot.simulation.MapleSimSwerveDrivetrain;
+import frc.robot.simulation.SimSwerveDrivetrainConfig;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -45,6 +50,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 			getPigeon2().getRotation2d(),
 			getModulePositions(), new Pose2d());
 
+	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
+	private Notifier simNotifier;
 	/**
 	 * Constructs a CommandSwerveDrivetrain with the specified drivetrain constants and modules.
 	 *
@@ -58,9 +65,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	) {
 		super(
 			TalonFX::new, TalonFX::new, CANcoder::new,
-			drivetrainConstants, modules
+			drivetrainConstants,
+			MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)
 		);
 
+		if (Robot.isSimulation()) {
+			setupSimulation();
+		}
 		// setupPathplanner();
 	}
 
@@ -117,6 +128,32 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		}
 
 		return pos;
+	}
+
+	private void setupSimulation() {
+		mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
+			SimSwerveDrivetrainConfig.getDefault()
+				.withModuleLocations(getModuleLocations())
+				.withPigeon(getPigeon2())
+				.withModules(getModules())
+				.withModuleConstants(
+						TunerConstants.FRONT_LEFT,
+						TunerConstants.FRONT_RIGHT,
+						TunerConstants.BACK_LEFT,
+						TunerConstants.BACK_RIGHT
+				)
+			);
+
+		simNotifier = new Notifier(mapleSimSwerveDrivetrain::update);
+		simNotifier.startPeriodic(SimConstants.SIM_LOOP_PERIOD);
+	}
+
+	/**
+	 * Get the sim drive train as a MapleSimSwerveDrivetrain.
+	 * @return the sim drivetrain of the current class, or null if not simulation
+	 */
+	public MapleSimSwerveDrivetrain getSimDrivetrain() {
+		return mapleSimSwerveDrivetrain;
 	}
 
 	// @Override
