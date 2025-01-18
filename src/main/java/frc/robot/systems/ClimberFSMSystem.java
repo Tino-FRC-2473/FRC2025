@@ -87,8 +87,6 @@ public class ClimberFSMSystem {
 		currentExtendedPidTarget = Constants.CLIMBER_PID_TARGET_EXTEND;
 		currentClimbPidTarget = Constants.CLIMBER_PID_TARGET_CLIMB;
 
-		// climberMotor.setPosition(0);
-
 
 		// Reset state machine
 		reset();
@@ -112,6 +110,8 @@ public class ClimberFSMSystem {
 	 */
 	public void reset() {
 		currentState = ClimberFSMState.LOWERED;
+
+		climberMotor.setPosition(0);
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);

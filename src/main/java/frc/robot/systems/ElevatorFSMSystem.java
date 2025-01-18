@@ -120,6 +120,8 @@ public class ElevatorFSMSystem {
 	public void reset() {
 		currentState = ElevatorFSMState.MANUAL;
 
+		elevatorMotor.setPosition(0);
+
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
 	}
