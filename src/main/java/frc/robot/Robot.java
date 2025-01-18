@@ -6,6 +6,8 @@ package frc.robot;
 // Third Party Imports
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -176,7 +178,23 @@ public class Robot extends LoggedRobot {
 	}
 
 	@Override
-	public void simulationPeriodic() { }
+	public void simulationPeriodic() {
+		Logger.recordOutput(
+			"FieldSimulation/SimulatedPose",
+			driveSystem.getMapleSimDrive().getSimulatedDriveTrainPose()
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/AlgaePoses",
+			SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/CoralPoses",
+			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
+		);
+
+	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override

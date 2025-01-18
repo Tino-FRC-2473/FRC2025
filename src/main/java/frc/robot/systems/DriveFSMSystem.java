@@ -11,6 +11,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
@@ -235,5 +237,14 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	private boolean handleAutoState3() {
 		return true;
+	}
+
+	/**
+	 * Get the maple-Sim Swerve simulation.
+	 * @return the simulation
+	 */
+	public SwerveDriveSimulation getMapleSimDrive() {
+		return drivetrain.getSimDrivetrain().getDriveSimulation();
+
 	}
 }
