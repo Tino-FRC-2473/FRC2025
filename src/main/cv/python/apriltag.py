@@ -172,6 +172,7 @@ class AprilTag():
 
             pose_list = []
             num_tags = len(ids) if ids is not None else 0
+            print(num_tags)
             if num_tags != 0:
                 # Estimate the pose of each detected marker
                 for i in range(len(ids)):
@@ -181,7 +182,7 @@ class AprilTag():
                     pose_list.append([ids[i], cvec, tvec, rvec])
                     
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
-                    return pose_list
+                return pose_list
             else: 
                 return [4000 for _ in range(self.NUM_TAGS * 6)]
             
