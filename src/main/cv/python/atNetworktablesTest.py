@@ -7,9 +7,11 @@ import traceback
 
 if ON_RPI:
     import ntcore
+    NETWORK_IDENTITY = "python"
+    TEAM_NUMBER = 2473
     inst = ntcore.NetworkTableInstance.getDefault()
-    inst.startClient4("python")
-    inst.setServerTeam(2473)
+    inst.startClient4(NETWORK_IDENTITY)
+    inst.setServerTeam(TEAM_NUMBER)
 
     table = inst.getTable("datatable")
     framePub = table.getDoubleTopic("fps_incremented_value").publish()
@@ -40,11 +42,6 @@ while True:
         if(tagData is None):
             print("tagData none")
         print("tagData.items:", tagData)
-        # pose_list = [4000 for _ in range(NUM_TAGS * 6)]
-        # for key, value in tagData.items():
-        #     print("in for loop. key", key, " value: ", value)
-        #     pose_list[(key - 1) * 6 : (key * 6)] = np.concatenate((value[0].flatten(), value[1].flatten()), axis=0).tolist()
-        #     print("detected pose_list", pose_list)
         
         if ON_RPI:
             framePub.set(frame.sum())
@@ -63,7 +60,6 @@ while True:
     except Exception as error:
         print("An exception occurred:", error.__class__)
         traceback.print_exc()
-        # print("not pose list:", pose_list)
 
     if ON_RPI:
         table = inst.getTable("datatable")
