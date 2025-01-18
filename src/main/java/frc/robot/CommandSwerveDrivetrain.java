@@ -121,9 +121,4 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		return pos;
 	}
 
-	// @Override
-	// public void simulationPeriodic() {
-	// 	/* Assume 20ms update rate, get battery voltage from WPILib */
-	// 	updateSimState(0.02, RobotController.getBatteryVoltage());
-	// }
 }

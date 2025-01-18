@@ -132,12 +132,6 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.reset();
 		}
-		//if (funnelSystem != null) {
-		//	funnelSystem.reset();
-		//}
-		//if (elevatorSystem != null) {
-		//	elevatorSystem.reset();
-		//}
 	}
 
 	@Override
@@ -145,12 +139,6 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.update(input);
 		}
-		//if (funnelSystem != null) {
-		//	funnelSystem.update(input);
-		//}
-		//if (elevatorSystem != null) {
-		//	elevatorSystem.update(input);
-		//}
 	}
 
 	@Override
