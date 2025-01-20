@@ -51,9 +51,9 @@ public class RaspberryPI {
 	 * This value is used in tag-relative swerve movements
 	 */
 	public double getAprilTagX(int id) {
-		try {
+		if (!tagSubscriber.get().equals(null)) {
 			return tagSubscriber.get()[(VALUES_PER_TAG * (id - 1))];
-		} catch (NullPointerException e) {
+		} else {
 			return VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT;
 		}
 	}
@@ -64,9 +64,9 @@ public class RaspberryPI {
 	 * This value is used in tag-relative swerve movements
 	 */
 	public double getAprilTagY(int id) {
-		try {
+		if (!tagSubscriber.get().equals(null)) {
 			return tagSubscriber.get()[(VALUES_PER_TAG * (id - 1)) + 1];
-		} catch (NullPointerException e) {
+		} else {
 			return VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT;
 		}
 	}
@@ -77,9 +77,9 @@ public class RaspberryPI {
 	 * This value is used in tag-relative swerve movements
 	 */
 	public double getAprilTagZ(int id) {
-		try {
+		if (!tagSubscriber.get().equals(null)) {
 			return tagSubscriber.get()[(VALUES_PER_TAG * (id - 1)) + 2];
-		} catch (NullPointerException e) {
+		} else {
 			return VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT;
 		}
 	}
@@ -90,9 +90,9 @@ public class RaspberryPI {
 	 * This value is proportional to yaw and is used in robot-relative swerve movements
 	 */
 	public double getAprilTagXInv(int id) {
-		try {
+		if (!tagSubscriber.get().equals(null)) {
 			return tagSubscriber.get()[(VALUES_PER_TAG * (id - 1)) + 2 + 1];
-		} catch (NullPointerException e) {
+		} else {
 			return VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT;
 		}
 	}
@@ -103,9 +103,9 @@ public class RaspberryPI {
 	 * This value is proportional to pitch and is used in robot-relative swerve movements
 	 */
 	public double getAprilTagYInv(int id) {
-		try {
+		if (!tagSubscriber.get().equals(null)) {
 			return tagSubscriber.get()[(VALUES_PER_TAG * (id - 1)) + 2 + 2];
-		} catch (NullPointerException e) {
+		} else {
 			return VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT;
 		}
 	}
@@ -116,9 +116,9 @@ public class RaspberryPI {
 	 * This value is used in robot-relative swerve movements
 	 */
 	public double getAprilTagZInv(int id) {
-		try {
+		if (!tagSubscriber.get().equals(null)) {
 			return tagSubscriber.get()[(VALUES_PER_TAG * (id - 1)) + 2 + 2 + 1];
-		} catch (NullPointerException e) {
+		} else {
 			return VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT;
 		}
 	}
