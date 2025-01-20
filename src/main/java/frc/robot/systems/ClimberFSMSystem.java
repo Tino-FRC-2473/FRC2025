@@ -72,6 +72,7 @@ public class ClimberFSMSystem {
 		talonFXConfigs.MotionMagic.MotionMagicJerk = Constants.CLIMBER_CONFIG_CONSTANT_J;
 
 		climberMotor.getConfigurator().apply(talonFXConfigs);
+		climberMotor.setPosition(0); // reset motor encoder position(not an instruction to go to 0)
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
 			Constants.UPDATE_FREQUENCY_HZ,
@@ -83,9 +84,9 @@ public class ClimberFSMSystem {
 		climberMotor.optimizeBusUtilization();
 
 		// initialize pid targets
-		currentLoweredPidTarget = Constants.CLIMBER_PID_TARGET_LOW;
-		currentExtendedPidTarget = Constants.CLIMBER_PID_TARGET_EXTEND;
-		currentClimbPidTarget = Constants.CLIMBER_PID_TARGET_CLIMB;
+		currentLoweredPidTarget = Constants.CLIMBER_PID_TARGET_LOW_ROTS;
+		currentExtendedPidTarget = Constants.CLIMBER_PID_TARGET_EXTEND_ROTS;
+		currentClimbPidTarget = Constants.CLIMBER_PID_TARGET_CLIMB_ROTS;
 
 
 		// Reset state machine
@@ -110,8 +111,6 @@ public class ClimberFSMSystem {
 	 */
 	public void reset() {
 		currentState = ClimberFSMState.LOWERED;
-
-		climberMotor.setPosition(0);
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);

@@ -4,9 +4,9 @@ public final class Constants {
 
 	//funnel constants
 
-	public static final double FUNNEL_CLOSED_POS = 1;
+	public static final double FUNNEL_CLOSED_POS_ROTS = 1;
 
-	public static final double FUNNEL_OUTTAKE_POS = 0;
+	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0;
 
 	// PID Constants
 	public static final double INRANGE_VALUE = 0.5;
@@ -18,9 +18,9 @@ public final class Constants {
 	public static final double ELEVATOR_PID_TARGET_GROUND = 50;
 	public static final double ELEVATOR_PID_TARGET_STATION = 150;
 
-	public static final double CLIMBER_PID_TARGET_LOW = 0;
-	public static final double CLIMBER_PID_TARGET_EXTEND = 25;
-	public static final double CLIMBER_PID_TARGET_CLIMB = 75;
+	public static final double CLIMBER_PID_TARGET_LOW_ROTS = 0;
+	public static final double CLIMBER_PID_TARGET_EXTEND_ROTS = 25;
+	public static final double CLIMBER_PID_TARGET_CLIMB_ROTS = 75;
 
 	public static final double CLIMBER_EXTERNAL_GEAR_RATIO = 100;
 

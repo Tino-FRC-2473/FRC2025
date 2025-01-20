@@ -38,7 +38,7 @@ public class FunnelFSMSystem {
 	public FunnelFSMSystem() {
 		// Perform hardware init
 		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PORT);
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS);
+		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 
 		// Reset state machine
 		reset();
@@ -156,7 +156,7 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS);
+		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
 	}
 	/**
 	 * Handle behavior in OTHER_STATE.
@@ -164,7 +164,7 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleClosedState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS);
+		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 	}
 
 	/**
