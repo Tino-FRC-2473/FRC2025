@@ -1,3 +1,5 @@
+## Copy to config.py
+
 ON_RPI = False
 
 DRIVER_CAM_LISTEN_PORT = 1181
