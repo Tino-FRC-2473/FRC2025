@@ -18,6 +18,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 // Robot Imports
 import frc.robot.TeleopInput;
+import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
@@ -53,7 +54,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	/* -- cv constants -- */
 	private RaspberryPI rpi = new RaspberryPI();
 	private boolean tagPositionAligned;
-	private int tagID = (2 + 2 + 1);
+	private int tagID = AutoConstants.B_REEF_1_TAG_ID;
 
 
 	/* ======================== Private variables ======================== */

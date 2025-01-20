@@ -18,8 +18,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.auto.AutoRoutines;
-import frc.robot.constants.AutoConstants.AutoCommands;
 
 // Systems
 import frc.robot.systems.FunnelFSMSystem;
@@ -27,11 +25,7 @@ import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
-import frc.robot.constants.TunerConstants;
-// import frc.robot.systems.Mech1FSMSystem;
-// import frc.robot.systems.Mech2FSMSystem;
-// import frc.robot.systems.AutoHandlerSystem;
-// import frc.robot.systems.AutoHandlerSystem.AutoPath;
+import frc.robot.auto.AutoRoutines;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -39,7 +33,6 @@ import frc.robot.constants.TunerConstants;
  */
 public class Robot extends LoggedRobot {
 	private TeleopInput input;
-	private TunerConstants constants;
 
 	// Systems
 	private DriveFSMSystem driveSystem;
@@ -54,15 +47,7 @@ public class Robot extends LoggedRobot {
 	private PowerDistribution powerLogger;
 
 	private static final Object[] PATH_1 = new Object[] {
-		//"S1_R2",
-		AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
-		// score_command,
-		//"R2_StationL",
-		AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
-		// intake_command,
-		new Object[] {"StationL_R3", AutoCommands.DRIVE_BRAKE_CMD},
-		AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
-		//score_command
+		"S1_R2"
 	};
 
 	/**
@@ -111,7 +96,6 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
-		// autoHandler.reset(AutoPath.PATH1);
 		autCommand = getAutonomousCommand();
 
 		if (autCommand != null) {
@@ -121,7 +105,6 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		// autoHandler.update();
 		CommandScheduler.getInstance().run();
 		driveSystem.updateAutonomous();
 	}
