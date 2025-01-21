@@ -58,10 +58,29 @@ public class AprilTag {
         return new Pose3d(trans3d, rot3d);
     }
 
-    /**
-     * Gets the name of the camera
-     * @return The {@code String} name of the camera
-     */
+    public Double getX(){
+        return translationalVector.get(0);
+    }
+
+    public Double getY(){
+        return translationalVector.get(1);
+    }
+
+
+    public Double getZ(){
+        return translationalVector.get(2);
+    }
+
+    public Double getRoll(){
+        return rotationalVector.get(0);
+    }
+    public Double getYaw(){
+        return rotationalVector.get(1);
+    }
+    
+    public Double getPitch(){
+        return rotationalVector.get(2);
+    }
     public String getCameraName() {
         return camera;
     }
@@ -73,5 +92,6 @@ public class AprilTag {
     public int getTagID() {
         return tagID;
     }
+
 
 }
