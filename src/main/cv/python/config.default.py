@@ -17,7 +17,7 @@ NETWORKTABLES_TEAM = 2473
 
 #change this depending on which directory images for camera callibration are in
 CALIB_RES = (640, 480)
-CALIB_DIR = 'bw-cam1-images'
+CALIB_DIR = 'calibration_data'
 CALIB_FILE_NAME = "bw_cam_1"
 CALIB_WIDTH = 7
 CALIB_HEIGHT = 7

@@ -13,8 +13,8 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(basePath / f'{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(basePath / f'{AT_CAM_NAME}dist.npy')
+        self.camera_matrix = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
 
