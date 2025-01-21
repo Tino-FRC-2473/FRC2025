@@ -16,11 +16,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 // Measures
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.Time;
 
 // Units
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Pounds;
 
 // Local Imports
@@ -31,7 +29,6 @@ import frc.robot.constants.SimConstants;
  */
 public class SimSwerveDrivetrainConfig {
 	private Mass robotMass;
-	private Time simPeriod;
 	private Distance robotBumperWidth;
 	private Distance robotBumperLength;
 	private DCMotor moduleDriveMotor;
@@ -50,7 +47,6 @@ public class SimSwerveDrivetrainConfig {
 	public static SimSwerveDrivetrainConfig getDefault() {
 		return new SimSwerveDrivetrainConfig()
 			.withRobotMass(Pounds.of(SimConstants.MASS_WITH_BUMPER_LBS))
-			.withSimPeriod(Seconds.of(SimConstants.SIM_LOOP_PERIOD))
 			.withBumperWidth(Inches.of(SimConstants.LENGTH_IN))
 			.withBumperLength(Inches.of(SimConstants.WIDTH_IN))
 			.withWheelCOF(SimConstants.WHEEL_COF)
@@ -65,16 +61,6 @@ public class SimSwerveDrivetrainConfig {
 	 */
 	public SimSwerveDrivetrainConfig withRobotMass(Mass robotMassWithBumper) {
 		robotMass = robotMassWithBumper;
-		return this;
-	}
-
-	/**
-	 * Applies the time it takes for a simulation periodic on the sim thread.
-	 * @param simPeriodTime the period of time
-	 * @return this config
-	 */
-	public SimSwerveDrivetrainConfig withSimPeriod(Time simPeriodTime) {
-		simPeriod = simPeriodTime;
 		return this;
 	}
 
@@ -177,14 +163,6 @@ public class SimSwerveDrivetrainConfig {
 	 */
 	public Mass getRobotMass() {
 		return robotMass;
-	}
-
-	/**
-	 * Get the sim period time.
-	 * @return the sim period time.
-	 */
-	public Time getSimPeriod() {
-		return simPeriod;
 	}
 
 	/**
