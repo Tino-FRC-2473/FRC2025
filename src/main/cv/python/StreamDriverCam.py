@@ -1,12 +1,11 @@
-from config import ON_RPI, DRIVER_CAM_USB_ID, DRIVER_CAM_INDEX, DRIVER_CAM_LISTEN_IP, DRIVER_CAM_LISTEN_PORT
-from visionInput import find_camera_index
+from config import *
 import cv2
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import socket
 
 if ON_RPI:
-    index = find_camera_index(DRIVER_CAM_USB_ID)
+    index = find_camera_index(CAM_USB_ID)
 else:
     index = DRIVER_CAM_INDEX
 camera = cv2.VideoCapture(index)

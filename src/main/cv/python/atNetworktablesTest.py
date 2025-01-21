@@ -1,4 +1,4 @@
-from config import ON_RPI, NETWORKTABLES_TEAM, AT_CAM_USB_ID, AT_CAM_INDEX, AT_FOV, AT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE
+from config import *
 from visionInput import VisionInput, find_camera_index
 from apriltag import AprilTag
 import time
@@ -8,9 +8,10 @@ import traceback
 if ON_RPI:
     import ntcore
     NETWORK_IDENTITY = "python"
+    TEAM_NUMBER = 2473
     inst = ntcore.NetworkTableInstance.getDefault()
     inst.startClient4(NETWORK_IDENTITY)
-    inst.setServerTeam(NETWORKTABLES_TEAM)
+    inst.setServerTeam(TEAM_NUMBER)
 
     table = inst.getTable("datatable")
     framePub = table.getDoubleTopic("fps_incremented_value").publish()
