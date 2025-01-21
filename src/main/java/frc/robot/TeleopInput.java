@@ -112,6 +112,15 @@ public class TeleopInput {
 	}
 
 	/**
+	 * Gets the value of the options button.
+	 * Intended to signify when the climber should go to the next state.
+	 * @return If the options button was pressed this tick
+	 */
+	public boolean isClimbAdvanceStateButtonPressed() {
+		return mechController.getOptionsButtonPressed();
+	}
+
+	/**
 	 * Get the manual elevator movement input (right stick Y).
 	 * @return A double in the range [-1,1] representing the control input
 	 */
@@ -128,11 +137,12 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get Y axis of Left Joystick.
-	 * @return Axis value
+	 * Gets the value of the options button.
+	 * Intended to signify when the climber should go to the next state.
+	 * @return If the share button was pressed this tick
 	 */
-	public double getMechLeftJoystickY() {
-		return mechController.getLeftY();
+	public boolean isFunnelButtonPressed() {
+		return mechController.getL1Button();
 	}
 
 	/* ======================== Private methods ======================== */

@@ -1,13 +1,29 @@
 package frc.robot.constants;
 
 public final class Constants {
+
+	//funnel constants
+
+	public static final double FUNNEL_CLOSED_POS_ROTS = 1;
+
+	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0;
+
 	// PID Constants
 	public static final double INRANGE_VALUE = 0.5;
 
 	// Encoder Position Constants
-	public static final double ELEVATOR_PID_TARGET_L4 = 100;
-	public static final double ELEVATOR_PID_TARGET_GROUND = 100;
-	public static final double ELEVATOR_PID_TARGET_STATION = 100;
+		// None of these are tuned at all
+
+	public static final double ELEVATOR_PID_TARGET_L4 = 200;
+	public static final double ELEVATOR_PID_TARGET_GROUND = 50;
+	public static final double ELEVATOR_PID_TARGET_STATION = 150;
+
+	public static final double CLIMBER_PID_TARGET_LOW = 0;
+	public static final double CLIMBER_PID_TARGET_EXTEND = 25;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 75;
+
+	public static final double CLIMBER_COUNTS_PER_REV = 100;
+	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 0.05;
 
 	// Motion Magic Constants
 	public static final double ELEVATOR_MM_CONSTANT_G = 0.17;
@@ -25,9 +41,16 @@ public final class Constants {
 	public static final double ELEVATOR_MM_CONSTANT_D = 0.0;
 		//Voltage for Derivative error of 1 rps
 
+	public static final double CLIMB_POWER = 0.2;
+
 	public static final double ELEVATOR_CONFIG_CONSTANT_CV = 14; // Cruise Velo in rps (10)
 	public static final double ELEVATOR_CONFIG_CONSTANT_A = 80; // Max acceleration in rps/s (80)
 	public static final double ELEVATOR_CONFIG_CONSTANT_J = 110; // Target jerk in rps/s/s (110)
+
+	// to be tuned for climber
+	public static final double CLIMBER_CONFIG_CONSTANT_CV = 14; // Cruise Velo in rps (10)
+	public static final double CLIMBER_CONFIG_CONSTANT_A = 80; // Max acceleration in rps/s (80)
+	public static final double CLIMBER_CONFIG_CONSTANT_J = 110; // Target jerk in rps/s/s (110)
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;

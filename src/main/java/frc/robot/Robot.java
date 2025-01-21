@@ -22,12 +22,14 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 // Systems
-import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
+import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
+import frc.robot.motors.MotorManager;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -42,6 +44,7 @@ public class Robot extends LoggedRobot {
 	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 	private Command autCommand;
 	private FunnelFSMSystem funnelSystem;
+	private ClimberFSMSystem climberSystem;
 	private ElevatorFSMSystem elevatorSystem;
 
 
@@ -93,6 +96,10 @@ public class Robot extends LoggedRobot {
 			autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
+
+		if (HardwareMap.isClimberHardwarePresent()) {
+			climberSystem = new ClimberFSMSystem();
+		}
 	}
 
 	@Override
@@ -117,6 +124,15 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.reset();
 		}
+		if (funnelSystem != null) {
+			funnelSystem.reset();
+		}
+		if (climberSystem != null) {
+			climberSystem.reset();
+		}
+		if (elevatorSystem != null) {
+			elevatorSystem.reset();
+		}
 	}
 
 	@Override
@@ -124,6 +140,16 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.update(input);
 		}
+		if (funnelSystem != null) {
+			funnelSystem.update(input);
+		}
+		if (climberSystem != null) {
+			climberSystem.update(input);
+		}
+		if (elevatorSystem != null) {
+			elevatorSystem.update(input);
+		}
+		MotorManager.update();
 	}
 
 	@Override
