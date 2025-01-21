@@ -24,6 +24,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import frc.robot.TeleopInput;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
+import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 
@@ -243,8 +244,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Get the maple-Sim Swerve simulation.
 	 * @return the simulation
 	 */
-	public SwerveDriveSimulation getMapleSimDrive() {
-		return drivetrain.getSimDrivetrain().getDriveSimulation();
-
+	public MapleSimSwerveDrivetrain getMapleSimDrivetrain() {
+		return drivetrain.getSimDrivetrain();
 	}
 }

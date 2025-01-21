@@ -178,9 +178,11 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
+		driveSystem.getMapleSimDrivetrain().update();
+
 		Logger.recordOutput(
 			"FieldSimulation/SimulatedPose",
-			driveSystem.getMapleSimDrive().getSimulatedDriveTrainPose()
+			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
 		);
 
 		Logger.recordOutput(
