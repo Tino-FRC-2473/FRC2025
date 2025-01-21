@@ -110,7 +110,7 @@ public class TeleopInput {
 	/**
 	 * Gets the value of the options button.
 	 * Intended to signify when the climber should go to the next state.
-	 * @return If the share button was pressed this tick
+	 * @return If the options button was pressed this tick
 	 */
 	public boolean isClimbAdvanceStateButtonPressed() {
 		return mechController.getOptionsButtonPressed();

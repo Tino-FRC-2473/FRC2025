@@ -1,13 +1,8 @@
 package frc.robot.systems;
 
-import static edu.wpi.first.units.Units.Revolutions;
-
 // WPILib Imports
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,16 +25,15 @@ public class ClimberFSMSystem {
 		CLIMB
 	}
 
-	private static final double PID_MARGIN_OF_ERROR = 0.01;
-
 	/* ======================== Private variables ======================== */
 	private ClimberFSMState currentState;
 	private TalonFX climberMotor;
-	private final MotionMagicVoltage mmVoltage = new MotionMagicVoltage(0);
 
 	private double currentLoweredPidTarget;
 	private double currentExtendedPidTarget;
 	private double currentClimbPidTarget;
+
+	private BaseStatusSignal climberPosSignal;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -55,24 +49,6 @@ public class ClimberFSMSystem {
 		climberMotor = new TalonFXWrapper(HardwareMap.CAN_ID_CLIMBER);
 		climberMotor.setNeutralMode(NeutralModeValue.Brake);
 
-		var talonFXConfigs = new TalonFXConfiguration();
-		var slot0Configs = talonFXConfigs.Slot0;
-
-		slot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
-		slot0Configs.kG = Constants.CLIMBER_MM_CONSTANT_G;
-		slot0Configs.kS = Constants.CLIMBER_MM_CONSTANT_S;
-		slot0Configs.kV = Constants.CLIMBER_MM_CONSTANT_V;
-		slot0Configs.kA = Constants.CLIMBER_MM_CONSTANT_A;
-		slot0Configs.kP = Constants.CLIMBER_MM_CONSTANT_P;
-		slot0Configs.kI = Constants.CLIMBER_MM_CONSTANT_I;
-		slot0Configs.kD = Constants.CLIMBER_MM_CONSTANT_D;
-
-		talonFXConfigs.MotionMagic.MotionMagicCruiseVelocity = Constants.CLIMBER_CONFIG_CONSTANT_CV;
-		talonFXConfigs.MotionMagic.MotionMagicAcceleration = Constants.CLIMBER_CONFIG_CONSTANT_A;
-		talonFXConfigs.MotionMagic.MotionMagicJerk = Constants.CLIMBER_CONFIG_CONSTANT_J;
-
-		climberMotor.getConfigurator().apply(talonFXConfigs);
-
 		BaseStatusSignal.setUpdateFrequencyForAll(
 			Constants.UPDATE_FREQUENCY_HZ,
 			climberMotor.getPosition(),
@@ -86,6 +62,8 @@ public class ClimberFSMSystem {
 		currentLoweredPidTarget = Constants.CLIMBER_PID_TARGET_LOW;
 		currentExtendedPidTarget = Constants.CLIMBER_PID_TARGET_EXTEND;
 		currentClimbPidTarget = Constants.CLIMBER_PID_TARGET_CLIMB;
+
+		climberPosSignal = climberMotor.getPosition();
 
 
 		// Reset state machine
@@ -208,6 +186,17 @@ public class ClimberFSMSystem {
 		}
 	}
 
+	/**
+	 * returns if a value is within a margin of a target.
+	 * @param value the value.
+	 * @param target the target.
+	 * @param margin the margin.
+	 * @return whether the value is in range of the target.
+	 */
+	private boolean inRange(double value, double target, double margin) {
+		return Math.abs(target - value) <= margin;
+	}
+
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
 	 * Handle behavior in LOWERED.
@@ -215,11 +204,15 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleLoweredState(TeleopInput input) {
-		if (currentLoweredPidTarget < climberMotor.getPosition().getValue().in(Revolutions)
-			- Constants.CLIMBER_EXTERNAL_GEAR_RATIO * PID_MARGIN_OF_ERROR) {
-			currentLoweredPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
+		if (!inRange(
+			climberPosSignal.getValueAsDouble() % Constants.CLIMBER_COUNTS_PER_REV,
+			Constants.CLIMBER_PID_TARGET_LOW,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR * Constants.CLIMBER_COUNTS_PER_REV)
+		) {
+			climberMotor.set(Constants.CLIMB_POWER);
+		} else {
+			climberMotor.set(0);
 		}
-		climberMotor.setControl(mmVoltage.withPosition(currentLoweredPidTarget));
 	}
 
 	/**
@@ -228,11 +221,15 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleExtendedState(TeleopInput input) {
-		if (currentExtendedPidTarget < climberMotor.getPosition().getValue().in(Revolutions)
-			- Constants.CLIMBER_EXTERNAL_GEAR_RATIO * PID_MARGIN_OF_ERROR) {
-			currentExtendedPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
+		if (!inRange(
+			climberPosSignal.getValueAsDouble() % Constants.CLIMBER_COUNTS_PER_REV,
+			Constants.CLIMBER_PID_TARGET_EXTEND,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR * Constants.CLIMBER_COUNTS_PER_REV)
+		) {
+			climberMotor.set(Constants.CLIMB_POWER);
+		} else {
+			climberMotor.set(0);
 		}
-		climberMotor.setControl(mmVoltage.withPosition(currentExtendedPidTarget));
 	}
 
 	/**
@@ -241,11 +238,15 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleClimbState(TeleopInput input) {
-		if (currentClimbPidTarget < climberMotor.getPosition().getValue().in(Revolutions)
-			- Constants.CLIMBER_EXTERNAL_GEAR_RATIO * PID_MARGIN_OF_ERROR) {
-			currentClimbPidTarget += Constants.CLIMBER_EXTERNAL_GEAR_RATIO;
+		if (!inRange(
+			climberPosSignal.getValueAsDouble() % Constants.CLIMBER_COUNTS_PER_REV,
+			Constants.CLIMBER_PID_TARGET_CLIMB,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR * Constants.CLIMBER_COUNTS_PER_REV)
+		) {
+			climberMotor.set(Constants.CLIMB_POWER);
+		} else {
+			climberMotor.set(0);
 		}
-		climberMotor.setControl(mmVoltage.withPosition(currentClimbPidTarget));
 	}
 
 	/**
