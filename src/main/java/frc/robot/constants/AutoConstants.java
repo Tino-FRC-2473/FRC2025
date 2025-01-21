@@ -3,6 +3,10 @@ package frc.robot.constants;
 /** These will be constants associated with each auto path in AutoRoutines. */
 public class AutoConstants {
 
+	/* -- ALL GENERAL CONSTANTS -- */
+	public static final double DEG_180 = 180;
+	public static final double DEG_360 = 360;
+
 	/* -- ALL SOURCE SPECIFIC CONSTANTS -- */
 	public static final double SOURCE_X_OFFSET = 0;
 	public static final double SOURCE_Y_OFFSET = 0;

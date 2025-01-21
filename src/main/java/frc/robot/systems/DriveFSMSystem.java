@@ -2,6 +2,7 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -21,8 +22,8 @@ import frc.robot.TeleopInput;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
-import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.constants.VisionConstants;
+import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.utils.SwerveUtils;
 import frc.robot.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
@@ -55,7 +56,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	/* -- cv constants -- */
 	private RaspberryPI rpi = new RaspberryPI();
 	private boolean tagPositionAligned;
-	private int tagID = AutoConstants.B_REEF_1_TAG_ID;
+	private int tagID = (2 + 2 + 1);
+
+	private Pose2d tagAlignmentPose;
 
 
 	/* ======================== Private variables ======================== */
@@ -93,6 +96,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void reset() {
 		currentState = FSMState.TELEOP_STATE;
+		drivetrain.applyOperatorPerspective();
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -182,7 +186,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	private void handleTeleOpState(TeleopInput input) {
 		logger.applyStateLogging(drivetrain.getState());
-		drivetrain.applyOperatorPerspective();
 
 		drivetrain.setControl(
 			drive.withVelocityX(-MathUtil.applyDeadband(
@@ -224,43 +227,70 @@ public class DriveFSMSystem extends SubsystemBase {
 	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
 		logger.applyStateLogging(drivetrain.getState());
 
-		if (rpi.getAprilTagX(id) != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT) {
-			double yDiff = rpi.getAprilTagY(id) - yOff;
-			double xDiff = rpi.getAprilTagX(id) - xOff;
-			double aDiff = rpi.getAprilTagXInv(id) * Math.PI / VisionConstants.N_180;
-			//TODO: x inv might not be correct for at angle.
+		if (rpi.getAprilTagX(id) != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT
+				&& !tagPositionAligned) {
 
-			double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
-				? SwerveUtils.clamp(
-					xDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
-					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) : 0;
-			double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
-				? SwerveUtils.clamp(
-					yDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
-					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) : 0;
-			double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
-				? -SwerveUtils.clamp(
-					aDiff / VisionConstants.REEF_ROTATIONAL_ACCEL_CONSTANT,
-					-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-					VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-				) : 0;
+			Pose2d currPose = drivetrain.getState().Pose;
 
-			if (xSpeed == 0 && ySpeed == 0 && aSpeed == 0) {
-				tagPositionAligned = true;
-			}
+			double rpiX = currPose.getX() + rpi.getAprilTagX(id) - xOff;
+			double rpiY = currPose.getY() + rpi.getAprilTagY(id) - yOff;
+			Rotation2d rpiTheta = currPose.getRotation()
+				.plus(new Rotation2d(rpiY, rpiX));
 
-			drivetrain.setControl(
-				drive.withVelocityX(ySpeed)
-				.withVelocityY(xSpeed)
-				.withRotationalRate(aSpeed)
+			Pose2d sendPose = new Pose2d(
+				rpiX,
+				rpiY,
+				rpiTheta
 			);
+
+			tagPositionAligned = driveToPose(sendPose);
 		} else {
 			drivetrain.setControl(brake);
 		}
+	}
+
+	private boolean driveToPose(Pose2d targetPose) {
+		Pose2d pose = drivetrain.getState().Pose;
+
+		double xDiff = targetPose.getX() - pose.getX();
+		double yDiff = targetPose.getY() - pose.getY();
+		double aDiffDeg = targetPose.getRotation().getDegrees()
+			- pose.getRotation().getDegrees();
+
+		if (aDiffDeg > AutoConstants.DEG_180) {
+			aDiffDeg -= AutoConstants.DEG_360;
+		} else if (aDiffDeg < -AutoConstants.DEG_180) {
+			aDiffDeg += AutoConstants.DEG_360;
+		}
+
+		double aDiff = Math.toRadians(aDiffDeg);
+
+		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
+			? SwerveUtils.clamp(
+				xDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+				VisionConstants.MAX_SPEED_METERS_PER_SECOND
+			) : 0;
+		double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
+			? SwerveUtils.clamp(
+				yDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+				VisionConstants.MAX_SPEED_METERS_PER_SECOND
+			) : 0;
+		double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
+			? -SwerveUtils.clamp(
+				aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+			) : 0;
+
+		drivetrain.setControl(
+			drive.withVelocityX(xSpeed)
+			.withVelocityY(ySpeed)
+			.withRotationalRate(aSpeed)
+		);
+
+		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
 	}
 
 	/**
@@ -319,6 +349,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		return new AlignToReefTagCommand(tagID, xOffset, yOffset);
 	}
+
 
 	/**
 	 * Get the maple-Sim Swerve simulation.
