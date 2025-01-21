@@ -6,7 +6,6 @@ package frc.robot.systems;
 
 // Robot Imports
 import frc.robot.TeleopInput;
-import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
 public class FunnelFSMSystem {
 	/* ======================== Constants ======================== */
@@ -78,24 +77,6 @@ public class FunnelFSMSystem {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
-	}
-
-	/**
-	 * Performs specific action based on the autoState passed in.
-	 * @param autoState autoState that the subsystem executes.
-	 * @return if the action carried out in this state has finished executing
-	 */
-	public boolean updateAutonomous(AutoFSMState autoState) {
-		switch (autoState) {
-			case STATE1:
-				return handleAutoState1();
-			case STATE2:
-				return handleAutoState2();
-			case STATE3:
-				return handleAutoState3();
-			default:
-				return true;
-		}
 	}
 
 	/* ======================== Private methods ======================== */

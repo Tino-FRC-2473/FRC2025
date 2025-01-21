@@ -1,5 +1,4 @@
 # For testing and diagnosing connectivity issues across parts on the robot if needed
-import os
 import time
 import csv
 import subprocess
