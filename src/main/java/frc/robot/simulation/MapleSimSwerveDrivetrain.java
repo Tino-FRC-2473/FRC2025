@@ -45,10 +45,10 @@ import frc.robot.Robot;
  */
 
 /**
- * <h2>Injects Maple-Sim simulation data into a CTRE swerve drivetrain.</h2>
+ * Injects Maple-Sim simulation data into a CTRE swerve drivetrain.
  *
- * <p>This class retrieves simulation data from Maple-Sim and injects it
- * into the CTRE {@link com.ctre.phoenix6.swerve.SwerveDrivetrain} instance.</p>
+ * This class retrieves simulation data from Maple-Sim and injects it
+ * into the CTRE {@link com.ctre.phoenix6.swerve.SwerveDrivetrain} instance.
  */
 public class MapleSimSwerveDrivetrain {
 	private final Pigeon2SimState pigeonSim;
@@ -109,10 +109,10 @@ public class MapleSimSwerveDrivetrain {
 	}
 
 	/**
-	 * <h2>Update the simulation.</h2>
+	 * Update the simulation.
 	 *
-	 * <p>Updates the Maple-Sim simulation and injects the results into the simulated CTRE devices,
-	 * including motors and the IMU.</p>
+	 * Updates the Maple-Sim simulation and injects the results into the simulated CTRE devices,
+	 * including motors and the IMU.
 	 */
 	public void update() {
 		SimulatedArena.getInstance().simulationPeriodic();
@@ -124,7 +124,7 @@ public class MapleSimSwerveDrivetrain {
 	}
 
 	/**
-	 * <h1>Represents the simulation of a single {@link SwerveModule}.</h1>
+	 * Represents the simulation of a single {@link SwerveModule}.
 	 */
 	protected static class SimSwerveModule {
 		private final SwerveModuleConstants<
@@ -154,11 +154,11 @@ public class MapleSimSwerveDrivetrain {
 	}
 
 	/**
-	 * <h2>Regulates all {@link SwerveModuleConstants} for a drivetrain simulation.</h2>
+	 * Regulates all {@link SwerveModuleConstants} for a drivetrain simulation.
 	 *
-	 * <p>This method processes an array of {@link SwerveModuleConstants}
+	 * This method processes an array of {@link SwerveModuleConstants}
 	 * to apply necessary adjustments
-	 * for simulation purposes, ensuring compatibility and avoiding known bugs.</p>
+	 * for simulation purposes, ensuring compatibility and avoiding known bugs.
 	 * @param moduleConstants unregulated moduleConstants for each swerve module
 	 * @return regulated swerve module constants as per sim requirements
 	 * @see #regulateModuleConstantForSimulation(SwerveModuleConstants)
@@ -174,23 +174,21 @@ public class MapleSimSwerveDrivetrain {
 	}
 
 	/**
-	 * <h2>Regulates the {@link SwerveModuleConstants} for a single module.</h2>
+	 * Regulates the {@link SwerveModuleConstants} for a single module.
 	 *
 	 * This method applies specific adjustments to the {@link SwerveModuleConstants} for simulation
 	 * purposes. These changes have no effect on real robot operations and address
 	 * known simulation bugs:
 	 *
-	 * <ul>
-	 *     <li><strong>Inverted Drive Motors:</strong>
-	 * 			Prevents drive PID issues caused by inverted configurations.</li>
-	 *     <li><strong>Non-zero CanCoder Offsets:</strong>
-	 * 			Fixes potential module state optimization issues.</li>
-	 *     <li><strong>Steer Motor PID:</strong>
-	 * 			Adjusts PID values tuned for real robots to improve simulation performance.</li>
-	 * </ul>
 	 *
-	 * <h4>Note:This function is skipped when running on a real robot,
-	 * 		ensuring no impact on constants used on real robot hardware.</h4>
+	 *     Inverted Drive Motors:
+	 * 			Prevents drive PID issues caused by inverted configurations.
+	 *     Non-zero CanCoder Offsets:
+	 * 			Fixes potential module state optimization issues.
+	 *     Steer Motor PID:
+	 * 			Adjusts PID values tuned for real robots to improve simulation performance.
+	 * Note:This function is skipped when running on a real robot,
+	 * 		ensuring no impact on constants used on real robot hardware.
 	 * @param moduleConstants unregulated module constants that
 	 * 					      are used on the real robot.
 	 */
