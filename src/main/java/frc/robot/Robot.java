@@ -82,12 +82,13 @@ public class Robot extends LoggedRobot {
 		// Instantiate all systems here
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
-		}
-		autoFactory = driveSystem.createAutoFactory();
-		autoRoutines = new AutoRoutines(autoFactory, driveSystem);
 
-		autoChooser.addRoutine("testPath", autoRoutines::testAuto);
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
+			autoFactory = driveSystem.createAutoFactory();
+			autoRoutines = new AutoRoutines(autoFactory, driveSystem);
+
+			autoChooser.addRoutine("testPath", autoRoutines::testAuto);
+			SmartDashboard.putData("AUTO CHOOSER", autoChooser);
+		}
 
 		if (HardwareMap.isElevatorHardwarePresent()) {
 			elevatorSystem = new ElevatorFSMSystem();
@@ -95,10 +96,6 @@ public class Robot extends LoggedRobot {
 
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
-		}
-
-		if (HardwareMap.isDriveHardwarePresent()) {
-			driveSystem = new DriveFSMSystem();
 		}
 	}
 
