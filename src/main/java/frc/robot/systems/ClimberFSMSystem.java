@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // Robot Imports
 import frc.robot.constants.Constants;
 import frc.robot.motors.TalonFXWrapper;
-import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 import frc.robot.HardwareMap;
 import frc.robot.TeleopInput;
 
@@ -131,24 +130,6 @@ public class ClimberFSMSystem {
 			climberMotor.getAppliedControl().toString());
 	}
 
-	/**
-	 * Performs specific action based on the autoState passed in.
-	 * @param autoState autoState that the subsystem executes.
-	 * @return if the action carried out in this state has finished executing
-	 */
-	public boolean updateAutonomous(AutoFSMState autoState) {
-		switch (autoState) {
-			case STATE1:
-				return handleAutoState1();
-			case STATE2:
-				return handleAutoState2();
-			case STATE3:
-				return handleAutoState3();
-			default:
-				return true;
-		}
-	}
-
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -245,29 +226,5 @@ public class ClimberFSMSystem {
 		} else {
 			climberMotor.set(0);
 		}
-	}
-
-	/**
-	 * Performs action for auto STATE1.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState1() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE2.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState2() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE3.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState3() {
-		return true;
 	}
 }

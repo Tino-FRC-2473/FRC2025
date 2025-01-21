@@ -32,6 +32,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	/* Keep track if we've ever applied the operator perspective before or not */
 	private boolean hasAppliedOperatorPerspective = false;
 
+	private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds =
+		new SwerveRequest.ApplyRobotSpeeds();
+
 	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
 		new SwerveRequest.ApplyFieldSpeeds();
 
@@ -51,7 +54,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	 * @param drivetrainConstants the constants for the swerve drivetrain
 	 * @param modules the swerve modules
 	 */
-
 	public CommandSwerveDrivetrain(
 		SwerveDrivetrainConstants drivetrainConstants,
 		SwerveModuleConstants<?, ?, ?>... modules
@@ -119,9 +121,4 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		return pos;
 	}
 
-	// @Override
-	// public void simulationPeriodic() {
-	// 	/* Assume 20ms update rate, get battery voltage from WPILib */
-	// 	updateSimState(0.02, RobotController.getBatteryVoltage());
-	// }
 }

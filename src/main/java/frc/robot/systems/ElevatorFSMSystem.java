@@ -22,7 +22,6 @@ import frc.robot.Robot;
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
 import frc.robot.motors.TalonFXWrapper;
-import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
 
 public class ElevatorFSMSystem {
@@ -166,27 +165,6 @@ public class ElevatorFSMSystem {
 
 		SmartDashboard.putString("Elevator State", currentState.toString());
 
-		SmartDashboard.putString("Elevator control request",
-			elevatorMotor.getAppliedControl().toString());
-
-	}
-
-	/**
-	 * Performs specific action based on the autoState passed in.
-	 * @param autoState autoState that the subsystem executes.
-	 * @return if the action carried out in this state has finished executing
-	 */
-	public boolean updateAutonomous(AutoFSMState autoState) {
-		switch (autoState) {
-			case STATE1:
-				return handleAutoState1();
-			case STATE2:
-				return handleAutoState2();
-			case STATE3:
-				return handleAutoState3();
-			default:
-				return true;
-		}
 	}
 
 	/* ======================== Private methods ======================== */
@@ -305,29 +283,5 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleL4State(TeleopInput input) {
 		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
-	}
-
-	/**
-	 * Performs action for auto STATE1.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState1() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE2.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState2() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE3.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState3() {
-		return true;
 	}
 }

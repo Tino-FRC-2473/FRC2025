@@ -11,7 +11,6 @@ import frc.robot.HardwareMap;
 
 // Robot Imports
 import frc.robot.TeleopInput;
-import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
 public class FunnelFSMSystem {
 	/* ======================== Constants ======================== */
@@ -100,24 +99,6 @@ public class FunnelFSMSystem {
 		SmartDashboard.putString("Funnel State", currentState.toString());
 	}
 
-	/**
-	 * Performs specific action based on the autoState passed in.
-	 * @param autoState autoState that the subsystem executes.
-	 * @return if the action carried out in this state has finished executing
-	 */
-	public boolean updateAutonomous(AutoFSMState autoState) {
-		switch (autoState) {
-			case STATE1:
-				return handleAutoState1();
-			case STATE2:
-				return handleAutoState2();
-			case STATE3:
-				return handleAutoState3();
-			default:
-				return true;
-		}
-	}
-
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -165,29 +146,5 @@ public class FunnelFSMSystem {
 	 */
 	private void handleClosedState(TeleopInput input) {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
-	}
-
-	/**
-	 * Performs action for auto STATE1.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState1() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE2.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState2() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE3.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState3() {
-		return true;
 	}
 }
