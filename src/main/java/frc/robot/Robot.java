@@ -4,8 +4,6 @@
 package frc.robot;
 
 // Third Party Imports
-import choreo.auto.AutoChooser;
-import choreo.auto.AutoFactory;
 import org.ironmaple.simulation.SimulatedArena;
 
 import org.littletonrobotics.junction.LogFileUtil;
