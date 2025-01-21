@@ -174,6 +174,7 @@ public class Robot extends LoggedRobot {
 	public void simulationInit() {
 		System.out.println("-------- Simulation Init --------");
 		// don't preform simulated hardware init here, robotInit() still runs during sim
+		SimulatedArena.getInstance().resetFieldForAuto();
 	}
 
 	@Override
