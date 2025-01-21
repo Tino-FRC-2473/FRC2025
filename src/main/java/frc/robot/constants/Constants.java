@@ -4,9 +4,9 @@ public final class Constants {
 
 	//funnel constants
 
-	public static final double FUNNEL_CLOSED_POS = 1;
+	public static final double FUNNEL_CLOSED_POS_ROTS = 1;
 
-	public static final double FUNNEL_OUTTAKE_POS = 0;
+	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0;
 
 	// PID Constants
 	public static final double INRANGE_VALUE = 0.5;

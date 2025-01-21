@@ -104,10 +104,6 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
-
-		if (HardwareMap.isDriveHardwarePresent()) {
-			driveSystem = new DriveFSMSystem();
-		}
 	}
 
 	@Override

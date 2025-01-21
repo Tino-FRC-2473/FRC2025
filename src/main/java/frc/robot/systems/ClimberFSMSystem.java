@@ -89,8 +89,6 @@ public class ClimberFSMSystem {
 	public void reset() {
 		currentState = ClimberFSMState.LOWERED;
 
-		climberMotor.setPosition(0);
-
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
 	}
