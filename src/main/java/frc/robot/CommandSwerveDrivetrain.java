@@ -143,9 +143,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 						TunerConstants.BACK_RIGHT
 				)
 			);
-
-		simNotifier = new Notifier(mapleSimSwerveDrivetrain::update);
-		simNotifier.startPeriodic(SimConstants.SIM_LOOP_PERIOD);
 	}
 
 	/**
@@ -155,10 +152,4 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	public MapleSimSwerveDrivetrain getSimDrivetrain() {
 		return mapleSimSwerveDrivetrain;
 	}
-
-	// @Override
-	// public void simulationPeriodic() {
-	// 	/* Assume 20ms update rate, get battery voltage from WPILib */
-	// 	updateSimState(0.02, RobotController.getBatteryVoltage());
-	// }
 }
