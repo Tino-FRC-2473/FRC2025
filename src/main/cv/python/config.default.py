@@ -7,10 +7,11 @@ DRIVER_CAM_INDEX = 0 # for when not on RPi
 
 AT_CAM_USB_ID = 'usb-xhci-hcd.0-1' # for when on RPi
 AT_CAM_INDEX = 0 # for when not on RPi
-AT_FOV = (50.28, 29.16)
+AT_CAM_NAME = "bw_cam_1"
+AT_FOV = (50.28, 29.16) # degrees
 AT_RES = (640 , 380)
 AT_CAM_HEIGHT = 0.4
-AT_CAM_ANGLE = -15
+AT_CAM_ANGLE = -15 # degrees
 
 NETWORKTABLES_TEAM = 2473
 

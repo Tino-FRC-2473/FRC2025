@@ -3,11 +3,12 @@ import cv2
 def find_camera_index(usbId):
     from linuxpy.video.device import Device
     
-    index = 0
-    while index < 4: # there probably won't be more than 4 cameras on the pi
+    for index in range(4): # there probably won't be more than 4 cameras on the pi
         with Device.from_id(index) as cam:
             if cam.info.bus_info == usbId:
                 return index
+            
+    print(f"find_camera_index: Could not find camera on {usbId}")
 
 class VisionInput:
     def __init__(self, fov, res: tuple, cam_height, cam_angle, cam_index):

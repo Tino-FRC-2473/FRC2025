@@ -3,6 +3,7 @@ import cv2
 import os
 import pupil_apriltags as apriltag
 from pathlib import Path
+from config import *
 
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
@@ -12,14 +13,14 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(basePath / 'bw_cam_1matrix.npy')
-        self.dist_coeffs = np.load(basePath / 'bw_cam_1dist.npy')
+        self.camera_matrix = np.load(basePath / f'{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(basePath / f'{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
 
         pass
 
-    def calibrate(self, RES, dirpath, square_size, width, height,  file_name, bw_camera, visualize=False):
+    def calibrate(self, RES: tuple[int, int], dirpath: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
         
         # termination criteria
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -34,6 +35,7 @@ class AprilTag():
         objpoints = []  # 3d point in real world space
         imgpoints = []  # 2d points in image plane.
 
+        Path(dirpath).mkdir(parents=True, exist_ok=True) # create calibration directory if it doesn't exist
         images = os.listdir(dirpath)
         
         for fname in images:

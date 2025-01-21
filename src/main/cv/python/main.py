@@ -8,10 +8,9 @@ import traceback
 if ON_RPI:
     import ntcore
     NETWORK_IDENTITY = "python"
-    TEAM_NUMBER = 2473
     inst = ntcore.NetworkTableInstance.getDefault()
     inst.startClient4(NETWORK_IDENTITY)
-    inst.setServerTeam(TEAM_NUMBER)
+    inst.setServerTeam(NETWORKTABLES_TEAM)
 
     table = inst.getTable("datatable")
     framePub = table.getDoubleTopic("fps_incremented_value").publish()
