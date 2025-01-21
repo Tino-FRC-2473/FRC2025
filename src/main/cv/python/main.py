@@ -46,11 +46,11 @@ while True:
             framePub.set(frame.sum())
             tagDataPub.set(pose_list)
             outputStreamPub.set(annotated_frame.flatten().tolist())
-
-        cv2.imshow('result', annotated_frame)
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
-            break
+        else:
+            cv2.imshow('result', annotated_frame)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                break
         time.sleep(0.02)
     except KeyboardInterrupt:
         print("keyboard interrupt")
