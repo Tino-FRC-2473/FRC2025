@@ -1,13 +1,15 @@
+from config import *
 import cv2
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import socket
+from visionInput import find_camera_index
 
-PORT = 1181
-SERVER_IP = socket.gethostbyname(socket.gethostname())
-CAM_INDEX = 1
-
-camera = cv2.VideoCapture(CAM_INDEX)
+if ON_RPI:
+    index = find_camera_index(DRIVER_CAM_USB_ID)
+else:
+    index = DRIVER_CAM_INDEX
+camera = cv2.VideoCapture(index)
 class MJPEGStreamHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/stream.mjpg':
@@ -38,9 +40,9 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
 
 
 def StreamDriverCam():
-    server_address = (SERVER_IP, PORT)
+    server_address = (DRIVER_CAM_LISTEN_IP, DRIVER_CAM_LISTEN_PORT) 
     httpd = HTTPServer(server_address, MJPEGStreamHandler)
-    print(f'Streaming video at http://{SERVER_IP}:{PORT}/stream.mjpg')
+    print(f'Streaming video at http://{DRIVER_CAM_LISTEN_IP}:{DRIVER_CAM_LISTEN_PORT}/stream.mjpg')
     httpd.serve_forever()
 
 StreamDriverCam()

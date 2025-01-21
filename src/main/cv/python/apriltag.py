@@ -1,9 +1,9 @@
 import numpy as np
 import cv2
 import os
-import math
 import pupil_apriltags as apriltag
 from pathlib import Path
+from config import *
 
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
@@ -13,103 +13,64 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(basePath / 'calibration_data/camera1_matrix.npy')
-        self.dist_coeffs = np.load(basePath / 'calibration_data/camera1_dist.npy')
+        self.camera_matrix = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
+        self.NUM_TAGS = 22
+
         pass
 
-    def calibrate(self, RES, dirpath, square_size, width, height, camera_bw, visualize=False):
-        """ Apply camera calibration operation for images in the given directory path. """
-        if(not camera_bw):
-            print("notBlack&White")
-            # termination criteria
-            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+    def calibrate(self, RES: tuple[int, int], dirpath: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
+        
+        # termination criteria
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-            # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(8,6,0)
-            objp = np.zeros((height*width, 3), np.float32)
-            objp[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
+        # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(8,6,0)
+        objp = np.zeros((height*width, 3), np.float32)
+        objp[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
 
-            objp = objp * square_size
+        objp = objp * square_size
 
-            # Arrays to store object points and image points from all the images.
-            objpoints = []  # 3d point in real world space
-            imgpoints = []  # 2d points in image plane.
+        # Arrays to store object points and image points from all the images.
+        objpoints = []  # 3d point in real world space
+        imgpoints = []  # 2d points in image plane.
 
-            images = os.listdir(dirpath)
-            print(images)
-            for fname in images:
-                print(fname)
-                img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                # Find the chess board corners
-                ret, corners = cv2.findChessboardCorners(gray, (width, height), None)
+        Path(dirpath).mkdir(parents=True, exist_ok=True) # create calibration directory if it doesn't exist
+        images = os.listdir(dirpath)
+        
+        for fname in images:
+            print(fname)
+            
+            img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
+            if(bw_camera): 
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-                # If found, add object points, image points (after refining them)
-                if ret:
-                    objpoints.append(objp)
+            # Find the chess board inner corners
+            ret, corners = cv2.findChessboardCorners(img, (width, height), None)
 
-                    corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-                    imgpoints.append(corners2)
+            # If found, add object points, image points (after refining them)
+            if ret:
+                objpoints.append(objp)
 
-                    # Draw and display the corners
-                    img = cv2.drawChessboardCorners(img, (width, height), corners2, ret)
+                corners2 = cv2.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
+                imgpoints.append(corners2)
 
-                if visualize:
-                    cv2.imshow('img',img)
-                    cv2.waitKey(0)
+                # Draw and display the corners
+                img = cv2.drawChessboardCorners(img, (width, height), corners2, ret)
 
-            print(gray.shape[::-1])
-            ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-            self.camera_matrix = mtx
-            self.dist_coeffs = dist
+            if visualize:
+                cv2.imshow('img',img)
+                cv2.waitKey(0)
 
-            np.save('calibration_data/camera1_matrix.npy',mtx)
-            np.save('calibration_data/camera1_dist.npy',dist)
-            print('Calibration complete')
-        else: 
-             # termination criteria
-            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        print(img.shape[::-1])
+        ret, mtx, dist = cv2.calibrateCamera(objpoints, imgpoints, img.shape[::-1], None, None)
+        self.camera_matrix = mtx
+        self.dist_coeffs = dist
 
-            # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(8,6,0)
-            objp = np.zeros((height*width, 3), np.float32)
-            objp[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
-
-            objp = objp * square_size
-
-            # Arrays to store object points and image points from all the images.
-            objpoints = []  # 3d point in real world space
-            imgpoints = []  # 2d points in image plane.
-
-            images = os.listdir(dirpath)
-            for fname in images:
-                print(fname)
-                img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
-                #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                # Find the chess board corners
-                ret, corners = cv2.findChessboardCorners(img, (width, height), None)
-
-                # If found, add object points, image points (after refining them)
-                if ret:
-                    objpoints.append(objp)
-
-                    corners2 = cv2.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
-                    imgpoints.append(corners2)
-
-                    # Draw and display the corners
-                    img = cv2.drawChessboardCorners(img, (width, height), corners2, ret)
-
-                if visualize:
-                    cv2.imshow('img',img)
-                    cv2.waitKey(0)
-            #print(img.shape[:-1])
-            ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[:-1], None, None)
-            self.camera_matrix = mtx
-            self.dist_coeffs = dist
-
-            np.save('calibration_data/camera1_matrix.npy',mtx)
-            np.save('calibration_data/camera1_dist.npy',dist)
-            print('Calibration complete')
-
+        np.save(file_name + "matrix", mtx)
+        np.save(file_name + "dist", dist)
+        print('Calibration complete')
+        
     def draw_axis_on_image(self, image, camera_matrix, dist_coeffs, rvec, tvec,cvec, size=1):
         try:
             # Define axis length
@@ -163,15 +124,14 @@ class AprilTag():
             return None, None
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
-
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
+            gray = image[:, :, 0]
             results = self.detector.detect(gray)
             ids = [r.tag_id for r in results]
             corners = [r.corners for r in results]
 
             pose_list = []
             num_tags = len(ids) if ids is not None else 0
+            print(num_tags)
             if num_tags != 0:
                 # Estimate the pose of each detected marker
                 for i in range(len(ids)):
@@ -181,9 +141,48 @@ class AprilTag():
                     pose_list.append([ids[i], cvec, tvec, rvec])
                     
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+                return pose_list
             else: 
-                return None
-            return pose_list
+                return []
+            
+    
+    
+    def calculate_camera_position_multiple(self, corners_list, marker_size, camera_matrix, dist_coeffs):
+        camera_positions = []
+
+        for corners in corners_list:
+            try:
+                # Define the 3D coordinates of the marker corners in the marker coordinate system
+                marker_points_3d = np.array([
+                    [-marker_size / 2, -marker_size / 2, 0],
+                    [marker_size / 2, -marker_size / 2, 0],
+                    [marker_size / 2, marker_size / 2, 0],
+                    [-marker_size / 2, marker_size / 2, 0]
+                ], dtype=np.float32)
+
+                # Solve PnP for the current marker
+                _, rvec, tvec = cv2.solvePnP(marker_points_3d, corners, camera_matrix, dist_coeffs)
+                R, _ = cv2.Rodrigues(rvec)
+                cvec = (-R.T @ tvec).reshape(3)
+
+                # Append the camera position
+                camera_positions.append(cvec)
+
+            except Exception as e:
+                print(f"Error processing a marker: {e}")
+
+        # Calculate and print results
+        num_detected_tags = len(camera_positions)
+        if camera_positions:
+            avg_camera_pos = np.mean(camera_positions, axis=0)  # Average camera positions
+            print(f"Number of detected tags: {num_detected_tags}")
+            print(f"Estimated camera position: {avg_camera_pos}")
+            return avg_camera_pos
+
+        print("No tags detected.")
+        return None
+
+
 
 
 
