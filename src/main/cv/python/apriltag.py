@@ -143,7 +143,7 @@ class AprilTag():
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
                 return pose_list
             else: 
-                return [4000 for _ in range(self.NUM_TAGS * 6)]
+                return []
             
     
     
