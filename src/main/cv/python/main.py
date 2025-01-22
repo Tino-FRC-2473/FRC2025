@@ -26,12 +26,11 @@ input = VisionInput(AT_FOV, AT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, index)
 
 tag_module = AprilTag()
 ARUCO_LENGTH_METERS = 0.165
-pose_list=[]
 NUM_TAGS = 22
+tagData = []
 
 while True:
     p = time.time()
-    pose_list = [4000 for _ in range(NUM_TAGS * 6)]
     try: 
         frame = input.getFrame()
         print("framesize", frame.shape)
@@ -44,7 +43,7 @@ while True:
         
         if ON_RPI:
             framePub.set(frame.sum())
-            tagDataPub.set(pose_list)
+            tagDataPub.set(tagData)
             outputStreamPub.set(annotated_frame.flatten().tolist())
         else:
             cv2.imshow('result', annotated_frame)
@@ -63,5 +62,5 @@ while True:
     if ON_RPI:
         table = inst.getTable("datatable")
         tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
-        tagDataPub.set(pose_list)
+        tagDataPub.set(tagData)
     print('Loop time: ' + str(time.time()-p))
