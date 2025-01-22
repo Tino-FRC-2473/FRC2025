@@ -9,14 +9,16 @@ public final class Constants {
 	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0;
 
 	// PID Constants
-	public static final double INRANGE_VALUE = 0.5;
+	public static final double CLIMBER_INRANGE_VALUE = 0.5;
 
 	// Encoder Position Constants
 		// None of these are tuned at all
 
 	public static final double ELEVATOR_PID_TARGET_L4 = 200;
-	public static final double ELEVATOR_PID_TARGET_GROUND = 50;
 	public static final double ELEVATOR_PID_TARGET_STATION = 150;
+	public static final double ELEVATOR_PID_TARGET_GROUND = 50;
+
+	public static final double ELEVATOR_MANUAL_SCALE = 0.2;
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
 	public static final double CLIMBER_PID_TARGET_EXTEND = 25;

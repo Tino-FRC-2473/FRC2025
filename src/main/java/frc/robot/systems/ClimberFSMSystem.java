@@ -28,10 +28,6 @@ public class ClimberFSMSystem {
 	private ClimberFSMState currentState;
 	private TalonFX climberMotor;
 
-	private double currentLoweredPidTarget;
-	private double currentExtendedPidTarget;
-	private double currentClimbPidTarget;
-
 	private BaseStatusSignal climberPosSignal;
 
 	// Hardware devices should be owned by one and only one system. They must
@@ -56,11 +52,6 @@ public class ClimberFSMSystem {
 			climberMotor.getMotorVoltage());
 
 		climberMotor.optimizeBusUtilization();
-
-		// initialize pid targets
-		currentLoweredPidTarget = Constants.CLIMBER_PID_TARGET_LOW;
-		currentExtendedPidTarget = Constants.CLIMBER_PID_TARGET_EXTEND;
-		currentClimbPidTarget = Constants.CLIMBER_PID_TARGET_CLIMB;
 
 		climberPosSignal = climberMotor.getPosition();
 
@@ -87,6 +78,8 @@ public class ClimberFSMSystem {
 	 */
 	public void reset() {
 		currentState = ClimberFSMState.LOWERED;
+
+		climberMotor.setPosition(Constants.CLIMBER_PID_TARGET_LOW);
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -123,9 +116,6 @@ public class ClimberFSMSystem {
 		SmartDashboard.putNumber("Climber encoder", climberMotor.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
 		SmartDashboard.putString("Climber state", currentState.toString());
-		SmartDashboard.putNumber("Climber LOWERED target", currentLoweredPidTarget);
-		SmartDashboard.putNumber("Climber EXTENDED target", currentExtendedPidTarget);
-		SmartDashboard.putNumber("Climber CLIMB target", currentClimbPidTarget);
 		SmartDashboard.putString("Climber control request",
 			climberMotor.getAppliedControl().toString());
 	}

@@ -6,13 +6,14 @@ package frc.robot;
  */
 public final class HardwareMap {
 	// ID numbers for devices on the CAN bus
-	public static final int CAN_ID_ELEVATOR = 5; // TBD
-	public static final int CAN_ID_CLIMBER = 7; // TBD
+	public static final int CAN_ID_ELEVATOR = 5; // TBD, was 8 in testing
+	public static final int CAN_ID_CLIMBER = 8; // TBD
 
-	// sensor ports
-
+	// rio - dio ports
 	public static final int ELEVATOR_LIMIT_SWITCH_PORT = 1; // not confirmed with electrical
-	public static final int FUNNEL_SERVO_PORT = 2; // not confirmed with hardware
+
+	// rio - pwm (servo) ports
+	public static final int FUNNEL_SERVO_PORT = 9; // not confirmed with hardware
 
 	/* ===== Hardware Availability ===== */
 	/**
@@ -20,7 +21,7 @@ public final class HardwareMap {
 	 * @return true if drive hardware is present
 	 */
 	public static boolean isDriveHardwarePresent() {
-		return true;
+		return false;
 	}
 
 	/**
@@ -36,7 +37,7 @@ public final class HardwareMap {
 	 * @return true if climber hardware is present
 	 */
 	public static boolean isClimberHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**

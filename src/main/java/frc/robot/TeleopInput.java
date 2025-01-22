@@ -133,7 +133,7 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public double getManualElevatorMovementInput() {
-		return mechController.getRightY();
+		return -mechController.getRightY(); //up is negative y, negate for simplicity
 	}
 
 	/**

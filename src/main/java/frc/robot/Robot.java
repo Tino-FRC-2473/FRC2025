@@ -88,14 +88,19 @@ public class Robot extends LoggedRobot {
 			driveSystem = new DriveFSMSystem();
 
 			autoRoutines = new AutoRoutines(driveSystem);
+
+			autoChooser.addOption("Path 1",
+				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
+			SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 		}
 
-		autoRoutines = new AutoRoutines(driveSystem);
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			funnelSystem = new FunnelFSMSystem();
+		}
 
-		autoChooser.addOption("Path 1",
-			autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
-
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			elevatorSystem = new ElevatorFSMSystem();
+		}
 
 		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();

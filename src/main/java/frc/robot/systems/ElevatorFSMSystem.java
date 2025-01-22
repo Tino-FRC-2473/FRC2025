@@ -119,7 +119,7 @@ public class ElevatorFSMSystem {
 	public void reset() {
 		currentState = ElevatorFSMState.MANUAL;
 
-		elevatorMotor.setPosition(0);
+		elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -231,7 +231,7 @@ public class ElevatorFSMSystem {
 		if (Robot.isSimulation()) {
 			return false;
 		}
-		return !groundLimitSwitch.get();
+		return groundLimitSwitch.get(); // switch is normally open
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
@@ -245,12 +245,13 @@ public class ElevatorFSMSystem {
 		signalInput = MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND);
 		SmartDashboard.putNumber("input", signalInput);
 		if (isLimitReached()) {
-			elevatorMotor.setPosition(0);
+			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 			if (signalInput < 0) {
+				elevatorMotor.set(0); //don't go even further down if you hit the lower limit!
 				return;
 			}
 		}
-		elevatorMotor.set(signalInput);
+		elevatorMotor.set(Constants.ELEVATOR_MANUAL_SCALE * signalInput);
 	}
 
 	/**
@@ -261,7 +262,7 @@ public class ElevatorFSMSystem {
 	private void handleGroundState(TeleopInput input) {
 		if (isLimitReached()) {
 			elevatorMotor.set(0);
-			elevatorMotor.setPosition(0);
+			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 		} else {
 			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
 		}
