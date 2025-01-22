@@ -3,7 +3,6 @@ import cv2
 import os
 import pupil_apriltags as apriltag
 from pathlib import Path
-from config import *
 
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
@@ -17,7 +16,7 @@ class AprilTag():
         self.dist_coeffs = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
-
+        self.detectedAprilTags = []
         pass
 
     def calibrate(self, RES: tuple[int, int], dirpath: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
@@ -141,11 +140,25 @@ class AprilTag():
                     pose_list.append([ids[i], cvec, tvec, rvec])
                     
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+                self.detectedAprilTags = pose_list
                 return pose_list
             else: 
                 return []
             
-    
+    def calculate_weighted_average(self, pose_list):
+        y_poses = []
+        for i in range(len(pose_list)): 
+            translational_vector = pose_list[i][0]
+            y_poses.append(translational_vector)
+        
+        #orders the pose from least to greatest
+        ordered_poses = sorted(y_poses, key=abs)
+        return ordered_poses[0]
+
+
+
+        
+
     
     def calculate_camera_position_multiple(self, corners_list, marker_size, camera_matrix, dist_coeffs):
         camera_positions = []
