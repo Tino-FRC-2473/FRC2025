@@ -9,15 +9,29 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+/**
+ * This class is used to get the data from the Raspberry Pi
+ *
+ * @author Jaseer Abdulla
+ */
 public class RaspberryPi {
 	private NetworkTable table;
 	private DoubleArraySubscriber tagSubscriber;
 
+    /**
+     * Default constructor for the RaspberryPi class
+     */
     public RaspberryPi() {
 		table = NetworkTableInstance.getDefault().getTable("datatable");
 		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(null);
     }
 
+    /**
+     * Gets the data from the Raspberry Pi
+     *
+     * @return  ArrayList<AprilTag>
+     *          The data from the Raspberry Pi
+     */
     public ArrayList<AprilTag> getAprilTags() {
         ArrayList<AprilTag> ATlist = new ArrayList<>();
         double[] rawData = tagSubscriber.get();
