@@ -61,15 +61,15 @@ public class AprilTag {
 
     /**
      * Get the X position of the tag
-     * @return The {@code double} X position of the tag
+     * @return The {@code double} X position of the tag moving to the right and left
      */
     public Double getX(){
-        return translationalVector.get(2);
+        return translationalVector.get(0);
     }
 
     /**
      * Get the Y position of the tag
-     * @return The {@code double} Y position of the tag
+     * @return The {@code double} Y position of the tag moving up and down, points down
      */
     public Double getY(){
         return translationalVector.get(1);
@@ -77,10 +77,10 @@ public class AprilTag {
 
     /**
      * Get the Z position of the tag
-     * @return The {@code double} Z position of the tag
+     * @return The {@code double} Z position of the tag or the forward direction
      */
     public Double getZ(){
-        return translationalVector.get(0);
+        return translationalVector.get(2);
     }
 
     /**
@@ -96,7 +96,7 @@ public class AprilTag {
      * @return The {@code double} pitch of the tag
      */
     public Double getYaw(){
-        return rotationalVector.get(1);
+        return rotationalVector.get(2);
     }
 
     /**
@@ -104,7 +104,7 @@ public class AprilTag {
      * @return The {@code double} pitch of the tag
      */
     public Double getPitch(){
-        return rotationalVector.get(2);
+        return rotationalVector.get(1);
     }
 
     /**
