@@ -85,7 +85,7 @@ public class AprilTag {
 
     /**
      * Get the roll of the tag
-     * @return The {@code double} roll of the tag
+     * @return The {@code double} roll of the tag in radians
      */
     public Double getRoll(){
         return rotationalVector.get(0);
@@ -93,7 +93,7 @@ public class AprilTag {
 
     /**
      * Get the pitch of the tag
-     * @return The {@code double} pitch of the tag
+     * @return The {@code double} pitch of the tag in radians
      */
     public Double getYaw(){
         return rotationalVector.get(2);
@@ -101,7 +101,7 @@ public class AprilTag {
 
     /**
      * Get the pitch of the tag
-     * @return The {@code double} pitch of the tag
+     * @return The {@code double} pitch of the tag in radians
      */
     public Double getPitch(){
         return rotationalVector.get(1);
