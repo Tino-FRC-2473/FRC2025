@@ -23,7 +23,7 @@ pip install -r requirements.txt
 Copy the config file from `config.default.py` to `config.py` and change it if needed (note `ON_RPI`).
 
 ## USB IDs
-The USB XHCI ID is based on the port it's plugged into. When facing the Pi:
+The USB XHCI ID is based on the port it's plugged into. When facing the Pi on a Pi 5:
 
 | Position     | Id                 |
 | ------------ | ------------------ |
@@ -32,3 +32,15 @@ The USB XHCI ID is based on the port it's plugged into. When facing the Pi:
 | Bottom-Left  | `usb-xhci-hcd.0-1` |
 | Bottom-Right | `usb-xhci-hcd.1-2` |
  
+It will be different for other Pi's. To find out the id for a specific port, run
+```
+v4l2-ctl --list-devices
+```
+and you will see something like the following:
+```
+Arducam OV9281 USB Camera: Ardu (usb-0000:01:00.0-1.4):
+	/dev/video0
+	/dev/video1
+	/dev/media4
+```
+In this case `usb-0000:01:00.0-1.4` is your id.
