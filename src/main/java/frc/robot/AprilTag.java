@@ -59,29 +59,58 @@ public class AprilTag {
         return new Pose3d(trans3d, rot3d);
     }
 
+    /**
+     * Get the X position of the tag
+     * @return The {@code double} X position of the tag
+     */
     public Double getX(){
-        return translationalVector.get(0);
+        return translationalVector.get(2);
     }
 
+    /**
+     * Get the Y position of the tag
+     * @return The {@code double} Y position of the tag
+     */
     public Double getY(){
         return translationalVector.get(1);
     }
 
-
+    /**
+     * Get the Z position of the tag
+     * @return The {@code double} Z position of the tag
+     */
     public Double getZ(){
-        return translationalVector.get(2);
+        return translationalVector.get(0);
     }
 
+    /**
+     * Get the roll of the tag
+     * @return The {@code double} roll of the tag
+     */
     public Double getRoll(){
         return rotationalVector.get(0);
     }
+
+    /**
+     * Get the pitch of the tag
+     * @return The {@code double} pitch of the tag
+     */
     public Double getYaw(){
         return rotationalVector.get(1);
     }
-    
+
+    /**
+     * Get the pitch of the tag
+     * @return The {@code double} pitch of the tag
+     */
     public Double getPitch(){
         return rotationalVector.get(2);
     }
+
+    /**
+     * Gets the name of the camera
+     * @return The {@code String} name of the camera
+     */
     public String getCameraName() {
         return camera;
     }

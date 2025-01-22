@@ -45,6 +45,18 @@ public class RaspberryPi {
         return ATlist;
     }
 
+    /**
+     * Gets a sub-ArrayList from the array
+     *
+     * @param   src
+     *          The array to get the segment from
+     * @param   start
+     *          The start index of the segment
+     * @param   end
+     *          The end index of the segment
+     * @return  ArrayList<Double>
+     *          The segment of the array as an {@code ArrayList<Double>}
+     */
     public static ArrayList<Double> getArraySegment(double[] src, int start, int end) {
         ArrayList<Double> segment = new ArrayList<>();
 
