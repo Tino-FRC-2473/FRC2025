@@ -38,10 +38,19 @@ public class RaspberryPi {
 
         if (rawData.length == 0) return ATlist;
         
-        for(int i = 0; i < rawData.length; i++) {
-            //ATlist.add(); Need to rewrite how we send values over networktables
+        for(int i = 0; i < rawData.length/5; i++) {
+            ATlist.add(new AprilTag(i, "Reef Camera", getArraySegment(rawData, i + 1, i + 3), getArraySegment(rawData, i+4, i+6), getArraySegment(rawData, 7, i + 10)));
         }
 
         return ATlist;
+    }
+
+    public static ArrayList<Double> getArraySegment(double[] src, int start, int end) {
+        ArrayList<Double> segment = new ArrayList<>();
+
+        for(int i = start; i <= end; i++) {
+            segment.add(src[i]);
+        }
+        return segment;
     }
 }
