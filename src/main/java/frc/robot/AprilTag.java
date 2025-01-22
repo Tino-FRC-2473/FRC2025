@@ -64,7 +64,7 @@ public class AprilTag {
      * @return The {@code double} X position of the tag
      */
     public Double getX(){
-        return translationalVector.get(0);
+        return translationalVector.get(2);
     }
 
     /**
@@ -80,7 +80,7 @@ public class AprilTag {
      * @return The {@code double} Z position of the tag
      */
     public Double getZ(){
-        return translationalVector.get(2);
+        return translationalVector.get(0);
     }
 
     /**
