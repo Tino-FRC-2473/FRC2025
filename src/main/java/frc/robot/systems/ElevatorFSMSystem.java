@@ -19,14 +19,15 @@ import frc.robot.HardwareMap;
 import frc.robot.Robot;
 
 // Robot Imports
-
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
 import frc.robot.motors.TalonFXWrapper;
 
 
 public class ElevatorFSMSystem {
+
 	/* ======================== Constants ======================== */
+
 	// FSM state definitions
 	public enum ElevatorFSMState {
 		MANUAL,
@@ -35,23 +36,45 @@ public class ElevatorFSMSystem {
 		LEVEL4
 	}
 
-	private static final double JOYSTICK_DEADBAND = 0.1;
+	// Elevator comnad
+	class MoveElevatorCommand extends Command {
 
+		private double targetPos;
+
+		MoveElevatorCommand(double target) {
+			this.targetPos = target;
+			elevatorTargetReached = false;
+		}
+
+		@Override
+		public void execute() {
+			handleAutoState(targetPos);
+		}
+
+		@Override
+		public boolean isFinished() {
+			return elevatorTargetReached;
+		}
+
+		@Override
+		public void end(boolean interrupted) { }
+	}
+
+	// Target reched check for command
 	private boolean elevatorTargetReached;
 
 	/* ======================== Private variables ======================== */
+
 	private ElevatorFSMState currentState;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
-
 	private TalonFX elevatorMotor;
-
 	private final MotionMagicVoltage mmVoltage = new MotionMagicVoltage(0);
-
 	private DigitalInput groundLimitSwitch;
 
 	/* ======================== Constructor ======================== */
+
 	/**
 	 * Create ElevatorFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
@@ -59,8 +82,6 @@ public class ElevatorFSMSystem {
 	 */
 	public ElevatorFSMSystem() {
 		// Perform hardware init
-
-		//perform kraken init
 		elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
 
 		// elevatorMotor.setPosition(0); // reset kraken encoder (only use when tuning)
@@ -79,7 +100,7 @@ public class ElevatorFSMSystem {
 		slot0Configs.kI = Constants.ELEVATOR_MM_CONSTANT_I;
 		slot0Configs.kD = Constants.ELEVATOR_MM_CONSTANT_D;
 
-		// set Motion Magic settings
+		// Apply Motion Magic settings
 		var motionMagicConfigs = talonFXConfigs.MotionMagic;
 		motionMagicConfigs.MotionMagicCruiseVelocity = Constants.ELEVATOR_CONFIG_CONSTANT_CV;
 		motionMagicConfigs.MotionMagicAcceleration = Constants.ELEVATOR_CONFIG_CONSTANT_A;
@@ -88,11 +109,12 @@ public class ElevatorFSMSystem {
 		elevatorMotor.getConfigurator().apply(talonFXConfigs);
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
-			Constants.UPDATE_FREQUENCY_HZ,
-			elevatorMotor.getPosition(),
-			elevatorMotor.getVelocity(),
-			elevatorMotor.getAcceleration(),
-			elevatorMotor.getMotorVoltage());
+				Constants.UPDATE_FREQUENCY_HZ,
+				elevatorMotor.getPosition(),
+				elevatorMotor.getVelocity(),
+				elevatorMotor.getAcceleration(),
+				elevatorMotor.getMotorVoltage()
+		);
 
 		elevatorMotor.optimizeBusUtilization();
 
@@ -104,13 +126,15 @@ public class ElevatorFSMSystem {
 	}
 
 	/* ======================== Public methods ======================== */
+
 	/**
-	 * Return current FSM state.
-	 * @return Current FSM state
+	 * Get the current FSM state.
+	 * @return current FSM state
 	 */
 	public ElevatorFSMState getCurrentState() {
 		return currentState;
 	}
+
 	/**
 	 * Reset this system to its start state. This may be called from mode init
 	 * when the robot is enabled.
@@ -238,6 +262,7 @@ public class ElevatorFSMSystem {
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
+
 	/**
 	 * Handle behavior in MANUAL.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
@@ -245,7 +270,7 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleManualState(TeleopInput input) {
 		double signalInput = input.getManualElevatorMovementInput();
-		signalInput = MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND);
+		signalInput = MathUtil.applyDeadband(signalInput, Constants.ELEVATOR_DEADBAND);
 		SmartDashboard.putNumber("input", signalInput);
 		if (isLimitReached()) {
 			elevatorMotor.setPosition(0);
@@ -305,31 +330,7 @@ public class ElevatorFSMSystem {
 	 * @return move elevator command
 	 */
 	public Command moveElevatorCommand(double target) {
-		class MoveElevatorCommand extends Command {
-
-			private double targetPos;
-
-			MoveElevatorCommand(double target) {
-				this.targetPos = target;
-				elevatorTargetReached = false;
-			}
-
-			@Override
-			public void execute() {
-				handleAutoState(targetPos);
-			}
-
-			@Override
-			public boolean isFinished() {
-				return elevatorTargetReached;
-			}
-
-			@Override
-			public void end(boolean interrupted) { }
-		}
-
 		return new MoveElevatorCommand(target);
 	}
-
 
 }

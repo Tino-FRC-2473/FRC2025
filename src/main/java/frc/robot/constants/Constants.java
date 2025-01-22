@@ -14,6 +14,8 @@ public final class Constants {
 	// Encoder Position Constants
 		// None of these are tuned at all
 
+	public static final double ELEVATOR_DEADBAND = 0.1;
+
 	public static final double ELEVATOR_PID_TARGET_L4 = 200;
 	public static final double ELEVATOR_PID_TARGET_GROUND = 50;
 	public static final double ELEVATOR_PID_TARGET_STATION = 150;
