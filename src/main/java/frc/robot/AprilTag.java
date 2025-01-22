@@ -123,7 +123,8 @@ public class AprilTag {
         return tagID;
     }
 
-   
-
-
+    @Override
+    public String toString() {
+        return String.format("ID %d  - x: %.3f, y: %.3f, z: %.3f, %s", tagID, getX(), getY(), getZ(), getPose());
+    }
 }

@@ -6,6 +6,10 @@ package frc.robot;
 // Third Party Imports
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -161,6 +165,20 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void testInit() {
 		System.out.println("-------- Test Init --------");
+		RaspberryPi pi = new RaspberryPi();
+
+		while (true) {
+			ArrayList<AprilTag> tags = pi.getAprilTags();
+			for (AprilTag tag : tags) {
+				System.out.println(tag);
+				try {
+					TimeUnit.MILLISECONDS.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@Override
