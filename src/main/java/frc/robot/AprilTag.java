@@ -44,6 +44,7 @@ public class AprilTag {
         this.rotationalVector = rotationalVector;
         this.cameraVector = cameraVector;
         this.translationalVector = translationalVector;
+    
     }
 
     /**
@@ -92,6 +93,8 @@ public class AprilTag {
     public int getTagID() {
         return tagID;
     }
+
+   
 
 
 }
