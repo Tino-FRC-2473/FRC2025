@@ -316,13 +316,11 @@ public class AutoRoutines {
 					Constants.ELEVATOR_PID_TARGET_GROUND
 			)
 		);
-
 		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
 			elevatorSystem.moveElevatorCommand(
 					Constants.ELEVATOR_PID_TARGET_STATION
 			)
 		);
-
 		commands.put(AutoCommands.ELEVATOR_L4_CMD,
 			elevatorSystem.moveElevatorCommand(
 					Constants.ELEVATOR_PID_TARGET_L4

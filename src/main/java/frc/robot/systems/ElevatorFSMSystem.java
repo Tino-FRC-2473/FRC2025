@@ -48,7 +48,7 @@ public class ElevatorFSMSystem {
 
 		@Override
 		public void execute() {
-			handleAutoState(targetPos);
+			handlePIDState(targetPos);
 		}
 
 		@Override
@@ -287,7 +287,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleGroundState(TeleopInput input) {
-		handleAutoState(Constants.ELEVATOR_PID_TARGET_GROUND);
+		handlePIDState(Constants.ELEVATOR_PID_TARGET_GROUND);
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleStationState(TeleopInput input) {
-		handleAutoState(Constants.ELEVATOR_PID_TARGET_STATION);
+		handlePIDState(Constants.ELEVATOR_PID_TARGET_STATION);
 	}
 
 	/**
@@ -305,14 +305,14 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL4State(TeleopInput input) {
-		handleAutoState(Constants.ELEVATOR_PID_TARGET_L4);
+		handlePIDState(Constants.ELEVATOR_PID_TARGET_L4);
 	}
 
 	/**
 	 * Handle behavior for a generic auto state.
 	 * @param target the target pid value to move to
 	 */
-	private void handleAutoState(double target) {
+	private void handlePIDState(double target) {
 		if (isLimitReached()) {
 			elevatorMotor.set(0);
 			elevatorMotor.setPosition(0);
