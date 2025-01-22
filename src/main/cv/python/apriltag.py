@@ -148,7 +148,8 @@ class AprilTag():
     
     
     def calculate_camera_position_multiple(self, corners_list, marker_size, camera_matrix, dist_coeffs):
-        camera_positions = []
+        camera_pos_weights = []
+        camera_pos_biases = []
 
         for corners in corners_list:
             try:
@@ -166,15 +167,30 @@ class AprilTag():
                 cvec = (-R.T @ tvec).reshape(3)
 
                 # Append the camera position
-                camera_positions.append(cvec)
+                camera_pos_weights.append(cvec)
 
             except Exception as e:
                 print(f"Error processing a marker: {e}")
 
         # Calculate and print results
-        num_detected_tags = len(camera_positions)
-        if camera_positions:
-            avg_camera_pos = np.mean(camera_positions, axis=0)  # Average camera positions
+        num_detected_tags = len(camera_pos_weights)
+        if camera_pos_weights:
+            avg_camera_pos = None
+            # weight for point 1 is 1/d_1 / (1/d_1 + 1/d_2 + 1/d_3), etc.
+            for n in range(0, len(camera_pos_weights)):
+                d_n = 1/np.linalg.norm(n-np.array(0,0,0))
+                d_j_s = 0
+                for j in range (0, len(camera_pos_weights)):
+                    d_j = np.linalg.norm(n-np.array(0,0,0))
+                    d_j_s += 1/d_j
+
+                camera_pos_biases.append(d_n / d_j_s)
+            
+            avg_camera_pos = np.average(camera_pos_weights, camera_pos_biases)
+
+
+
+
             print(f"Number of detected tags: {num_detected_tags}")
             print(f"Estimated camera position: {avg_camera_pos}")
             return avg_camera_pos
