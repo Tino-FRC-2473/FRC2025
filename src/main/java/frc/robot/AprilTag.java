@@ -11,9 +11,18 @@ import edu.wpi.first.math.geometry.*;
 public class AprilTag {
     private String camera;
     private int tagID;
-    ArrayList<Double> cameraVector; // This is where the camera is positioned relative to the tag
-    ArrayList<Double> rotationalVector; // Describes the orentation of the marker relative to the camera
-    ArrayList<Double> translationalVector; // This is where the tag is positioned relative to the camera
+    /**
+     * This is where the camera is positioned relative to the tag
+     */
+    ArrayList<Double> cameraVector;
+    /**
+     * Describes the orentation of the marker relative to the camera
+     */
+    ArrayList<Double> rotationalVector;
+    /**
+     * This is where the tag is positioned relative to the camera
+     */
+    ArrayList<Double> translationalVector;
 
     /**
      * Constructor for the AprilTag class
