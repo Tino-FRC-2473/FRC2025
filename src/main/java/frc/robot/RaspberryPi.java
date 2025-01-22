@@ -43,7 +43,7 @@ public class RaspberryPi {
 
         if (rawData.length == 0) return ATlist;
         
-        for(int i = 0; i < rawData.length/5; i++) {
+        for(int i = 0; i < rawData.length/10; i++) {
             ATlist.add(new AprilTag(i, "Reef Camera", getArraySegment(rawData, i + 1, i + 3), getArraySegment(rawData, i+4, i+6), getArraySegment(rawData, 7, i + 10)));
         }
 
