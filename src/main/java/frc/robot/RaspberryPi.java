@@ -26,6 +26,11 @@ public class RaspberryPi {
 		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(null);
     }
 
+    public void printRawData() {
+        double[] rawData = tagSubscriber.get();
+        System.out.println(rawData);
+    }
+
     /**
      * Gets the data from the Raspberry Pi
      *
