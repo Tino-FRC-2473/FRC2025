@@ -137,7 +137,10 @@ class AprilTag():
                     # Estimate the pose
                     tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
                     
-                    pose_list.append([ids[i], cvec, tvec, rvec])
+                    pose_list.append(ids[i])
+                    pose_list.extend(cvec)
+                    pose_list.extend(tvec)
+                    pose_list.extend(rvec)
                     
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
                 self.detectedAprilTags = pose_list

@@ -50,7 +50,7 @@ while True:
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
                 break
-        time.sleep(0.02)
+        time.sleep(0.1)
     except KeyboardInterrupt:
         print("keyboard interrupt")
         input.close()
