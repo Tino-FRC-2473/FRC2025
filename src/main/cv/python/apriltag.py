@@ -3,7 +3,7 @@ import cv2
 import os
 import pupil_apriltags as apriltag
 from pathlib import Path
-import config *
+from config import *
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
 # max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
