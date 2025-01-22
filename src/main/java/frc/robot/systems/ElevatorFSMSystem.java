@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
 
@@ -35,6 +36,8 @@ public class ElevatorFSMSystem {
 	}
 
 	private static final double JOYSTICK_DEADBAND = 0.1;
+
+	private boolean elevatorTargetReached;
 
 	/* ======================== Private variables ======================== */
 	private ElevatorFSMState currentState;
@@ -259,12 +262,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleGroundState(TeleopInput input) {
-		if (isLimitReached()) {
-			elevatorMotor.set(0);
-			elevatorMotor.setPosition(0);
-		} else {
-			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
-		}
+		handleAutoState(Constants.ELEVATOR_PID_TARGET_GROUND);
 	}
 
 	/**
@@ -273,7 +271,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleStationState(TeleopInput input) {
-		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_STATION));
+		handleAutoState(Constants.ELEVATOR_PID_TARGET_STATION);
 	}
 
 	/**
@@ -282,6 +280,56 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL4State(TeleopInput input) {
-		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
+		handleAutoState(Constants.ELEVATOR_PID_TARGET_L4);
 	}
+
+	/**
+	 * Handle behavior for a generic auto state.
+	 * @param target the target pid value to move to
+	 */
+	private void handleAutoState(double target) {
+		if (isLimitReached()) {
+			elevatorMotor.set(0);
+			elevatorMotor.setPosition(0);
+		} else {
+			elevatorMotor.setControl(mmVoltage.withPosition(target));
+			if (elevatorMotor.getVelocity().getValueAsDouble() == 0) {
+				elevatorTargetReached = true;
+			}
+		}
+	}
+
+	/**
+	 * Command to move the elevator to a target position.
+	 * @param target the target pid value to move to
+	 * @return move elevator command
+	 */
+	public Command moveElevatorCommand(double target) {
+		class MoveElevatorCommand extends Command {
+
+			private double targetPos;
+
+			MoveElevatorCommand(double target) {
+				this.targetPos = target;
+				elevatorTargetReached = false;
+			}
+
+			@Override
+			public void execute() {
+				handleAutoState(targetPos);
+			}
+
+			@Override
+			public boolean isFinished() {
+				return elevatorTargetReached;
+			}
+
+			@Override
+			public void end(boolean interrupted) { }
+		}
+
+		return new MoveElevatorCommand(target);
+	}
+
+
 }
