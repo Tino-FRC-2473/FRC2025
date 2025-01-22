@@ -3,7 +3,7 @@ import cv2
 import os
 import pupil_apriltags as apriltag
 from pathlib import Path
-
+import config *
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
 # max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
@@ -16,7 +16,7 @@ class AprilTag():
         self.dist_coeffs = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
-        self.detectedAprilTags = []
+        self.detectedIDs = []
         pass
 
     def calibrate(self, RES: tuple[int, int], dirpath: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
@@ -121,13 +121,14 @@ class AprilTag():
         except Exception as e:
             print(f"An error occurred: {e}")
             return None, None
+    
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
             gray = image[:, :, 0]
             results = self.detector.detect(gray)
             ids = [r.tag_id for r in results]
             corners = [r.corners for r in results]
-
+            self.detectedIDs = ids
             pose_list = []
             num_tags = len(ids) if ids is not None else 0
             print(num_tags)
@@ -144,20 +145,19 @@ class AprilTag():
                 return pose_list
             else: 
                 return []
-            
+    
+    #returns the apriltag id of the apriltag closest to the center of the camera assuming that the camera is mounted at the center of the robot
     def calculate_weighted_average(self, pose_list):
-        y_poses = []
+        y_poses = {}
         for i in range(len(pose_list)): 
             translational_vector = pose_list[i][0]
-            y_poses.append(translational_vector)
+            y_poses[self.detectedIds[i]] = translational_vector
         
-        #orders the pose from least to greatest
-        ordered_poses = sorted(y_poses, key=abs)
-        return ordered_poses[0]
+        #orders the pose distances from center from least to greatest
+        ordered_poses = sorted(y_poses.items(), key=abs)
+        first_key = next(iter(ordered_poses))
+        return ordered_poses.get(first_key)
 
-
-
-        
 
     
     def calculate_camera_position_multiple(self, corners_list, marker_size, camera_matrix, dist_coeffs):
