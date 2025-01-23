@@ -26,6 +26,7 @@ import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
+import frc.robot.logging.MechLogging;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -156,7 +157,22 @@ public class Robot extends LoggedRobot {
 	}
 
 	@Override
-	public void simulationPeriodic() { }
+	public void simulationPeriodic() {
+		Logger.recordOutput(
+			"FieldSimulation/Robot/Primary Elevator Pose",
+			MechLogging.getInstance().getPrimaryElevatorPose()
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/Robot/Secondary Elevator Pose",
+			MechLogging.getInstance().getSecondaryElevatorPose()
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/Robot/Climber Pose",
+			MechLogging.getInstance().getClimberPose()
+		);
+	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
