@@ -21,6 +21,7 @@ import frc.robot.Robot;
 
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
+import frc.robot.logging.MechLogging;
 
 public class ElevatorFSMSystem {
 	/* ======================== Constants ======================== */
@@ -165,6 +166,8 @@ public class ElevatorFSMSystem {
 		SmartDashboard.putBoolean("Elevator limit switch pressed", isLimitReached());
 
 		SmartDashboard.putString("Elevator State", currentState.toString());
+
+		MechLogging.updateElevatorPose3d(elevatorMotor.getPosition().getValue());
 
 	}
 
