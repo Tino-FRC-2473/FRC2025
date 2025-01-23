@@ -12,8 +12,8 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
+        self.camera_matrix = np.load(f'{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(f'{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
@@ -36,19 +36,24 @@ class AprilTag():
 
         Path(dirpath).mkdir(parents=True, exist_ok=True) # create calibration directory if it doesn't exist
         images = os.listdir(dirpath)
-        
+        print(images)
         for fname in images:
-            print(fname)
+            #print(fname)
+            #print(bw_camera)
             
-            img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
-            if(bw_camera): 
+            if(not bw_camera):
+                img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            else: 
+                
+                img = cv2.resize(cv2.imread(os.path.join(dirpath, fname), cv2.IMREAD_GRAYSCALE), RES)
 
             # Find the chess board inner corners
             ret, corners = cv2.findChessboardCorners(img, (width, height), None)
 
             # If found, add object points, image points (after refining them)
             if ret:
+                print("found corners")
                 objpoints.append(objp)
 
                 corners2 = cv2.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
@@ -61,8 +66,8 @@ class AprilTag():
                 cv2.imshow('img',img)
                 cv2.waitKey(0)
 
-        print(img.shape[::-1])
-        ret, mtx, dist = cv2.calibrateCamera(objpoints, imgpoints, img.shape[::-1], None, None)
+      
+        ret, mtx, dist, rvec, tvec = cv2.calibrateCamera(objpoints, imgpoints, img.shape[::-1], None, None)
         self.camera_matrix = mtx
         self.dist_coeffs = dist
 
