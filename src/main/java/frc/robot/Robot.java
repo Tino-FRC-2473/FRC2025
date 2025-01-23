@@ -54,6 +54,8 @@ public class Robot extends LoggedRobot {
 	// Logger
 	private PowerDistribution powerLogger;
 
+	RaspberryPi pi = new RaspberryPi();
+
 	/**
 	 * This function is run when the robot is first started up and should be used for any
 	 * initialization code.
@@ -165,25 +167,19 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void testInit() {
 		System.out.println("-------- Test Init --------");
-		RaspberryPi pi = new RaspberryPi();
 
-		while (true) {
-			ArrayList<AprilTag> tags = pi.getAprilTags();
-			for (AprilTag tag : tags) {
-				System.out.println(tag);
-				try {
-					TimeUnit.MILLISECONDS.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
+		
 	}
 
 	@Override
 	public void testPeriodic() {
-
+		ArrayList<AprilTag> tags = pi.getAprilTags();
+			for (AprilTag tag : tags) {
+				System.out.println(tag);
+			}
+			if (tags.size() == 0) {
+				System.out.println("No tags detected");
+			}
 	}
 
 	/* Simulation mode handlers, only used for simulation testing  */

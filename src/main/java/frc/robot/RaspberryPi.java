@@ -23,7 +23,7 @@ public class RaspberryPi {
      */
     public RaspberryPi() {
 		table = NetworkTableInstance.getDefault().getTable("datatable");
-		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(null);
+		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
     }
 
     public void printRawData() {
@@ -40,11 +40,11 @@ public class RaspberryPi {
     public ArrayList<AprilTag> getAprilTags() {
         ArrayList<AprilTag> ATlist = new ArrayList<>();
         double[] rawData = tagSubscriber.get();
-
+        System.out.println(rawData.length);
         if (rawData.length == 0) return ATlist;
         
-        for(int i = 0; i < rawData.length/10; i++) {
-            ATlist.add(new AprilTag(i, "Reef Camera", getArraySegment(rawData, i + 1, i + 3), getArraySegment(rawData, i+4, i+6), getArraySegment(rawData, i + 7, i + 10)));
+        for(int i = 0; i < rawData.length/10; i += 10) {
+            ATlist.add(new AprilTag(i, "Reef Camera", getArraySegment(rawData, i + 1, i + 3), getArraySegment(rawData, i+4, i+6), getArraySegment(rawData, i + 7, i + 9)));
         }
 
         return ATlist;
