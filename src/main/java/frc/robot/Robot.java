@@ -4,6 +4,8 @@
 package frc.robot;
 
 // Third Party Imports
+import org.ironmaple.simulation.SimulatedArena;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -20,13 +22,15 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 // Systems
-import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
+import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
 import frc.robot.logging.MechLogging;
+import frc.robot.motors.MotorManager;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -41,6 +45,7 @@ public class Robot extends LoggedRobot {
 	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 	private Command autCommand;
 	private FunnelFSMSystem funnelSystem;
+	private ClimberFSMSystem climberSystem;
 	private ElevatorFSMSystem elevatorSystem;
 
 
@@ -92,6 +97,10 @@ public class Robot extends LoggedRobot {
 			autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
+
+		if (HardwareMap.isClimberHardwarePresent()) {
+			climberSystem = new ClimberFSMSystem();
+		}
 	}
 
 	@Override
@@ -116,6 +125,15 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.reset();
 		}
+		if (funnelSystem != null) {
+			funnelSystem.reset();
+		}
+		if (climberSystem != null) {
+			climberSystem.reset();
+		}
+		if (elevatorSystem != null) {
+			elevatorSystem.reset();
+		}
 	}
 
 	@Override
@@ -123,12 +141,21 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.update(input);
 		}
+		if (funnelSystem != null) {
+			funnelSystem.update(input);
+		}
+		if (climberSystem != null) {
+			climberSystem.update(input);
+		}
+		if (elevatorSystem != null) {
+			elevatorSystem.update(input);
+		}
+		MotorManager.update();
 	}
 
 	@Override
 	public void disabledInit() {
 		System.out.println("-------- Disabled Init --------");
-		Logger.end(); // Stop logging!
 		if (powerLogger != null) {
 			powerLogger.close();
 		}
@@ -154,10 +181,13 @@ public class Robot extends LoggedRobot {
 	public void simulationInit() {
 		System.out.println("-------- Simulation Init --------");
 		// don't preform simulated hardware init here, robotInit() still runs during sim
+		SimulatedArena.getInstance().resetFieldForAuto();
 	}
 
 	@Override
 	public void simulationPeriodic() {
+		driveSystem.getMapleSimDrivetrain().update();
+
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
 			MechLogging.getInstance().getPrimaryElevatorPose()
@@ -172,6 +202,22 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/Robot/Climber Pose",
 			MechLogging.getInstance().getClimberPose()
 		);
+
+		Logger.recordOutput(
+			"FieldSimulation/SimulatedPose",
+			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/AlgaePoses",
+			SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/CoralPoses",
+			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
+		);
+
 	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.

@@ -21,6 +21,7 @@ import frc.robot.TeleopInput;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
+import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.constants.VisionConstants;
 import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.SwerveLogging;
@@ -317,5 +318,13 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		return new AlignToReefTagCommand(tagID, xOffset, yOffset);
+	}
+
+	/**
+	 * Get the maple-Sim Swerve simulation.
+	 * @return the simulation
+	 */
+	public MapleSimSwerveDrivetrain getMapleSimDrivetrain() {
+		return drivetrain.getSimDrivetrain();
 	}
 }
