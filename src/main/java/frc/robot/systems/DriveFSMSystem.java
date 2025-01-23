@@ -23,7 +23,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.utils.SwerveUtils;
-import frc.robot.SwerveLogging;
+import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPI;
 
