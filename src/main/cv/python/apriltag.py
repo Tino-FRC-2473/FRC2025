@@ -12,8 +12,8 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(f'{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(f'{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
+        self.camera_matrix = np.load(str(basePath) + f'\\{CALIB_DIR}\\{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(str(basePath) + f'\\{CALIB_DIR}\\{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
@@ -45,7 +45,6 @@ class AprilTag():
                 img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             else: 
-                
                 img = cv2.resize(cv2.imread(os.path.join(dirpath, fname), cv2.IMREAD_GRAYSCALE), RES)
 
             # Find the chess board inner corners
@@ -130,6 +129,7 @@ class AprilTag():
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
             gray = image[:, :, 0]
+            cv2.imshow("frame",gray)
             results = self.detector.detect(gray)
             ids = [r.tag_id for r in results]
             corners = [r.corners for r in results]

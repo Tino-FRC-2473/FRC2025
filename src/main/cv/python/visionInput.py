@@ -30,7 +30,7 @@ class VisionInput:
             print("cannot open cam")
         ret, fr = self.cap.read()
         if not ret:
-            print('frame malf')
+            print('frame malfunction')
         exit
         print("getting an image")
         return fr
