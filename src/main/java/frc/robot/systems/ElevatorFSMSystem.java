@@ -167,7 +167,7 @@ public class ElevatorFSMSystem {
 
 		SmartDashboard.putString("Elevator State", currentState.toString());
 
-		MechLogging.updateElevatorPose3d(elevatorMotor.getPosition().getValue());
+		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition().getValue());
 
 	}
 
