@@ -6,10 +6,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
+import frc.robot.constants.Constants;
 
 public final class MechLogging {
-	public static final double WINCH_DIAMETER = 0.020501;
-
 	private Pose3d primaryElevatorPose;
 	private Pose3d secondaryElevatorPose;
 	private Pose3d climberPose;
@@ -35,7 +34,7 @@ public final class MechLogging {
 	 * @param encoderSimPosition the simulated location of the elevator motor encoder.
 	 */
 	public void updateElevatorPose3d(Angle encoderSimPosition) {
-		double height = encoderSimPosition.in(Radians) * WINCH_DIAMETER;
+		double height = encoderSimPosition.in(Radians) * Constants.WINCH_DIAMETER;
 
 		var pose = new Pose3d(
 			new Translation3d(0, 0, height),
