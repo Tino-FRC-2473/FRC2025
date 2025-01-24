@@ -47,6 +47,7 @@ public class ElevatorFSMSystem {
 	private final MotionMagicVoltage mmVoltage = new MotionMagicVoltage(0);
 
 	private DigitalInput groundLimitSwitch;
+	private DigitalInput topLimitSwitch;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -93,8 +94,11 @@ public class ElevatorFSMSystem {
 
 		elevatorMotor.optimizeBusUtilization();
 
-		// Initialize ground limit switch
-		groundLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_LIMIT_SWITCH_PORT);
+		// Initialize limit switches
+		groundLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_GROUND_LIMIT_SWITCH_PORT);
+			//okay for stopping and resetting
+		topLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_TOP_LIMIT_SWITCH_PORT);
+			//only use to stop, DO NOT USE TO RESET
 
 		// Reset state machine
 		reset();
@@ -161,7 +165,8 @@ public class ElevatorFSMSystem {
 		SmartDashboard.putNumber("Elevator velocity",
 			elevatorMotor.getVelocity().getValueAsDouble());
 
-		SmartDashboard.putBoolean("Elevator limit switch pressed", isLimitReached());
+		SmartDashboard.putBoolean("Elevator bottom limit switch pressed", isBottomLimitReached());
+		SmartDashboard.putBoolean("Elevator top limit switch reached", isTopLimitReached());
 
 		SmartDashboard.putString("Elevator State", currentState.toString());
 
@@ -224,14 +229,25 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
-	 * Getter for the result of the elevator's limit switch.
+	 * Getter for the result of the elevator's bottom limit switch.
 	 * @return whether the limit is reached
 	 */
-	private boolean isLimitReached() {
+	private boolean isBottomLimitReached() {
 		if (Robot.isSimulation()) {
 			return false;
 		}
 		return groundLimitSwitch.get(); // switch is normally open
+	}
+
+	/**
+	 * Getter for the result of the elevator's top limit switch.
+	 * @return whether the limit is reached
+	 */
+	private boolean isTopLimitReached() {
+		if (Robot.isSimulation()) {
+			return false;
+		}
+		return topLimitSwitch.get(); // switch is normally open
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
@@ -244,13 +260,21 @@ public class ElevatorFSMSystem {
 		double signalInput = input.getManualElevatorMovementInput();
 		signalInput = MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND);
 		SmartDashboard.putNumber("input", signalInput);
-		if (isLimitReached()) {
+		if (isBottomLimitReached()) {
 			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 			if (signalInput < 0) {
 				elevatorMotor.set(0); //don't go even further down if you hit the lower limit!
 				return;
 			}
 		}
+
+		if (isTopLimitReached()) {
+			if (signalInput > 0) {
+				elevatorMotor.set(0); //don't go even further up if you hit the upper limit!
+				return;
+			}
+		}
+
 		elevatorMotor.set(Constants.ELEVATOR_MANUAL_SCALE * signalInput);
 	}
 
@@ -260,7 +284,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleGroundState(TeleopInput input) {
-		if (isLimitReached()) {
+		if (isBottomLimitReached()) {
 			elevatorMotor.set(0);
 			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 		} else {
@@ -278,11 +302,15 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
-	 * Handle behavior in LEVEL4.
+	 * Handle behavior in L4.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL4State(TeleopInput input) {
-		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
+		if (isTopLimitReached()) {
+			elevatorMotor.set(0);
+		} else {
+			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
+		}
 	}
 }

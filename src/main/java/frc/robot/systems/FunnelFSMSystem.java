@@ -1,5 +1,8 @@
 package frc.robot.systems;
 
+import com.playingwithfusion.TimeOfFlight;
+
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.Constants;
@@ -27,10 +30,12 @@ public class FunnelFSMSystem {
 	// be private to their owner system and may not be used elsewhere.
 
 	private Servo funnelServo;
+	private TimeOfFlight reefDistanceSensor;
+	private DigitalInput coralBreakBeam;
 
 	/* ======================== Constructor ======================== */
 	/**
-	 * Create Mech1FSMSystem and initialize to starting state. Also perform any
+	 * Create a FunnelFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
 	 */
@@ -38,6 +43,11 @@ public class FunnelFSMSystem {
 		// Perform hardware init
 		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PORT);
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+
+		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
+			// default to Short mode anyways
+
+		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_ID);
 
 		// Reset state machine
 		reset();
@@ -97,6 +107,12 @@ public class FunnelFSMSystem {
 
 		SmartDashboard.putNumber("Funnel Position", funnelServo.get());
 		SmartDashboard.putString("Funnel State", currentState.toString());
+
+		SmartDashboard.putNumber("Distance to Reef", reefDistanceSensor.getRange());
+		SmartDashboard.putBoolean("Reef in Range?",
+			reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD);
+
+		SmartDashboard.putBoolean("Holding Coral?", coralBreakBeam.get());
 	}
 
 	/* ======================== Private methods ======================== */

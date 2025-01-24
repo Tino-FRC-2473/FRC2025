@@ -5,8 +5,9 @@ public final class Constants {
 	//funnel constants
 
 	public static final double FUNNEL_CLOSED_POS_ROTS = 1;
-
 	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0;
+
+	public static final double REEF_DISTANCE_THRESHOLD = 100; // millimeters
 
 	// PID Constants
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
