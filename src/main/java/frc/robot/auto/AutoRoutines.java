@@ -42,7 +42,7 @@ public class AutoRoutines {
 		commands = new HashMap<AutoCommands, Command>();
 
 		setupCommands();
-		generateSysRoutineMap("src/main/deploy");
+		generateSysRoutineMap("home/lvuser/deploy");
 	}
 
 	/**
