@@ -53,7 +53,9 @@ public class LED {
 		}
 		led.setData(ledBuffer);
 	}
-
+	/**
+	 * Changes the LED color to red.
+	 */
     public void redLight() {
         for (var i = 0; i < ledBuffer.getLength(); i++) {
 			ledBuffer.setRGB(i, RED_RGB_R, RED_RGB_G, RED_RGB_B);

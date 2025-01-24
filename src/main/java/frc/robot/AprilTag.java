@@ -122,7 +122,10 @@ public class AprilTag {
     public int getTagID() {
         return tagID;
     }
-
+    /**
+     * Gets string of position values x,y,z and also pose of image
+     * @return The{@code String} position with coordinates and pose
+     */
     @Override
     public String toString() {
         return String.format("ID %d  - x: %.3f, y: %.3f, z: %.3f, %s", tagID, getX(), getY(), getZ(), getPose());
