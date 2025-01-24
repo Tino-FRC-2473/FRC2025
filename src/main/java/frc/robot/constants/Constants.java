@@ -50,11 +50,6 @@ public final class Constants {
 	public static final double ELEVATOR_CONFIG_CONSTANT_A = 80; // Max acceleration in rps/s (80)
 	public static final double ELEVATOR_CONFIG_CONSTANT_J = 110; // Target jerk in rps/s/s (110)
 
-	// to be tuned for climber
-	public static final double CLIMBER_CONFIG_CONSTANT_CV = 14; // Cruise Velo in rps (10)
-	public static final double CLIMBER_CONFIG_CONSTANT_A = 80; // Max acceleration in rps/s (80)
-	public static final double CLIMBER_CONFIG_CONSTANT_J = 110; // Target jerk in rps/s/s (110)
-
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;
 		// this is the lowest possible value since we refresh ourselves
