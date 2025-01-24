@@ -5,6 +5,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // Third party Hardware Imports
@@ -27,6 +28,8 @@ public class ClimberFSMSystem {
 	/* ======================== Private variables ======================== */
 	private ClimberFSMState currentState;
 	private TalonFX climberMotor;
+
+	private DigitalInput climbSwitch;
 
 	private BaseStatusSignal climberPosSignal;
 
@@ -55,6 +58,7 @@ public class ClimberFSMSystem {
 
 		climberPosSignal = climberMotor.getPosition();
 
+		climbSwitch = new DigitalInput(HardwareMap.CLIMBER_LIMIT_SWITCH_PORT);
 
 		// Reset state machine
 		reset();
@@ -118,6 +122,7 @@ public class ClimberFSMSystem {
 		SmartDashboard.putString("Climber state", currentState.toString());
 		SmartDashboard.putString("Climber control request",
 			climberMotor.getAppliedControl().toString());
+		SmartDashboard.putBoolean("Climber switch pressed?", climbSwitch.get());
 	}
 
 	/* ======================== Private methods ======================== */
@@ -211,6 +216,7 @@ public class ClimberFSMSystem {
 			climberPosSignal.getValueAsDouble() % Constants.CLIMBER_COUNTS_PER_REV,
 			Constants.CLIMBER_PID_TARGET_CLIMB,
 			Constants.CLIMBER_PID_MARGIN_OF_ERROR * Constants.CLIMBER_COUNTS_PER_REV)
+			&& !climbSwitch.get() // stop climbing if limit switch pressed
 		) {
 			climberMotor.set(Constants.CLIMB_POWER);
 		} else {

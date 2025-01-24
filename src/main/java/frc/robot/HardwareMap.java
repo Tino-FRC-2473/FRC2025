@@ -18,6 +18,8 @@ public final class HardwareMap {
 
 	public static final int FUNNEL_BREAK_BEAM_ID = 3; // TBD
 
+	public static final int CLIMBER_LIMIT_SWITCH_PORT = 4; // TBD
+
 	// rio - pwm (servo) ports
 	public static final int FUNNEL_SERVO_PORT = 9; // not confirmed with hardware
 
