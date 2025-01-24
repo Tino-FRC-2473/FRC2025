@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class AddressableLEDetest {
+public class AddressableLEDtest {
     private AddressableLED led;
     private AddressableLEDBuffer ledBuffer;
     private boolean isOn;
-    public AddressableLEDetest() {
+    public AddressableLEDtest() {
         led = new AddressableLED(8);
         ledBuffer = new AddressableLEDBuffer(3);
         led.setLength(ledBuffer.getLength());
