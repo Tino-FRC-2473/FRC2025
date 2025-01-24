@@ -52,7 +52,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
-		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
+		.withDriveRequestType(DriveRequestType.Velocity); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
