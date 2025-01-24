@@ -12,8 +12,8 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(str(basePath) + f'\\{CALIB_DIR}\\{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(str(basePath) + f'\\{CALIB_DIR}\\{AT_CAM_NAME}dist.npy')
+        self.camera_matrix = np.load(str(basePath) + f'/{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(str(basePath) + f'/{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
@@ -136,7 +136,7 @@ class AprilTag():
             self.detectedIDs = ids
             pose_list = []
             num_tags = len(ids) if ids is not None else 0
-            print(num_tags)
+            #print(num_tags)
             if num_tags != 0:
                 # Estimate the pose of each detected marker
                 for i in range(len(ids)):
@@ -148,6 +148,7 @@ class AprilTag():
                     pose_list.extend(tvec)
                     pose_list.extend(rvec)
                     
+                    print("tvec: ", tvec)
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
                 self.detectedAprilTags = pose_list
                 return pose_list

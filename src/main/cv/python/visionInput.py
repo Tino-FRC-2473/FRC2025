@@ -32,7 +32,7 @@ class VisionInput:
         if not ret:
             print('frame malfunction')
         exit
-        print("getting an image")
+        #print("getting an image")
         return fr
 
 

@@ -21,12 +21,12 @@ if sys.argv == 1:
 args = parser.parse_args()
 '''
 
-CALIB_RES = (640, 480)
+CALIB_RES = (1280, 720)
 CALIB_DIR = 'calibration_images'
-CALIB_FILE_NAME = "bw_cam_1v2"
-CALIB_WIDTH = 8
-CALIB_HEIGHT = 5
-ARUCO_LENGTH_METERS = 0.025
+CALIB_FILE_NAME = "bw_cam_1v3"
+CALIB_WIDTH = 6
+CALIB_HEIGHT = 4
+ARUCO_LENGTH_METERS = 0.03
 BW_CAMERA = True
 
 tag_module = AprilTag()
