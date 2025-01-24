@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
+import frc.robot.systems.AddressableLEDtest;
 // Systems
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
@@ -46,6 +46,8 @@ public class Robot extends LoggedRobot {
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private ElevatorFSMSystem elevatorSystem;
+
+	private AddressableLEDtest e;
 
 
 	// Logger
@@ -105,6 +107,11 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
+
+		e = new AddressableLEDtest();
+		//LEDtest l = new LEDtest();
+		
+		SmartDashboard.putBoolean("is reached", true);
 	}
 
 	@Override
@@ -126,35 +133,41 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void teleopInit() {
 		System.out.println("-------- Teleop Init --------");
-		if (driveSystem != null) {
-			driveSystem.reset();
-		}
-		if (funnelSystem != null) {
-			funnelSystem.reset();
-		}
-		if (climberSystem != null) {
-			climberSystem.reset();
-		}
-		if (elevatorSystem != null) {
-			elevatorSystem.reset();
-		}
+		// if (driveSystem != null) {
+		// 	driveSystem.reset();
+		// }
+		// if (funnelSystem != null) {
+		// 	funnelSystem.reset();
+		// }
+		// if (climberSystem != null) {
+		// 	climberSystem.reset();
+		// }
+		// if (elevatorSystem != null) {
+		// 	elevatorSystem.reset();
+		// }
 	}
 
 	@Override
 	public void teleopPeriodic() {
-		if (driveSystem != null) {
-			driveSystem.update(input);
-		}
-		if (funnelSystem != null) {
-			funnelSystem.update(input);
-		}
-		if (climberSystem != null) {
-			climberSystem.update(input);
-		}
-		if (elevatorSystem != null) {
-			elevatorSystem.update(input);
-		}
-		MotorManager.update();
+		// if (driveSystem != null) {
+		// 	driveSystem.update(input);
+		// }
+		// if (funnelSystem != null) {
+		// 	funnelSystem.update(input);
+		// }
+		// if (climberSystem != null) {
+		// 	climberSystem.update(input);
+		// }
+		// if (elevatorSystem != null) {
+		// 	elevatorSystem.update(input)s;
+		// }
+		SmartDashboard.putBoolean("Enters teleop perioidic check", true);
+		//e.turnOn(250, 0, 0);
+		e.toggle(250, 0, 0);
+		e.reportToDashboard();
+		// l.turnOn();
+		// l.reportToDashboard();
+		// MotorManager.update();
 	}
 
 	@Override

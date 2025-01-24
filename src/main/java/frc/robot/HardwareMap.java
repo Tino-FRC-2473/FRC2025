@@ -13,7 +13,7 @@ public final class HardwareMap {
 	public static final int ELEVATOR_LIMIT_SWITCH_PORT = 1; // not confirmed with electrical
 
 	// rio - pwm (servo) ports
-	public static final int FUNNEL_SERVO_PORT = 9; // not confirmed with hardware
+	public static final int FUNNEL_SERVO_PORT = 3; // not confirmed with hardware
 
 	/* ===== Hardware Availability ===== */
 	/**
@@ -37,7 +37,7 @@ public final class HardwareMap {
 	 * @return true if climber hardware is present
 	 */
 	public static boolean isClimberHardwarePresent() {
-		return true;
+		return false;
 	}
 
 	/**
