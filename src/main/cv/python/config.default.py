@@ -1,4 +1,4 @@
-ON_RPI = False
+ON_RPI = False # Enable if on Raspberry Pi. Enabled NetworkTables stuff and disables imshow
 
 DRIVER_CAM_LISTEN_PORT = 1181
 DRIVER_CAM_LISTEN_IP = '0.0.0.0' # 0.0.0.0 means it will listen on all IPs

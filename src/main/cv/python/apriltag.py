@@ -4,7 +4,6 @@ import os
 import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
-
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
 # max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
@@ -13,11 +12,11 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(basePath / f'{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
+        self.camera_matrix = np.load(str(basePath) + f'/{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(str(basePath) + f'/{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
-
+        self.detectedIDs = []
         pass
 
     def calibrate(self, RES: tuple[int, int], dirpath: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
@@ -37,19 +36,23 @@ class AprilTag():
 
         Path(dirpath).mkdir(parents=True, exist_ok=True) # create calibration directory if it doesn't exist
         images = os.listdir(dirpath)
-        
+        print(images)
         for fname in images:
-            print(fname)
+            #print(fname)
+            #print(bw_camera)
             
-            img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
-            if(bw_camera): 
+            if(not bw_camera):
+                img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            else: 
+                img = cv2.resize(cv2.imread(os.path.join(dirpath, fname), cv2.IMREAD_GRAYSCALE), RES)
 
             # Find the chess board inner corners
             ret, corners = cv2.findChessboardCorners(img, (width, height), None)
 
             # If found, add object points, image points (after refining them)
             if ret:
+                print("found corners")
                 objpoints.append(objp)
 
                 corners2 = cv2.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
@@ -62,8 +65,8 @@ class AprilTag():
                 cv2.imshow('img',img)
                 cv2.waitKey(0)
 
-        print(img.shape[::-1])
-        ret, mtx, dist = cv2.calibrateCamera(objpoints, imgpoints, img.shape[::-1], None, None)
+      
+        ret, mtx, dist, rvec, tvec = cv2.calibrateCamera(objpoints, imgpoints, img.shape[::-1], None, None)
         self.camera_matrix = mtx
         self.dist_coeffs = dist
 
@@ -122,30 +125,49 @@ class AprilTag():
         except Exception as e:
             print(f"An error occurred: {e}")
             return None, None
+    
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
             gray = image[:, :, 0]
+            cv2.imshow("frame",gray)
             results = self.detector.detect(gray)
             ids = [r.tag_id for r in results]
             corners = [r.corners for r in results]
-
+            self.detectedIDs = ids
             pose_list = []
             num_tags = len(ids) if ids is not None else 0
-            print(num_tags)
+            #print(num_tags)
             if num_tags != 0:
                 # Estimate the pose of each detected marker
                 for i in range(len(ids)):
                     # Estimate the pose
                     tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
                     
-                    pose_list.append([ids[i], cvec, tvec, rvec])
+                    pose_list.append(ids[i])
+                    pose_list.extend(cvec)
+                    pose_list.extend(tvec)
+                    pose_list.extend(rvec)
                     
+                    print("tvec: ", tvec)
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+                self.detectedAprilTags = pose_list
                 return pose_list
             else: 
                 return []
-            
     
+    #returns the apriltag id of the apriltag closest to the center of the camera assuming that the camera is mounted at the center of the robot
+    def calculate_weighted_average(self, pose_list):
+        y_poses = {}
+        for i in range(len(pose_list)): 
+            translational_vector = pose_list[i][0]
+            y_poses[self.detectedIds[i]] = translational_vector
+        
+        #orders the pose distances from center from least to greatest
+        ordered_poses = sorted(y_poses.items(), key=abs)
+        first_key = next(iter(ordered_poses))
+        return ordered_poses.get(first_key)
+
+
     
     def calculate_camera_position_multiple(self, corners_list, marker_size, camera_matrix, dist_coeffs):
         camera_positions = []

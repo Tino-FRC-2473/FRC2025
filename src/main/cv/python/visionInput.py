@@ -4,9 +4,12 @@ def find_camera_index(usbId):
     from linuxpy.video.device import Device
     
     for index in range(4): # there probably won't be more than 4 cameras on the pi
-        with Device.from_id(index) as cam:
-            if cam.info.bus_info == usbId:
-                return index
+        try:
+            with Device.from_id(index) as cam:
+                if cam.info.bus_info == usbId:
+                    return index
+        except:
+            print("not connected")
             
     print(f"find_camera_index: Could not find camera on {usbId}")
 
@@ -27,9 +30,9 @@ class VisionInput:
             print("cannot open cam")
         ret, fr = self.cap.read()
         if not ret:
-            print('frame malf')
+            print('frame malfunction')
         exit
-        print("getting an image")
+        #print("getting an image")
         return fr
 
 
