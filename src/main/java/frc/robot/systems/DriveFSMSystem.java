@@ -58,7 +58,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private boolean tagPositionAligned;
 	private int tagID = (2 + 2 + 1);
 
-	private Pose2d tagAlignmentPose;
+	private Pose2d tagAlignmentPose = null;
 
 
 	/* ======================== Private variables ======================== */
@@ -244,8 +244,17 @@ public class DriveFSMSystem extends SubsystemBase {
 			);
 
 			tagPositionAligned = driveToPose(sendPose);
+			tagAlignmentPose = sendPose;
 		} else {
-			drivetrain.setControl(brake);
+			if (tagPositionAligned) {
+				tagAlignmentPose = null;
+				drivetrain.setControl(brake);
+				return;
+			}
+
+			if (tagAlignmentPose != null) {
+				tagPositionAligned = driveToPose(tagAlignmentPose);
+			}
 		}
 	}
 
