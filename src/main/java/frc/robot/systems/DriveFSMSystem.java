@@ -198,11 +198,11 @@ public class DriveFSMSystem extends SubsystemBase {
 		drivetrain.setControl(
 			drive.withVelocityX(-MathUtil.applyDeadband(
 				input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
-				) * MAX_SPEED / 4) // Drive forward with negative Y (forward)
+				) * MAX_SPEED / 2) // Drive forward with negative Y (forward)
 			.withVelocityY(
 				-MathUtil.applyDeadband(
 					input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * MAX_SPEED / 4) // Drive left with negative X (left)
+					) * MAX_SPEED / 2) // Drive left with negative X (left)
 			.withRotationalRate(
 				-MathUtil.applyDeadband(
 					input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND

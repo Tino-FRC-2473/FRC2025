@@ -52,7 +52,7 @@ public class Robot extends LoggedRobot {
 	private PowerDistribution powerLogger;
 
 	private static final Object[] PATH_1 = new Object[] {
-		"S1_R2"
+		"S1_R1"
 	};
 
 	/**
