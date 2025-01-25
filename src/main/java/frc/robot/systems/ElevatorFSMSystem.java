@@ -276,8 +276,7 @@ public class ElevatorFSMSystem {
 		if (Robot.isSimulation()) {
 			return false;
 		}
-		// return topLimitSwitch.get(); // switch is normally open
-		return false;
+		return topLimitSwitch.get(); // switch is normally opens
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
