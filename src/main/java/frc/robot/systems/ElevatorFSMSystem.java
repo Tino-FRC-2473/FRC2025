@@ -314,7 +314,12 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleGroundState(TeleopInput input) {
-		handlePIDState(Constants.ELEVATOR_PID_TARGET_GROUND);
+		if (isBottomLimitReached()) {
+			elevatorMotor.set(0);
+			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
+		} else {
+			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
+		}
 	}
 
 	/**
@@ -323,7 +328,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleStationState(TeleopInput input) {
-		handlePIDState(Constants.ELEVATOR_PID_TARGET_STATION);
+		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_STATION));
 	}
 
 	/**
@@ -332,7 +337,11 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL4State(TeleopInput input) {
-		handlePIDState(Constants.ELEVATOR_PID_TARGET_L4);
+		if (isTopLimitReached()) {
+			elevatorMotor.set(0);
+		} else {
+			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
+		}
 	}
 
 	/**
@@ -342,7 +351,7 @@ public class ElevatorFSMSystem {
 	private void handlePIDState(double target) {
 		if (isBottomLimitReached()) {
 			elevatorMotor.set(0);
-			elevatorMotor.setPosition(0);
+			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 		} else if (isTopLimitReached()) {
 			elevatorMotor.set(0);
 		} else {
