@@ -85,22 +85,6 @@ public class TeleopInput {
 		return driveController.getShareButton();
 	}
 
-	public boolean isDPadDownPressed() {
-		return driveController.getPOV() == 180;
-	}
-
-	public boolean isDPadUpPressed() {
-		return driveController.getPOV() == 0;
-	}
-
-	public boolean isDPadRightPressed() {
-		return driveController.getPOV() == 90;
-	}
-
-	public boolean isDPadLeftPressed() {
-		return driveController.getPOV() == 270;
-	}
-
 	/* ------------------------ Mech Controller ------------------------ */
 
 	/**
