@@ -216,6 +216,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			drive.withVelocityX(xSpeed)
 			.withVelocityY(ySpeed)
 			.withTargetDirection(
+				(rotYComp == 0 && rotXComp == 0) ? drivetrain.getState().Pose.getRotation() : 
 				new Rotation2d(
 					rotYComp,
 					rotXComp
