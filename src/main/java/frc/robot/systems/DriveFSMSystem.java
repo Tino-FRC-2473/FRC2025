@@ -43,7 +43,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
 		//3/4 rps angle velo
 
-	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+	private final SwerveRequest.FieldCentricFacingAngle drive
+		= new SwerveRequest.FieldCentricFacingAngle()
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
 		.withDriveRequestType(DriveRequestType.Velocity); // Use open-loop for drive motors
