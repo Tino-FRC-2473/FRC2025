@@ -196,6 +196,8 @@ public class ElevatorFSMSystem {
 		SmartDashboard.putBoolean("Elevator top limit switch reached", isTopLimitReached());
 
 		SmartDashboard.putString("Elevator State", currentState.toString());
+		SmartDashboard.putNumber("Elevator Voltage",
+			elevatorMotor.getMotorVoltage().getValueAsDouble());
 
 	}
 
@@ -274,7 +276,8 @@ public class ElevatorFSMSystem {
 		if (Robot.isSimulation()) {
 			return false;
 		}
-		return topLimitSwitch.get(); // switch is normally open
+		// return topLimitSwitch.get(); // switch is normally open
+		return false;
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
