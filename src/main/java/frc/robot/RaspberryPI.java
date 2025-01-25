@@ -4,50 +4,83 @@ import java.util.ArrayList;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.constants.VisionConstants;
 
 /**
 * This class is used to get the data from the Raspberry Pi.
 *
 * @author Jaseer Abdulla
 */
-public class RaspberryPi {
+public class RaspberryPI {
 	private NetworkTable table;
 	private DoubleArraySubscriber tagSubscriber;
-	
+
 	/**
-	* Default constructor for the RaspberryPi class
+	* Default constructor for the RaspberryPi class.
 	*/
-	public RaspberryPi() {
+	public RaspberryPI() {
 		table = NetworkTableInstance.getDefault().getTable("datatable");
 		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
 	}
-	
+
+	/**
+	 * Prints the raw data for the april tags on the rpi.
+	 */
 	public void printRawData() {
 		double[] rawData = tagSubscriber.get();
 		System.out.println(rawData);
 	}
-	
+
 	/**
-	* Gets the data from the Raspberry Pi
+	* Gets the data from the Raspberry Pi.
 	*
 	* @return  ArrayList<AprilTag>
 	*          The data from the Raspberry Pi
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
-		ArrayList<AprilTag> ATlist = new ArrayList<>();
+		ArrayList<AprilTag> atList = new ArrayList<>();
 		double[] rawData = tagSubscriber.get();
 		System.out.println(rawData.length);
-		if (rawData.length == 0) return ATlist;
-		
-		for(int i = 0; i < rawData.length/10; i += 10) {
-			ATlist.add(new AprilTag(i, "Reef Camera", getArraySegment(rawData, i + 1, i + 3), getArraySegment(rawData, i+4, i+6), getArraySegment(rawData, i + 7, i + 9)));
+
+		if (rawData.length == 0) {
+			return atList;
 		}
-		
-		return ATlist;
+
+		var ten = 2 * (2 + 2 + 1);
+
+		for (
+			int i = 0;
+			i < rawData.length / VisionConstants.AT_ARR_INC;
+			i += VisionConstants.AT_ARR_INC
+		) {
+			atList.add(
+				new AprilTag(i,
+				"Reef Camera",
+				getArraySegment(rawData, i + 1, i + 2 + 1),
+				getArraySegment(rawData,
+					i + VisionConstants.AT_ARR_SEG2_INC1, i + VisionConstants.AT_ARR_SEG2_INC2),
+				getArraySegment(rawData,
+					i + VisionConstants.AT_ARR_SEG3_INC1, i + VisionConstants.AT_ARR_SEG3_INC2)));
+		}
+
+		return atList;
 	}
-	
+
 	/**
-	* Gets a sub-ArrayList from the array
+	 * Gets an April Tag from the list given a certain tag.
+	 * @param id id of the april tag
+	 * @return the april tag matching the id
+	 */
+	public AprilTag getAprilTagWithID(int id) {
+		return getAprilTags()
+			.stream()
+			.filter(tag -> tag.getTagID() == id)
+			.findFirst()
+			.orElse(null);
+	}
+
+	/**
+	* Gets a sub-ArrayList from the array.
 	*
 	* @param   src
 	*          The array to get the segment from
@@ -60,10 +93,11 @@ public class RaspberryPi {
 	*/
 	public static ArrayList<Double> getArraySegment(double[] src, int start, int end) {
 		ArrayList<Double> segment = new ArrayList<>();
-		
-		for(int i = start; i <= end; i++) {
+
+		for (int i = start; i <= end; i++) {
 			segment.add(src[i]);
 		}
+
 		return segment;
 	}
 }

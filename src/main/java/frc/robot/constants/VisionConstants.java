@@ -16,4 +16,10 @@ public class VisionConstants {
 	public static final double REEF_TARGET_DISTANCE = 1.2;
 
 	public static final double N_180 = 180;
+
+	public static final int AT_ARR_INC = 10;
+	public static final int AT_ARR_SEG2_INC1 = 4;
+	public static final int AT_ARR_SEG2_INC2 = 6;
+	public static final int AT_ARR_SEG3_INC1 = 7;
+	public static final int AT_ARR_SEG3_INC2 = 9;
 }

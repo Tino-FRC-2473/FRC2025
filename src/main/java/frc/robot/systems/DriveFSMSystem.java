@@ -2,7 +2,6 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,7 +56,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	/* -- cv constants -- */
 	private RaspberryPI rpi = new RaspberryPI();
 	private boolean tagPositionAligned;
-	private int tagID = (2 + 2 + 1);
+
+	// Placeholder for until confidence system implemented
+	private int tagID = AutoConstants.B_REEF_1_TAG_ID;
 
 	private Pose2d tagAlignmentPose = null;
 
@@ -98,7 +99,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void reset() {
 		currentState = FSMState.TELEOP_STATE;
-		drivetrain.applyOperatorPerspective();
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -114,6 +114,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (input == null) {
 			return;
 		}
+
+		drivetrain.applyOperatorPerspective();
 
 		switch (currentState) {
 			case TELEOP_STATE:
@@ -192,15 +194,18 @@ public class DriveFSMSystem extends SubsystemBase {
 		drivetrain.setControl(
 			drive.withVelocityX(-MathUtil.applyDeadband(
 				input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
-				) * MAX_SPEED / 2) // Drive forward with negative Y (forward)
+				) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR)
+				// Drive forward with negative Y (forward) ^
 			.withVelocityY(
 				-MathUtil.applyDeadband(
 					input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * MAX_SPEED / 2) // Drive left with negative X (left)
+					) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR)
+					// Drive left with negative X (left) ^
 			.withRotationalRate(
 				-MathUtil.applyDeadband(
 					input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * MAX_ANGULAR_RATE / 2) // Drive counterclockwise with negative X (left)
+					) * MAX_ANGULAR_RATE / DriveConstants.SPEED_DAMP_FACTOR)
+					// Drive counterclockwise with negative X (left) ^
 		);
 
 		if (input.getDriveTriangleButton()) {
@@ -229,13 +234,13 @@ public class DriveFSMSystem extends SubsystemBase {
 	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
 		logger.applyStateLogging(drivetrain.getState());
 
-		if (rpi.getAprilTagX(id) != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT
+		if (rpi.getAprilTagWithID(id).getX() != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT
 				&& !tagPositionAligned) {
 
 			Pose2d currPose = drivetrain.getState().Pose;
 
-			double rpiX = currPose.getX() + rpi.getAprilTagX(id) - xOff;
-			double rpiY = currPose.getY() + rpi.getAprilTagY(id) - yOff;
+			double rpiX = currPose.getX() + rpi.getAprilTagWithID(id).getX() - xOff;
+			double rpiY = currPose.getY() + rpi.getAprilTagWithID(id).getX() - yOff;
 			Rotation2d rpiTheta = currPose.getRotation()
 				.plus(new Rotation2d(rpiY, rpiX));
 

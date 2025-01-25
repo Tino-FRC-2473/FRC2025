@@ -44,7 +44,7 @@ public class AutoRoutines {
 		commands = new HashMap<AutoCommands, Command>();
 
 		setupCommands();
-		generateSysRoutineMap("home/lvuser/deploy");
+		generateSysRoutineMap(Filesystem.getDeployDirectory());
 	}
 
 	/**
