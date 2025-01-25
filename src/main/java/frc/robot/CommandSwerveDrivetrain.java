@@ -131,10 +131,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 				.withPigeon(getPigeon2())
 				.withModules(getModules())
 				.withModuleConstants(
-						TunerConstants.FrontLeft,
-						TunerConstants.FrontRight,
-						TunerConstants.BackLeft,
-						TunerConstants.BackRight
+						TunerConstants.FRONT_LEFT,
+						TunerConstants.FRONT_RIGHT,
+						TunerConstants.BACK_LEFT,
+						TunerConstants.BACK_RIGHT
 				)
 			);
 	}
