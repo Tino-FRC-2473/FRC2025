@@ -44,7 +44,7 @@ public class AutoRoutines {
 		commands = new HashMap<AutoCommands, Command>();
 
 		setupCommands();
-		generateSysRoutineMap(Filesystem.getDeployDirectory());
+		generateSysRoutineMap(new File(Filesystem.getDeployDirectory(), "choreo"));
 	}
 
 	/**

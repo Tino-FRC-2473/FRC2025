@@ -18,8 +18,8 @@ public class VisionConstants {
 	public static final double N_180 = 180;
 
 	public static final int AT_ARR_INC = 10;
-	public static final int AT_ARR_SEG2_INC1 = 4;
-	public static final int AT_ARR_SEG2_INC2 = 6;
-	public static final int AT_ARR_SEG3_INC1 = 7;
-	public static final int AT_ARR_SEG3_INC2 = 9;
+	public static final int AT_ARR_SEG_LEN = 2;
+	public static final int AT_ARR_SEG1_START = 1;
+	public static final int AT_ARR_SEG2_START = 4;
+	public static final int AT_ARR_SEG3_START = 7;
 }

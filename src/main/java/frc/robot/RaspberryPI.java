@@ -46,8 +46,6 @@ public class RaspberryPI {
 			return atList;
 		}
 
-		var ten = 2 * (2 + 2 + 1);
-
 		for (
 			int i = 0;
 			i < rawData.length / VisionConstants.AT_ARR_INC;
@@ -56,11 +54,23 @@ public class RaspberryPI {
 			atList.add(
 				new AprilTag(i,
 				"Reef Camera",
-				getArraySegment(rawData, i + 1, i + 2 + 1),
-				getArraySegment(rawData,
-					i + VisionConstants.AT_ARR_SEG2_INC1, i + VisionConstants.AT_ARR_SEG2_INC2),
-				getArraySegment(rawData,
-					i + VisionConstants.AT_ARR_SEG3_INC1, i + VisionConstants.AT_ARR_SEG3_INC2)));
+					getArraySegment(
+						rawData,
+						i + VisionConstants.AT_ARR_SEG1_START,
+						i + VisionConstants.AT_ARR_SEG1_START + VisionConstants.AT_ARR_SEG_LEN
+					),
+					getArraySegment(
+						rawData,
+						i + VisionConstants.AT_ARR_SEG2_START,
+						i + VisionConstants.AT_ARR_SEG2_START + VisionConstants.AT_ARR_SEG_LEN
+					),
+					getArraySegment(
+						rawData,
+						i + VisionConstants.AT_ARR_SEG3_START,
+						i + VisionConstants.AT_ARR_SEG3_START + VisionConstants.AT_ARR_SEG_LEN
+					)
+				)
+			);
 		}
 
 		return atList;
