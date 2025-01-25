@@ -4,6 +4,7 @@ import os
 import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
+
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
 # max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
@@ -33,7 +34,11 @@ class AprilTag():
         bw_camera (bool): set to true if using a monochrome camera otherwise set to false
         visualize (bool): set to true if you would like to see the calibration images
         """
+        
         # termination criteria
+        # cv2.TERM_CRITERIA_EPS is used below in the corner sub pixel function 
+        # where the euclidean distance between corners detected in calibration images is compared 
+        # and once it reaches the constant epsilon corner sub pixel terminates
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
         # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(8,6,0)
