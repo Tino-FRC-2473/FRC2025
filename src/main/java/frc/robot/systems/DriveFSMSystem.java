@@ -2,19 +2,26 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 // Robot Imports
@@ -37,7 +44,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		ALIGN_TO_TAG_STATE
 	}
 
-	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
+	private static final double MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 		// kSpeedAt12Volts desired top speed
 	private static final double MAX_ANGULAR_RATE =
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
@@ -46,7 +53,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
-		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
+		.withDriveRequestType(DriveRequestType.Velocity); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -59,6 +66,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private int tagID = (2 + 2 + 1);
 
 	private Pose2d tagAlignmentPose = null;
+
 
 
 	/* ======================== Private variables ======================== */
@@ -190,15 +198,15 @@ public class DriveFSMSystem extends SubsystemBase {
 		drivetrain.setControl(
 			drive.withVelocityX(-MathUtil.applyDeadband(
 				input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
-				) * MAX_SPEED) // Drive forward with negative Y (forward)
+				) * MAX_SPEED / 4) // Drive forward with negative Y (forward)
 			.withVelocityY(
 				-MathUtil.applyDeadband(
 					input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * MAX_SPEED) // Drive left with negative X (left)
+					) * MAX_SPEED / 4) // Drive left with negative X (left)
 			.withRotationalRate(
 				-MathUtil.applyDeadband(
 					input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * MAX_ANGULAR_RATE) // Drive counterclockwise with negative X (left)
+					) * MAX_ANGULAR_RATE / 2) // Drive counterclockwise with negative X (left)
 		);
 
 		if (input.getDriveTriangleButton()) {

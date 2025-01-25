@@ -137,6 +137,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void teleopPeriodic() {
+		CommandScheduler.getInstance().run();
 		if (driveSystem != null) {
 			driveSystem.update(input);
 		}

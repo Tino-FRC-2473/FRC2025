@@ -10,7 +10,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import choreo.trajectory.SwerveSample;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -45,12 +44,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	private final PIDController autoXPid = new PIDController(5, 0, 0);
 	private final PIDController autoYPid = new PIDController(5, 0, 0);
 	private final PIDController autoHeadingPid = new PIDController(0.75, 0, 0);
-
-	private final SwerveDrivePoseEstimator swerveDrivePoseEstimator =
-		new SwerveDrivePoseEstimator(
-			getKinematics(),
-			getPigeon2().getRotation2d(),
-			getModulePositions(), new Pose2d());
 
 	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
 	private Notifier simNotifier;
@@ -138,10 +131,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 				.withPigeon(getPigeon2())
 				.withModules(getModules())
 				.withModuleConstants(
-						TunerConstants.FRONT_LEFT,
-						TunerConstants.FRONT_RIGHT,
-						TunerConstants.BACK_LEFT,
-						TunerConstants.BACK_RIGHT
+						TunerConstants.FrontLeft,
+						TunerConstants.FrontRight,
+						TunerConstants.BackLeft,
+						TunerConstants.BackRight
 				)
 			);
 	}
