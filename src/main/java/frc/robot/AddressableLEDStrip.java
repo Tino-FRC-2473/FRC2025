@@ -3,21 +3,19 @@ package frc.robot;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.constants.Constants;
 
 public class AddressableLEDStrip {
 	private AddressableLED led;
 	private AddressableLEDBuffer ledBuffer;
 	private boolean isOn;
 
-	private static final int LED_STRIP_PORT = 8; // TBD
-	private static final int LED_STRIP_BUFFER = 3; // TBD
-
 	/**
 	 * Creates a new AddressableLEDStrip object.
 	 */
 	public AddressableLEDStrip() {
-		led = new AddressableLED(LED_STRIP_PORT);
-		ledBuffer = new AddressableLEDBuffer(LED_STRIP_BUFFER);
+		led = new AddressableLED(HardwareMap.LED_STRIP_PORT);
+		ledBuffer = new AddressableLEDBuffer(Constants.LED_STRIP_BUFFER);
 		led.setLength(ledBuffer.getLength());
 		led.setData(ledBuffer);
 		led.start();
