@@ -44,9 +44,9 @@ public class RaspberryPi {
 			return atList;
 		}
 
-		for (int i = 0; i < rawData.length / 10; i += 10) {
+		for (int i = 0; i < rawData.length / 10; i++) {
 			atList.add(
-				new AprilTag(i, "Reef Camera",
+				new AprilTag((int)rawData[i], "Reef Camera",
 				getArraySegment(rawData, i + 1, i + 3),
 				getArraySegment(rawData, i + 4, i + 6),
 				getArraySegment(rawData, i + 7, i + 9))
