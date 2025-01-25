@@ -129,7 +129,6 @@ public class ClimberFSMSystem {
 		SmartDashboard.putNumber("Climber CLIMB target", currentClimbPidTarget);
 		SmartDashboard.putString("Climber control request",
 			climberMotor.getAppliedControl().toString());
-		
 		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
 	}
 
