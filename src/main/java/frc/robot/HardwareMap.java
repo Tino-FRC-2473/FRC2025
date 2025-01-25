@@ -21,7 +21,7 @@ public final class HardwareMap {
 	public static final int CLIMBER_LIMIT_SWITCH_PORT = 0; // for testing only
 
 	// rio - pwm (servo) ports
-	public static final int FUNNEL_SERVO_PORT = 9; // not confirmed with hardware
+	public static final int FUNNEL_SERVO_PORT = 3; // not confirmed with hardware
 
 	/* ===== Hardware Availability ===== */
 	/**
