@@ -287,7 +287,7 @@ public class ElevatorFSMSystem {
 	private void handleManualState(TeleopInput input) {
 		double signalInput = input.getManualElevatorMovementInput();
 		signalInput = MathUtil.applyDeadband(signalInput, Constants.ELEVATOR_DEADBAND);
-		SmartDashboard.putNumber("input", signalInput);
+		// SmartDashboard.putNumber("input", signalInput);
 		if (isBottomLimitReached()) {
 			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 			if (signalInput < 0) {
@@ -312,12 +312,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleGroundState(TeleopInput input) {
-		if (isBottomLimitReached()) {
-			elevatorMotor.set(0);
-			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
-		} else {
-			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
-		}
+		handlePIDState(Constants.ELEVATOR_PID_TARGET_GROUND);
 	}
 
 	/**
@@ -335,10 +330,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL4State(TeleopInput input) {
-		if (isTopLimitReached()) {
-			elevatorMotor.set(0);
-		} else {
-			handlePIDState(Constants.ELEVATOR_PID_TARGET_L4);
+		handlePIDState(Constants.ELEVATOR_PID_TARGET_L4);
 	}
 
 	/**
@@ -346,9 +338,11 @@ public class ElevatorFSMSystem {
 	 * @param target the target pid value to move to
 	 */
 	private void handlePIDState(double target) {
-		if (isLimitReached()) {
+		if (isBottomLimitReached()) {
 			elevatorMotor.set(0);
 			elevatorMotor.setPosition(0);
+		} else if (isTopLimitReached()) {
+			elevatorMotor.set(0);
 		} else {
 			elevatorMotor.setControl(mmVoltage.withPosition(target));
 			if (elevatorMotor.getVelocity().getValueAsDouble() == 0) {
@@ -364,7 +358,5 @@ public class ElevatorFSMSystem {
 	 */
 	public Command moveElevatorCommand(double target) {
 		return new MoveElevatorCommand(target);
-		}
 	}
-
 }
