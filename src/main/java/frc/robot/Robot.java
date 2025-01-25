@@ -89,8 +89,8 @@ public class Robot extends LoggedRobot {
 
 			autoChooser.addOption("Path 1",
 				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
-			SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 		}
+		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
