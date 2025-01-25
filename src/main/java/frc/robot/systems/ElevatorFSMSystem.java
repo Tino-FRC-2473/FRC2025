@@ -85,9 +85,6 @@ public class ElevatorFSMSystem {
 		// Perform hardware init
 		elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
 
-		// elevatorMotor.setPosition(0); // reset kraken encoder (only use when tuning)
-		elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
-
 		var talonFXConfigs = new TalonFXConfiguration();
 		// set slot 0 gains
 		var slot0Configs = talonFXConfigs.Slot0;
@@ -118,6 +115,9 @@ public class ElevatorFSMSystem {
 		);
 
 		elevatorMotor.optimizeBusUtilization();
+
+		elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+			// MUST set brake after applying other configs
 
 		// Initialize limit switches
 		groundLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_GROUND_LIMIT_SWITCH_PORT);
@@ -276,7 +276,7 @@ public class ElevatorFSMSystem {
 		if (Robot.isSimulation()) {
 			return false;
 		}
-		return topLimitSwitch.get(); // switch is normally opens
+		return !topLimitSwitch.get(); // switch is normally closed
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */

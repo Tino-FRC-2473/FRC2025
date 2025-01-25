@@ -14,11 +14,11 @@ public final class HardwareMap {
 
 	// rio - dio ports
 	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_PORT = 0; // not confirmed with electrical
-	public static final int ELEVATOR_TOP_LIMIT_SWITCH_PORT = 2; // not confirmed with electrical
+	public static final int ELEVATOR_TOP_LIMIT_SWITCH_PORT = 1; // not confirmed with electrical
 
 	public static final int FUNNEL_BREAK_BEAM_ID = 3; // TBD
 
-	public static final int CLIMBER_LIMIT_SWITCH_PORT = 0; // for testing only
+	public static final int CLIMBER_LIMIT_SWITCH_PORT = 5; // for testing only
 
 	// rio - pwm ports
 	public static final int FUNNEL_SERVO_PORT = 3; // not confirmed with hardware
