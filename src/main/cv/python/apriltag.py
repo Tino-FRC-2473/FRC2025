@@ -20,7 +20,19 @@ class AprilTag():
         pass
 
     def calibrate(self, RES: tuple[int, int], dirpath: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
-        
+        """
+        get's intrinsic parameters for the camera
+
+        Args: 
+        RES (typle): camera frame width, height in pixels
+        dirpath (string): file path to folder with images being used for calibration
+        square_size (int): size of the squares on the checkerboard you are using to calibrate in meters
+        width (int): the width of the checkerboard referencing the inner corners of the checkerboard you are using to calibrate (usually 2 less than you actual width)
+        height (int): the height of the checerbord referencing the outer corners of the checkerboard you are using to calibrate (usually 2 less than you actual height)
+        file_name (string): name of the file that you would like the npy data to be saved to 
+        bw_camera (bool): set to true if using a monochrome camera otherwise set to false
+        visualize (bool): set to true if you would like to see the calibration images
+        """
         # termination criteria
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
