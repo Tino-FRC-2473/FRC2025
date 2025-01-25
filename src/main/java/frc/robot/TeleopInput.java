@@ -50,11 +50,18 @@ public class TeleopInput {
 		return driveController.getLeftY();
 	}
 	/**
-	 * Get Y axis of Drive Controller.
+	 * Get X axis of Drive Controller right.
 	 * @return Axis value
 	 */
 	public double getDriveRightJoystickX() {
 		return driveController.getRightX();
+	}
+	/**
+	 * Get Y axis of Drive Controller right.
+	 * @return Axis value
+	 */
+	public double getDriveRightJoystickY() {
+		return driveController.getRightY();
 	}
 	/**
 	 * Get Triangle Button Pressed for Drive Controller.

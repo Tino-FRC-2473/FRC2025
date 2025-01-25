@@ -192,21 +192,35 @@ public class DriveFSMSystem extends SubsystemBase {
 	private void handleTeleOpState(TeleopInput input) {
 		logger.applyStateLogging(drivetrain.getState());
 
+		var xSpeed = -MathUtil.applyDeadband(
+			input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
+			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
+			// Drive forward with negative Y (forward) ^
+
+		var ySpeed = -MathUtil.applyDeadband(
+			input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
+			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
+			// Drive left with negative X (left) ^
+
+		var rotYComp = -MathUtil.applyDeadband(
+			input.getDriveRightJoystickY(), DriveConstants.DRIVE_DEADBAND
+			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
+			// Drive forward with negative Y (forward) ^
+
+		var rotXComp = -MathUtil.applyDeadband(
+			input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
+			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
+			// Drive left with negative X (left) ^
+
 		drivetrain.setControl(
-			drive.withVelocityX(-MathUtil.applyDeadband(
-				input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
-				) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR)
-				// Drive forward with negative Y (forward) ^
-			.withVelocityY(
-				-MathUtil.applyDeadband(
-					input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR)
-					// Drive left with negative X (left) ^
-			.withRotationalRate(
-				-MathUtil.applyDeadband(
-					input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * MAX_ANGULAR_RATE / DriveConstants.SPEED_DAMP_FACTOR)
-					// Drive counterclockwise with negative X (left) ^
+			drive.withVelocityX(xSpeed)
+			.withVelocityY(ySpeed)
+			.withTargetDirection(
+				new Rotation2d(
+					rotYComp,
+					rotXComp
+				)
+			)
 		);
 
 		if (input.getDriveTriangleButton()) {
@@ -271,16 +285,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double xDiff = targetPose.getX() - pose.getX();
 		double yDiff = targetPose.getY() - pose.getY();
-		double aDiffDeg = targetPose.getRotation().getDegrees()
-			- pose.getRotation().getDegrees();
-
-		if (aDiffDeg > AutoConstants.DEG_180) {
-			aDiffDeg -= AutoConstants.DEG_360;
-		} else if (aDiffDeg < -AutoConstants.DEG_180) {
-			aDiffDeg += AutoConstants.DEG_360;
-		}
-
-		double aDiff = Math.toRadians(aDiffDeg);
+		Rotation2d intendedAngle = targetPose.getRotation();
 
 		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
@@ -294,20 +299,14 @@ public class DriveFSMSystem extends SubsystemBase {
 				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 				VisionConstants.MAX_SPEED_METERS_PER_SECOND
 			) : 0;
-		double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
-			? -SwerveUtils.clamp(
-				aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
-				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-			) : 0;
 
 		drivetrain.setControl(
-			drive.withVelocityX(xSpeed)
-			.withVelocityY(ySpeed)
-			.withRotationalRate(aSpeed)
+			drive.withVelocityX(-xSpeed * MAX_SPEED)
+			.withVelocityY(-ySpeed * MAX_SPEED)
+			.withTargetDirection(intendedAngle)
 		);
 
-		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
+		return (xSpeed == 0 && ySpeed == 0);
 	}
 
 	/**
