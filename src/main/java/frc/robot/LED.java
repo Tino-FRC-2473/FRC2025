@@ -23,20 +23,21 @@ public class LED {
 	private static final int ORANGE_RGB_G = 92;
 	private static final int ORANGE_RGB_B = 5;
 
-    private static final int RED_RGB_R = 139;
-    private static final int RED_RGB_G = 0;
-    private static final int RED_RGB_B = 0;
+	private static final int RED_RGB_R = 139;
+	private static final int RED_RGB_G = 0;
+	private static final int RED_RGB_B = 0;
 
 	private static final int CR_RGB_R = 255;
 
 	private static final int RAINBOW_S = 255;
 	private static final int RAIBOW_V = 128;
 
-// Objective: orange ==> intake coral, green ==> aligned to april tag, red ==> not aligned to april tag
+	// Objective: orange ==> intake coral, green ==>
+	// aligned to april tag, red ==> not aligned to april tag.
 
 	/**
-	 * Constructs LED object.
-	 */
+	* Constructs LED object.
+	*/
 	public LED() {
 		led = new AddressableLED(LED_PORT);
 		ledBuffer = new AddressableLEDBuffer(LED_BUFFER_LENGTH);
@@ -45,8 +46,8 @@ public class LED {
 	}
 
 	/**
-	 * Changes the LED color to green.
-	 */
+	* Changes the LED color to green.
+	*/
 	public void greenLight() {
 		for (var i = 0; i < ledBuffer.getLength(); i++) {
 			ledBuffer.setRGB(i, GREEN_RGB_R, GREEN_RGB_G, GREEN_RGB_B);
@@ -54,18 +55,18 @@ public class LED {
 		led.setData(ledBuffer);
 	}
 	/**
-	 * Changes the LED color to red.
-	 */
-    public void redLight() {
-        for (var i = 0; i < ledBuffer.getLength(); i++) {
+	* Changes the LED color to red.
+	*/
+	public void redLight() {
+		for (var i = 0; i < ledBuffer.getLength(); i++) {
 			ledBuffer.setRGB(i, RED_RGB_R, RED_RGB_G, RED_RGB_B);
 		}
 		led.setData(ledBuffer);
-    }
+	}
 
 	/**
-	 * Changes the LED color to orange.
-	 */
+	* Changes the LED color to orange.
+	*/
 	public void orangeLight() {
 		for (var i = 0; i < ledBuffer.getLength(); i++) {
 			ledBuffer.setRGB(i, ORANGE_RGB_R, ORANGE_RGB_G, ORANGE_RGB_B);
@@ -74,8 +75,8 @@ public class LED {
 	}
 
 	/**
-	 * Turns off the LEDs.
-	 */
+	* Turns off the LEDs.
+	*/
 	public void turnOff() {
 		for (var i = 0; i < ledBuffer.getLength(); i++) {
 			ledBuffer.setRGB(i, 0, 0, 0);
@@ -84,8 +85,8 @@ public class LED {
 	}
 
 	/**
-	 * Lights are Green when moving forward and red moving back.
-	 */
+	* Lights are Green when moving forward and red moving back.
+	*/
 	public void cr() {
 		for (var i = 0; i < ledBuffer.getLength(); i++) {
 			ledBuffer.setRGB(i, CR_RGB_R, greenVal, 0);
@@ -125,8 +126,8 @@ public class LED {
 	}
 
 	/**
-	 * Sets the LED color to rainbow.
-	 */
+	* Sets the LED color to rainbow.
+	*/
 	public void rainbow() {
 		// For every pixel
 		for (var i = 0; i < ledBuffer.getLength(); i++) {
@@ -146,11 +147,11 @@ public class LED {
 	}
 
 	/**
-	 * Sets RGB value of LED.
-	 * @param r
-	 * @param g
-	 * @param b
-	 */
+	* Sets RGB value of LED.
+	* @param r
+	* @param g
+	* @param b
+	*/
 	public void setRGBVals(int r, int g, int b) {
 		for (var i = 0; i < ledBuffer.getLength(); i++) {
 			// Sets the specified LED to the RGB values for red
@@ -160,11 +161,11 @@ public class LED {
 	}
 
 	/**
-	 * Sets HSV value of LED.
-	 * @param hue
-	 * @param saturation
-	 * @param val
-	 */
+	* Sets HSV value of LED.
+	* @param hue
+	* @param saturation
+	* @param val
+	*/
 	public void setHSVVals(int hue, int saturation, int val) {
 		for (var i = 0; i < ledBuffer.getLength(); i++) {
 			// Sets the specified LED to the HSV values for red
