@@ -11,14 +11,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.AutoConstants;
+import frc.robot.constants.Constants;
 import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.systems.DriveFSMSystem;
+import frc.robot.systems.ElevatorFSMSystem;
 
 public class AutoRoutines {
 	private AutoFactory autoFactory;
 
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
+	private ElevatorFSMSystem elevatorSystem;
 
 
 	// Initialize all paths
@@ -165,8 +168,24 @@ public class AutoRoutines {
 
 	// This function works
 	private void setupCommands() {
-		/* ---- All Red AprilTag Alignment Commands ---- */
 
+		setUpAlignmentCommands();
+
+		setUpElevatorCommands();
+
+		/* ---- All Drive Commands ---- */
+		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
+			driveSystem.brakeCommand()
+		);
+
+		/* ---- All Elevator Commands ---- */
+
+		/* ---- All Intake Commands ---- */
+
+	}
+
+	private void setUpAlignmentCommands() {
+		/* ---- All Red AprilTag Alignment Commands ---- */
 		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
@@ -229,7 +248,6 @@ public class AutoRoutines {
 		);
 
 		/* ---- All Blue AprilTag Alignment Commands ---- */
-
 		commands.put(AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
@@ -290,15 +308,23 @@ public class AutoRoutines {
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET)
 		);
+	}
 
-		/* ---- All Drive Commands ---- */
-		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
-			driveSystem.brakeCommand()
+	private void setUpElevatorCommands() {
+		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
+			elevatorSystem.moveElevatorCommand(
+					Constants.ELEVATOR_PID_TARGET_GROUND
+			)
 		);
-
-		/* ---- All Elevator Commands ---- */
-
-		/* ---- All Intake Commands ---- */
-
+		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
+			elevatorSystem.moveElevatorCommand(
+					Constants.ELEVATOR_PID_TARGET_STATION
+			)
+		);
+		commands.put(AutoCommands.ELEVATOR_L4_CMD,
+			elevatorSystem.moveElevatorCommand(
+					Constants.ELEVATOR_PID_TARGET_L4
+			)
+		);
 	}
 }
