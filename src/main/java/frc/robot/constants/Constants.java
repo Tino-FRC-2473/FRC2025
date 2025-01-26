@@ -33,7 +33,7 @@ public final class Constants {
 	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 0.05;
 
 	// Motion Magic Constants
-	public static final double ELEVATOR_MM_CONSTANT_G = 0.06;
+	public static final double ELEVATOR_MM_CONSTANT_G = 0.1;
 		// Voltage required to overcome gravity
 	public static final double ELEVATOR_MM_CONSTANT_S = 0.15;
 		//Voltage required to overcome static friction
@@ -44,7 +44,7 @@ public final class Constants {
 	public static final double ELEVATOR_MM_CONSTANT_A = 0.01; // 0.01
 		//Voltage for acceleration of 1rps/s (0.01)
 
-	public static final double ELEVATOR_MM_CONSTANT_P = 0;
+	public static final double ELEVATOR_MM_CONSTANT_P = 0.1;
 		//Voltgae for Proportional error of 1 rot(0.7)
 	public static final double ELEVATOR_MM_CONSTANT_I = 0;
 		//Voltage for Integrated error of 1 r*s
@@ -53,9 +53,9 @@ public final class Constants {
 
 	public static final double CLIMB_POWER = 0.2;
 
-	public static final double ELEVATOR_CONFIG_CONSTANT_CV = 5; // Cruise Velo in rps (10)
-	public static final double ELEVATOR_CONFIG_CONSTANT_A = 10; // Max acceleration in rps/s (80)
-	public static final double ELEVATOR_CONFIG_CONSTANT_J = 100; // Target jerk in rps/s/s (110)
+	public static final double ELEVATOR_CONFIG_CONSTANT_CV = 80; // Cruise Velo in rps (10)
+	public static final double ELEVATOR_CONFIG_CONSTANT_A = 160; // Max acceleration in rps/s (80)
+	public static final double ELEVATOR_CONFIG_CONSTANT_J = 1600; // Target jerk in rps/s/s (110)
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;

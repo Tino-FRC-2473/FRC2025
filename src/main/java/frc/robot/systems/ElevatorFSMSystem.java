@@ -104,6 +104,13 @@ public class ElevatorFSMSystem {
 		motionMagicConfigs.MotionMagicAcceleration = Constants.ELEVATOR_CONFIG_CONSTANT_A;
 		motionMagicConfigs.MotionMagicJerk = Constants.ELEVATOR_CONFIG_CONSTANT_J;
 
+		// apply sw limit
+		var swLimitSwitch = talonFXConfigs.SoftwareLimitSwitch;
+		swLimitSwitch.ForwardSoftLimitEnable = true;
+		swLimitSwitch.ReverseSoftLimitEnable = true;
+		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_PID_TARGET_L4;
+		swLimitSwitch.ReverseSoftLimitThreshold = 0;
+
 		elevatorMotor.getConfigurator().apply(talonFXConfigs);
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
@@ -198,6 +205,9 @@ public class ElevatorFSMSystem {
 		SmartDashboard.putString("Elevator State", currentState.toString());
 		SmartDashboard.putNumber("Elevator Voltage",
 			elevatorMotor.getMotorVoltage().getValueAsDouble());
+
+		SmartDashboard.putNumber("Elevator Accel",
+			elevatorMotor.getAcceleration().getValueAsDouble());
 
 	}
 
@@ -305,7 +315,7 @@ public class ElevatorFSMSystem {
 			}
 		}
 
-		elevatorMotor.set(Constants.ELEVATOR_MANUAL_SCALE * signalInput);
+		elevatorMotor.set(signalInput);
 	}
 
 	/**
