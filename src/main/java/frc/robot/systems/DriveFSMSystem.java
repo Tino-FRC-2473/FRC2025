@@ -43,8 +43,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
 		//3/4 rps angle velo
 
-	private final SwerveRequest.FieldCentricFacingAngle drive
-		= new SwerveRequest.FieldCentricFacingAngle()
+	private final SwerveRequest.FieldCentric drive
+		= new SwerveRequest.FieldCentric()
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
@@ -294,7 +294,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double xDiff = targetPose.getX() - pose.getX();
 		double yDiff = targetPose.getY() - pose.getY();
-		Rotation2d intendedAngle = targetPose.getRotation();
+		double aDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
 
 		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
@@ -308,14 +308,20 @@ public class DriveFSMSystem extends SubsystemBase {
 				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 				VisionConstants.MAX_SPEED_METERS_PER_SECOND
 			) : 0;
+		double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
+			? SwerveUtils.clamp(
+				aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+			) : 0;
 
 		drivetrain.setControl(
 			drive.withVelocityX(-xSpeed * MAX_SPEED)
 			.withVelocityY(-ySpeed * MAX_SPEED)
-			.withTargetDirection(intendedAngle)
+			.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
 		);
 
-		return (xSpeed == 0 && ySpeed == 0);
+		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
 	}
 
 	/**
