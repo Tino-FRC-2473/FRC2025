@@ -47,7 +47,12 @@ public class DriveFSMSystem extends SubsystemBase {
 		= new SwerveRequest.FieldCentricFacingAngle()
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
-		.withDriveRequestType(DriveRequestType.Velocity); // Use open-loop for drive motors
+		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
+	private final SwerveRequest.FieldCentricFacingAngle driveFacingAngle
+		= new SwerveRequest.FieldCentricFacingAngle()
+		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
+		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -203,24 +208,27 @@ public class DriveFSMSystem extends SubsystemBase {
 			// Drive left with negative X (left) ^
 
 		var rotYComp = -MathUtil.applyDeadband(
-			input.getDriveRightJoystickY(), DriveConstants.DRIVE_DEADBAND
-			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
+			input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
+			);
 			// Drive forward with negative Y (forward) ^
 
 		var rotXComp = -MathUtil.applyDeadband(
-			input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
+			input.getDriveRightJoystickY(), DriveConstants.DRIVE_DEADBAND
+			);
 			// Drive left with negative X (left) ^
 
+		var rot = ((rotYComp == 0 && rotXComp == 0)
+			? drivetrain.getState().Pose.getRotation()
+			: new Rotation2d(
+				rotXComp,
+				rotYComp
+			)).plus(Rotation2d.kCCW_Pi_2);
+
 		drivetrain.setControl(
-			drive.withVelocityX(xSpeed)
+			driveFacingAngle.withVelocityX(xSpeed)
 			.withVelocityY(ySpeed)
 			.withTargetDirection(
-				(rotYComp == 0 && rotXComp == 0) ? drivetrain.getState().Pose.getRotation() : 
-				new Rotation2d(
-					rotYComp,
-					rotXComp
-				)
+				rot
 			)
 		);
 
@@ -250,13 +258,13 @@ public class DriveFSMSystem extends SubsystemBase {
 	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
 		logger.applyStateLogging(drivetrain.getState());
 
-		if (rpi.getAprilTagWithID(id).getX() != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT
+		if (rpi.getAprilTagWithID(id) != null
 				&& !tagPositionAligned) {
 
 			Pose2d currPose = drivetrain.getState().Pose;
 
 			double rpiX = currPose.getX() + rpi.getAprilTagWithID(id).getX() - xOff;
-			double rpiY = currPose.getY() + rpi.getAprilTagWithID(id).getX() - yOff;
+			double rpiY = currPose.getY() + rpi.getAprilTagWithID(id).getY() - yOff;
 			Rotation2d rpiTheta = currPose.getRotation()
 				.plus(new Rotation2d(rpiY, rpiX));
 
