@@ -10,8 +10,9 @@ public class SimConstants {
 
 	public static final double STEER_INERTIA_KGMS2 = 0.05;
 
-	public static final double STARTING_POS_X_FT = 5;
-	public static final double STARTING_POS_Y_FT = 5;
+	public static final double STARTING_POS_X_FT = 1.058727;
+	public static final double STARTING_POS_Y_FT = 7.03534;
+	public static final double STARTING_POS_ROT_RAD = -0.934287;
 
 	// Estimated values for now, need to be calculated later
 	public static final double MASS_WITH_BUMPER_LBS = 115;

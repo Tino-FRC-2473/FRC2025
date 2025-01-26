@@ -15,6 +15,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -35,6 +36,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
+import org.littletonrobotics.junction.Logger;
 
 // Local Imports
 import frc.robot.constants.SimConstants;
@@ -83,10 +85,10 @@ public class MapleSimSwerveDrivetrain {
 			simulationConfig,
 			new Pose2d(
 				new Translation2d(
-					Feet.of(SimConstants.STARTING_POS_X_FT),
-					Feet.of(SimConstants.STARTING_POS_Y_FT)
+					SimConstants.STARTING_POS_X_FT,
+					SimConstants.STARTING_POS_Y_FT
 				),
-				new Rotation2d()
+				new Rotation2d(SimConstants.STARTING_POS_ROT_RAD)
 			)
 		);
 
@@ -120,7 +122,7 @@ public class MapleSimSwerveDrivetrain {
 				mapleSimDrive.getSimulatedDriveTrainPose().getRotation().getMeasure());
 		pigeonSim.setAngularVelocityZ(RadiansPerSecond.of(
 				mapleSimDrive
-					.getDriveTrainSimulatedChassisSpeedsRobotRelative().omegaRadiansPerSecond));
+					.getDriveTrainSimulatedChassisSpeedsRobotRelative().omegaRadiansPerSecond));		
 	}
 
 	/**

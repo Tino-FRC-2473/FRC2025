@@ -11,6 +11,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import org.littletonrobotics.junction.Logger;
+
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
@@ -144,7 +146,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public AutoFactory createAutoFactory() {
 		return new AutoFactory(
-			() -> drivetrain.getState().Pose,
+			() -> getPose(),
 			drivetrain::resetPose,
 			drivetrain::followTrajectory,
 			true,
@@ -216,7 +218,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			drive.withVelocityX(xSpeed)
 			.withVelocityY(ySpeed)
 			.withTargetDirection(
-				(rotYComp == 0 && rotXComp == 0) ? drivetrain.getState().Pose.getRotation() : 
+				(rotYComp == 0 && rotXComp == 0) ? getPose().getRotation() : 
 				new Rotation2d(
 					rotYComp,
 					rotXComp
@@ -250,21 +252,26 @@ public class DriveFSMSystem extends SubsystemBase {
 	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
 		logger.applyStateLogging(drivetrain.getState());
 
-		if (rpi.getAprilTagWithID(id).getX() != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT
-				&& !tagPositionAligned) {
+		if (//rpi.getAprilTagWithID(id) != null &&
+				!tagPositionAligned) {
 
-			Pose2d currPose = drivetrain.getState().Pose;
+			// Pose2d currPose = getPose();
 
-			double rpiX = currPose.getX() + rpi.getAprilTagWithID(id).getX() - xOff;
-			double rpiY = currPose.getY() + rpi.getAprilTagWithID(id).getX() - yOff;
-			Rotation2d rpiTheta = currPose.getRotation()
-				.plus(new Rotation2d(rpiY, rpiX));
+			// double rpiX = currPose.getX() + rpi.getAprilTagWithID(id).getX() - xOff;
+			// double rpiY = currPose.getY() + rpi.getAprilTagWithID(id).getX() - yOff;
+			// Rotation2d rpiTheta = currPose.getRotation()
+			// 	.plus(new Rotation2d(rpiY, rpiX));
 
 			Pose2d sendPose = new Pose2d(
-				rpiX,
-				rpiY,
-				rpiTheta
+				// rpiX,
+				// rpiY,
+				// rpiTheta
+				5,
+				5,
+				new Rotation2d()
 			);
+
+			Logger.recordOutput("TagAlignment/SendPose", sendPose);
 
 			tagPositionAligned = driveToPose(sendPose);
 			tagAlignmentPose = sendPose;
@@ -282,7 +289,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	}
 
 	private boolean driveToPose(Pose2d targetPose) {
-		Pose2d pose = drivetrain.getState().Pose;
+		Pose2d pose = getPose();
 
 		double xDiff = targetPose.getX() - pose.getX();
 		double yDiff = targetPose.getY() - pose.getY();
@@ -301,13 +308,31 @@ public class DriveFSMSystem extends SubsystemBase {
 				VisionConstants.MAX_SPEED_METERS_PER_SECOND
 			) : 0;
 
+		Logger.recordOutput("TagAlignment/XSpeed", xDiff);
+		Logger.recordOutput("TagAlignment/YSpeed", yDiff);
+		Logger.recordOutput("TagAlignment/DesAngle", intendedAngle);
+
 		drivetrain.setControl(
 			drive.withVelocityX(-xSpeed * MAX_SPEED)
 			.withVelocityY(-ySpeed * MAX_SPEED)
-			.withTargetDirection(intendedAngle)
+			.withTargetDirection(intendedAngle.plus(new Rotation2d(Math.PI / 2)))
 		);
 
-		return (xSpeed == 0 && ySpeed == 0);
+		return (xSpeed == 0 && ySpeed == 0
+			&& MathUtil.isNear(
+				intendedAngle.getDegrees(),
+				getPose().getRotation().getDegrees(),
+				VisionConstants.ROT_MARGIN_TO_REEF
+				)
+			);
+	}
+
+	/**
+	 * Get the pose of the robot.
+	 * @return pose2d of robot
+	 */
+	public Pose2d getPose() {
+		return drivetrain.getState().Pose;
 	}
 
 	/**
