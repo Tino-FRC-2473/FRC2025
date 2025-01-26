@@ -45,11 +45,16 @@ public class DriveFSMSystem extends SubsystemBase {
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
 		//3/4 rps angle velo
 
-	private final SwerveRequest.FieldCentricFacingAngle drive
+	private final SwerveRequest.FieldCentricFacingAngle driveFacingAngle
 		= new SwerveRequest.FieldCentricFacingAngle()
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
-		.withDriveRequestType(DriveRequestType.Velocity); // Use open-loop for drive motors
+		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
+	private final SwerveRequest.FieldCentric drive
+		= new SwerveRequest.FieldCentric()
+		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
+		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -215,14 +220,14 @@ public class DriveFSMSystem extends SubsystemBase {
 			// Drive left with negative X (left) ^
 
 		drivetrain.setControl(
-			drive.withVelocityX(xSpeed)
+			driveFacingAngle.withVelocityX(xSpeed)
 			.withVelocityY(ySpeed)
 			.withTargetDirection(
-				(rotYComp == 0 && rotXComp == 0) ? getPose().getRotation() : 
-				new Rotation2d(
+				(rotYComp == 0 && rotXComp == 0) ? getPose().getRotation()
+				: new Rotation2d(
 					rotYComp,
 					rotXComp
-				)
+				).plus(Rotation2d.kCCW_90deg)
 			)
 		);
 
@@ -293,7 +298,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double xDiff = targetPose.getX() - pose.getX();
 		double yDiff = targetPose.getY() - pose.getY();
-		Rotation2d intendedAngle = targetPose.getRotation();
+		double aDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
 
 		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
@@ -307,24 +312,24 @@ public class DriveFSMSystem extends SubsystemBase {
 				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 				VisionConstants.MAX_SPEED_METERS_PER_SECOND
 			) : 0;
+		double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
+			? SwerveUtils.clamp(
+				aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+			) : 0;
 
 		Logger.recordOutput("TagAlignment/XSpeed", xDiff);
 		Logger.recordOutput("TagAlignment/YSpeed", yDiff);
-		Logger.recordOutput("TagAlignment/DesAngle", intendedAngle);
+		Logger.recordOutput("TagAlignment/DesAngle", aDiff);
 
 		drivetrain.setControl(
 			drive.withVelocityX(-xSpeed * MAX_SPEED)
 			.withVelocityY(-ySpeed * MAX_SPEED)
-			.withTargetDirection(intendedAngle.plus(new Rotation2d(Math.PI / 2)))
+			.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
 		);
 
-		return (xSpeed == 0 && ySpeed == 0
-			&& MathUtil.isNear(
-				intendedAngle.getDegrees(),
-				getPose().getRotation().getDegrees(),
-				VisionConstants.ROT_MARGIN_TO_REEF
-				)
-			);
+		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
 	}
 
 	/**
