@@ -219,17 +219,22 @@ public class DriveFSMSystem extends SubsystemBase {
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
 			// Drive left with negative X (left) ^
 
+
+		var rot = (rotYComp == 0 && rotXComp == 0) ? getPose().getRotation()
+			: new Rotation2d(
+				rotYComp,
+				rotXComp
+			).plus(Rotation2d.kCCW_90deg);
+
 		drivetrain.setControl(
 			driveFacingAngle.withVelocityX(xSpeed)
 			.withVelocityY(ySpeed)
 			.withTargetDirection(
-				(rotYComp == 0 && rotXComp == 0) ? getPose().getRotation()
-				: new Rotation2d(
-					rotYComp,
-					rotXComp
-				).plus(Rotation2d.kCCW_90deg)
+				rot
 			)
 		);
+
+		Logger.recordOutput("TeleOp/Rot", rot);
 
 		if (input.getDriveTriangleButton()) {
 			drivetrain.setControl(brake);
