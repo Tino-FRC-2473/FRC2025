@@ -34,7 +34,7 @@ public final class MechLogging {
 	 * @param encoderSimPosition the simulated location of the elevator motor encoder.
 	 */
 	public void updateElevatorPose3d(Angle encoderSimPosition) {
-		double height = encoderSimPosition.in(Radians) * Constants.WINCH_DIAMETER;
+		double height = encoderSimPosition.in(Radians) * Constants.WINCH_DIAMETER_METERS / 2;
 
 		var pose = new Pose3d(
 			new Translation3d(0, 0, height),

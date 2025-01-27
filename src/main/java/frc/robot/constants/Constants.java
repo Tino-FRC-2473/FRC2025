@@ -58,5 +58,5 @@ public final class Constants {
 		// changed from 4 --> 100
 
 	// Add units
-	public static final double WINCH_DIAMETER = 0.020501;
+	public static final double WINCH_DIAMETER_METERS = 0.0463296;
 }
