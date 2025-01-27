@@ -81,13 +81,7 @@ public class MapleSimSwerveDrivetrain {
 
 		mapleSimDrive = new SwerveDriveSimulation(
 			simulationConfig,
-			new Pose2d(
-				new Translation2d(
-					Feet.of(SimConstants.STARTING_POS_X_FT),
-					Feet.of(SimConstants.STARTING_POS_Y_FT)
-				),
-				new Rotation2d()
-			)
+			config.getStartingPose()
 		);
 
 		SwerveModuleSimulation[] moduleSimulations = mapleSimDrive.getModules();

@@ -64,7 +64,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		);
 
 		if (Robot.isSimulation()) {
-			setupSimulation();
+			setupSimulation(getState().Pose);
 		}
 		// setupPathplanner();
 	}
@@ -124,7 +124,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		return pos;
 	}
 
-	private void setupSimulation() {
+	private void setupSimulation(Pose2d startingPose) {
 		mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
 			SimSwerveDrivetrainConfig.getDefault()
 				.withModuleLocations(getModuleLocations())
@@ -136,6 +136,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 						TunerConstants.BACK_LEFT,
 						TunerConstants.BACK_RIGHT
 				)
+				.withStartingPose(startingPose)
 			);
 	}
 

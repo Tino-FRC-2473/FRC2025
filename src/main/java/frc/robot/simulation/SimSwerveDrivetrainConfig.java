@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
+import edu.wpi.first.math.geometry.Pose2d;
 // WPI Imports
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -39,6 +40,7 @@ public class SimSwerveDrivetrainConfig {
 	private SwerveModule<TalonFX, TalonFX, CANcoder>[] modules;
 	private SwerveModuleConstants<
 		TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>[] moduleConstants;
+	private Pose2d startingPose;
 
 	/**
 	 * Get the default configuration of a MapleSimSwerveDrivetrain.
@@ -51,7 +53,18 @@ public class SimSwerveDrivetrainConfig {
 			.withBumperLength(Inches.of(SimConstants.WIDTH_IN))
 			.withWheelCOF(SimConstants.WHEEL_COF)
 			.withModuleDriveMotor(DCMotor.getKrakenX60(1))
-			.withModuleSteerMotor(DCMotor.getKrakenX60(1));
+			.withModuleSteerMotor(DCMotor.getKrakenX60(1))
+			.withStartingPose(new Pose2d());
+	}
+
+	/**
+	 * Apply a starting pose where the drivetrain will start at.
+	 * @param startPose the starting pose
+	 * @return this config
+	 */
+	public SimSwerveDrivetrainConfig withStartingPose(Pose2d startPose) {
+		startingPose = startPose;
+		return this;
 	}
 
 	/**
@@ -236,5 +249,13 @@ public class SimSwerveDrivetrainConfig {
 	public SwerveModuleConstants<
 		TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>[] getModuleConstants() {
 		return moduleConstants;
+	}
+
+	/**
+	 * Get the starting pose of the drivetrain.
+	 * @return starting pose of the simulated drivetrain
+	 */
+	public Pose2d getStartingPose() {
+		return startingPose;
 	}
 }
