@@ -85,8 +85,17 @@ public class LED {
 	}
 
 	/**
-	* Lights are Green when moving forward and red moving back.
-	*/
+	 * Updates the LED buffer by setting the red channel to the value of CR_RGB_R,
+	 * while dynamically adjusting the green channel between 0 and ONE_HUNDRED.
+	 * The transition is determined by a directional flag `forward` which toggles
+	 * when the green value reaches its bounds.
+	 *
+	 * TL;DR: Green channel value is incremented or decremented based on the directional flag.
+	 * <pre>
+	 *   - Increases the green channel value if `forward` is true. Otherwise, decreases it.
+	 * 	 - Updates the LED data with the modified buffer after each operation.
+	 * </pre>
+	 */
 	public void cr() {
 		for (var i = 0; i < ledBuffer.getLength(); i++) {
 			ledBuffer.setRGB(i, CR_RGB_R, greenVal, 0);
