@@ -168,7 +168,6 @@ public class AutoRoutines {
 
 	// This function works
 	private void setupCommands() {
-
 		setUpAlignmentCommands();
 
 		setUpElevatorCommands();
@@ -179,10 +178,6 @@ public class AutoRoutines {
 		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
 			driveSystem.brakeCommand()
 		);
-
-		/* ---- All Elevator Commands ---- */
-
-		/* ---- All Funnel Commands ---- */
 	}
 
 	private void setUpAlignmentCommands() {
