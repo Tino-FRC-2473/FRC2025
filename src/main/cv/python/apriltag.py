@@ -179,9 +179,8 @@ class AprilTag():
                     print("tvec: ", tvec)
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
                 self.detectedAprilTags = pose_list
-                return pose_list
-            else: 
-                return []
+
+            return pose_list
     
     #returns the apriltag id of the apriltag closest to the center of the camera assuming that the camera is mounted at the center of the robot
     def calculate_weighted_average(self, pose_list):
