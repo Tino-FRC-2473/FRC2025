@@ -103,8 +103,6 @@ public class FunnelFSMSystem {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
-		
-
 		// Switch state
 		currentState = nextState(input);
 
