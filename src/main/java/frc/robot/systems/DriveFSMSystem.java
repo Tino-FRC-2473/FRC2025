@@ -211,23 +211,24 @@ public class DriveFSMSystem extends SubsystemBase {
 	private void handleTeleOpState(TeleopInput input) {
 		logger.applyStateLogging(drivetrain.getState());
 
-		var xSpeed = -MathUtil.applyDeadband(
+		/* cv alignment constant resets */
+		if (tagAlignmentPose != null) {
+			tagAlignmentPose = null;
+			tagPositionAligned = false;
+		}
+
+		double xSpeed = -MathUtil.applyDeadband(
 			input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
 			// Drive forward with negative Y (forward) ^
 
-		var ySpeed = -MathUtil.applyDeadband(
+		double ySpeed = -MathUtil.applyDeadband(
 			input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
 			// Drive left with negative X (left) ^
 
-		var rotYComp = -MathUtil.applyDeadband(
+		double rotXComp = -MathUtil.applyDeadband(
 			input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-			);
-			// Drive forward with negative Y (forward) ^
-
-		var rotXComp = -MathUtil.applyDeadband(
-			input.getDriveRightJoystickY(), DriveConstants.DRIVE_DEADBAND
 			);
 			// Drive left with negative X (left) ^
 
@@ -241,7 +242,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			.withTargetDirection(
 				rotationAlignmentPose
 			)
-			.withTargetRateFeedforward(rotYComp)
+			.withTargetRateFeedforward(rotXComp)
 		);
 
 		if (input.getDriveTriangleButton()) {
@@ -292,15 +293,15 @@ public class DriveFSMSystem extends SubsystemBase {
 			tagPositionAligned = driveToRobotRelativePose(sendPose);
 			tagAlignmentPose = sendPose;
 		} else {
-			// if (tagPositionAligned) {
-			// 	tagAlignmentPose = null;
-			drivetrain.setControl(brake);
-				// return;
-			// }
+			if (tagPositionAligned) {
+				tagAlignmentPose = null;
+				drivetrain.setControl(brake);
+				return;
+			}
 
-			// if (tagAlignmentPose != null) {
-			// 	tagPositionAligned = driveToRobotRelativePose(tagAlignmentPose);
-			// }
+			if (tagAlignmentPose != null) {
+				tagPositionAligned = driveToRobotRelativePose(tagAlignmentPose);
+			}
 		}
 	}
 
