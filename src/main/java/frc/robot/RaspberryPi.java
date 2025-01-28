@@ -47,22 +47,26 @@ public class RaspberryPi {
 			return atList;
 		}
 
-		for (int i = 0; i < rawData.length / VisionConstants.AT_ARR_INC; i += VisionConstants.AT_ARR_INC) {
+		for (int i = 0; i < rawData.length / VisionConstants.AT_ARR_INC;
+			i += VisionConstants.AT_ARR_INC) {
 			atList.add(
 					new AprilTag(i,
 							"Reef Camera",
 							getArraySegment(
 									rawData,
 									i + VisionConstants.AT_ARR_SEG1_START,
-									i + VisionConstants.AT_ARR_SEG1_START + VisionConstants.AT_ARR_SEG_LEN),
+									i + VisionConstants.AT_ARR_SEG1_START
+										+ VisionConstants.AT_ARR_SEG_LEN),
 							getArraySegment(
 									rawData,
 									i + VisionConstants.AT_ARR_SEG2_START,
-									i + VisionConstants.AT_ARR_SEG2_START + VisionConstants.AT_ARR_SEG_LEN),
+									i + VisionConstants.AT_ARR_SEG2_START
+									+ VisionConstants.AT_ARR_SEG_LEN),
 							getArraySegment(
 									rawData,
 									i + VisionConstants.AT_ARR_SEG3_START,
-									i + VisionConstants.AT_ARR_SEG3_START + VisionConstants.AT_ARR_SEG_LEN)));
+									i + VisionConstants.AT_ARR_SEG3_START
+									+ VisionConstants.AT_ARR_SEG_LEN)));
 		}
 
 		return atList;
@@ -70,7 +74,7 @@ public class RaspberryPi {
 
 	/**
 	 * Gets an April Tag from the list given a certain tag.
-	 * 
+	 *
 	 * @param id id of the april tag
 	 * @return the april tag matching the id
 	 */

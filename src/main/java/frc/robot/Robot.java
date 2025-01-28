@@ -8,7 +8,6 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -54,7 +53,7 @@ public class Robot extends LoggedRobot {
 	// Logger
 	private PowerDistribution powerLogger;
 
-	RaspberryPi pi = new RaspberryPi();
+	private RaspberryPi pi = new RaspberryPi();
 
 	/**
 	 * This function is run when the robot is first started up and should be used

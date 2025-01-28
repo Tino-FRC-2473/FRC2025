@@ -66,7 +66,7 @@ public class AprilTag {
 
 	/**
 	 * Get the X position of the tag.
-	 * 
+	 *
 	 * @return The {@code double} X position of the tag moving to the right and left
 	 */
 	public Double getX() {
@@ -75,7 +75,7 @@ public class AprilTag {
 
 	/**
 	 * Get the Y position of the tag.
-	 * 
+	 *
 	 * @return The {@code double} Y position of the tag moving up and down, points
 	 *         down
 	 */
@@ -85,7 +85,7 @@ public class AprilTag {
 
 	/**
 	 * Get the Z position of the tag.
-	 * 
+	 *
 	 * @return The {@code double} Z position of the tag or the forward direction
 	 */
 	public Double getZ() {
@@ -94,7 +94,7 @@ public class AprilTag {
 
 	/**
 	 * Get the roll of the tag.
-	 * 
+	 *
 	 * @return The {@code double} roll of the tag in radians
 	 */
 	public Double getRoll() {
@@ -103,7 +103,7 @@ public class AprilTag {
 
 	/**
 	 * Get the pitch of the tag.
-	 * 
+	 *
 	 * @return The {@code double} pitch of the tag in radians
 	 */
 	public Double getYaw() {
@@ -112,7 +112,7 @@ public class AprilTag {
 
 	/**
 	 * Get the pitch of the tag.
-	 * 
+	 *
 	 * @return The {@code double} pitch of the tag in radians
 	 */
 	public Double getPitch() {
@@ -121,7 +121,7 @@ public class AprilTag {
 
 	/**
 	 * Gets the name of the camera.
-	 * 
+	 *
 	 * @return The {@code String} name of the camera
 	 */
 	public String getCameraName() {
@@ -130,7 +130,7 @@ public class AprilTag {
 
 	/**
 	 * Gets the ID of the tag.
-	 * 
+	 *
 	 * @return The {@code int} ID of the tag
 	 */
 	public int getTagID() {
@@ -139,7 +139,7 @@ public class AprilTag {
 
 	/**
 	 * Gets string of position values x,y,z and also pose of image.
-	 * 
+	 *
 	 * @return The{@code String} position with coordinates and pose
 	 */
 	@Override
