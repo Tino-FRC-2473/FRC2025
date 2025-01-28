@@ -122,7 +122,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 		currentState = nextState(input);
 		MechLogging.getInstance().
-			pushDrivePoseData(drivetrain.getState().Pose, drivetrain.getRotation3d());
+			setDrivePoseData(drivetrain.getState().Pose);
 	}
 
 	/**
