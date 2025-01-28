@@ -36,33 +36,6 @@ public class ElevatorFSMSystem {
 		LEVEL4
 	}
 
-	// Elevator comnad
-	class MoveElevatorCommand extends Command {
-
-		private double targetPos;
-
-		MoveElevatorCommand(double target) {
-			this.targetPos = target;
-			elevatorTargetReached = false;
-		}
-
-		@Override
-		public void execute() {
-			handlePIDState(targetPos);
-		}
-
-		@Override
-		public boolean isFinished() {
-			return elevatorTargetReached;
-		}
-
-		@Override
-		public void end(boolean interrupted) { }
-	}
-
-	// Target reched check for command
-	private boolean elevatorTargetReached;
-
 	/* ======================== Private variables ======================== */
 
 	private ElevatorFSMState currentState;
@@ -354,30 +327,103 @@ public class ElevatorFSMSystem {
 		}
 	}
 
-	/**
-	 * Handle behavior for a generic auto state.
-	 * @param target the target pid value to move to
-	 */
-	private void handlePIDState(double target) {
-		if (isBottomLimitReached()) {
-			elevatorMotor.set(0);
-			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
-		} else if (isTopLimitReached()) {
-			elevatorMotor.set(0);
-		} else {
-			elevatorMotor.setControl(mmVoltage.withPosition(target));
-			if (elevatorMotor.getVelocity().getValueAsDouble() == 0) {
-				elevatorTargetReached = true;
+	/* ---- Elevator Commands ---- */
+
+	/** Superclass for elevator commands. */
+	abstract class ElevatorCommand extends Command {
+		private double target;
+
+		ElevatorCommand() { }
+
+		@Override
+		public void execute() { }
+
+		@Override
+		public boolean isFinished() {
+			return Math.abs(elevatorMotor.getPosition().getValueAsDouble()
+			- target) < Constants.CLIMBER_PID_MARGIN_OF_ERROR;
+		}
+
+		@Override
+		public void end(boolean interrupted) { }
+
+		protected void setTarget(double newTarget) {
+			this.target = newTarget;
+		}
+
+		protected double getTarget() {
+			return this.target;
+		}
+	}
+
+	/** A command that moves the elevator to the Ground position. */
+	class ElevatorGroundCommand extends ElevatorCommand {
+		ElevatorGroundCommand() {
+			this.setTarget(Constants.ELEVATOR_PID_TARGET_GROUND);
+		}
+
+		@Override
+		public void execute() {
+			if (isBottomLimitReached()) {
+				elevatorMotor.set(0);
+				elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
+			} else {
+				elevatorMotor.setControl(
+					mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
+			}
+		}
+	}
+
+	/** A command that moves the elevator to the Station position. */
+	class ElevatorStationCommand extends ElevatorCommand {
+		ElevatorStationCommand() {
+			this.setTarget(Constants.ELEVATOR_PID_TARGET_STATION);
+		}
+
+		@Override
+		public void execute() {
+			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_STATION));
+		}
+	}
+
+	/** A command that moves the elevator to the L4 position. */
+	class ElevatorL4Command extends ElevatorCommand {
+		ElevatorL4Command() {
+			this.setTarget(Constants.ELEVATOR_PID_TARGET_L4);
+		}
+
+		@Override
+		public void execute() {
+			if (isTopLimitReached()) {
+				elevatorMotor.set(0);
+			} else {
+				elevatorMotor.setControl(
+					mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
 			}
 		}
 	}
 
 	/**
-	 * Command to move the elevator to a target position.
-	 * @param target the target pid value to move to
-	 * @return move elevator command
+	 * Creates a Command to move the elevator to the ground position.
+	 * @return A new elevator ground command.
 	 */
-	public Command moveElevatorCommand(double target) {
-		return new MoveElevatorCommand(target);
+	public Command elevatorGroundCommand() {
+		return new ElevatorGroundCommand();
+	}
+
+	/**
+	 * Creates a Command to move the elevator to the station position.
+	 * @return A new elevator station command.
+	 */
+	public Command elevatorStationCommand() {
+		return new ElevatorStationCommand();
+	}
+
+	/**
+	 * Creates a Command to move the elevator to the L4 position.
+	 * @return A new elevator L4 command.
+	 */
+	public Command elevatorL4Command() {
+		return new ElevatorL4Command();
 	}
 }
