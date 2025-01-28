@@ -100,9 +100,9 @@ public class ElevatorFSMSystem {
 			// MUST set brake after applying other configs
 
 		// Initialize limit switches
-		groundLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_GROUND_LIMIT_SWITCH_PORT);
+		groundLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT);
 			//okay for stopping and resetting
-		topLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_TOP_LIMIT_SWITCH_PORT);
+		topLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_TOP_LIMIT_SWITCH_DIO_PORT);
 			//only use to stop, DO NOT USE TO RESET
 
 		// Reset state machine
@@ -402,6 +402,8 @@ public class ElevatorFSMSystem {
 			}
 		}
 	}
+
+	// FOR COMMANDS: JUST SET THE STATE (UPDATE IS STILL CALLED). INVESTIGATE WEEK 4.
 
 	/**
 	 * Creates a Command to move the elevator to the ground position.

@@ -43,13 +43,13 @@ public class FunnelFSMSystem {
 	 */
 	public FunnelFSMSystem() {
 		// Perform hardware init
-		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PORT);
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS);
+		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PWM_PORT);
+		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 
 		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
 			// default to Short mode anyways
 
-		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_ID);
+		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
 
 		// Reset state machine
 		reset();
@@ -112,7 +112,7 @@ public class FunnelFSMSystem {
 
 		SmartDashboard.putNumber("Distance to Reef", reefDistanceSensor.getRange());
 		SmartDashboard.putBoolean("Reef in Range?",
-			reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD);
+			reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
 
 		SmartDashboard.putBoolean("Holding Coral?", coralBreakBeam.get());
 	}
@@ -155,7 +155,7 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS);
+		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
 	}
 	/**
 	 * Handle behavior in CLOSED.
@@ -163,7 +163,7 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleClosedState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS);
+		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 	}
 
 	/* ---- Funnel Commands ---- */
@@ -174,7 +174,7 @@ public class FunnelFSMSystem {
 
 		@Override
 		public void execute() {
-			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS);
+			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
 		}
 
 		@Override
@@ -197,7 +197,7 @@ public class FunnelFSMSystem {
 
 		@Override
 		public void execute() {
-			funnelServo.set(Constants.FUNNEL_CLOSED_POS);
+			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 		}
 
 		@Override

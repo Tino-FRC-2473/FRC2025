@@ -58,7 +58,7 @@ public class ClimberFSMSystem {
 
 		climberPosSignal = climberMotor.getPosition();
 
-		climbSwitch = new DigitalInput(HardwareMap.CLIMBER_LIMIT_SWITCH_PORT);
+		climbSwitch = new DigitalInput(HardwareMap.CLIMBER_LIMIT_SWITCH_DIO_PORT);
 
 		// Reset state machine
 		reset();

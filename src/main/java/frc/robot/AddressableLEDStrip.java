@@ -14,7 +14,7 @@ public class AddressableLEDStrip {
 	 * Creates a new AddressableLEDStrip object.
 	 */
 	public AddressableLEDStrip() {
-		led = new AddressableLED(HardwareMap.LED_STRIP_PORT);
+		led = new AddressableLED(HardwareMap.LED_STRIP_PWM_PORT);
 		ledBuffer = new AddressableLEDBuffer(Constants.LED_STRIP_BUFFER);
 		led.setLength(ledBuffer.getLength());
 		led.setData(ledBuffer);
@@ -52,7 +52,7 @@ public class AddressableLEDStrip {
 	 * @param g Amount of green light, from 0 to 255.
 	 * @param b Amount of blue light, from 0 to 255.
 	 */
-	public void toggle(int r, int g, int b) {
+	public void toggleLights(int r, int g, int b) {
 		if (isOn) {
 			turnOff();
 
