@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
 // Systems
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
@@ -47,7 +46,6 @@ public class Robot extends LoggedRobot {
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private ElevatorFSMSystem elevatorSystem;
-
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -89,14 +87,19 @@ public class Robot extends LoggedRobot {
 			driveSystem = new DriveFSMSystem();
 
 			autoRoutines = new AutoRoutines(driveSystem);
+
+			autoChooser.addOption("Path 1",
+				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
 		}
-
-		autoRoutines = new AutoRoutines(driveSystem);
-
-		autoChooser.addOption("Path 1",
-			autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			funnelSystem = new FunnelFSMSystem();
+		}
+
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			elevatorSystem = new ElevatorFSMSystem();
+		}
 
 		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
