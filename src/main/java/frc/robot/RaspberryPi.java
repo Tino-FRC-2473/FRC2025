@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.constants.VisionConstants;
 
 /**
 * This class is used to get the data from the Raspberry Pi.
@@ -23,7 +24,7 @@ public class RaspberryPi {
 	}
 
 	/**
-	 * Print all raw data from the tag subscriber.
+	 * Prints the raw data for the april tags on the rpi.
 	 */
 	public void printRawData() {
 		double[] rawData = tagSubscriber.get();
@@ -40,20 +41,52 @@ public class RaspberryPi {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 		double[] rawData = tagSubscriber.get();
 		System.out.println(rawData.length);
+
 		if (rawData.length == 0) {
 			return atList;
 		}
 
-		for (int i = 0; i < rawData.length / 10; i++) {
+		for (
+			int i = 0;
+			i < rawData.length / VisionConstants.AT_ARR_INC;
+			i += VisionConstants.AT_ARR_INC
+		) {
 			atList.add(
-				new AprilTag((int)rawData[i], "Reef Camera",
-				getArraySegment(rawData, i + 1, i + 3),
-				getArraySegment(rawData, i + 4, i + 6),
-				getArraySegment(rawData, i + 7, i + 9))
+				new AprilTag(i,
+				"Reef Camera",
+					getArraySegment(
+						rawData,
+						i + VisionConstants.AT_ARR_SEG1_START,
+						i + VisionConstants.AT_ARR_SEG1_START + VisionConstants.AT_ARR_SEG_LEN
+					),
+					getArraySegment(
+						rawData,
+						i + VisionConstants.AT_ARR_SEG2_START,
+						i + VisionConstants.AT_ARR_SEG2_START + VisionConstants.AT_ARR_SEG_LEN
+					),
+					getArraySegment(
+						rawData,
+						i + VisionConstants.AT_ARR_SEG3_START,
+						i + VisionConstants.AT_ARR_SEG3_START + VisionConstants.AT_ARR_SEG_LEN
+					)
+				)
 			);
 		}
 
 		return atList;
+	}
+
+	/**
+	 * Gets an April Tag from the list given a certain tag.
+	 * @param id id of the april tag
+	 * @return the april tag matching the id
+	 */
+	public AprilTag getAprilTagWithID(int id) {
+		return getAprilTags()
+			.stream()
+			.filter(tag -> tag.getTagID() == id)
+			.findFirst()
+			.orElse(null);
 	}
 
 	/**
@@ -74,6 +107,7 @@ public class RaspberryPi {
 		for (int i = start; i <= end; i++) {
 			segment.add(src[i]);
 		}
+
 		return segment;
 	}
 }

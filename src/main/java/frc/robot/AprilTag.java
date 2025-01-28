@@ -1,20 +1,17 @@
 package frc.robot;
 import java.util.ArrayList;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Pose3d;
-
 
 /**
 * This class is used to store the pose of the AprilTag relative to the camera.
-*
-* @author Jaseer Abdulla
 */
 public class AprilTag {
 	private String camera;
 	private int tagID;
 
-	/* This is where the camera is positioned relative to the tag. */
+	/* This is where the camera is positioned relative to the tag.*/
 	private ArrayList<Double> cameraVector;
 
 	/* Describes the orentation of the marker relative to the camera. */
@@ -28,25 +25,28 @@ public class AprilTag {
 	*
 	* @param   id
 	*          The ID of the tag
-	* @param   cam
+	* @param   camName
 	*          The name of the camera
-	* @param   cvec
+	* @param   camVector
 	*          The position of the camera relative to the tag
-	* @param   rvec
+	* @param   rotVector
 	*          The orientation of the tag relative to the camera
-	* @param   tvec
+	* @param   transVector
 	*          The position of the tag relative to the camera
 	*/
 	public AprilTag(
-		int id, String cam,
-		ArrayList<Double> cvec, ArrayList<Double> rvec,
-		ArrayList<Double> tvec) {
+		int id,
+		String camName,
+		ArrayList<Double> camVector,
+		ArrayList<Double> rotVector,
+		ArrayList<Double> transVector) {
 
-		tagID = id;
-		camera = cam;
-		rotationalVector = rvec;
-		cameraVector = cvec;
-		translationalVector = tvec;
+		this.tagID = id;
+		this.camera = camName;
+		this.rotationalVector = rotVector;
+		this.cameraVector = camVector;
+		this.translationalVector = transVector;
+
 	}
 
 	/**
@@ -57,13 +57,11 @@ public class AprilTag {
 	*/
 	public Pose3d getPose() {
 		Translation3d trans3d = new Translation3d(
-			translationalVector.get(0),
-			translationalVector.get(1),
-			translationalVector.get(2));
+			translationalVector.get(0), translationalVector.get(1), translationalVector.get(2)
+		);
 		Rotation3d rot3d = new Rotation3d(
-			rotationalVector.get(0),
-			rotationalVector.get(1),
-			rotationalVector.get(2));
+			rotationalVector.get(0), rotationalVector.get(1), rotationalVector.get(2)
+		);
 		return new Pose3d(trans3d, rot3d);
 	}
 
@@ -138,7 +136,7 @@ public class AprilTag {
 	@Override
 	public String toString() {
 		return String.format(
-			"ID %d  - x: %.3f, y: %.3f, z: %.3f, %s",
-			tagID, getX(), getY(), getZ(), getPose());
+			"ID %d  - x: %.3f, y: %.3f, z: %.3f, %s", tagID, getX(), getY(), getZ(), getPose()
+		);
 	}
 }
