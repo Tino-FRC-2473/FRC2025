@@ -26,8 +26,8 @@ public class AutoHandlerSystem {
 
 	//FSM Systems that the autoHandlerFSM uses
 	private DriveFSMSystem driveSystem;
-	private FunnelFSMSystem elevatorSystem;
-	private ElevatorFSMSystem funnelSystem;
+	private ElevatorFSMSystem elevatorSystem;
+	private FunnelFSMSystem funnelSystem;
 
 	//Predefined auto paths
 	private static final AutoFSMState[] PATH1 = new AutoFSMState[]{
@@ -48,8 +48,8 @@ public class AutoHandlerSystem {
 	 */
 	public AutoHandlerSystem(DriveFSMSystem fsm1, FunnelFSMSystem fsm2, ElevatorFSMSystem fsm3) {
 		driveSystem = fsm1;
-		elevatorSystem = fsm2;
-		funnelSystem = fsm3;
+		funnelSystem = fsm2;
+		elevatorSystem = fsm3;
 	}
 
 	/* ======================== Public methods ======================== */
