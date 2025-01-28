@@ -21,6 +21,7 @@ import frc.robot.Robot;
 // Robot Imports
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
+import frc.robot.logging.MechLogging;
 import frc.robot.motors.TalonFXWrapper;
 import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
@@ -182,6 +183,8 @@ public class ElevatorFSMSystem {
 
 		SmartDashboard.putNumber("Elevator Accel",
 			elevatorMotor.getAcceleration().getValueAsDouble());
+
+		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition().getValue());
 
 	}
 
