@@ -33,7 +33,8 @@ import frc.robot.systems.DriveFSMSystem;
 import frc.robot.constants.TunerConstants;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
  * each mode, as described in the TimedRobot documentation.
  */
 public class Robot extends LoggedRobot {
@@ -50,14 +51,14 @@ public class Robot extends LoggedRobot {
 	private FunnelFSMSystem funnelSystem;
 	private ElevatorFSMSystem elevatorSystem;
 
-
 	// Logger
 	private PowerDistribution powerLogger;
 
 	RaspberryPi pi = new RaspberryPi();
 
 	/**
-	 * This function is run when the robot is first started up and should be used for any
+	 * This function is run when the robot is first started up and should be used
+	 * for any
 	 * initialization code.
 	 */
 	@Override
@@ -70,7 +71,7 @@ public class Robot extends LoggedRobot {
 			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
 			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
 			powerLogger = new PowerDistribution(1, ModuleType.kRev);
-				// Enables power distribution logging
+			// Enables power distribution logging
 		} else if (isSimulation()) {
 			Logger.addDataReceiver(new NT4Publisher());
 		} else {
@@ -83,7 +84,6 @@ public class Robot extends LoggedRobot {
 		Logger.start(); // Start logging!
 
 		input = new TeleopInput();
-
 
 		// Instantiate all systems here
 		if (HardwareMap.isDriveHardwarePresent()) {
@@ -168,21 +168,20 @@ public class Robot extends LoggedRobot {
 	public void testInit() {
 		System.out.println("-------- Test Init --------");
 
-		
 	}
 
 	@Override
 	public void testPeriodic() {
 		ArrayList<AprilTag> tags = pi.getAprilTags();
-			for (AprilTag tag : tags) {
-				System.out.println(tag);
-			}
-			if (tags.size() == 0) {
-				System.out.println("No tags detected");
-			}
+		for (AprilTag tag : tags) {
+			System.out.println(tag);
+		}
+		if (tags.size() == 0) {
+			System.out.println("No tags detected");
+		}
 	}
 
-	/* Simulation mode handlers, only used for simulation testing  */
+	/* Simulation mode handlers, only used for simulation testing */
 	@Override
 	public void simulationInit() {
 		System.out.println("-------- Simulation Init --------");
@@ -190,11 +189,13 @@ public class Robot extends LoggedRobot {
 	}
 
 	@Override
-	public void simulationPeriodic() { }
+	public void simulationPeriodic() {
+	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
-	public void robotPeriodic() { }
+	public void robotPeriodic() {
+	}
 
 	/**
 	 * Gets the autonomous command selected by the auto chooser.
