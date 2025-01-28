@@ -17,10 +17,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Notifier;
-import frc.robot.constants.TunerConstants;
-import frc.robot.simulation.MapleSimSwerveDrivetrain;
-import frc.robot.simulation.SimSwerveDrivetrainConfig;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -36,9 +32,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	/* Keep track if we've ever applied the operator perspective before or not */
 	private boolean hasAppliedOperatorPerspective = false;
 
-	private final SwerveRequest.ApplyRobotSpeeds pathApplyRobotSpeeds =
-		new SwerveRequest.ApplyRobotSpeeds();
-
 	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
 		new SwerveRequest.ApplyFieldSpeeds();
 
@@ -52,27 +45,22 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 			getPigeon2().getRotation2d(),
 			getModulePositions(), new Pose2d());
 
-	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
-	private Notifier simNotifier;
 	/**
 	 * Constructs a CommandSwerveDrivetrain with the specified drivetrain constants and modules.
 	 *
 	 * @param drivetrainConstants the constants for the swerve drivetrain
 	 * @param modules the swerve modules
 	 */
+
 	public CommandSwerveDrivetrain(
 		SwerveDrivetrainConstants drivetrainConstants,
 		SwerveModuleConstants<?, ?, ?>... modules
 	) {
 		super(
 			TalonFX::new, TalonFX::new, CANcoder::new,
-			drivetrainConstants,
-			MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)
+			drivetrainConstants, modules
 		);
 
-		if (Robot.isSimulation()) {
-			setupSimulation();
-		}
 		// setupPathplanner();
 	}
 
@@ -131,26 +119,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		return pos;
 	}
 
-	private void setupSimulation() {
-		mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
-			SimSwerveDrivetrainConfig.getDefault()
-				.withModuleLocations(getModuleLocations())
-				.withPigeon(getPigeon2())
-				.withModules(getModules())
-				.withModuleConstants(
-						TunerConstants.FRONT_LEFT,
-						TunerConstants.FRONT_RIGHT,
-						TunerConstants.BACK_LEFT,
-						TunerConstants.BACK_RIGHT
-				)
-			);
-	}
-
-	/**
-	 * Get the sim drive train as a MapleSimSwerveDrivetrain.
-	 * @return the sim drivetrain of the current class, or null if not simulation
-	 */
-	public MapleSimSwerveDrivetrain getSimDrivetrain() {
-		return mapleSimSwerveDrivetrain;
-	}
+	// @Override
+	// public void simulationPeriodic() {
+	// 	/* Assume 20ms update rate, get battery voltage from WPILib */
+	// 	updateSimState(0.02, RobotController.getBatteryVoltage());
+	// }
 }

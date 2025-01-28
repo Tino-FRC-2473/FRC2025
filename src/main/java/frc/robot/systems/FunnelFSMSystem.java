@@ -1,32 +1,26 @@
 package frc.robot.systems;
 
-import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.constants.Constants;
-import frc.robot.HardwareMap;
-
 // WPILib Imports
 
 // Third party Hardware Imports
 
 // Robot Imports
 import frc.robot.TeleopInput;
+import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
 public class FunnelFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
-	public enum FunnelFSMState {
-		OUTTAKE,
-		CLOSED
+	public enum FSMState {
+		START_STATE,
+		OTHER_STATE
 	}
 
 	/* ======================== Private variables ======================== */
-	private FunnelFSMState currentState;
+	private FSMState currentState;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
-
-	private Servo funnelServo;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -36,8 +30,6 @@ public class FunnelFSMSystem {
 	 */
 	public FunnelFSMSystem() {
 		// Perform hardware init
-		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PORT);
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 
 		// Reset state machine
 		reset();
@@ -48,7 +40,7 @@ public class FunnelFSMSystem {
 	 * Return current FSM state.
 	 * @return Current FSM state
 	 */
-	public FunnelFSMState getCurrentState() {
+	public FSMState getCurrentState() {
 		return currentState;
 	}
 	/**
@@ -60,7 +52,7 @@ public class FunnelFSMSystem {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FunnelFSMState.CLOSED;
+		currentState = FSMState.START_STATE;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -73,30 +65,37 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
-		// Handle states
-		if (input == null) {
-			return;
-		}
 		switch (currentState) {
-			case OUTTAKE:
-				handleOuttakeState(input);
+			case START_STATE:
+				handleStartState(input);
 				break;
 
-			case CLOSED:
-				handleClosedState(input);
+			case OTHER_STATE:
+				handleOtherState(input);
 				break;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
-
-		// Switch state
 		currentState = nextState(input);
+	}
 
-		// Telemetry and logging
-
-		SmartDashboard.putNumber("Funnel Position", funnelServo.get());
-		SmartDashboard.putString("Funnel State", currentState.toString());
+	/**
+	 * Performs specific action based on the autoState passed in.
+	 * @param autoState autoState that the subsystem executes.
+	 * @return if the action carried out in this state has finished executing
+	 */
+	public boolean updateAutonomous(AutoFSMState autoState) {
+		switch (autoState) {
+			case STATE1:
+				return handleAutoState1();
+			case STATE2:
+				return handleAutoState2();
+			case STATE3:
+				return handleAutoState3();
+			default:
+				return true;
+		}
 	}
 
 	/* ======================== Private methods ======================== */
@@ -109,21 +108,17 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
 	 */
-	private FunnelFSMState nextState(TeleopInput input) {
+	private FSMState nextState(TeleopInput input) {
 		switch (currentState) {
-			case OUTTAKE:
-				if (!input.isFunnelButtonPressed()) {
-					return FunnelFSMState.CLOSED;
+			case START_STATE:
+				if (input != null) {
+					return FSMState.OTHER_STATE;
 				} else {
-					return FunnelFSMState.OUTTAKE;
+					return FSMState.START_STATE;
 				}
 
-			case CLOSED:
-				if (input.isFunnelButtonPressed()) {
-					return FunnelFSMState.OUTTAKE;
-				} else {
-					return FunnelFSMState.CLOSED;
-				}
+			case OTHER_STATE:
+				return FSMState.OTHER_STATE;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -136,15 +131,39 @@ public class FunnelFSMSystem {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleOuttakeState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+	private void handleStartState(TeleopInput input) {
+
 	}
 	/**
 	 * Handle behavior in OTHER_STATE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleClosedState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+	private void handleOtherState(TeleopInput input) {
+
+	}
+
+	/**
+	 * Performs action for auto STATE1.
+	 * @return if the action carried out has finished executing
+	 */
+	private boolean handleAutoState1() {
+		return true;
+	}
+
+	/**
+	 * Performs action for auto STATE2.
+	 * @return if the action carried out has finished executing
+	 */
+	private boolean handleAutoState2() {
+		return true;
+	}
+
+	/**
+	 * Performs action for auto STATE3.
+	 * @return if the action carried out has finished executing
+	 */
+	private boolean handleAutoState3() {
+		return true;
 	}
 }

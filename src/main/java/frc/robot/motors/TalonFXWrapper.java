@@ -9,12 +9,11 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.Robot;
 
 public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 
 	// Attributes
-	private static final double K_GEAR_RATIO = 10.0;
+	private static final double K_GEAR_RATIO = 1.0;
 	private static final double INERTIA_CONSTANT = 0.001;
 
 	// Components
@@ -77,26 +76,24 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 
 	@Override
 	public void update() {
-		if (Robot.isSimulation()) {
-			var talonFXSim = getSimState();
+		var talonFXSim = getSimState();
 
-			// set the supply voltage of the TalonFX
-			talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+		// set the supply voltage of the TalonFX
+		talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-			// get the motor voltage of the TalonFX
-			var motorVoltage = talonFXSim.getMotorVoltageMeasure();
+		// get the motor voltage of the TalonFX
+		var motorVoltage = talonFXSim.getMotorVoltageMeasure();
 
-			// use the motor voltage to calculate new position and velocity
-			// using WPILib's DCMotorSim class for physics simulation
-			motorSimModel.setInputVoltage(motorVoltage.in(Volts));
-			motorSimModel.update(LOOP_PERIOD_MS); // assume 20 ms loop time
+		// use the motor voltage to calculate new position and velocity
+		// using WPILib's DCMotorSim class for physics simulation
+		motorSimModel.setInputVoltage(motorVoltage.in(Volts));
+		motorSimModel.update(LOOP_PERIOD_MS); // assume 20 ms loop time
 
-			// apply the new rotor position and velocity to the TalonFX;
-			// note that this is rotor position/velocity (before gear ratio), but
-			// DCMotorSim returns mechanism position/velocity (after gear ratio)
-			talonFXSim.setRawRotorPosition(motorSimModel.getAngularPosition().times(K_GEAR_RATIO));
-			talonFXSim.setRotorVelocity(motorSimModel.getAngularVelocity().times(K_GEAR_RATIO));
-		}
+		// apply the new rotor position and velocity to the TalonFX;
+		// note that this is rotor position/velocity (before gear ratio), but
+		// DCMotorSim returns mechanism position/velocity (after gear ratio)
+		talonFXSim.setRawRotorPosition(motorSimModel.getAngularPosition().times(K_GEAR_RATIO));
+		talonFXSim.setRotorVelocity(motorSimModel.getAngularVelocity().times(K_GEAR_RATIO));
 	}
 
 	@Override

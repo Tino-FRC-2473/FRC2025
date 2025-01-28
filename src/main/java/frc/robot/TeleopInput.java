@@ -19,6 +19,7 @@ public class TeleopInput {
 	// Input objects
 	private PS4Controller mechController;
 	private PS4Controller driveController;
+
 	/* ======================== Constructor ======================== */
 	/**
 	 * Create a TeleopInput and register input devices. Note that while inputs
@@ -26,12 +27,14 @@ public class TeleopInput {
 	 * by WPILib until teleop mode.
 	 */
 	public TeleopInput() {
-		driveController = new PS4Controller(DRIVE_CONTROLLER_PORT);
 		mechController = new PS4Controller(MECH_CONTROLLER_PORT);
+
+		driveController = new PS4Controller(DRIVE_CONTROLLER_PORT);
 	}
 
 	/* ======================== Public methods ======================== */
 	// Getter methods for fetch input values should be defined here.
+	// Method names should be descriptive of the behavior, so the
 	// control mapping is hidden from other classes.
 
 	/* ------------------------ Drive Controller ------------------------ */
@@ -62,13 +65,6 @@ public class TeleopInput {
 	 */
 	public boolean getDriveTriangleButton() {
 		return driveController.getTriangleButton();
-	}
-	/**
-	 * Get Square Button Pressed for Drive Controller.
-	 * @return Axis value
-	 */
-	public boolean getDriveSquareButton() {
-		return driveController.getSquareButton();
 	}
 	/**
 	 * Get Circle Button Pressed for Drive Controller.
@@ -112,15 +108,6 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Gets the value of the options button.
-	 * Intended to signify when the climber should go to the next state.
-	 * @return If the options button was pressed this tick
-	 */
-	public boolean isClimbAdvanceStateButtonPressed() {
-		return mechController.getOptionsButtonPressed();
-	}
-
-	/**
 	 * Get the manual elevator movement input (right stick Y).
 	 * @return A double in the range [-1,1] representing the control input
 	 */
@@ -134,15 +121,6 @@ public class TeleopInput {
 	 */
 	public double getManualElevatorMovementInput() {
 		return mechController.getRightY();
-	}
-
-	/**
-	 * Gets the value of the options button.
-	 * Intended to signify when the climber should go to the next state.
-	 * @return If the share button was pressed this tick
-	 */
-	public boolean isFunnelButtonPressed() {
-		return mechController.getL1Button();
 	}
 
 	/* ======================== Private methods ======================== */

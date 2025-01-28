@@ -6,8 +6,8 @@ package frc.robot;
 // Third Party Imports
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+
 import java.util.ArrayList;
-import org.ironmaple.simulation.SimulatedArena;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -22,17 +22,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 // Systems
-import frc.robot.systems.ClimberFSMSystem;
-import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
-import frc.robot.auto.AutoRoutines;
-import frc.robot.motors.MotorManager;
+import frc.robot.constants.TunerConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -41,24 +38,22 @@ import frc.robot.motors.MotorManager;
  */
 public class Robot extends LoggedRobot {
 	private TeleopInput input;
+	private TunerConstants constants;
 
 	// Systems
 	private DriveFSMSystem driveSystem;
+	private CommandSwerveDrivetrain swerveDrivetrain;
+	private AutoFactory autoFactory;
 	private AutoRoutines autoRoutines;
-	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
+	private AutoChooser autoChooser = new AutoChooser();
 	private Command autCommand;
 	private FunnelFSMSystem funnelSystem;
-	private ClimberFSMSystem climberSystem;
 	private ElevatorFSMSystem elevatorSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
 
-
 	private RaspberryPi pi = new RaspberryPi();
-	private static final Object[] PATH_1 = new Object[] {
-		"S1_R2"
-	};
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -93,24 +88,26 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 
-			autoRoutines = new AutoRoutines(driveSystem);
+			autoFactory = driveSystem.createAutoFactory();
+			autoRoutines = new AutoRoutines(autoFactory, driveSystem);
+
+			autoChooser.addRoutine("testPath", autoRoutines::testAuto);
+			SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 		}
 
-		autoRoutines = new AutoRoutines(driveSystem);
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			elevatorSystem = new ElevatorFSMSystem();
+		}
 
-		autoChooser.addOption("Path 1",
-			autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
-
-
-		if (HardwareMap.isClimberHardwarePresent()) {
-			climberSystem = new ClimberFSMSystem();
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			funnelSystem = new FunnelFSMSystem();
 		}
 	}
 
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
+		// autoHandler.reset(AutoPath.PATH1);
 		autCommand = getAutonomousCommand();
 
 		if (autCommand != null) {
@@ -120,6 +117,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
+		// autoHandler.update();
 		CommandScheduler.getInstance().run();
 		driveSystem.updateAutonomous();
 	}
@@ -132,9 +130,6 @@ public class Robot extends LoggedRobot {
 		}
 		if (funnelSystem != null) {
 			funnelSystem.reset();
-		}
-		if (climberSystem != null) {
-			climberSystem.reset();
 		}
 		if (elevatorSystem != null) {
 			elevatorSystem.reset();
@@ -149,18 +144,15 @@ public class Robot extends LoggedRobot {
 		if (funnelSystem != null) {
 			funnelSystem.update(input);
 		}
-		if (climberSystem != null) {
-			climberSystem.update(input);
-		}
 		if (elevatorSystem != null) {
 			elevatorSystem.update(input);
 		}
-		MotorManager.update();
 	}
 
 	@Override
 	public void disabledInit() {
 		System.out.println("-------- Disabled Init --------");
+		Logger.end(); // Stop logging!
 		if (powerLogger != null) {
 			powerLogger.close();
 		}
@@ -193,27 +185,10 @@ public class Robot extends LoggedRobot {
 	public void simulationInit() {
 		System.out.println("-------- Simulation Init --------");
 		// don't preform simulated hardware init here, robotInit() still runs during sim
-		SimulatedArena.getInstance().resetFieldForAuto();
 	}
 
 	@Override
 	public void simulationPeriodic() {
-		driveSystem.getMapleSimDrivetrain().update();
-
-		Logger.recordOutput(
-			"FieldSimulation/SimulatedPose",
-			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
-		);
-
-		Logger.recordOutput(
-			"FieldSimulation/AlgaePoses",
-			SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
-		);
-
-		Logger.recordOutput(
-			"FieldSimulation/CoralPoses",
-			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
-		);
 	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
@@ -227,6 +202,6 @@ public class Robot extends LoggedRobot {
 	 * @return the selected autonomous command
 	 */
 	public Command getAutonomousCommand() {
-		return autoChooser.getSelected();
+		return autoChooser.selectedCommand();
 	}
 }

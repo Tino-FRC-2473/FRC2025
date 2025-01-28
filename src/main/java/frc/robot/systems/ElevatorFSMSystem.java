@@ -21,7 +21,7 @@ import frc.robot.Robot;
 
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
-import frc.robot.motors.TalonFXWrapper;
+import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 
 
 public class ElevatorFSMSystem {
@@ -58,7 +58,7 @@ public class ElevatorFSMSystem {
 		// Perform hardware init
 
 		//perform kraken init
-		elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
+		elevatorMotor = new TalonFX(HardwareMap.CAN_ID_ELEVATOR);
 
 		// elevatorMotor.setPosition(0); // reset kraken encoder (only use when tuning)
 		elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -119,8 +119,6 @@ public class ElevatorFSMSystem {
 	public void reset() {
 		currentState = ElevatorFSMState.MANUAL;
 
-		elevatorMotor.setPosition(0);
-
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
 	}
@@ -132,6 +130,11 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
+		BaseStatusSignal.refreshAll(
+			elevatorMotor.getPosition(),
+			elevatorMotor.getVelocity(),
+			elevatorMotor.getAcceleration(),
+			elevatorMotor.getMotorVoltage());
 
 		if (input == null) {
 			return;
@@ -165,6 +168,24 @@ public class ElevatorFSMSystem {
 
 		SmartDashboard.putString("Elevator State", currentState.toString());
 
+	}
+
+	/**
+	 * Performs specific action based on the autoState passed in.
+	 * @param autoState autoState that the subsystem executes.
+	 * @return if the action carried out in this state has finished executing
+	 */
+	public boolean updateAutonomous(AutoFSMState autoState) {
+		switch (autoState) {
+			case STATE1:
+				return handleAutoState1();
+			case STATE2:
+				return handleAutoState2();
+			case STATE3:
+				return handleAutoState3();
+			default:
+				return true;
+		}
 	}
 
 	/* ======================== Private methods ======================== */
@@ -229,7 +250,7 @@ public class ElevatorFSMSystem {
 	 */
 	private boolean isLimitReached() {
 		if (Robot.isSimulation()) {
-			return false;
+			return elevatorMotor.getPosition().getValueAsDouble() < 0;
 		}
 		return !groundLimitSwitch.get();
 	}
@@ -242,15 +263,14 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleManualState(TeleopInput input) {
 		double signalInput = input.getManualElevatorMovementInput();
-		signalInput = MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND);
-		SmartDashboard.putNumber("input", signalInput);
 		if (isLimitReached()) {
 			elevatorMotor.setPosition(0);
 			if (signalInput < 0) {
+				elevatorMotor.set(0);
 				return;
 			}
 		}
-		elevatorMotor.set(signalInput);
+		elevatorMotor.set(MathUtil.applyDeadband(signalInput, JOYSTICK_DEADBAND));
 	}
 
 	/**
@@ -283,5 +303,29 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleL4State(TeleopInput input) {
 		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
+	}
+
+	/**
+	 * Performs action for auto STATE1.
+	 * @return if the action carried out has finished executing
+	 */
+	private boolean handleAutoState1() {
+		return true;
+	}
+
+	/**
+	 * Performs action for auto STATE2.
+	 * @return if the action carried out has finished executing
+	 */
+	private boolean handleAutoState2() {
+		return true;
+	}
+
+	/**
+	 * Performs action for auto STATE3.
+	 * @return if the action carried out has finished executing
+	 */
+	private boolean handleAutoState3() {
+		return true;
 	}
 }
