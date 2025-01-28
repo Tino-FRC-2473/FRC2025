@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // Robot Imports
 import frc.robot.constants.Constants;
+import frc.robot.logging.MechLogging;
 import frc.robot.motors.TalonFXWrapper;
 import frc.robot.HardwareMap;
 import frc.robot.TeleopInput;
@@ -128,6 +129,7 @@ public class ClimberFSMSystem {
 		SmartDashboard.putNumber("Climber CLIMB target", currentClimbPidTarget);
 		SmartDashboard.putString("Climber control request",
 			climberMotor.getAppliedControl().toString());
+		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
 	}
 
 	/* ======================== Private methods ======================== */
