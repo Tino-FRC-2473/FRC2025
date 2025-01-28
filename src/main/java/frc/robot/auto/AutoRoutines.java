@@ -15,13 +15,16 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.systems.DriveFSMSystem;
+import frc.robot.systems.ElevatorFSMSystem;
+import frc.robot.systems.FunnelFSMSystem;
 
 public class AutoRoutines {
 	private AutoFactory autoFactory;
 
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
-
+	private ElevatorFSMSystem elevatorSystem;
+	private FunnelFSMSystem funnelSystem;
 
 	// Initialize all paths
 	private AutoRoutine sysRoutine;
@@ -163,8 +166,20 @@ public class AutoRoutines {
 	}
 
 	private void setupCommands() {
-		/* ---- All Red AprilTag Alignment Commands ---- */
+		setUpAlignmentCommands();
 
+		setUpElevatorCommands();
+
+		setUpFunnelCommands();
+
+		/* ---- All Drive Commands ---- */
+		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
+			driveSystem.brakeCommand()
+		);
+	}
+
+	private void setUpAlignmentCommands() {
+		/* ---- All Red AprilTag Alignment Commands ---- */
 		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
@@ -227,7 +242,6 @@ public class AutoRoutines {
 		);
 
 		/* ---- All Blue AprilTag Alignment Commands ---- */
-
 		commands.put(AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
@@ -288,15 +302,26 @@ public class AutoRoutines {
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET)
 		);
+	}
 
-		/* ---- All Drive Commands ---- */
-		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
-			driveSystem.brakeCommand()
+	private void setUpElevatorCommands() {
+		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
+			elevatorSystem.elevatorGroundCommand()
 		);
+		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
+			elevatorSystem.elevatorStationCommand()
+		);
+		commands.put(AutoCommands.ELEVATOR_L4_CMD,
+			elevatorSystem.elevatorL4Command()
+		);
+	}
 
-		/* ---- All Elevator Commands ---- */
-
-		/* ---- All Intake Commands ---- */
-
+	private void setUpFunnelCommands() {
+		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
+			funnelSystem.openFunnelCommand()
+		);
+		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
+			funnelSystem.closeFunnelCommand()
+		);
 	}
 }

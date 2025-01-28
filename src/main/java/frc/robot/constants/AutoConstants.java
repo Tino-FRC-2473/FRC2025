@@ -57,13 +57,20 @@ public class AutoConstants {
 		B_ALIGN_REEF5_R_TAG_CMD,
 		B_ALIGN_REEF6_L_TAG_CMD,
 		B_ALIGN_REEF6_R_TAG_CMD,
-		/* Red Align Station Tag Commands */
+		/* Align Station Tag Commands */
 		R_ALIGN_STATION_L_TAG_CMD,
 		R_ALIGN_STATION_R_TAG_CMD,
 		B_ALIGN_STATION_L_TAG_CMD,
 		B_ALIGN_STATION_R_TAG_CMD,
 		/* Drive Peripheral Commands */
 		DRIVE_BRAKE_CMD,
+		/* Elevator Commands */
+		ELEVATOR_GROUND_CMD,
+		ELEVATOR_STATION_CMD,
+		ELEVATOR_L4_CMD,
+		/* Funnel Commands */
+		FUNNEL_OPEN_CMD,
+		FUNNEL_CLOSE_CMD,
 	}
 
 }

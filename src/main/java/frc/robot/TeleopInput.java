@@ -128,19 +128,11 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get the manual elevator movement input (right stick Y).
-	 * @return A double in the range [-1,1] representing the control input
-	 */
-	public double getMechLeftJoystickX() {
-		return mechController.getLeftX();
-	}
-
-	/**
 	 * Get Y axis of Right Joystick.
 	 * @return Axis value
 	 */
 	public double getManualElevatorMovementInput() {
-		return mechController.getRightY();
+		return -mechController.getRightY(); //up is negative y, negate for simplicity
 	}
 
 	/**
