@@ -27,9 +27,8 @@ public class TeleopInput {
 	 * by WPILib until teleop mode.
 	 */
 	public TeleopInput() {
-		mechController = new PS4Controller(MECH_CONTROLLER_PORT);
-
 		driveController = new PS4Controller(DRIVE_CONTROLLER_PORT);
+		mechController = new PS4Controller(MECH_CONTROLLER_PORT);
 	}
 
 	/* ======================== Public methods ======================== */
@@ -65,6 +64,13 @@ public class TeleopInput {
 	 */
 	public boolean getDriveTriangleButton() {
 		return driveController.getTriangleButton();
+	}
+	/**
+	 * Get Square Button Pressed for Drive Controller.
+	 * @return Axis value
+	 */
+	public boolean getDriveSquareButton() {
+		return driveController.getSquareButton();
 	}
 	/**
 	 * Get Circle Button Pressed for Drive Controller.
@@ -108,11 +114,12 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get the manual elevator movement input (right stick Y).
-	 * @return A double in the range [-1,1] representing the control input
+	 * Gets the value of the options button.
+	 * Intended to signify when the climber should go to the next state.
+	 * @return If the options button was pressed this tick
 	 */
-	public double getMechLeftJoystickX() {
-		return mechController.getLeftX();
+	public boolean isClimbAdvanceStateButtonPressed() {
+		return mechController.getOptionsButtonPressed();
 	}
 
 	/**
@@ -120,7 +127,16 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public double getManualElevatorMovementInput() {
-		return mechController.getRightY();
+		return -mechController.getRightY(); //up is negative y, negate for simplicity
+	}
+
+	/**
+	 * Gets the value of the options button.
+	 * Intended to signify when the climber should go to the next state.
+	 * @return If the share button was pressed this tick
+	 */
+	public boolean isFunnelButtonPressed() {
+		return mechController.getL1Button();
 	}
 
 	/* ======================== Private methods ======================== */

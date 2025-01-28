@@ -30,7 +30,7 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 	 * @param deviceId the CAN ID of the motor
 	 */
 	public TalonFXWrapper(int deviceId) {
-		this(deviceId, DCMotor.getKrakenX60Foc(1));
+		this(deviceId, DCMotor.getKrakenX60(1));
 	}
 
 	/**
