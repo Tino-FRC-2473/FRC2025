@@ -282,9 +282,6 @@ public class DriveFSMSystem extends SubsystemBase {
 			SmartDashboard.putNumber("RPIX ", rpiX);
 			SmartDashboard.putNumber("RPIY ", rpiY);
 			SmartDashboard.putNumber("rpITHETA ", rpiTheta.getDegrees());
-			System.out.println("PI x: "+ rpiX );
-			System.out.println("PI y: "+ rpiY );
-			System.out.println("PI theta: "+ rpiTheta.getDegrees() );
 
 			Pose2d sendPose = new Pose2d(
 				rpiX,
@@ -297,7 +294,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		} else {
 			// if (tagPositionAligned) {
 			// 	tagAlignmentPose = null;
-				drivetrain.setControl(brake);
+			drivetrain.setControl(brake);
 				// return;
 			// }
 
