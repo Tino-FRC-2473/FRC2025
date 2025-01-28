@@ -2,7 +2,6 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,43 +12,51 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-
 import choreo.auto.AutoFactory;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 // Robot Imports
 import frc.robot.TeleopInput;
+import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
+import frc.robot.simulation.MapleSimSwerveDrivetrain;
+import frc.robot.constants.VisionConstants;
+import frc.robot.utils.SwerveUtils;
 import frc.robot.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
+import frc.robot.RaspberryPI;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum FSMState {
 		TELEOP_STATE,
+		ALIGN_TO_TAG_STATE
 	}
 
-	private static final SlewRateLimiter X_LIMITER = new SlewRateLimiter(2);
-	private static final SlewRateLimiter Y_LIMITER = new SlewRateLimiter(0.5);
-	private static final SlewRateLimiter ROT_LIMITER = new SlewRateLimiter(0.5);
 	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
 		// kSpeedAt12Volts desired top speed
-	private final double maxAngularRate =
+	private static final double MAX_ANGULAR_RATE =
 		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
 		//3/4 rps angle velo
 
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
-		.withRotationalDeadband(maxAngularRate * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
 	private final SwerveLogging logger = new SwerveLogging(MAX_SPEED);
 	private CommandSwerveDrivetrain drivetrain;
+
+	/* -- cv constants -- */
+	private RaspberryPI rpi = new RaspberryPI();
+	private boolean tagPositionAligned;
+	private int tagID = AutoConstants.B_REEF_1_TAG_ID;
+
 
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;
@@ -106,7 +113,9 @@ public class DriveFSMSystem extends SubsystemBase {
 			case TELEOP_STATE:
 				handleTeleOpState(input);
 				break;
-
+			case ALIGN_TO_TAG_STATE:
+				handleTagAlignment(input, tagID, 0, 0);
+				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -148,7 +157,15 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		switch (currentState) {
 			case TELEOP_STATE:
-				if (input != null) {
+				if (input.getDriveSquareButton()) {
+					return FSMState.ALIGN_TO_TAG_STATE;
+				} else {
+					return FSMState.TELEOP_STATE;
+				}
+			case ALIGN_TO_TAG_STATE:
+				if (input.getDriveSquareButton()) {
+					return FSMState.ALIGN_TO_TAG_STATE;
+				} else {
 					return FSMState.TELEOP_STATE;
 				}
 
@@ -178,7 +195,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			.withRotationalRate(
 				-MathUtil.applyDeadband(
 					input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-					) * maxAngularRate) // Drive counterclockwise with negative X (left)
+					) * MAX_ANGULAR_RATE) // Drive counterclockwise with negative X (left)
 		);
 
 		if (input.getDriveTriangleButton()) {
@@ -194,6 +211,55 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (input.getDriveBackButtonPressed()) {
 			drivetrain.seedFieldCentric();
+		}
+	}
+
+	/**
+	 * Handle tag alignment state.
+	 * @param input
+	 * @param id
+	 * @param xOff
+	 * @param yOff
+	 */
+	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
+		logger.applyStateLogging(drivetrain.getState());
+
+		if (rpi.getAprilTagX(id) != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT) {
+			double yDiff = rpi.getAprilTagY(id) - yOff;
+			double xDiff = rpi.getAprilTagX(id) - xOff;
+			double aDiff = rpi.getAprilTagXInv(id) * Math.PI / VisionConstants.N_180;
+			//TODO: x inv might not be correct for at angle.
+
+			double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					xDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				) : 0;
+			double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					yDiff / VisionConstants.REEF_TRANSLATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				) : 0;
+			double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
+				? -SwerveUtils.clamp(
+					aDiff / VisionConstants.REEF_ROTATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+					VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+				) : 0;
+
+			if (xSpeed == 0 && ySpeed == 0 && aSpeed == 0) {
+				tagPositionAligned = true;
+			}
+
+			drivetrain.setControl(
+				drive.withVelocityX(ySpeed)
+				.withVelocityY(xSpeed)
+				.withRotationalRate(aSpeed)
+			);
+		} else {
+			drivetrain.setControl(brake);
 		}
 	}
 
@@ -214,26 +280,51 @@ public class DriveFSMSystem extends SubsystemBase {
 	}
 
 	/**
-	 * Performs action for auto STATE1.
-	 * @return if the action carried out has finished executing
+	 * Command to align to any visible reef tags or not move if none are seen.
+	 * @param xOffset the x offset for aligning to the tag
+	 * @param id the id of the tag to align to
+	 * @param yOffset the y offset for aligning to the tag
+	 * @return align to tag command.
 	 */
-	private boolean handleAutoState1() {
-		return true;
+	public Command alignToTagCommand(int id, double xOffset, double yOffset) {
+		class AlignToReefTagCommand extends Command {
+
+			private int tagID;
+			private double xOffset;
+			private double yOffset;
+
+			AlignToReefTagCommand(int id, double xo, double yo) {
+				this.tagID = id;
+				this.xOffset = xo;
+				this.yOffset = yo;
+				tagPositionAligned = false; //likely redundant.
+			}
+
+			@Override
+			public void execute() {
+				handleTagAlignment(null, this.tagID, this.xOffset, this.yOffset);
+			}
+
+			@Override
+			public boolean isFinished() {
+				return tagPositionAligned;
+			}
+
+			@Override
+			public void end(boolean interrupted) {
+				drivetrain.setControl(brake);
+				tagPositionAligned = false;
+			}
+		}
+
+		return new AlignToReefTagCommand(tagID, xOffset, yOffset);
 	}
 
 	/**
-	 * Performs action for auto STATE2.
-	 * @return if the action carried out has finished executing
+	 * Get the maple-Sim Swerve simulation.
+	 * @return the simulation
 	 */
-	private boolean handleAutoState2() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE3.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState3() {
-		return true;
+	public MapleSimSwerveDrivetrain getMapleSimDrivetrain() {
+		return drivetrain.getSimDrivetrain();
 	}
 }

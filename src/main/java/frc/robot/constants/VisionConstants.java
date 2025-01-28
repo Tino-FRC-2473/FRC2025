@@ -6,7 +6,7 @@ public class VisionConstants {
 
 	public static final double MAX_SPEED_METERS_PER_SECOND = 0.2;
 	public static final double MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = Math.PI / 20;
-
+ 
 	public static final double TRANSLATIONAL_ACCEL_CONSTANT = 1.5;
 	public static final double ROTATIONAL_ACCEL_CONSTANT = 1;
 	//TODO: equate the margin to the probabilistic equation from HW.
