@@ -2,6 +2,7 @@ package frc.robot.logging;
 
 import static edu.wpi.first.units.Units.Radians;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -12,6 +13,7 @@ public final class MechLogging {
 	private Pose3d primaryElevatorPose;
 	private Pose3d secondaryElevatorPose;
 	private Pose3d climberPose;
+	private Pose3d drivePose;
 
 	private static MechLogging instance = new MechLogging();
 
@@ -19,6 +21,7 @@ public final class MechLogging {
 		primaryElevatorPose = new Pose3d();
 		secondaryElevatorPose = new Pose3d();
 		climberPose = new Pose3d();
+		drivePose = new Pose3d();
 	}
 
 	/**
@@ -61,7 +64,7 @@ public final class MechLogging {
 	 * @return the pose of the inner part of the elevator
 	 */
 	public Pose3d getPrimaryElevatorPose() {
-		return primaryElevatorPose;
+		return primaryElevatorPose.relativeTo(drivePose);
 	}
 
 	/**
@@ -69,7 +72,7 @@ public final class MechLogging {
 	 * @return the pose of the inner-most part of the elevator
 	 */
 	public Pose3d getSecondaryElevatorPose() {
-		return secondaryElevatorPose;
+		return secondaryElevatorPose.relativeTo(drivePose);
 	}
 
 	/**
@@ -77,6 +80,14 @@ public final class MechLogging {
 	 * @return pose of the rotating climber ligament.
 	 */
 	public Pose3d getClimberPose() {
-		return climberPose;
+		return climberPose.relativeTo(drivePose);
+	}
+
+	/**
+	 * Sets the drive pose data, used to determine the components' absolute location.
+	 * @param pose the 2d pose of the robot
+	 */
+	public void setDrivePoseData(Pose2d pose) {
+		this.drivePose = new Pose3d(pose);
 	}
 }
