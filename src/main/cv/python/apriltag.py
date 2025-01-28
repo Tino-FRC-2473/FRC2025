@@ -67,8 +67,10 @@ class AprilTag():
             #print(fname)
             #print(bw_camera)
             
-            if(not bw_camera):
-                img = cv2.resize(cv2.imread(os.path.join(dirpath, fname)), RES)
+            if not bw_camera:
+                img_path = os.path.join(dirpath, fname)
+                img = cv2.imread(img_path)
+                img = cv2.resize(img, RES)
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             else: 
                 img = cv2.resize(cv2.imread(os.path.join(dirpath, fname), cv2.IMREAD_GRAYSCALE), RES)
