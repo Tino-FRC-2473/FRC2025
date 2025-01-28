@@ -1,15 +1,20 @@
 package frc.robot.systems;
 
+
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+
+import org.littletonrobotics.junction.Logger;
 
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -28,6 +33,7 @@ import frc.robot.utils.SwerveUtils;
 import frc.robot.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPI;
+import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
@@ -53,6 +59,11 @@ public class DriveFSMSystem extends SubsystemBase {
 		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
+	private final SwerveRequest.RobotCentric driveRobotCentric
+		= new SwerveRequest.RobotCentric()
+		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
+		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -67,6 +78,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	private int tagID = AutoConstants.B_REEF_1_TAG_ID;
 
 	private Pose2d tagAlignmentPose = null;
+
+	private Rotation2d rotationAlignmentPose =
+		new Rotation2d(0);
 
 
 
@@ -217,19 +231,17 @@ public class DriveFSMSystem extends SubsystemBase {
 			);
 			// Drive left with negative X (left) ^
 
-		var rot = ((rotYComp == 0 && rotXComp == 0)
-			? drivetrain.getState().Pose.getRotation()
-			: new Rotation2d(
-				rotXComp,
-				rotYComp
-			)).plus(Rotation2d.kCCW_Pi_2);
+		if (rotXComp != 0) {
+			rotationAlignmentPose = drivetrain.getState().Pose.getRotation();
+		}
 
 		drivetrain.setControl(
 			driveFacingAngle.withVelocityX(xSpeed)
 			.withVelocityY(ySpeed)
 			.withTargetDirection(
-				rot
+				rotationAlignmentPose
 			)
+			.withTargetRateFeedforward(rotYComp)
 		);
 
 		if (input.getDriveTriangleButton()) {
@@ -257,16 +269,22 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
 		logger.applyStateLogging(drivetrain.getState());
+		AprilTag tag = rpi.getAprilTagWithID(id);
+		System.out.println();
 
-		if (rpi.getAprilTagWithID(id) != null
+		if (tag != null
 				&& !tagPositionAligned) {
 
-			Pose2d currPose = drivetrain.getState().Pose;
+			double rpiX = tag.getX() - xOff;
+			double rpiY = tag.getZ() - yOff;
+			Rotation2d rpiTheta = new Rotation2d(rpiX, rpiY);
 
-			double rpiX = currPose.getX() + rpi.getAprilTagWithID(id).getX() - xOff;
-			double rpiY = currPose.getY() + rpi.getAprilTagWithID(id).getY() - yOff;
-			Rotation2d rpiTheta = currPose.getRotation()
-				.plus(new Rotation2d(rpiY, rpiX));
+			SmartDashboard.putNumber("RPIX ", rpiX);
+			SmartDashboard.putNumber("RPIY ", rpiY);
+			SmartDashboard.putNumber("rpITHETA ", rpiTheta.getDegrees());
+			System.out.println("PI x: "+ rpiX );
+			System.out.println("PI y: "+ rpiY );
+			System.out.println("PI theta: "+ rpiTheta.getDegrees() );
 
 			Pose2d sendPose = new Pose2d(
 				rpiX,
@@ -274,27 +292,25 @@ public class DriveFSMSystem extends SubsystemBase {
 				rpiTheta
 			);
 
-			tagPositionAligned = driveToPose(sendPose);
+			tagPositionAligned = driveToRobotRelativePose(sendPose);
 			tagAlignmentPose = sendPose;
 		} else {
-			if (tagPositionAligned) {
-				tagAlignmentPose = null;
+			// if (tagPositionAligned) {
+			// 	tagAlignmentPose = null;
 				drivetrain.setControl(brake);
-				return;
-			}
+				// return;
+			// }
 
-			if (tagAlignmentPose != null) {
-				tagPositionAligned = driveToPose(tagAlignmentPose);
-			}
+			// if (tagAlignmentPose != null) {
+			// 	tagPositionAligned = driveToRobotRelativePose(tagAlignmentPose);
+			// }
 		}
 	}
 
-	private boolean driveToPose(Pose2d targetPose) {
-		Pose2d pose = drivetrain.getState().Pose;
-
-		double xDiff = targetPose.getX() - pose.getX();
-		double yDiff = targetPose.getY() - pose.getY();
-		double aDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
+	private boolean driveToRobotRelativePose(Pose2d targetPose) {
+		double xDiff = targetPose.getX();
+		double yDiff = targetPose.getY();
+		double aDiff = targetPose.getRotation().getRadians();
 
 		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
@@ -315,9 +331,11 @@ public class DriveFSMSystem extends SubsystemBase {
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
 			) : 0;
 
+		Logger.recordOutput("TargetPose", targetPose);
+
 		drivetrain.setControl(
-			drive.withVelocityX(-xSpeed * MAX_SPEED)
-			.withVelocityY(-ySpeed * MAX_SPEED)
+			drive.withVelocityX(xSpeed * MAX_SPEED)
+			.withVelocityY(ySpeed * MAX_SPEED)
 			.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
 		);
 

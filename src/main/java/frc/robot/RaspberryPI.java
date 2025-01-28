@@ -48,11 +48,11 @@ public class RaspberryPI {
 
 		for (
 			int i = 0;
-			i < rawData.length / VisionConstants.AT_ARR_INC;
+			i < rawData.length;
 			i += VisionConstants.AT_ARR_INC
 		) {
 			atList.add(
-				new AprilTag(i,
+				new AprilTag((int) rawData[i],
 				"Reef Camera",
 					getArraySegment(
 						rawData,
