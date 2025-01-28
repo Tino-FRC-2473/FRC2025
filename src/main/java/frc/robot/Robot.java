@@ -28,6 +28,7 @@ import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
+import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
 /**
@@ -191,6 +192,21 @@ public class Robot extends LoggedRobot {
 		driveSystem.getMapleSimDrivetrain().update();
 
 		Logger.recordOutput(
+			"FieldSimulation/Robot/Primary Elevator Pose",
+			MechLogging.getInstance().getPrimaryElevatorPose()
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/Robot/Secondary Elevator Pose",
+			MechLogging.getInstance().getSecondaryElevatorPose()
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/Robot/Climber Pose",
+			MechLogging.getInstance().getClimberPose()
+		);
+
+		Logger.recordOutput(
 			"FieldSimulation/SimulatedPose",
 			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
 		);
@@ -204,6 +220,7 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/CoralPoses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
 		);
+		Logger.recordOutput("FieldSimulation/Poses", MechLogging.getInstance().getRobotPoses());
 
 	}
 

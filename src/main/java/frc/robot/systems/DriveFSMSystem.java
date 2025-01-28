@@ -30,7 +30,8 @@ import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.utils.SwerveUtils;
-import frc.robot.SwerveLogging;
+import frc.robot.logging.MechLogging;
+import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPI;
 import frc.robot.AprilTag;
@@ -148,6 +149,8 @@ public class DriveFSMSystem extends SubsystemBase {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
+		MechLogging.getInstance().
+			setDrivePoseData(drivetrain.getState().Pose);
 	}
 
 	/**

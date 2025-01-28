@@ -62,4 +62,7 @@ public final class Constants {
 	public static final int UPDATE_FREQUENCY_HZ = 100;
 		// this is the lowest possible value since we refresh ourselves
 		// changed from 4 --> 100
+
+	// Add units
+	public static final double WINCH_DIAMETER_METERS = 0.0463296;
 }
