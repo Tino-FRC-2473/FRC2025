@@ -81,7 +81,7 @@ public class ElevatorFSMSystem {
 		var swLimitSwitch = talonFXConfigs.SoftwareLimitSwitch;
 		swLimitSwitch.ForwardSoftLimitEnable = true;
 		swLimitSwitch.ReverseSoftLimitEnable = true;
-		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_PID_TARGET_L4;
+		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_PID_UPPER_THRESHOLD;
 		swLimitSwitch.ReverseSoftLimitThreshold = 0;
 
 		elevatorMotor.getConfigurator().apply(talonFXConfigs);

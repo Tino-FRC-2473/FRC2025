@@ -6,8 +6,8 @@ public final class Constants {
 
 	// funnel constants
 
-	public static final double FUNNEL_CLOSED_POS_ROTS = 1;
-	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0;
+	public static final double FUNNEL_CLOSED_POS_ROTS = 0;
+	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0.2;
 
 	public static final double REEF_DISTANCE_THRESHOLD_MM = 100; // millimeters
 	public static final double FUNNEL_CLOSE_TIME_SECS = 0.5; // seconds
@@ -20,6 +20,7 @@ public final class Constants {
 
 	public static final double ELEVATOR_DEADBAND = 0.1;
 
+	public static final double ELEVATOR_PID_UPPER_THRESHOLD = 135;
 	public static final double ELEVATOR_PID_TARGET_L4 = 132;
 	public static final double ELEVATOR_PID_TARGET_STATION = 66;
 	public static final double ELEVATOR_PID_TARGET_GROUND = 0;
@@ -34,10 +35,10 @@ public final class Constants {
 	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 0.05;
 
 	// Motion Magic Constants
-	public static final double ELEVATOR_MM_CONSTANT_G = 0.1;
+	public static final double ELEVATOR_MM_CONSTANT_G = 0.3;
 		// Voltage required to overcome gravity
 	public static final double ELEVATOR_MM_CONSTANT_S = 0.15;
-		//Voltage required to overcome static friction
+		// Voltage required to overcome static friction
 
 	// these two fields need to be retuned to account for 25:1 gearbox
 	public static final double ELEVATOR_MM_CONSTANT_V = 0.1; // 0.1
@@ -45,9 +46,9 @@ public final class Constants {
 	public static final double ELEVATOR_MM_CONSTANT_A = 0.01; // 0.01
 		//Voltage for acceleration of 1rps/s (0.01)
 
-	public static final double ELEVATOR_MM_CONSTANT_P = 0.1;
-		//Voltgae for Proportional error of 1 rot(0.7)
-	public static final double ELEVATOR_MM_CONSTANT_I = 0;
+	public static final double ELEVATOR_MM_CONSTANT_P = 0.36;
+		//Voltgae for Proportional error of 1 rot
+	public static final double ELEVATOR_MM_CONSTANT_I = 0.001;
 		//Voltage for Integrated error of 1 r*s
 	public static final double ELEVATOR_MM_CONSTANT_D = 0.0;
 		//Voltage for Derivative error of 1 rps

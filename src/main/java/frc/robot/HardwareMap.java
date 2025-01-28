@@ -6,22 +6,22 @@ package frc.robot;
  */
 public final class HardwareMap {
 	// ID numbers for devices on the CAN bus
-	public static final int CAN_ID_ELEVATOR = 1;
-	public static final int CAN_ID_CLIMBER = 14; // FINAL
+	public static final int CAN_ID_ELEVATOR = 14; // FINAL
+	public static final int CAN_ID_CLIMBER = 1; // TBD
 
 	// playing with fusion CAN chain
 	public static final int FUNNEL_TOF_ID = 13; // TBD
 
 	// rio - dio ports
-	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT = 0; // not confirmed
-	public static final int ELEVATOR_TOP_LIMIT_SWITCH_DIO_PORT = 1; // not confirmed
+	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT = 0; // FINAL
+	public static final int ELEVATOR_TOP_LIMIT_SWITCH_DIO_PORT = 1; // FINAL
 
-	public static final int FUNNEL_BREAK_BEAM_DIO_PORT = 3; // TBD
+	public static final int FUNNEL_BREAK_BEAM_DIO_PORT = 2; // FINAL
 
 	public static final int CLIMBER_LIMIT_SWITCH_DIO_PORT = 5; // for testing only
 
 	// rio - pwm ports
-	public static final int FUNNEL_SERVO_PWM_PORT = 3; // not confirmed with hardware
+	public static final int FUNNEL_SERVO_PWM_PORT = 1; // FINAL
 	public static final int LED_STRIP_PWM_PORT = 8; // TBD
 
 	/* ===== Hardware Availability ===== */
@@ -38,7 +38,7 @@ public final class HardwareMap {
 	 * @return true if elevator hardware is present
 	 */
 	public static boolean isElevatorHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -54,7 +54,7 @@ public final class HardwareMap {
 	 * @return true if funnel hardware is present
 	 */
 	public static boolean isFunnelHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
