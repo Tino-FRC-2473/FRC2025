@@ -217,6 +217,7 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/CoralPoses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
 		);
+		Logger.recordOutput("FieldSimulation/Poses", MechLogging.getInstance().getRobotPoses());
 
 	}
 

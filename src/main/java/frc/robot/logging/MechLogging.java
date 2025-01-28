@@ -84,6 +84,19 @@ public final class MechLogging {
 	}
 
 	/**
+	 * Getter for the array of poses we want to simulate.
+	 * @return the array of poses to display in advantageScope
+	 */
+	public Pose3d[] getRobotPoses() {
+		return new Pose3d[]{
+			drivePose,
+			getPrimaryElevatorPose(),
+			getSecondaryElevatorPose(),
+			getClimberPose()
+		};
+	}
+
+	/**
 	 * Sets the drive pose data, used to determine the components' absolute location.
 	 * @param pose the 2d pose of the robot
 	 */
