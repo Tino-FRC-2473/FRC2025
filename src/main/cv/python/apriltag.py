@@ -73,8 +73,12 @@ class AprilTag():
                 img = cv2.resize(img, RES)
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             else:
-                img = cv2.imread(os.path.join(dirpath, fname), cv2.IMREAD_GRAYSCALE)
-                img = cv2.resize(img, RES)
+                try:
+                    img = cv2.imread(os.path.join(dirpath, fname), cv2.IMREAD_GRAYSCALE)
+                    img = cv2.resize(img, RES)
+                except Exception as e:
+                    print(f"Error reading or resizing image {fname}: {e}")
+                    continue
 
             # Find the chess board inner corners
             ret, corners = cv2.findChessboardCorners(img, (width, height), None)
