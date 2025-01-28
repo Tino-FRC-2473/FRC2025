@@ -28,7 +28,6 @@ import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
-import frc.robot.constants.AutoConstants;
 import frc.robot.motors.MotorManager;
 
 /**
@@ -52,17 +51,6 @@ public class Robot extends LoggedRobot {
 
 	private static final Object[] PATH_1 = new Object[] {
 		"S1_R2"
-	};
-
-	private static final Object[] ELEVATOR_TEST_AUTON = new Object[] {
-		AutoConstants.AutoCommands.ELEVATOR_GROUND_CMD,
-		AutoConstants.AutoCommands.ELEVATOR_STATION_CMD,
-		AutoConstants.AutoCommands.ELEVATOR_L4_CMD
-	};
-
-	private static final Object[] FUNNEL_TEST_AUTON = new Object[] {
-		AutoConstants.AutoCommands.FUNNEL_OPEN_CMD,
-		AutoConstants.AutoCommands.FUNNEL_CLOSE_CMD,
 	};
 
 	/**
@@ -101,10 +89,6 @@ public class Robot extends LoggedRobot {
 
 			autoChooser.addOption("Path 1",
 				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
-			autoChooser.addOption("Elevator Test",
-				autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TEST_AUTON).cmd());
-			autoChooser.addOption("Funnel Test",
-				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TEST_AUTON).cmd());
 		}
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
