@@ -5,6 +5,9 @@ import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
 
+from src.main.cv.python.calibrate import CALIB_DIR
+
+
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
 # max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
@@ -13,11 +16,17 @@ class AprilTag():
 
     def __init__(self):
         basePath = Path(__file__).resolve().parent
-        self.camera_matrix = np.load(str(basePath) + f'/{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(str(basePath) + f'/{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
+        # TODO: Set the camera name here when you have multiple cameras
+        AT_CAM_NAME = "camera_"  # Define or set an appropriate value for AT_CAM_NAME
+
+        self.camera_matrix = np.load(f'{basePath}/{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(f'{basePath}/{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
+
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
+
+
         pass
 
     def calibrate(self, RES: tuple[int, int], dirpath: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
