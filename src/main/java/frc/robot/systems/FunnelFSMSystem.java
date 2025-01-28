@@ -4,7 +4,9 @@ import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.HardwareMap;
 
@@ -42,7 +44,7 @@ public class FunnelFSMSystem {
 	public FunnelFSMSystem() {
 		// Perform hardware init
 		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PORT);
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+		funnelServo.set(Constants.FUNNEL_CLOSED_POS);
 
 		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
 			// default to Short mode anyways
@@ -148,19 +150,80 @@ public class FunnelFSMSystem {
 
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
-	 * Handle behavior in START_STATE.
+	 * Handle behavior in OUTTAKE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS);
 	}
 	/**
-	 * Handle behavior in OTHER_STATE.
+	 * Handle behavior in CLOSED.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleClosedState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+		funnelServo.set(Constants.FUNNEL_CLOSED_POS);
+	}
+
+	/* ---- Funnel Commands ---- */
+
+	/** A command that opens the funnel servo. */
+	class OpenFunnelCommand extends Command {
+		OpenFunnelCommand() { }
+
+		@Override
+		public void execute() {
+			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS);
+		}
+
+		@Override
+		public boolean isFinished() {
+			return coralBreakBeam.get(); // done when beam is continuous
+		}
+
+		@Override
+		public void end(boolean interrupted) { }
+	}
+
+	/** A command that closes the funnel servo. */
+	class CloseFunnelCommand extends Command {
+		private Timer timer;
+
+		CloseFunnelCommand() {
+			timer = new Timer();
+			timer.start();
+		}
+
+		@Override
+		public void execute() {
+			funnelServo.set(Constants.FUNNEL_CLOSED_POS);
+		}
+
+		@Override
+		public boolean isFinished() {
+			return timer.get() >= Constants.FUNNEL_CLOSE_TIME_SECS;
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			timer.stop();
+		}
+	}
+
+	/**
+	 * Creates a Command to open the funnel.
+	 * @return A new funnel open command.
+	 */
+	public Command openFunnelCommand() {
+		return new OpenFunnelCommand();
+	}
+
+	/**
+	 * Creates a Command to close the funnel.
+	 * @return A new funnel close command.
+	 */
+	public Command closeFunnelCommand() {
+		return new CloseFunnelCommand();
 	}
 }

@@ -64,6 +64,9 @@ public class AutoConstants {
 		ELEVATOR_GROUND_CMD,
 		ELEVATOR_STATION_CMD,
 		ELEVATOR_L4_CMD,
+		/* Funnel Commands */
+		FUNNEL_OPEN_CMD,
+		FUNNEL_CLOSE_CMD,
 	}
 
 }

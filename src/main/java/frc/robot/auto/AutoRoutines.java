@@ -14,6 +14,7 @@ import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
+import frc.robot.systems.FunnelFSMSystem;
 
 public class AutoRoutines {
 	private AutoFactory autoFactory;
@@ -21,7 +22,7 @@ public class AutoRoutines {
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
 	private ElevatorFSMSystem elevatorSystem;
-
+	private FunnelFSMSystem funnelSystem;
 
 	// Initialize all paths
 	private AutoRoutine sysRoutine;
@@ -172,6 +173,8 @@ public class AutoRoutines {
 
 		setUpElevatorCommands();
 
+		setUpFunnelCommands();
+
 		/* ---- All Drive Commands ---- */
 		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
 			driveSystem.brakeCommand()
@@ -179,8 +182,7 @@ public class AutoRoutines {
 
 		/* ---- All Elevator Commands ---- */
 
-		/* ---- All Intake Commands ---- */
-
+		/* ---- All Funnel Commands ---- */
 	}
 
 	private void setUpAlignmentCommands() {
@@ -318,6 +320,15 @@ public class AutoRoutines {
 		);
 		commands.put(AutoCommands.ELEVATOR_L4_CMD,
 			elevatorSystem.elevatorL4Command()
+		);
+	}
+
+	private void setUpFunnelCommands() {
+		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
+			funnelSystem.openFunnelCommand()
+		);
+		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
+			funnelSystem.closeFunnelCommand()
 		);
 	}
 }
