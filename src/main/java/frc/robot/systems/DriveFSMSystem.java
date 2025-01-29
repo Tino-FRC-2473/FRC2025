@@ -220,6 +220,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			tagPositionAligned = false;
 		}
 
+		//System.out.println("TELEOP IS RUNNING");
+
 		double xSpeed = -MathUtil.applyDeadband(
 			input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
@@ -281,19 +283,19 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			double rpiX = tag.getX() - xOff;
 			double rpiY = tag.getZ() - yOff;
-			Rotation2d rpiTheta = new Rotation2d(rpiX, rpiY);
+			Rotation2d rpiTheta = new Rotation2d(rpiY, rpiX);
 
 			SmartDashboard.putNumber("RPIX ", rpiX);
 			SmartDashboard.putNumber("RPIY ", rpiY);
-			SmartDashboard.putNumber("rpITHETA ", rpiTheta.getDegrees());
+			//SmartDashboard.putNumber("rpITHETA ", rpiTheta.getDegrees());
 
 			Pose2d sendPose = new Pose2d(
 				rpiX,
 				rpiY,
-				rpiTheta
+				new Rotation2d()
 			);
 
-			tagPositionAligned = driveToRobotRelativePose(sendPose);
+			tagPositionAligned = driveToRobotRelativePose(rpiX, rpiY, rpiTheta);
 			tagAlignmentPose = sendPose;
 		} else {
 			if (tagPositionAligned) {
@@ -308,10 +310,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 	}
 
-	private boolean driveToRobotRelativePose(Pose2d targetPose) {
-		double xDiff = targetPose.getX();
-		double yDiff = targetPose.getY();
-		double aDiff = targetPose.getRotation().getRadians();
+	private boolean driveToRobotRelativePose(double xDiff, double yDiff, double aDiff) {
 
 		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
@@ -331,8 +330,6 @@ public class DriveFSMSystem extends SubsystemBase {
 				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
 			) : 0;
-
-		Logger.recordOutput("TargetPose", targetPose);
 
 		drivetrain.setControl(
 			drive.withVelocityX(xSpeed * MAX_SPEED)

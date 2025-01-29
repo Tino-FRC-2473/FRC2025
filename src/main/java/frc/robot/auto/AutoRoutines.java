@@ -168,9 +168,9 @@ public class AutoRoutines {
 	private void setupCommands() {
 		setUpAlignmentCommands();
 
-		setUpElevatorCommands();
+		//setUpElevatorCommands();
 
-		setUpFunnelCommands();
+		//setUpFunnelCommands();
 
 		/* ---- All Drive Commands ---- */
 		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
@@ -304,24 +304,24 @@ public class AutoRoutines {
 		);
 	}
 
-	private void setUpElevatorCommands() {
-		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
-			elevatorSystem.elevatorGroundCommand()
-		);
-		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
-			elevatorSystem.elevatorStationCommand()
-		);
-		commands.put(AutoCommands.ELEVATOR_L4_CMD,
-			elevatorSystem.elevatorL4Command()
-		);
-	}
+	// private void setUpElevatorCommands() {
+	// 	commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
+	// 		elevatorSystem.elevatorGroundCommand()
+	// 	);
+	// 	commands.put(AutoCommands.ELEVATOR_STATION_CMD,
+	// 		elevatorSystem.elevatorStationCommand()
+	// 	);
+	// 	commands.put(AutoCommands.ELEVATOR_L4_CMD,
+	// 		elevatorSystem.elevatorL4Command()
+	// 	);
+	// }
 
-	private void setUpFunnelCommands() {
-		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
-			funnelSystem.openFunnelCommand()
-		);
-		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
-			funnelSystem.closeFunnelCommand()
-		);
-	}
+	// private void setUpFunnelCommands() {
+	// 	commands.put(AutoCommands.FUNNEL_OPEN_CMD,
+	// 		funnelSystem.openFunnelCommand()
+	// 	);
+	// 	commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
+	// 		funnelSystem.closeFunnelCommand()
+	// 	);
+	// }
 }
