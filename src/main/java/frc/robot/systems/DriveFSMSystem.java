@@ -26,7 +26,9 @@ import frc.robot.TeleopInput;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
+import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
+import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.MechLogging;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
@@ -311,37 +313,38 @@ public class DriveFSMSystem extends SubsystemBase {
 	private boolean driveToPose(Pose2d targetPose) {
 		Pose2d pose = drivetrain.getState().Pose;
 
-		double xSpeed = targetPose.getX() - pose.getX();
-		double ySpeed = targetPose.getY() - pose.getY();
-		double aSpeed = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
+		double xDiff = targetPose.getX() - pose.getX();
+		double yDiff = targetPose.getY() - pose.getY();
+		double aDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
 
-		// double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
-		// 	? SwerveUtils.clamp(
-		// 		xDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-		// 		-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-		// 		VisionConstants.MAX_SPEED_METERS_PER_SECOND
-		// 	) : 0;
-		// double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
-		// 	? SwerveUtils.clamp(
-		// 		yDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-		// 		-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-		// 		VisionConstants.MAX_SPEED_METERS_PER_SECOND
-		// 	) : 0;
-		// double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
-		// 	? SwerveUtils.clamp(
-		// 		aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
-		// 		-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-		// 		VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-		// 	) : 0;
+		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
+			? SwerveUtils.clamp(
+				xDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+				VisionConstants.MAX_SPEED_METERS_PER_SECOND
+			) : 0;
+		double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
+			? SwerveUtils.clamp(
+				yDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+				VisionConstants.MAX_SPEED_METERS_PER_SECOND
+			) : 0;
+		double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
+			? SwerveUtils.clamp(
+				aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+			) : 0;
 
 		Logger.recordOutput("X Speed", xSpeed);
 		Logger.recordOutput("Y Speed", ySpeed);
 		Logger.recordOutput("A Speed", aSpeed);
 
 		drivetrain.setControl(
-			drive.withVelocityX(xSpeed * MAX_SPEED / 2)
+			driveFacingAngle.withVelocityX(xSpeed * MAX_SPEED / 2)
 			.withVelocityY(-ySpeed * MAX_SPEED / 2)
-			.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE / 2)
+			.withTargetRateFeedforward(-aSpeed * MAX_ANGULAR_RATE / 2)
+			.withTargetDirection(targetPose.getRotation())
 		);
 
 		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
