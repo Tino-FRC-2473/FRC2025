@@ -5,7 +5,6 @@ package frc.robot.systems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -27,9 +26,7 @@ import frc.robot.TeleopInput;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
-import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
-import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.MechLogging;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
@@ -296,14 +293,13 @@ public class DriveFSMSystem extends SubsystemBase {
 				rpiY,
 				new Rotation2d(rpiTheta)
 			);
-			
+
 			tagPositionAligned = driveToPose(sendPose);
 			tagAlignmentPose = sendPose;
 		} else {
 			// if (tagPositionAligned) {
 			// 	tagAlignmentPose = null;
-				drivetrain.setControl(brake);
-				return;
+			drivetrain.setControl(brake);
 			// }
 
 			// if (tagAlignmentPose != null) {
