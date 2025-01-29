@@ -84,8 +84,8 @@ public class AprilTag {
 	}
 
 	/**
-	* Get the pitch of the tag.
-	* @return The {@code double} pitch of the tag in radians
+	* Get the yaw of the tag.
+	* @return The {@code double} yaw of the tag in radians
 	*/
 	public Double getYaw() {
 		return rotationalVector.getZ();
