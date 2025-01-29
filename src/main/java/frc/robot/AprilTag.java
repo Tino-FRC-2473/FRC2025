@@ -93,7 +93,8 @@ public class AprilTag {
 	}
 
 	/**
-	 * Gets the camera vector
+	 * Gets the camera vector.
+	 * 
 	 * @return The {@code Translation3d} position of the cameraVector
 	 */
 	public Translation3d getCameraVector() {
