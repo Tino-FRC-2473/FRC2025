@@ -79,7 +79,7 @@ public class ElevatorFSMSystem {
 
 		// apply sw limit
 		var swLimitSwitch = talonFXConfigs.SoftwareLimitSwitch;
-		swLimitSwitch.ForwardSoftLimitEnable = true;
+		swLimitSwitch.ForwardSoftLimitEnable = false;
 		swLimitSwitch.ReverseSoftLimitEnable = true;
 		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_PID_UPPER_THRESHOLD;
 		swLimitSwitch.ReverseSoftLimitThreshold = 0;
@@ -260,6 +260,7 @@ public class ElevatorFSMSystem {
 			return false;
 		}
 		return !topLimitSwitch.get(); // switch is normally closed
+		// return false; // temp disable
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */

@@ -20,8 +20,8 @@ public final class Constants {
 
 	public static final double ELEVATOR_DEADBAND = 0.1;
 
-	public static final double ELEVATOR_PID_UPPER_THRESHOLD = 135;
-	public static final double ELEVATOR_PID_TARGET_L4 = 132;
+	public static final double ELEVATOR_PID_UPPER_THRESHOLD = 148; // DO NOT drive above this!
+	public static final double ELEVATOR_PID_TARGET_L4 = 143;
 	public static final double ELEVATOR_PID_TARGET_STATION = 66;
 	public static final double ELEVATOR_PID_TARGET_GROUND = 0;
 
@@ -50,14 +50,14 @@ public final class Constants {
 		//Voltgae for Proportional error of 1 rot
 	public static final double ELEVATOR_MM_CONSTANT_I = 0.001;
 		//Voltage for Integrated error of 1 r*s
-	public static final double ELEVATOR_MM_CONSTANT_D = 0.0;
+	public static final double ELEVATOR_MM_CONSTANT_D = 0.0001;
 		//Voltage for Derivative error of 1 rps
-
-	public static final double CLIMB_POWER = 0.2;
 
 	public static final double ELEVATOR_CONFIG_CONSTANT_CV = 80; // Cruise Velo in rps (10)
 	public static final double ELEVATOR_CONFIG_CONSTANT_A = 160; // Max acceleration in rps/s (80)
 	public static final double ELEVATOR_CONFIG_CONSTANT_J = 1600; // Target jerk in rps/s/s (110)
+
+	public static final double CLIMB_POWER = 0.2;
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;
