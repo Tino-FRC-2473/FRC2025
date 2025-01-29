@@ -27,7 +27,7 @@ import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.MechLogging;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
-import frc.robot.RaspberryPI;
+import frc.robot.RaspberryPi;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
@@ -54,7 +54,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private CommandSwerveDrivetrain drivetrain;
 
 	/* -- cv constants -- */
-	private RaspberryPI rpi = new RaspberryPI();
+	private RaspberryPi rpi = new RaspberryPi();
 	private boolean tagPositionAligned;
 	private int tagID = AutoConstants.B_REEF_1_TAG_ID;
 
