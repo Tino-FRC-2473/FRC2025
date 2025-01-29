@@ -28,6 +28,8 @@ import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
+import frc.robot.constants.AutoConstants;
+import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
@@ -43,15 +45,21 @@ public class Robot extends LoggedRobot {
 	private AutoRoutines autoRoutines;
 	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 	private Command autCommand;
+	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
-	private ElevatorFSMSystem elevatorSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
 
 	private static final Object[] PATH_1 = new Object[] {
-		"S1_R2"
+		AutoCommands.ELEVATOR_L4_CMD
+	};
+
+	private static final Object[] ELEVATOR_TESTING_PATH = new Object[] {
+		AutoConstants.AutoCommands.ELEVATOR_GROUND_CMD,
+		AutoConstants.AutoCommands.ELEVATOR_STATION_CMD,
+		AutoConstants.AutoCommands.ELEVATOR_L4_CMD
 	};
 
 	/**
@@ -85,25 +93,28 @@ public class Robot extends LoggedRobot {
 		// Instantiate all systems here
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
-
-			autoRoutines = new AutoRoutines(driveSystem);
-
-			autoChooser.addOption("Path 1",
-				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
 		}
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
-
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
-
 		if (HardwareMap.isElevatorHardwarePresent()) {
 			elevatorSystem = new ElevatorFSMSystem();
 		}
-
 		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
+
+		// Initialize auto commands
+		autoRoutines = new AutoRoutines(driveSystem, elevatorSystem, funnelSystem, climberSystem);
+
+		// Add auto paths
+		autoChooser.addOption("Path 1",
+			autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
+		autoChooser.addOption("Elevator Test",
+			autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH).cmd());
+
+		// Log auto chooser
+		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 	}
 
 	@Override
@@ -119,7 +130,8 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
-		driveSystem.updateAutonomous();
+		//driveSystem.updateAutonomous();
+		MotorManager.update();
 	}
 
 	@Override
@@ -189,7 +201,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
-		driveSystem.getMapleSimDrivetrain().update();
+		//driveSystem.getMapleSimDrivetrain().update();
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
@@ -206,10 +218,10 @@ public class Robot extends LoggedRobot {
 			MechLogging.getInstance().getClimberPose()
 		);
 
-		Logger.recordOutput(
-			"FieldSimulation/SimulatedPose",
-			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
-		);
+		// Logger.recordOutput(
+		// 	"FieldSimulation/SimulatedPose",
+		// 	driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
+		// );
 
 		Logger.recordOutput(
 			"FieldSimulation/AlgaePoses",

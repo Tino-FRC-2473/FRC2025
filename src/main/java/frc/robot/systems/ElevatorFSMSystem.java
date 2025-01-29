@@ -336,8 +336,6 @@ public class ElevatorFSMSystem {
 	abstract class ElevatorCommand extends Command {
 		private double target;
 
-		ElevatorCommand() { }
-
 		@Override
 		public void execute() { }
 
@@ -372,7 +370,8 @@ public class ElevatorFSMSystem {
 				elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 			} else {
 				elevatorMotor.setControl(
-					mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
+					mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND)
+				);
 			}
 		}
 	}
@@ -401,7 +400,8 @@ public class ElevatorFSMSystem {
 				elevatorMotor.set(0);
 			} else {
 				elevatorMotor.setControl(
-					mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
+					mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4)
+				);
 			}
 		}
 	}

@@ -1,7 +1,9 @@
 package frc.robot.auto;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -12,40 +14,49 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
+import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 
 public class AutoRoutines {
+
+	// Auto factory instance
 	private AutoFactory autoFactory;
+
+	// Auto sys instance
+	private AutoRoutine sysRoutine;
 
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
+	private ClimberFSMSystem climberSystem;
 
-	// Initialize all paths
-	private AutoRoutine sysRoutine;
+	// Initialize all paths / commands
+	private Map<String, AutoTrajectory> paths = new HashMap<String, AutoTrajectory>();
+	private Map<AutoCommands, Command> commands = new HashMap<AutoCommands, Command>();
 
-	private HashMap<String, AutoTrajectory> paths;
-	private HashMap<AutoCommands, Command> commands;
 	private Object[] currentAutoState;
 
 	/**
-	 * Constructs an AutoRoutines object with the specified AutoFactory.
-	 * @param system1
+	 * Constructs an AutoRoutines object.
+	 * @param driveFSMSystem
+	 * @param elevatorFSMSystem
+	 * @param funnelFSMSystem
+	 * @param climberFSMSystem
 	 * */
-	public AutoRoutines(DriveFSMSystem system1) {
-		driveSystem = system1;
+	public AutoRoutines(DriveFSMSystem driveFSMSystem, ElevatorFSMSystem elevatorFSMSystem,
+		FunnelFSMSystem funnelFSMSystem, ClimberFSMSystem climberFSMSystem) {
 
-		autoFactory = driveSystem.createAutoFactory();
-		sysRoutine = autoFactory.newRoutine("AutoRoutine");
+		// Assign systems
+		driveSystem = driveFSMSystem;
+		elevatorSystem = elevatorFSMSystem;
+		funnelSystem = funnelFSMSystem;
+		climberSystem = climberFSMSystem;
 
-		paths = new HashMap<String, AutoTrajectory>();
-		commands = new HashMap<AutoCommands, Command>();
-
-		setupCommands();
-		generateSysRoutineMap("src/main/deploy");
+		// Set up commands for each system
+		initialize();
 	}
 
 	/**
@@ -96,7 +107,8 @@ public class AutoRoutines {
 				for (Object autoParallelStage: (Object[]) autoStage) {
 
 					/* -- Processing drive trajs -- */
-					if (autoParallelStage.getClass().equals(String.class)) {
+					if (autoParallelStage.getClass().equals(String.class)
+						&& driveSystem != null) {
 						if (paths.containsKey(autoParallelStage)) {
 							AutoTrajectory traj = paths.get(autoParallelStage);
 							if (i == 0) {
@@ -131,10 +143,16 @@ public class AutoRoutines {
 			}
 		}
 
-		sysRoutine.active().onTrue(
-			seqInstruction
-			.andThen(driveSystem.brakeCommand())
-		);
+		if (driveSystem != null) {
+			sysRoutine.active().onTrue(
+				seqInstruction
+				.andThen(driveSystem.brakeCommand())
+			);
+		} else {
+			sysRoutine.active().onTrue(
+				seqInstruction
+			);
+		}
 
 		return sysRoutine;
 	}
@@ -158,7 +176,7 @@ public class AutoRoutines {
 			@Override
 			public boolean isFinished() {
 				currentAutoState = cAutoState;
-				SmartDashboard.putString("Auto State", currentAutoState.toString());
+				SmartDashboard.putString("Auto State", Arrays.toString(currentAutoState));
 				return true;
 			}
 		}
@@ -166,21 +184,29 @@ public class AutoRoutines {
 		return new AutoLogCommand();
 	}
 
-	// This function works
-	private void setupCommands() {
-		setUpAlignmentCommands();
+	// Initialize commands for each system
+	private void initialize() {
+		// Set up commands
+		if (driveSystem != null) {
+			autoFactory = driveSystem.createAutoFactory();
+			sysRoutine = autoFactory.newRoutine("AutoRoutine");
 
-		setUpElevatorCommands();
+			setUpDriveCommands();
 
-		setUpFunnelCommands();
-
-		/* ---- All Drive Commands ---- */
-		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
-			driveSystem.brakeCommand()
-		);
+			generateSysRoutineMap("src/main/deploy");
+		}
+		if (elevatorSystem != null) {
+			setUpElevatorCommands();
+		}
+		if (funnelSystem != null) {
+			setUpFunnelCommands();
+		}
+		if (climberSystem != null) {
+			setUpClimberCommands();
+		}
 	}
 
-	private void setUpAlignmentCommands() {
+	private void setUpDriveCommands() {
 		/* ---- All Red AprilTag Alignment Commands ---- */
 		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
@@ -304,6 +330,11 @@ public class AutoRoutines {
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET)
 		);
+
+		/* ---- All Drive Commands ---- */
+		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
+			driveSystem.brakeCommand()
+		);
 	}
 
 	private void setUpElevatorCommands() {
@@ -325,5 +356,9 @@ public class AutoRoutines {
 		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
 			funnelSystem.closeFunnelCommand()
 		);
+	}
+
+	private void setUpClimberCommands() {
+
 	}
 }
