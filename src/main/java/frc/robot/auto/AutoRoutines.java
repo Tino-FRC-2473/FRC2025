@@ -34,9 +34,14 @@ public class AutoRoutines {
 	/**
 	 * Constructs an AutoRoutines object with the specified AutoFactory.
 	 * @param system1
+	 * @param system2
+	 * @param system3
 	 * */
-	public AutoRoutines(DriveFSMSystem system1) {
+	public AutoRoutines(DriveFSMSystem system1, ElevatorFSMSystem system2,
+		FunnelFSMSystem system3) {
 		driveSystem = system1;
+		elevatorSystem = system2;
+		funnelSystem = system3;
 
 		autoFactory = driveSystem.createAutoFactory();
 		sysRoutine = autoFactory.newRoutine("AutoRoutine");

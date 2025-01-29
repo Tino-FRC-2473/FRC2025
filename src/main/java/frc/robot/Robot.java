@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.utils.Elastic;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
@@ -84,13 +85,7 @@ public class Robot extends LoggedRobot {
 		// Instantiate all systems here
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
-
-			autoRoutines = new AutoRoutines(driveSystem);
-
-			autoChooser.addOption("Path 1",
-				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
 		}
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
@@ -103,11 +98,19 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
+
+		if (HardwareMap.enableAuto()) {
+			autoRoutines = new AutoRoutines(driveSystem, elevatorSystem, funnelSystem);
+			autoChooser.addOption("Path 1",
+				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
+			SmartDashboard.putData("AUTO CHOOSER", autoChooser);
+		}
 	}
 
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
+		Elastic.selectTab("Autonomous");
 		autCommand = getAutonomousCommand();
 
 		if (autCommand != null) {
@@ -118,12 +121,15 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
-		driveSystem.updateAutonomous();
+		if (driveSystem != null) {
+			driveSystem.updateAutonomous();
+		}
 	}
 
 	@Override
 	public void teleopInit() {
 		System.out.println("-------- Teleop Init --------");
+		Elastic.selectTab("Teleoperated");
 		if (driveSystem != null) {
 			driveSystem.reset();
 		}
@@ -188,12 +194,14 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
-		driveSystem.getMapleSimDrivetrain().update();
+		if (driveSystem != null) {
+			driveSystem.getMapleSimDrivetrain().update();
 
-		Logger.recordOutput(
-			"FieldSimulation/SimulatedPose",
-			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
-		);
+			Logger.recordOutput(
+				"FieldSimulation/SimulatedPose", driveSystem.getMapleSimDrivetrain()
+				.getDriveSimulation().getSimulatedDriveTrainPose()
+			);
+		}
 
 		Logger.recordOutput(
 			"FieldSimulation/AlgaePoses",

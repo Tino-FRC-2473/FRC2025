@@ -30,7 +30,7 @@ public final class HardwareMap {
 	 * @return true if drive hardware is present
 	 */
 	public static boolean isDriveHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -63,5 +63,9 @@ public final class HardwareMap {
 	 */
 	public static boolean isCVHardwarePresent() {
 		return false;
+	}
+
+	public static boolean enableAuto() {
+		return true;
 	}
 }

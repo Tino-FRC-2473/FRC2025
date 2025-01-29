@@ -3,6 +3,9 @@ package frc.robot.systems;
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -120,6 +123,35 @@ public class DriveFSMSystem extends SubsystemBase {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
+
+		SmartDashboard.putData("Swerve Drive", new Sendable() {
+			public void initSendable(SendableBuilder builder) {
+				builder.setSmartDashboardType("SwerveDrive");
+
+				builder.addDoubleProperty("FL Angle", () -> drivetrain.getModule(0)
+					.getCurrentState().angle.getDegrees(), null);
+				builder.addDoubleProperty("FL Velocity", () -> drivetrain.getModule(0)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("FR Angle", () -> drivetrain.getModule(1)
+					.getCurrentState().angle.getDegrees(), null);
+				builder.addDoubleProperty("FR Velocity", () -> drivetrain.getModule(1)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("BL Angle", () -> drivetrain.getModule(2)
+					.getCurrentState().angle.getDegrees(), null);
+				builder.addDoubleProperty("BL Velocity", () -> drivetrain.getModule(2)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("BR Angle", () -> drivetrain.getModule(1 + 2)
+					.getCurrentState().angle.getDegrees(), null);
+				builder.addDoubleProperty("BR Velocity", () -> drivetrain.getModule(1 + 2)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("Robot Angle", () -> drivetrain.getPigeon2().getYaw()
+					.getValueAsDouble(), null);
+			}
+		});
 	}
 
 	/**
@@ -327,4 +359,5 @@ public class DriveFSMSystem extends SubsystemBase {
 	public MapleSimSwerveDrivetrain getMapleSimDrivetrain() {
 		return drivetrain.getSimDrivetrain();
 	}
+
 }
