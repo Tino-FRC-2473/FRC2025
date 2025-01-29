@@ -5,8 +5,6 @@ import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
 
-from src.main.cv.python.calibrate import CALIB_DIR
-
 
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
