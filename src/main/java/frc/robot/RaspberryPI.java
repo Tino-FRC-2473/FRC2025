@@ -28,7 +28,7 @@ public class RaspberryPI {
 	 */
 	public void printRawData() {
 		double[] rawData = tagSubscriber.get();
-		System.out.println(rawData);
+		//System.out.println(rawData);
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class RaspberryPI {
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 		double[] rawData = tagSubscriber.get();
-		System.out.println(rawData.length);
+		//System.out.println(rawData.length);
 
 		if (rawData.length == 0) {
 			return atList;

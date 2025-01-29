@@ -137,6 +137,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		drivetrain.applyOperatorPerspective();
+		//System.out.println("TELEOP-X " + drivetrain.getState().Pose.getX());
 
 		switch (currentState) {
 			case TELEOP_STATE:
@@ -241,6 +242,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			rotationAlignmentPose = drivetrain.getState().Pose.getRotation();
 		}
 
+		// System.out.println("TELEOP X:" + drivetrain.getState().Pose.getX());
+
 		drivetrain.setControl(
 			driveFacingAngle.withVelocityX(xSpeed)
 			.withVelocityY(ySpeed)
@@ -275,66 +278,74 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
 		logger.applyStateLogging(drivetrain.getState());
+
 		AprilTag tag = rpi.getAprilTagWithID(id);
-		System.out.println();
 
-		if (tag != null
-				&& !tagPositionAligned) {
+		if (tag != null && !tagPositionAligned) {
 
-			double rpiX = tag.getX() - xOff;
-			double rpiY = tag.getZ() - yOff;
-			Rotation2d rpiTheta = new Rotation2d(rpiY, rpiX);
+			Pose2d currPose = drivetrain.getState().Pose;
 
-			SmartDashboard.putNumber("RPIX ", rpiX);
-			SmartDashboard.putNumber("RPIY ", rpiY);
-			//SmartDashboard.putNumber("rpITHETA ", rpiTheta.getDegrees());
+			// X is forward on robot Pose, z is forward on cv side
+			double rpiX = currPose.getX() + tag.getZ();
+			// Y is side-to-side on robotPose, x is side-to-side on cv side
+			double rpiY = currPose.getY() + tag.getX();
+			double rpiTheta = currPose.getRotation().getRadians() + tag.getYaw();
 
 			Pose2d sendPose = new Pose2d(
 				rpiX,
 				rpiY,
-				new Rotation2d()
+				new Rotation2d(rpiTheta)
 			);
-
-			tagPositionAligned = driveToRobotRelativePose(rpiX, rpiY, rpiTheta);
+			
+			tagPositionAligned = driveToPose(sendPose);
 			tagAlignmentPose = sendPose;
 		} else {
-			if (tagPositionAligned) {
-				tagAlignmentPose = null;
+			// if (tagPositionAligned) {
+			// 	tagAlignmentPose = null;
 				drivetrain.setControl(brake);
 				return;
-			}
+			// }
 
-			if (tagAlignmentPose != null) {
-				tagPositionAligned = driveToRobotRelativePose(tagAlignmentPose);
-			}
+			// if (tagAlignmentPose != null) {
+			// 	tagPositionAligned = driveToPose(tagAlignmentPose);
+			// }
 		}
 	}
 
-	private boolean driveToRobotRelativePose(double xDiff, double yDiff, double aDiff) {
+	private boolean driveToPose(Pose2d targetPose) {
+		Pose2d pose = drivetrain.getState().Pose;
 
-		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
-			? SwerveUtils.clamp(
-				xDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-				VisionConstants.MAX_SPEED_METERS_PER_SECOND
-			) : 0;
-		double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
-			? SwerveUtils.clamp(
-				yDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-				VisionConstants.MAX_SPEED_METERS_PER_SECOND
-			) : 0;
-		double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
-			? SwerveUtils.clamp(
-				aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
-				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-			) : 0;
+		double xSpeed = targetPose.getX() - pose.getX();
+		double ySpeed = targetPose.getY() - pose.getY();
+		double aSpeed = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
+
+		// double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
+		// 	? SwerveUtils.clamp(
+		// 		xDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+		// 		-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+		// 		VisionConstants.MAX_SPEED_METERS_PER_SECOND
+		// 	) : 0;
+		// double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
+		// 	? SwerveUtils.clamp(
+		// 		yDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+		// 		-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+		// 		VisionConstants.MAX_SPEED_METERS_PER_SECOND
+		// 	) : 0;
+		// double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
+		// 	? SwerveUtils.clamp(
+		// 		aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+		// 		-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+		// 		VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+		// 	) : 0;
+
+		Logger.recordOutput("X Speed", xSpeed);
+		Logger.recordOutput("Y Speed", ySpeed);
+		Logger.recordOutput("A Speed", aSpeed);
 
 		drivetrain.setControl(
-			drive.withVelocityX(xSpeed * MAX_SPEED)
-			.withVelocityY(ySpeed * MAX_SPEED)
-			.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
+			drive.withVelocityX(xSpeed * MAX_SPEED / 2)
+			.withVelocityY(-ySpeed * MAX_SPEED / 2)
+			.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE / 2)
 		);
 
 		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);

@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 // WPILib Imports
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -49,6 +50,7 @@ public class Robot extends LoggedRobot {
 
 	// Logger
 	private PowerDistribution powerLogger;
+	private NetworkTableInstance ntInstance;
 
 	private static final Object[] PATH_1 = new Object[] {
 		"S1_R1"
@@ -63,6 +65,7 @@ public class Robot extends LoggedRobot {
 		System.out.println("robotInit");
 
 		Logger.recordMetadata("FRC2025", "Team2473"); // Set a metadata value
+		ntInstance = NetworkTableInstance.getDefault();
 
 		if (isReal()) {
 			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
@@ -154,6 +157,7 @@ public class Robot extends LoggedRobot {
 			elevatorSystem.update(input);
 		}
 		MotorManager.update();
+		ntInstance.flush();
 	}
 
 	@Override

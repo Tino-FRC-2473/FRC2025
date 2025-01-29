@@ -38,8 +38,8 @@ public class AprilTag {
 		int id,
 		String camName,
 		ArrayList<Double> camVector,
-		ArrayList<Double> rotVector,
-		ArrayList<Double> transVector) {
+		ArrayList<Double> transVector,
+		ArrayList<Double> rotVector) {
 
 		this.tagID = id;
 		this.camera = camName;
