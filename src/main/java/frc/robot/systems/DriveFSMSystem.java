@@ -28,6 +28,7 @@ import frc.robot.logging.MechLogging;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPi;
+import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
@@ -226,12 +227,13 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	private void handleTagAlignment(TeleopInput input, int id, double xOff, double yOff) {
 		logger.applyStateLogging(drivetrain.getState());
+		AprilTag tag = rpi.getAprilTagWithID(id);
 
-		if (rpi.getAprilTagX(id) != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT) {
-			double yDiff = rpi.getAprilTagY(id) - yOff;
-			double xDiff = rpi.getAprilTagX(id) - xOff;
-			double aDiff = rpi.getAprilTagXInv(id) * Math.PI / VisionConstants.N_180;
-			//TODO: x inv might not be correct for at angle.
+		if (tag.getX() != VisionConstants.UNABLE_TO_SEE_TAG_CONSTANT) {
+			double yDiff = tag.getY() - yOff;
+			double xDiff = tag.getX() - xOff;
+			double aDiff = tag.getCameraVector().getX() * Math.PI / VisionConstants.N_180;
+			//TODO: cam x might not be correct for at angle.
 
 			double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(

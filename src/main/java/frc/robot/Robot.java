@@ -5,7 +5,6 @@ package frc.robot;
 
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
-import choreo.auto.AutoChooser;
 
 import java.util.ArrayList;
 
@@ -18,6 +17,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 // WPILib Imports
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -45,7 +45,7 @@ public class Robot extends LoggedRobot {
 	// Systems
 	private DriveFSMSystem driveSystem;
 	private AutoRoutines autoRoutines;
-	private AutoChooser autoChooser = new AutoChooser();
+	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 	private Command autCommand;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;

@@ -93,6 +93,14 @@ public class AprilTag {
 	}
 
 	/**
+	 * Gets the camera vector
+	 * @return The {@code Translation3d} position of the cameraVector
+	 */
+	public Translation3d getCameraVector() {
+		return new Translation3d(cameraVector.get(0), cameraVector.get(1), cameraVector.get(2));
+	}
+
+	/**
 	 * Get the roll of the tag.
 	 *
 	 * @return The {@code double} roll of the tag in radians

@@ -16,7 +16,7 @@ public final class Constants {
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
 
 	// Encoder Position Constants
-	// None of these are tuned at all
+		// None of these are tuned at all
 
 	public static final double ELEVATOR_DEADBAND = 0.1;
 
@@ -65,4 +65,10 @@ public final class Constants {
 
 	// Add units
 	public static final double WINCH_DIAMETER_METERS = 0.0463296;
+
+	public static final int AT_ARR_INC = 10;
+	public static final int AT_ARR_SEG_LEN = 2;
+	public static final int AT_ARR_SEG1_START = 1;
+	public static final int AT_ARR_SEG2_START = 4;
+	public static final int AT_ARR_SEG3_START = 7;
 }
