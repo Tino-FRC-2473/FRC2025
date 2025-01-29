@@ -74,6 +74,35 @@ public class DriveFSMSystem extends SubsystemBase {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
 
+		SmartDashboard.putData("Swerve Drive", new Sendable() {
+			public void initSendable(SendableBuilder builder) {
+				builder.setSmartDashboardType("SwerveDrive");
+
+				builder.addDoubleProperty("FL Angle", () -> drivetrain.getModule(0)
+					.getCurrentState().angle.getDegrees(), null);
+				builder.addDoubleProperty("FL Velocity", () -> drivetrain.getModule(0)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("FR Angle", () -> drivetrain.getModule(1)
+					.getCurrentState().angle.getDegrees(), null);
+				builder.addDoubleProperty("FR Velocity", () -> drivetrain.getModule(1)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("BL Angle", () -> drivetrain.getModule(2)
+					.getCurrentState().angle.getDegrees(), null);
+				builder.addDoubleProperty("BL Velocity", () -> drivetrain.getModule(2)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("BR Angle", () -> drivetrain.getModule(1 + 2)
+					.getCurrentState().angle.getDegrees(), null);
+				builder.addDoubleProperty("BR Velocity", () -> drivetrain.getModule(1 + 2)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("Robot Angle", () -> drivetrain.getPigeon2().getYaw()
+					.getValueAsDouble(), null);
+			}
+		});
+
 		// Reset state machine
 		reset();
 	}
@@ -123,35 +152,6 @@ public class DriveFSMSystem extends SubsystemBase {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
-
-		SmartDashboard.putData("Swerve Drive", new Sendable() {
-			public void initSendable(SendableBuilder builder) {
-				builder.setSmartDashboardType("SwerveDrive");
-
-				builder.addDoubleProperty("FL Angle", () -> drivetrain.getModule(0)
-					.getCurrentState().angle.getDegrees(), null);
-				builder.addDoubleProperty("FL Velocity", () -> drivetrain.getModule(0)
-					.getCurrentState().speedMetersPerSecond, null);
-
-				builder.addDoubleProperty("FR Angle", () -> drivetrain.getModule(1)
-					.getCurrentState().angle.getDegrees(), null);
-				builder.addDoubleProperty("FR Velocity", () -> drivetrain.getModule(1)
-					.getCurrentState().speedMetersPerSecond, null);
-
-				builder.addDoubleProperty("BL Angle", () -> drivetrain.getModule(2)
-					.getCurrentState().angle.getDegrees(), null);
-				builder.addDoubleProperty("BL Velocity", () -> drivetrain.getModule(2)
-					.getCurrentState().speedMetersPerSecond, null);
-
-				builder.addDoubleProperty("BR Angle", () -> drivetrain.getModule(1 + 2)
-					.getCurrentState().angle.getDegrees(), null);
-				builder.addDoubleProperty("BR Velocity", () -> drivetrain.getModule(1 + 2)
-					.getCurrentState().speedMetersPerSecond, null);
-
-				builder.addDoubleProperty("Robot Angle", () -> drivetrain.getPigeon2().getYaw()
-					.getValueAsDouble(), null);
-			}
-		});
 	}
 
 	/**

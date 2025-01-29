@@ -38,7 +38,7 @@ public final class HardwareMap {
 	 * @return true if elevator hardware is present
 	 */
 	public static boolean isElevatorHardwarePresent() {
-		return true;
+		return false;
 	}
 
 	/**
@@ -54,7 +54,7 @@ public final class HardwareMap {
 	 * @return true if funnel hardware is present
 	 */
 	public static boolean isFunnelHardwarePresent() {
-		return true;
+		return false;
 	}
 
 	/**
@@ -65,7 +65,11 @@ public final class HardwareMap {
 		return false;
 	}
 
+	/**
+	 * do we want to use auto.
+	 * @return if we want to use auto
+	 */
 	public static boolean enableAuto() {
-		return true;
+		return false;
 	}
 }
