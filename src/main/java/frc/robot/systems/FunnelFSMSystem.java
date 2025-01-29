@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.HardwareMap;
+import frc.robot.Robot;
 
 // WPILib Imports
 
@@ -114,7 +115,7 @@ public class FunnelFSMSystem {
 		SmartDashboard.putBoolean("Reef in Range?",
 			reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
 
-		SmartDashboard.putBoolean("Holding Coral?", coralBreakBeam.get());
+		SmartDashboard.putBoolean("Holding Coral?", isHoldingCoral());
 	}
 
 	/* ======================== Private methods ======================== */
@@ -166,6 +167,17 @@ public class FunnelFSMSystem {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 	}
 
+	/**
+	 * Getter for the result of the funnel's break beam.
+	 * @return whether the limit is reached
+	 */
+	private boolean isHoldingCoral() {
+		if (Robot.isSimulation()) {
+			return false;
+		}
+		return !coralBreakBeam.get(); // true = beam intact
+	}
+
 	/* ---- Funnel Commands ---- */
 
 	/** A command that opens the funnel servo. */
@@ -179,7 +191,7 @@ public class FunnelFSMSystem {
 
 		@Override
 		public boolean isFinished() {
-			return coralBreakBeam.get(); // done when beam is continuous
+			return !isHoldingCoral(); // done when no coral
 		}
 
 		@Override
