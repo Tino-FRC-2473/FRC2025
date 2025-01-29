@@ -114,7 +114,6 @@ public class LED {
 		}
 
 		led.setData(ledBuffer);
-	
 	}
 
 	/**

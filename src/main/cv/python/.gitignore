@@ -2,5 +2,6 @@ venv/
 .env
 config.py
 calibration_data/
+calibration_input/
 data_collection/
 *.npy
