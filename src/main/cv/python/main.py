@@ -29,6 +29,9 @@ ARUCO_LENGTH_METERS = 0.165
 NUM_TAGS = 22
 tagData = []
 
+frame_idx = 0
+table = inst.getTable("datatable")
+
 while True:
     p = time.time()
     try: 
@@ -50,7 +53,7 @@ while True:
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
                 break
-        time.sleep(0.1)
+        #time.sleep(0.1)
     except KeyboardInterrupt:
         print("keyboard interrupt")
         input.close()
@@ -59,8 +62,10 @@ while True:
         print("An exception occurred:", error.__class__)
         traceback.print_exc()
 
-    if ON_RPI:
-        table = inst.getTable("datatable")
+    frame_idx %= 5
+    if ON_RPI and frame_idx is 0:
         tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
         tagDataPub.set(tagData)
+    
+    frame_idx += 1
     print('Loop time: ' + str(time.time()-p))
