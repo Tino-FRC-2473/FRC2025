@@ -17,8 +17,8 @@ class AprilTag():
         # TODO: Set the camera name here when you have multiple cameras
         AT_CAM_NAME = "bw_cam_3v4"  # Define or set an appropriate value for AT_CAM_NAME
 
-        self.camera_matrix = np.load(f'{basePath}/{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(f'{basePath}/{CALIB_DIR}/{AT_CAM_NAME}dist.npy')
+        self.camera_matrix = np.load(f'{basePath}/{CALIB_DIR}/{CALIB_FILE_NAME}matrix.npy')
+        self.dist_coeffs = np.load(f'{basePath}/{CALIB_DIR}/{CALIB_FILE_NAME}dist.npy')
 
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
