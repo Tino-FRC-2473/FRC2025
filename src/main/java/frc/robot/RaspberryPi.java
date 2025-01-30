@@ -74,21 +74,33 @@ public class RaspberryPi {
 	}
 
 	/**
-	 * Gets an April Tag from the list given a certain tag.
+	 * Gets the closest AprilTag from any camera to the robot.
 	 *
-	 * @return the april tag matching the id
+	 * @return Returns the closest AT. If no tags are in sight, returns null.
 	 */
 	public AprilTag getClosestTag() {
 		ArrayList<AprilTag> atlist = getAprilTags();
+		if (atlist.size() <= 0) {
+			return null;
+		}
 		Collections.sort(atlist);
 		return atlist.get(0);
 	}
 
 	/**
+	 * Check to see if there are any AprilTags in sight.
+	 *
+	 * @return Returns true if any tags are in sight, otherwise returns false.
+	 */
+	public boolean canSeeTags() {
+		return getAprilTags().size() != 0;
+	}
+
+	/**
 	 * Gets an April Tag from the list given a certain tag.
 	 *
-	 * @param id id of the april tag
-	 * @return the april tag matching the id
+	 * @param id id of the april tag.
+	 * @return the april tag matching the id.
 	 */
 	public AprilTag getAprilTagWithID(int id) {
 		return getAprilTags()
