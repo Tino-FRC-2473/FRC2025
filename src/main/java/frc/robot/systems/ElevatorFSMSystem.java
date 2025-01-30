@@ -7,7 +7,6 @@ package frc.robot.systems;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
@@ -31,7 +30,8 @@ public class ElevatorFSMSystem {
 	public enum ElevatorFSMState {
 		MANUAL,
 		GROUND,
-		STATION,
+		LEVEL2,
+		LEVEL3,
 		LEVEL4
 	}
 
@@ -57,24 +57,12 @@ public class ElevatorFSMSystem {
 		elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
 
 		var talonFXConfigs = new TalonFXConfiguration();
-		// set slot 0 gains
-		var slot0Configs = talonFXConfigs.Slot0;
-		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
-		// note: detail on constants in Constants.java
-		slot0Configs.kG = Constants.ELEVATOR_MM_CONSTANT_G;
-		slot0Configs.kS = Constants.ELEVATOR_MM_CONSTANT_S;
-		slot0Configs.kV = Constants.ELEVATOR_MM_CONSTANT_V;
-		slot0Configs.kA = Constants.ELEVATOR_MM_CONSTANT_A;
-		slot0Configs.kP = Constants.ELEVATOR_MM_CONSTANT_P;
-		slot0Configs.kI = Constants.ELEVATOR_MM_CONSTANT_I;
-		slot0Configs.kD = Constants.ELEVATOR_MM_CONSTANT_D;
-
 
 		// apply sw limit
 		var swLimitSwitch = talonFXConfigs.SoftwareLimitSwitch;
 		swLimitSwitch.ForwardSoftLimitEnable = true; // enable top limit
 		swLimitSwitch.ReverseSoftLimitEnable = true; // enable bottom limit
-		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_PID_UPPER_THRESHOLD;
+		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_THRESHOLD;
 		swLimitSwitch.ReverseSoftLimitThreshold = 0;
 
 		elevatorMotor.getConfigurator().apply(talonFXConfigs);
@@ -100,7 +88,7 @@ public class ElevatorFSMSystem {
 
 		// Reset state machine
 
-		elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
+		elevatorMotor.setPosition(Constants.ELEVATOR_TARGET_GROUND);
 
 		reset();
 	}
@@ -148,8 +136,11 @@ public class ElevatorFSMSystem {
 			case GROUND:
 				handleGroundState(input);
 				break;
-			case STATION:
-				handleStationState(input);
+			case LEVEL2:
+				handleL2State(input);
+				break;
+			case LEVEL3:
+				handleL3State(input);
 				break;
 			case LEVEL4:
 				handleL4State(input);
@@ -197,22 +188,34 @@ public class ElevatorFSMSystem {
 				if (input.isGroundButtonPressed()
 					&& !isBottomLimitReached()
 					&& !input.isL4ButtonPressed()
-					&& !input.isStationButtonPressed()) {
+					&& !input.isL2ButtonPressed()
+					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.GROUND;
 				}
 				if (input.isL4ButtonPressed()
 					&& !isTopLimitReached()
 					&& !input.isGroundButtonPressed()
-					&& !input.isStationButtonPressed()) {
+					&& !input.isL2ButtonPressed()
+					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
-				if (input.isStationButtonPressed()
+				if (input.isL2ButtonPressed()
 					&& Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-					- Constants.ELEVATOR_PID_TARGET_STATION)
-					> Constants.ELEVATOR_TARGET_MARGIN
+					- Constants.ELEVATOR_TARGET_L2)
+					>= Constants.ELEVATOR_TARGET_MARGIN
 					&& !input.isL4ButtonPressed()
-					&& !input.isGroundButtonPressed()) {
-					return ElevatorFSMState.STATION;
+					&& !input.isGroundButtonPressed()
+					&& !input.isL3ButtonPressed()) {
+					return ElevatorFSMState.LEVEL2;
+				}
+				if (input.isL3ButtonPressed()
+					&& Math.abs(elevatorMotor.getPosition().getValueAsDouble()
+					- Constants.ELEVATOR_TARGET_L3)
+					>= Constants.ELEVATOR_TARGET_MARGIN
+					&& !input.isL4ButtonPressed()
+					&& !input.isGroundButtonPressed()
+					&& !input.isL2ButtonPressed()) {
+					return ElevatorFSMState.LEVEL3;
 				}
 				return ElevatorFSMState.MANUAL;
 
@@ -222,14 +225,23 @@ public class ElevatorFSMSystem {
 				}
 				return ElevatorFSMState.GROUND;
 
-			case STATION:
+			case LEVEL2:
 				if (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-					- Constants.ELEVATOR_PID_TARGET_STATION)
+					- Constants.ELEVATOR_TARGET_L2)
 					< Constants.ELEVATOR_TARGET_MARGIN
-					|| !input.isStationButtonPressed()) {
+					|| !input.isL2ButtonPressed()) {
 					return ElevatorFSMState.MANUAL;
 				}
-				return ElevatorFSMState.STATION;
+				return ElevatorFSMState.LEVEL2;
+
+			case LEVEL3:
+				if (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
+					- Constants.ELEVATOR_TARGET_L3)
+					< Constants.ELEVATOR_TARGET_MARGIN
+					|| !input.isL3ButtonPressed()) {
+					return ElevatorFSMState.MANUAL;
+				}
+				return ElevatorFSMState.LEVEL3;
 
 			case LEVEL4:
 				if (isTopLimitReached() || !input.isL4ButtonPressed()) {
@@ -276,7 +288,7 @@ public class ElevatorFSMSystem {
 		double signalInput = input.getManualElevatorMovementInput();
 		signalInput = MathUtil.applyDeadband(signalInput, Constants.ELEVATOR_DEADBAND);
 		if (isBottomLimitReached()) {
-			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
+			elevatorMotor.setPosition(Constants.ELEVATOR_TARGET_GROUND);
 			if (signalInput < 0) {
 				elevatorMotor.set(0); //don't go even further down if you hit the lower limit!
 				return;
@@ -301,23 +313,38 @@ public class ElevatorFSMSystem {
 	private void handleGroundState(TeleopInput input) {
 		if (isBottomLimitReached()) {
 			elevatorMotor.set(0);
-			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
+			elevatorMotor.setPosition(Constants.ELEVATOR_TARGET_GROUND);
 		} else {
 			elevatorMotor.set(-Constants.ELEVATOR_POWER);
 		}
 	}
 
 	/**
-	 * Handle behavior in STATION.
+	 * Handle behavior in L2.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleStationState(TeleopInput input) {
+	private void handleL2State(TeleopInput input) {
 		if (elevatorMotor.getPosition().getValueAsDouble()
-			< Constants.ELEVATOR_PID_TARGET_STATION) {
+			< Constants.ELEVATOR_TARGET_L2) {
 			elevatorMotor.set(Constants.ELEVATOR_POWER);
 		} else if (elevatorMotor.getPosition().getValueAsDouble()
-			> Constants.ELEVATOR_PID_TARGET_STATION) {
+			> Constants.ELEVATOR_TARGET_L2) {
+			elevatorMotor.set(-Constants.ELEVATOR_POWER);
+		}
+	}
+
+	/**
+	 * Handle behavior in L3.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleL3State(TeleopInput input) {
+		if (elevatorMotor.getPosition().getValueAsDouble()
+			< Constants.ELEVATOR_TARGET_L3) {
+			elevatorMotor.set(Constants.ELEVATOR_POWER);
+		} else if (elevatorMotor.getPosition().getValueAsDouble()
+			> Constants.ELEVATOR_TARGET_L3) {
 			elevatorMotor.set(-Constants.ELEVATOR_POWER);
 		}
 	}
@@ -331,7 +358,7 @@ public class ElevatorFSMSystem {
 		if (isTopLimitReached()) {
 			elevatorMotor.set(0);
 		} else {
-			if (Constants.ELEVATOR_PID_TARGET_L4
+			if (Constants.ELEVATOR_TARGET_L4
 				- elevatorMotor.getPosition().getValueAsDouble()
 				< Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
 				elevatorMotor.set(Constants.ELEVATOR_REDUCED_POWER);
@@ -373,7 +400,7 @@ public class ElevatorFSMSystem {
 	/** A command that moves the elevator to the Ground position. */
 	class ElevatorGroundCommand extends ElevatorCommand {
 		ElevatorGroundCommand() {
-			this.setTarget(Constants.ELEVATOR_PID_TARGET_GROUND);
+			this.setTarget(Constants.ELEVATOR_TARGET_GROUND);
 		}
 
 		// @Override
@@ -392,7 +419,7 @@ public class ElevatorFSMSystem {
 	/** A command that moves the elevator to the Station position. */
 	class ElevatorStationCommand extends ElevatorCommand {
 		ElevatorStationCommand() {
-			this.setTarget(Constants.ELEVATOR_PID_TARGET_STATION);
+			this.setTarget(Constants.ELEVATOR_TARGET_L2);
 		}
 
 		// @Override
@@ -404,7 +431,7 @@ public class ElevatorFSMSystem {
 	/** A command that moves the elevator to the L4 position. */
 	class ElevatorL4Command extends ElevatorCommand {
 		ElevatorL4Command() {
-			this.setTarget(Constants.ELEVATOR_PID_TARGET_L4);
+			this.setTarget(Constants.ELEVATOR_TARGET_L4);
 		}
 
 		// @Override
