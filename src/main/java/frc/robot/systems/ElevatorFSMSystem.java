@@ -99,6 +99,9 @@ public class ElevatorFSMSystem {
 			//only use to stop, DO NOT USE TO RESET
 
 		// Reset state machine
+
+		elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
+
 		reset();
 	}
 
@@ -122,8 +125,6 @@ public class ElevatorFSMSystem {
 	 */
 	public void reset() {
 		currentState = ElevatorFSMState.MANUAL;
-
-		elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -260,8 +261,8 @@ public class ElevatorFSMSystem {
 		if (Robot.isSimulation()) {
 			return false;
 		}
-		return !topLimitSwitch.get(); // switch is normally closed
-		// return false; // temp disable
+		// return !topLimitSwitch.get(); // switch is normally closed
+		return false; // temp disable
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
@@ -302,7 +303,7 @@ public class ElevatorFSMSystem {
 			elevatorMotor.set(0);
 			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 		} else {
-			elevatorMotor.set(Constants.ELEVATOR_POWER_DOWN);
+			elevatorMotor.set(-Constants.ELEVATOR_POWER);
 		}
 	}
 
@@ -314,10 +315,10 @@ public class ElevatorFSMSystem {
 	private void handleStationState(TeleopInput input) {
 		if (elevatorMotor.getPosition().getValueAsDouble()
 			< Constants.ELEVATOR_PID_TARGET_STATION) {
-			elevatorMotor.set(Constants.ELEVATOR_POWER_UP);
+			elevatorMotor.set(Constants.ELEVATOR_POWER);
 		} else if (elevatorMotor.getPosition().getValueAsDouble()
 			> Constants.ELEVATOR_PID_TARGET_STATION) {
-			elevatorMotor.set(Constants.ELEVATOR_POWER_DOWN);
+			elevatorMotor.set(-Constants.ELEVATOR_POWER);
 		}
 	}
 
@@ -330,7 +331,13 @@ public class ElevatorFSMSystem {
 		if (isTopLimitReached()) {
 			elevatorMotor.set(0);
 		} else {
-			elevatorMotor.set(Constants.ELEVATOR_POWER_UP);
+			if (Constants.ELEVATOR_PID_TARGET_L4
+				- elevatorMotor.getPosition().getValueAsDouble()
+				< Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
+				elevatorMotor.set(Constants.ELEVATOR_REDUCED_POWER);
+			} else {
+				elevatorMotor.set(Constants.ELEVATOR_POWER);
+			}
 		}
 	}
 
