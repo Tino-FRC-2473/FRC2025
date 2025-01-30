@@ -280,6 +280,15 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		AprilTag tag = rpi.getAprilTagWithID(id);
 
+		System.out.println("Current Pose X" + drivetrain.getState().Pose.getX());
+		System.out.println("Current Pose Y" + drivetrain.getState().Pose.getY());
+
+		if (tagAlignmentPose != null) {
+			System.out.println("Tag Alignment Pose X " + tagAlignmentPose.getX());
+			System.out.println("Tag Alignment Pose Y " + tagAlignmentPose.getY());
+		}
+
+
 		if (tag != null && !tagPositionAligned) {
 
 			Pose2d currPose = drivetrain.getState().Pose;
@@ -288,6 +297,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			double rpiX = currPose.getX() + tag.getZ();
 			// Y is side-to-side on robotPose, x is side-to-side on cv side
 			double rpiY = currPose.getY() + tag.getX();
+			// using rvec to determine the absolute rotation of the apriltag.
 			double rpiTheta = currPose.getRotation().getRadians() + tag.getYaw();
 
 			Pose2d sendPose = new Pose2d(
@@ -298,15 +308,19 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			tagPositionAligned = driveToPose(sendPose);
 			tagAlignmentPose = sendPose;
-		} else {
-			// if (tagPositionAligned) {
-			// 	tagAlignmentPose = null;
-			drivetrain.setControl(brake);
-			// }
 
-			// if (tagAlignmentPose != null) {
-			// 	tagPositionAligned = driveToPose(tagAlignmentPose);
-			// }
+			// Logger.recordOutput("Tag Alignment Pose X", tagAlignmentPose.getX());
+			// Logger.recordOutput("Tag Alignment Pose Y",tagAlignmentPose.getY());
+		} else {
+			if (tagPositionAligned) {
+				tagAlignmentPose = null;
+				drivetrain.setControl(brake);
+			}
+
+			if (tagAlignmentPose != null) {
+				System.out.println("back up alignment reached");
+				tagPositionAligned = driveToPose(tagAlignmentPose);
+			}
 		}
 	}
 
@@ -316,6 +330,18 @@ public class DriveFSMSystem extends SubsystemBase {
 		double xDiff = targetPose.getX() - pose.getX();
 		double yDiff = targetPose.getY() - pose.getY();
 		double aDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
+
+		System.out.println(
+			"XDIFF" + xDiff
+		);
+		System.out.println(
+			"YDIFF" + yDiff
+		);
+		System.out.println(
+			"ADIFF" + aDiff
+		);
+
+		Logger.recordOutput("TARGET POSE", targetPose);
 
 		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
@@ -336,14 +362,14 @@ public class DriveFSMSystem extends SubsystemBase {
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
 			) : 0;
 
-		Logger.recordOutput("X Speed", xSpeed);
-		Logger.recordOutput("Y Speed", ySpeed);
-		Logger.recordOutput("A Speed", aSpeed);
+		Logger.recordOutput("DriveToPose/X Speed", xSpeed);
+		Logger.recordOutput("DriveToPose/Y Speed", ySpeed);
+		Logger.recordOutput("DriveToPose/A Speed", aSpeed);
 
 		drivetrain.setControl(
-			driveFacingAngle.withVelocityX(xSpeed * MAX_SPEED / 2)
-			.withVelocityY(-ySpeed * MAX_SPEED / 2)
-			.withTargetRateFeedforward(-aSpeed * MAX_ANGULAR_RATE / 2)
+			driveFacingAngle.withVelocityX(xSpeed * MAX_SPEED)
+			.withVelocityY(-ySpeed * MAX_SPEED)
+			.withTargetRateFeedforward(-aSpeed * MAX_ANGULAR_RATE)
 			.withTargetDirection(targetPose.getRotation())
 		);
 

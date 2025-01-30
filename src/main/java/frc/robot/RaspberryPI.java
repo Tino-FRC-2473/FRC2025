@@ -78,10 +78,14 @@ public class RaspberryPI {
 	 * @return the april tag matching the id
 	 */
 	public AprilTag getAprilTagWithID(int id) {
-		return getAprilTags()
+		var startTime = System.currentTimeMillis();
+		var result =  getAprilTags()
 			.stream()
 			.filter(tag -> tag.getTagID() == id)
 			.findFirst()
 			.orElse(null);
+		var endTime = System.currentTimeMillis();
+		System.out.println("time spent in tag code: " + (endTime - startTime));
+		return result;
 	}
 }
