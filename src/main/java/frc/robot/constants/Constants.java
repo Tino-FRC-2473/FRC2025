@@ -20,10 +20,12 @@ public final class Constants {
 
 	public static final double ELEVATOR_DEADBAND = 0.1;
 
-	public static final double ELEVATOR_PID_UPPER_THRESHOLD = 141.88; // DO NOT drive above this!
-	public static final double ELEVATOR_PID_TARGET_L4 = 141.88;
+	public static final double ELEVATOR_PID_UPPER_THRESHOLD = 145.16; // DO NOT drive above this!
+	public static final double ELEVATOR_PID_TARGET_L4 = 145.16;
 	public static final double ELEVATOR_PID_TARGET_STATION = 66;
 	public static final double ELEVATOR_PID_TARGET_GROUND = 0;
+	public static final double ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE = 20;
+
 
 	public static final double ELEVATOR_MANUAL_SCALE = 0.7;
 	public static final double ELEVATOR_TARGET_MARGIN = 5;
@@ -58,8 +60,9 @@ public final class Constants {
 	public static final double ELEVATOR_CONFIG_CONSTANT_A = 200; // Max acceleration in rps/s
 	public static final double ELEVATOR_CONFIG_CONSTANT_J = 2000; // Target jerk in rps/s/s
 
-	public static final double ELEVATOR_POWER_DOWN = -0.5;
-	public static final double ELEVATOR_POWER_UP = 0.7;
+	public static final double ELEVATOR_POWER = 0.7;
+	public static final double ELEVATOR_REDUCED_POWER = 0.4;
+
 
 	public static final double CLIMB_POWER = 0.2;
 
