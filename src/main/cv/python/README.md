@@ -56,6 +56,6 @@ Change AT_CAM_NAME to the name of the camera you are using and the version of th
 
 
 ## Running Calibration Code for the Apriltag
-```
+
+applies if you are trying to get calibration data for the apriltag camera 
 Make sure to go to apriltag.py and comment our the self.dist_coeffs and self.camera_matrix as you can't load calibration files if you are still trying to collect calibration data and save it to certain files
-```
