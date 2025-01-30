@@ -6,7 +6,6 @@ package frc.robot.systems;
 // Third party Hardware Imports
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -44,7 +43,6 @@ public class ElevatorFSMSystem {
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
 	private TalonFX elevatorMotor;
-	private final MotionMagicVoltage mmVoltage = new MotionMagicVoltage(0);
 	private DigitalInput groundLimitSwitch;
 	private DigitalInput topLimitSwitch;
 
@@ -72,11 +70,6 @@ public class ElevatorFSMSystem {
 		slot0Configs.kI = Constants.ELEVATOR_MM_CONSTANT_I;
 		slot0Configs.kD = Constants.ELEVATOR_MM_CONSTANT_D;
 
-		// Apply Motion Magic settings
-		var motionMagicConfigs = talonFXConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = Constants.ELEVATOR_CONFIG_CONSTANT_CV;
-		motionMagicConfigs.MotionMagicAcceleration = Constants.ELEVATOR_CONFIG_CONSTANT_A;
-		motionMagicConfigs.MotionMagicJerk = Constants.ELEVATOR_CONFIG_CONSTANT_J;
 
 		// apply sw limit
 		var swLimitSwitch = talonFXConfigs.SoftwareLimitSwitch;
@@ -204,16 +197,21 @@ public class ElevatorFSMSystem {
 		switch (currentState) {
 			case MANUAL:
 				if (input.isGroundButtonPressed()
+					&& !isBottomLimitReached()
 					&& !input.isL4ButtonPressed()
 					&& !input.isStationButtonPressed()) {
 					return ElevatorFSMState.GROUND;
 				}
 				if (input.isL4ButtonPressed()
+					&& !isTopLimitReached()
 					&& !input.isGroundButtonPressed()
 					&& !input.isStationButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
 				if (input.isStationButtonPressed()
+					&& Math.abs(elevatorMotor.getPosition().getValueAsDouble()
+					- Constants.ELEVATOR_PID_TARGET_STATION)
+					> Constants.ELEVATOR_TARGET_MARGIN
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()) {
 					return ElevatorFSMState.STATION;
@@ -221,19 +219,22 @@ public class ElevatorFSMSystem {
 				return ElevatorFSMState.MANUAL;
 
 			case GROUND:
-				if (!input.isGroundButtonPressed()) {
+				if (isBottomLimitReached() || !input.isGroundButtonPressed()) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.GROUND;
 
 			case STATION:
-				if (!input.isStationButtonPressed()) {
+				if (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
+					- Constants.ELEVATOR_PID_TARGET_STATION)
+					< Constants.ELEVATOR_TARGET_MARGIN
+					|| !input.isStationButtonPressed()) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.STATION;
 
 			case LEVEL4:
-				if (!input.isL4ButtonPressed()) {
+				if (isTopLimitReached() || !input.isL4ButtonPressed()) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL4;
@@ -304,7 +305,7 @@ public class ElevatorFSMSystem {
 			elevatorMotor.set(0);
 			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 		} else {
-			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
+			elevatorMotor.set(Constants.ELEVATOR_POWER_DOWN);
 		}
 	}
 
@@ -314,7 +315,13 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleStationState(TeleopInput input) {
-		elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_STATION));
+		if (elevatorMotor.getPosition().getValueAsDouble()
+			< Constants.ELEVATOR_PID_TARGET_STATION) {
+			elevatorMotor.set(Constants.ELEVATOR_POWER_UP);
+		} else if (elevatorMotor.getPosition().getValueAsDouble()
+			> Constants.ELEVATOR_PID_TARGET_STATION) {
+			elevatorMotor.set(Constants.ELEVATOR_POWER_DOWN);
+		}
 	}
 
 	/**
@@ -326,7 +333,7 @@ public class ElevatorFSMSystem {
 		if (isTopLimitReached()) {
 			elevatorMotor.set(0);
 		} else {
-			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
+			elevatorMotor.set(Constants.ELEVATOR_POWER_UP);
 		}
 	}
 
@@ -365,16 +372,17 @@ public class ElevatorFSMSystem {
 			this.setTarget(Constants.ELEVATOR_PID_TARGET_GROUND);
 		}
 
-		@Override
-		public void execute() {
-			if (isBottomLimitReached()) {
-				elevatorMotor.set(0);
-				elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
-			} else {
-				elevatorMotor.setControl(
-					mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND));
-			}
-		}
+		// @Override
+		// public void execute() {
+		// 	if (isBottomLimitReached()) {
+		// 		elevatorMotor.set(0);
+		// 		elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
+		// 	} else {
+		// 		elevatorMotor.setControl(
+		// 			mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND)
+		// 		);
+		// 	}
+		// }
 	}
 
 	/** A command that moves the elevator to the Station position. */
@@ -383,10 +391,10 @@ public class ElevatorFSMSystem {
 			this.setTarget(Constants.ELEVATOR_PID_TARGET_STATION);
 		}
 
-		@Override
-		public void execute() {
-			elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_STATION));
-		}
+		// @Override
+		// public void execute() {
+		// 	elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_STATION));
+		// }
 	}
 
 	/** A command that moves the elevator to the L4 position. */
@@ -395,15 +403,16 @@ public class ElevatorFSMSystem {
 			this.setTarget(Constants.ELEVATOR_PID_TARGET_L4);
 		}
 
-		@Override
-		public void execute() {
-			if (isTopLimitReached()) {
-				elevatorMotor.set(0);
-			} else {
-				elevatorMotor.setControl(
-					mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4));
-			}
-		}
+		// @Override
+		// public void execute() {
+		// 	if (isTopLimitReached()) {
+		// 		elevatorMotor.set(0);
+		// 	} else {
+		// 		elevatorMotor.setControl(
+		// 			mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4)
+		// 		);
+		// 	}
+		// }
 	}
 
 	// FOR COMMANDS: JUST SET THE STATE (UPDATE IS STILL CALLED). INVESTIGATE WEEK 4.
