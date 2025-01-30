@@ -80,8 +80,8 @@ public class ElevatorFSMSystem {
 
 		// apply sw limit
 		var swLimitSwitch = talonFXConfigs.SoftwareLimitSwitch;
-		swLimitSwitch.ForwardSoftLimitEnable = false;
-		swLimitSwitch.ReverseSoftLimitEnable = true;
+		swLimitSwitch.ForwardSoftLimitEnable = true; // enable top limit
+		swLimitSwitch.ReverseSoftLimitEnable = true; // enable bottom limit
 		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_PID_UPPER_THRESHOLD;
 		swLimitSwitch.ReverseSoftLimitThreshold = 0;
 
@@ -276,7 +276,6 @@ public class ElevatorFSMSystem {
 	private void handleManualState(TeleopInput input) {
 		double signalInput = input.getManualElevatorMovementInput();
 		signalInput = MathUtil.applyDeadband(signalInput, Constants.ELEVATOR_DEADBAND);
-		// SmartDashboard.putNumber("input", signalInput);
 		if (isBottomLimitReached()) {
 			elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
 			if (signalInput < 0) {
@@ -292,7 +291,7 @@ public class ElevatorFSMSystem {
 			}
 		}
 
-		elevatorMotor.set(signalInput);
+		elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
 	}
 
 	/**
@@ -345,7 +344,7 @@ public class ElevatorFSMSystem {
 		@Override
 		public boolean isFinished() {
 			return Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-			- target) < Constants.CLIMBER_PID_MARGIN_OF_ERROR;
+			- target) < Constants.ELEVATOR_DEADBAND;
 		}
 
 		@Override
