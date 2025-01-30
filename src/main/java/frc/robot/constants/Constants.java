@@ -25,7 +25,13 @@ public final class Constants {
 	public static final double ELEVATOR_PID_TARGET_STATION = 66;
 	public static final double ELEVATOR_PID_TARGET_GROUND = 0;
 
+<<<<<<< HEAD
 	public static final double ELEVATOR_MANUAL_SCALE = 0.7;
+=======
+	public static final double ELEVATOR_TARGET_MARGIN = 5;
+
+	public static final double ELEVATOR_MANUAL_SCALE = 0.75;
+>>>>>>> a840fea (remove pid from elevator, change state transition logic. TODO: rewrite auto commands)
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
 	public static final double CLIMBER_PID_TARGET_EXTEND = 25;
@@ -57,7 +63,12 @@ public final class Constants {
 	public static final double ELEVATOR_CONFIG_CONSTANT_A = 200; // Max acceleration in rps/s
 	public static final double ELEVATOR_CONFIG_CONSTANT_J = 2000; // Target jerk in rps/s/s
 
+<<<<<<< HEAD
 	public static final double CLIMB_POWER = 0.2;
+=======
+	public static final double ELEVATOR_POWER_DOWN = -0.5;
+	public static final double ELEVATOR_POWER_UP = 0.7;
+>>>>>>> a840fea (remove pid from elevator, change state transition logic. TODO: rewrite auto commands)
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;
