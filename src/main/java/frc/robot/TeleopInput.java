@@ -98,7 +98,7 @@ public class TeleopInput {
 	 * Get the value of the source elevator target button (cross).
 	 * @return If the button is pressed
 	 */
-	public boolean isStationButtonPressed() {
+	public boolean isL2ButtonPressed() {
 		return mechController.getCrossButton();
 	}
 
@@ -116,6 +116,14 @@ public class TeleopInput {
 	 */
 	public boolean isGroundButtonPressed() {
 		return mechController.getCircleButton();
+	}
+
+	/**
+	 * Get the value of the L3 elevator target button (square).
+	 * @return If the button is pressed
+	 */
+	public boolean isL3ButtonPressed() {
+		return mechController.getSquareButton();
 	}
 
 	/**
