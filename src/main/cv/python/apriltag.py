@@ -15,7 +15,7 @@ class AprilTag():
     def __init__(self):
         basePath = Path(__file__).resolve().parent
         # TODO: Set the camera name here when you have multiple cameras
-        AT_CAM_NAME = "camera_"  # Define or set an appropriate value for AT_CAM_NAME
+        AT_CAM_NAME = "bw_cam_3v4"  # Define or set an appropriate value for AT_CAM_NAME
 
         self.camera_matrix = np.load(f'{basePath}/{CALIB_DIR}/{AT_CAM_NAME}matrix.npy')
         self.dist_coeffs = np.load(f'{basePath}/{CALIB_DIR}/{AT_CAM_NAME}dist.npy')

@@ -2,7 +2,7 @@ import cv2
 from apriltag import AprilTag
 from visionInput import VisionInput
 
-RES = (640, 480)
+RES = (1280, 720)
 
 tag_module = AprilTag()
 

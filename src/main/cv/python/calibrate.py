@@ -23,7 +23,7 @@ args = parser.parse_args()
 
 CALIB_RES = (1280, 720)
 CALIB_DIR = 'calibration_images'
-CALIB_FILE_NAME = "bw_cam_1v3"
+CALIB_FILE_NAME = "bw_cam_3v4"
 CALIB_WIDTH = 6
 CALIB_HEIGHT = 4
 ARUCO_LENGTH_METERS = 0.03
@@ -32,5 +32,5 @@ BW_CAMERA = True
 tag_module = AprilTag()
 
 #callibrate based on images
-tag_module.calibrate(CALIB_RES, CALIB_DIR, ARUCO_LENGTH_METERS, CALIB_WIDTH, CALIB_HEIGHT,CALIB_FILE_NAME, BW_CAMERA, visualize=False)
+tag_module.calibrate(CALIB_RES, CALIB_DIR, ARUCO_LENGTH_METERS, CALIB_WIDTH, CALIB_HEIGHT,CALIB_FILE_NAME, BW_CAMERA, visualize=True)
 #UNCOMMENT ABOVE IF CALIBRATION DATA is not in /calibration_data direcotry
