@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.constants.VisionConstants;
+import java.util.Collections;
 
 /**
  * This class is used to get the data from the Raspberry Pi.
@@ -70,6 +71,17 @@ public class RaspberryPi {
 		}
 
 		return atList;
+	}
+
+	/**
+	 * Gets an April Tag from the list given a certain tag.
+	 *
+	 * @return the april tag matching the id
+	 */
+	public AprilTag getClosestTag() {
+		ArrayList<AprilTag> atlist = getAprilTags();
+		Collections.sort(atlist);
+		return atlist.get(0);
 	}
 
 	/**

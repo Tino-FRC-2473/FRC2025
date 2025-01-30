@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 /**
  * This class is used to store the pose of the AprilTag relative to the camera.
  */
-public class AprilTag {
+public class AprilTag implements Comparable<AprilTag> {
 	private String camera;
 	private int tagID;
 
@@ -155,5 +155,18 @@ public class AprilTag {
 	public String toString() {
 		return String.format(
 				"ID %d  - x: %.3f, y: %.3f, z: %.3f, %s", tagID, getX(), getY(), getZ(), getPose());
+	}
+
+
+	/**
+	 * Compares one AptilTag to another.
+	 * @param other
+	 * @return An{@code int} used to compare two AprilTags
+	 */
+	public int compareTo(AprilTag other) {
+		double dist = getPose().getTranslation().getNorm();
+		double otherDist = other.getPose().getTranslation().getNorm();
+
+		return Double.compare(dist, otherDist);
 	}
 }
