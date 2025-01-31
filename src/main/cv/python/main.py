@@ -42,7 +42,6 @@ while True:
     loop_start = time.time()
     try: 
         initial_frame = input.getFrame()
-        print("framesize", initial_frame.shape)
         annotated_frame = initial_frame.copy()
         tagData = tag_module.estimate_3d_pose(initial_frame, annotated_frame, ARUCO_LENGTH_METERS)
         annotated_frame = cv2.resize(annotated_frame, AT_RESIZED_RES)
