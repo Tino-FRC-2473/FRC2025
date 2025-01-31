@@ -199,24 +199,27 @@ public class ElevatorFSMSystem {
 				}
 				if (input.isL4ButtonPressed()
 					&& !isTopLimitReached()
+					&& funnelSystem.isHoldingCoral()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
 				if (input.isL2ButtonPressed()
-					&& Math.abs(elevatorMotor.getPosition().getValueAsDouble()
+					&& (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
 					- Constants.ELEVATOR_TARGET_L2)
-					>= Constants.ELEVATOR_TARGET_MARGIN
+					>= Constants.ELEVATOR_TARGET_MARGIN)
+					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL2;
 				}
 				if (input.isL3ButtonPressed()
-					&& Math.abs(elevatorMotor.getPosition().getValueAsDouble()
+					&& (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
 					- Constants.ELEVATOR_TARGET_L3)
-					>= Constants.ELEVATOR_TARGET_MARGIN
+					>= Constants.ELEVATOR_TARGET_MARGIN)
+					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()) {
