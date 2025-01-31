@@ -54,7 +54,12 @@ public class Robot extends LoggedRobot {
 	private static final Object[] ELEVATOR_TESTING_PATH = new Object[] {
 		AutoCommands.ELEVATOR_GROUND_CMD,
 		AutoCommands.ELEVATOR_STATION_CMD,
-		AutoCommands.ELEVATOR_L4_CMD
+		AutoCommands.ELEVATOR_L4_CMD,
+	};
+
+	private static final Object[] FUNNEL_TESTING_PATH = new Object[] {
+		AutoCommands.FUNNEL_OPEN_CMD,
+		AutoCommands.FUNNEL_CLOSE_CMD,
 	};
 
 	/**
@@ -103,8 +108,14 @@ public class Robot extends LoggedRobot {
 		autoRoutines = new AutoRoutines(driveSystem, elevatorSystem, funnelSystem, climberSystem);
 
 		// Add auto paths
-		autoChooser.addOption("Elevator Test",
-			autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH));
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			autoChooser.addOption("Elevator Test",
+				autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH));
+		}
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			autoChooser.addOption("Funnel Test",
+				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH));
+		}
 
 		// Log auto chooser
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);

@@ -346,7 +346,9 @@ public class ElevatorFSMSystem {
 		}
 
 		@Override
-		public void end(boolean interrupted) { }
+		public void end(boolean interrupted) {
+			elevatorMotor.stopMotor();
+		}
 
 		protected void setTarget(double newTarget) {
 			this.target = newTarget;

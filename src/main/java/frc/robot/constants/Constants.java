@@ -31,7 +31,7 @@ public final class Constants {
 	public static final double CLIMBER_PID_TARGET_CLIMB = 75;
 
 	public static final double CLIMBER_COUNTS_PER_REV = 100;
-	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 0.05;
+	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 0.1;
 
 	// Motion Magic Constants
 	public static final double ELEVATOR_MM_CONSTANT_G = 0.1;

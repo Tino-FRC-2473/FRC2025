@@ -25,6 +25,8 @@ public class MotorManager {
 					+ " Velocity", motor.getLoggedVelocity());
 			SmartDashboard.putNumber("Motor " + motor.getIdentifier()
 					+ " Setpoint", motor.getLoggedSetpoint());
+			SmartDashboard.putNumber("Motor" + motor.getIdentifier()
+					+ " Voltage", motor.getLoggedVoltage());
 		}
 	}
 
