@@ -49,7 +49,9 @@ In this case `usb-0000:01:00.0-1.4` is your id.
 Make sure that the `AT_CAM_NAME` (the npy files are called `[name]matrix.npy` and `[name]dist.npy`) and `AT_NPY_DIR` (path to the folder with all of the npy files) config values are correct
 
 ## Running Calibration Code for the Apriltag
-Run the following
+Make sure all the `CALIB_` config values are set correctly. Place your images in `CALIB_INPUT_DIR` (default `calibration_images`).
+
+Run
 ```
 python calibrate.py [cam_name]
 ```
