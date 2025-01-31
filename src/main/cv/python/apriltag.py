@@ -187,6 +187,7 @@ class AprilTag():
         else:
             print("No tags detected.")
             return []
+    
 
     def calculate_camera_position_multiple(self, corners_list, marker_size, camera_matrix, dist_coeffs):
         camera_pos_weights = []
@@ -236,6 +237,84 @@ class AprilTag():
         print("No tags detected.")
         return None
 
+    def weighted_avg_1(self, image, frame_ann, ARUCO_LENGTH_METERS):
+        gray = image[:, :, 0]
+        results = self.detector.detect(gray)
+        ids = [r.tag_id for r in results]
+        corners = [r.corners for r in results]
+
+        pose_list = []
+        tvec_zs = []
+        num_tags = len(ids) if ids is not None else 0
+        print(num_tags)
+        
+        if num_tags != 0:
+            # Estimate the pose of each detected marker
+            for i in range(len(ids)):
+                # Estimate the pose
+                tvec, rvec, cvec = self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+                
+                # Append the z-component of tvec to the list
+                tvec_zs.append(tvec[2])
+                
+                pose_list.append([ids[i], cvec, tvec, rvec])
+                
+                self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+            
+            # Calculate the sum of tvec zs
+            sum_tvec_zs = sum(tvec_zs)
+            
+            # Calculate the weights
+            weights = [1 - (tvec_z / sum_tvec_zs) for tvec_z in tvec_zs]
+            
+            # Calculate the weighted average of tvec zs
+            weighted_avg_z = sum(tvec_z * weight for tvec_z, weight in zip(tvec_zs, weights)) / sum(weights)
+            
+            # Print the weighted average
+            print(f"ESTIMATION 1: {weighted_avg_z}")
+            
+            return pose_list, weighted_avg_z
+        else: 
+            return [], None
+    def weighted_avg_2(self, image, frame_ann, ARUCO_LENGTH_METERS):
+        gray = image[:, :, 0]
+        results = self.detector.detect(gray)
+        ids = [r.tag_id for r in results]
+        corners = [r.corners for r in results]
+
+        pose_list = []
+        tvec_zs = []
+        num_tags = len(ids) if ids is not None else 0
+        print(num_tags)
+        
+        if num_tags != 0:
+            # Estimate the pose of each detected marker
+            for i in range(len(ids)):
+                # Estimate the pose
+                tvec, rvec, cvec = self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+                
+                # Append the z-component of tvec to the list
+                tvec_zs.append(tvec[2])
+                
+                pose_list.append([ids[i], cvec, tvec, rvec])
+                
+                self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+            
+            # Calculate the sum of reciprocals of tvec zs
+            sum_reciprocal_tvec_zs = sum(1 / tvec_z for tvec_z in tvec_zs)
+            
+            # Calculate the weights
+            weights = [(1 / tvec_z) / sum_reciprocal_tvec_zs for tvec_z in tvec_zs]
+            
+            # Calculate the weighted average of tvec zs
+            weighted_avg_z = sum(tvec_z * weight for tvec_z, weight in zip(tvec_zs, weights))
+            
+            # Print the weighted average
+            print(f"ESTIMATION 2: {weighted_avg_z}")
+            
+            return pose_list, weighted_avg_z
+        else: 
+            return [], None
 
 
 
