@@ -3,5 +3,6 @@ venv/
 config.py
 calibration_data/
 calibration_input/
+calibration_images/
 data_collection/
 *.npy

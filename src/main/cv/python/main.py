@@ -63,7 +63,7 @@ while True:
         traceback.print_exc()
 
     frame_idx %= 5
-    if ON_RPI and frame_idx is 0:
+    if ON_RPI and frame_idx == 0:
         tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
         tagDataPub.set(tagData)
     
