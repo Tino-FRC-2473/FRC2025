@@ -6,8 +6,6 @@ package frc.robot;
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
 
-import java.util.ArrayList;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -15,14 +13,14 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 // WPILib Imports
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 // Systems
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
@@ -35,8 +33,7 @@ import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
 /**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to
+ * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation.
  */
 public class Robot extends LoggedRobot {
@@ -53,12 +50,11 @@ public class Robot extends LoggedRobot {
 
 	// Logger
 	private PowerDistribution powerLogger;
+	private NetworkTableInstance ntInstance;
 
 	private static final Object[] PATH_1 = new Object[] {
-		"S1_R2"
+		"S1_R1"
 	};
-
-	private RaspberryPi pi = new RaspberryPi();
 
 	/**
 	 * This function is run when the robot is first started up and should be used for any
@@ -69,12 +65,13 @@ public class Robot extends LoggedRobot {
 		System.out.println("robotInit");
 
 		Logger.recordMetadata("FRC2025", "Team2473"); // Set a metadata value
+		ntInstance = NetworkTableInstance.getDefault();
 
 		if (isReal()) {
 			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
 			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
 			powerLogger = new PowerDistribution(1, ModuleType.kRev);
-			// Enables power distribution logging
+				// Enables power distribution logging
 		} else if (isSimulation()) {
 			Logger.addDataReceiver(new NT4Publisher());
 		} else {
@@ -115,7 +112,6 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
-		// autoHandler.reset(AutoPath.PATH1);
 		autCommand = getAutonomousCommand();
 
 		if (autCommand != null) {
@@ -125,7 +121,6 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		// autoHandler.update();
 		CommandScheduler.getInstance().run();
 		driveSystem.updateAutonomous();
 	}
@@ -162,12 +157,12 @@ public class Robot extends LoggedRobot {
 			elevatorSystem.update(input);
 		}
 		MotorManager.update();
+		ntInstance.flush();
 	}
 
 	@Override
 	public void disabledInit() {
 		System.out.println("-------- Disabled Init --------");
-		Logger.end(); // Stop logging!
 		if (powerLogger != null) {
 			powerLogger.close();
 		}
@@ -185,20 +180,15 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testPeriodic() {
-		ArrayList<AprilTag> tags = pi.getAprilTags();
-		for (AprilTag tag : tags) {
-			System.out.println(tag);
-		}
-		if (tags.size() == 0) {
-			System.out.println("No tags detected");
-		}
+
 	}
 
-	/* Simulation mode handlers, only used for simulation testing */
+	/* Simulation mode handlers, only used for simulation testing  */
 	@Override
 	public void simulationInit() {
 		System.out.println("-------- Simulation Init --------");
 		// don't preform simulated hardware init here, robotInit() still runs during sim
+		SimulatedArena.getInstance().resetFieldForAuto();
 	}
 
 	@Override

@@ -19,7 +19,6 @@ public class TeleopInput {
 	// Input objects
 	private PS4Controller mechController;
 	private PS4Controller driveController;
-
 	/* ======================== Constructor ======================== */
 	/**
 	 * Create a TeleopInput and register input devices. Note that while inputs
@@ -33,7 +32,6 @@ public class TeleopInput {
 
 	/* ======================== Public methods ======================== */
 	// Getter methods for fetch input values should be defined here.
-	// Method names should be descriptive of the behavior, so the
 	// control mapping is hidden from other classes.
 
 	/* ------------------------ Drive Controller ------------------------ */
@@ -52,11 +50,18 @@ public class TeleopInput {
 		return driveController.getLeftY();
 	}
 	/**
-	 * Get Y axis of Drive Controller.
+	 * Get X axis of Drive Controller right.
 	 * @return Axis value
 	 */
 	public double getDriveRightJoystickX() {
 		return driveController.getRightX();
+	}
+	/**
+	 * Get Y axis of Drive Controller right.
+	 * @return Axis value
+	 */
+	public double getDriveRightJoystickY() {
+		return driveController.getRightY();
 	}
 	/**
 	 * Get Triangle Button Pressed for Drive Controller.

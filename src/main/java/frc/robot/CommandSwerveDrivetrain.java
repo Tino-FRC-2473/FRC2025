@@ -10,7 +10,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import choreo.trajectory.SwerveSample;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -46,12 +45,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	private final PIDController autoYPid = new PIDController(5, 0, 0);
 	private final PIDController autoHeadingPid = new PIDController(0.75, 0, 0);
 
-	private final SwerveDrivePoseEstimator swerveDrivePoseEstimator =
-		new SwerveDrivePoseEstimator(
-			getKinematics(),
-			getPigeon2().getRotation2d(),
-			getModulePositions(), new Pose2d());
-
 	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
 	private Notifier simNotifier;
 	/**
@@ -71,7 +64,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		);
 
 		if (Robot.isSimulation()) {
-			setupSimulation();
+			setupSimulation(getState().Pose);
 		}
 		// setupPathplanner();
 	}
@@ -131,7 +124,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		return pos;
 	}
 
-	private void setupSimulation() {
+	private void setupSimulation(Pose2d startingPose) {
 		mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
 			SimSwerveDrivetrainConfig.getDefault()
 				.withModuleLocations(getModuleLocations())
@@ -143,6 +136,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 						TunerConstants.BACK_LEFT,
 						TunerConstants.BACK_RIGHT
 				)
+				.withStartingPose(startingPose)
 			);
 	}
 

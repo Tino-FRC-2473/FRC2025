@@ -12,14 +12,10 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
 // WPI Imports
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 
-import static edu.wpi.first.units.Units.Feet;
 // Units
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
@@ -81,13 +77,7 @@ public class MapleSimSwerveDrivetrain {
 
 		mapleSimDrive = new SwerveDriveSimulation(
 			simulationConfig,
-			new Pose2d(
-				new Translation2d(
-					Feet.of(SimConstants.STARTING_POS_X_FT),
-					Feet.of(SimConstants.STARTING_POS_Y_FT)
-				),
-				new Rotation2d()
-			)
+			config.getStartingPose()
 		);
 
 		SwerveModuleSimulation[] moduleSimulations = mapleSimDrive.getModules();

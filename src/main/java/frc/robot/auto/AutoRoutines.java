@@ -1,11 +1,13 @@
 package frc.robot.auto;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -45,7 +47,7 @@ public class AutoRoutines {
 		commands = new HashMap<AutoCommands, Command>();
 
 		setupCommands();
-		generateSysRoutineMap("src/main/deploy");
+		generateSysRoutineMap(new File(Filesystem.getDeployDirectory(), "choreo"));
 	}
 
 	/**
@@ -139,10 +141,7 @@ public class AutoRoutines {
 		return sysRoutine;
 	}
 
-	// This function works
-	private void generateSysRoutineMap(String deployFolder) {
-		File deployDir = new File(deployFolder + "/choreo");
-
+	private void generateSysRoutineMap(File deployDir) {
 		for (File choreoFile : deployDir.listFiles()) {
 			if (choreoFile.getName().endsWith(".traj")) {
 				paths.put(choreoFile.getName()
@@ -158,7 +157,7 @@ public class AutoRoutines {
 			@Override
 			public boolean isFinished() {
 				currentAutoState = cAutoState;
-				SmartDashboard.putString("Auto State", currentAutoState.toString());
+				SmartDashboard.putString("Auto State", Arrays.toString(currentAutoState));
 				return true;
 			}
 		}
@@ -166,13 +165,12 @@ public class AutoRoutines {
 		return new AutoLogCommand();
 	}
 
-	// This function works
 	private void setupCommands() {
 		setUpAlignmentCommands();
 
-		setUpElevatorCommands();
+		//setUpElevatorCommands();
 
-		setUpFunnelCommands();
+		//setUpFunnelCommands();
 
 		/* ---- All Drive Commands ---- */
 		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
@@ -306,24 +304,24 @@ public class AutoRoutines {
 		);
 	}
 
-	private void setUpElevatorCommands() {
-		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
-			elevatorSystem.elevatorGroundCommand()
-		);
-		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
-			elevatorSystem.elevatorStationCommand()
-		);
-		commands.put(AutoCommands.ELEVATOR_L4_CMD,
-			elevatorSystem.elevatorL4Command()
-		);
-	}
+	// private void setUpElevatorCommands() {
+	// 	commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
+	// 		elevatorSystem.elevatorGroundCommand()
+	// 	);
+	// 	commands.put(AutoCommands.ELEVATOR_STATION_CMD,
+	// 		elevatorSystem.elevatorStationCommand()
+	// 	);
+	// 	commands.put(AutoCommands.ELEVATOR_L4_CMD,
+	// 		elevatorSystem.elevatorL4Command()
+	// 	);
+	// }
 
-	private void setUpFunnelCommands() {
-		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
-			funnelSystem.openFunnelCommand()
-		);
-		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
-			funnelSystem.closeFunnelCommand()
-		);
-	}
+	// private void setUpFunnelCommands() {
+	// 	commands.put(AutoCommands.FUNNEL_OPEN_CMD,
+	// 		funnelSystem.openFunnelCommand()
+	// 	);
+	// 	commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
+	// 		funnelSystem.closeFunnelCommand()
+	// 	);
+	// }
 }

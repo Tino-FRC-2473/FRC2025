@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
-import frc.robot.systems.AutoHandlerSystem.AutoFSMState;
 import frc.robot.HardwareMap;
 
 // WPILib Imports
@@ -116,24 +115,6 @@ public class FunnelFSMSystem {
 			reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
 
 		SmartDashboard.putBoolean("Holding Coral?", coralBreakBeam.get());
-	}
-
-	/**
-	 * Performs specific action based on the autoState passed in.
-	 * @param autoState autoState that the subsystem executes.
-	 * @return if the action carried out in this state has finished executing
-	 */
-	public boolean updateAutonomous(AutoFSMState autoState) {
-		switch (autoState) {
-			case STATE1:
-				return handleAutoState1();
-			case STATE2:
-				return handleAutoState2();
-			case STATE3:
-				return handleAutoState3();
-			default:
-				return true;
-		}
 	}
 
 	/* ======================== Private methods ======================== */
@@ -244,29 +225,5 @@ public class FunnelFSMSystem {
 	 */
 	public Command closeFunnelCommand() {
 		return new CloseFunnelCommand();
-	}
-
-	/**
-	 * Performs action for auto STATE1.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState1() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE2.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState2() {
-		return true;
-	}
-
-	/**
-	 * Performs action for auto STATE3.
-	 * @return if the action carried out has finished executing
-	 */
-	private boolean handleAutoState3() {
-		return true;
 	}
 }
