@@ -35,6 +35,7 @@ public final class HardwareMap {
 
 	/**
 	 * Check if elevator hardware is available to the RoboRIO.
+	 * Constructor requires funnel hardware to be available as well.
 	 * @return true if elevator hardware is present
 	 */
 	public static boolean isElevatorHardwarePresent() {

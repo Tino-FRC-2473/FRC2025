@@ -96,12 +96,9 @@ public class Robot extends LoggedRobot {
 		}
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
-		if (HardwareMap.isFunnelHardwarePresent()) {
+		if (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
-		}
-
-		if (HardwareMap.isElevatorHardwarePresent()) {
-			elevatorSystem = new ElevatorFSMSystem();
+			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
 		if (HardwareMap.isClimberHardwarePresent()) {
