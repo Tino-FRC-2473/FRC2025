@@ -25,7 +25,7 @@ public final class Constants {
 	public static final double ELEVATOR_TARGET_L3 = 78;
 	public static final double ELEVATOR_TARGET_L2 = 30;
 	public static final double ELEVATOR_TARGET_GROUND = 0;
-	public static final double ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE = 10; // 10 not tested YET
+	public static final double ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE = 15;
 
 	public static final double ELEVATOR_POWER = 0.8;
 	public static final double ELEVATOR_REDUCED_POWER = 0.5;
@@ -37,10 +37,16 @@ public final class Constants {
 	 * Trial 1: 0.7/0.4/20. Funnel servo screw came loose, applied loctite
 	 * Trial 2: 0.8/0.5/15. Funnel servo managed to screw itself loose
 	 * Trial 3: 0.8/0.5/15. Same servo issue. Hard stop not reached. Still able to score.
-	 * Trial 4: 0.8/0.5/10.
+	 * Trial 4: MANUAL. Works fine but break beams are getting hit.
+	 * Trial 5: 0.8/0.5/10. Stops WAYYY too late going up.
+	 * Trial 6: 0.8/0.5/15. Stopped at start due to servo horn hitting coral too much.
+	 * Trial 7: 0.8/0.5/15. Taped polyethelene piece to horn to mitigate. Accidentally lifted early.
+	 * (after T7) servo horn became loose, looking into ways to share break beam
+	 * CONSTANTS FINALIZED
+	 * Trial 8: lorem ipsum
 	 */
 
-	public static final double ELEVATOR_MANUAL_SCALE = 0.7;
+	public static final double ELEVATOR_MANUAL_SCALE = 0.8;
 	public static final double ELEVATOR_TARGET_MARGIN = 5;
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;

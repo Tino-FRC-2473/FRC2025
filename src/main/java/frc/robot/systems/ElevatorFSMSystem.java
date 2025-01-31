@@ -308,6 +308,8 @@ public class ElevatorFSMSystem {
 		elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
 	}
 
+	// TODO: in L2-L4 states, do not allo raise unless we are holding coral.
+
 	/**
 	 * Handle behavior in GROUND.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
