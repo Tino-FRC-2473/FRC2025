@@ -169,9 +169,10 @@ public class FunnelFSMSystem {
 
 	/**
 	 * Getter for the result of the funnel's break beam.
+	 * Public for access to elevator.
 	 * @return whether the limit is reached
 	 */
-	private boolean isHoldingCoral() {
+	public boolean isHoldingCoral() {
 		if (Robot.isSimulation()) {
 			return false;
 		}

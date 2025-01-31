@@ -45,14 +45,17 @@ public class ElevatorFSMSystem {
 	private DigitalInput groundLimitSwitch;
 	private DigitalInput topLimitSwitch;
 
+	private FunnelFSMSystem funnelSystem; // only used for break beam
+
 	/* ======================== Constructor ======================== */
 
 	/**
 	 * Create ElevatorFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
+	 * @param funnelFSMSystem the funnel FSM.
 	 */
-	public ElevatorFSMSystem() {
+	public ElevatorFSMSystem(FunnelFSMSystem funnelFSMSystem) {
 		// Perform hardware init
 		elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
 
@@ -89,6 +92,8 @@ public class ElevatorFSMSystem {
 		// Reset state machine
 
 		elevatorMotor.setPosition(Constants.ELEVATOR_TARGET_GROUND);
+
+		this.funnelSystem = funnelFSMSystem;
 
 		reset();
 	}
