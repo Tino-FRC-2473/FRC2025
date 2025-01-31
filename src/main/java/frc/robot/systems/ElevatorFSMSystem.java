@@ -390,7 +390,36 @@ public class ElevatorFSMSystem {
 		ElevatorCommand() { }
 
 		@Override
-		public void execute() { }
+		public void execute() {
+			if (isBottomLimitReached()) {
+				elevatorMotor.setPosition(Constants.ELEVATOR_TARGET_GROUND);
+				if (elevatorMotor.get() < 0) {
+					elevatorMotor.set(0);
+					return;
+				}
+			}
+
+			if (isTopLimitReached()) {
+				if (elevatorMotor.get() > Constants.ELEVATOR_TARGET_L4) {
+					elevatorMotor.set(0);
+					return;
+				}
+			}
+
+			double pos = elevatorMotor.getPosition().getValueAsDouble();
+			if (target - pos < -Constants.ELEVATOR_DEADBAND) {
+				elevatorMotor.set(-Constants.ELEVATOR_POWER);
+			} else if (target - pos > Constants.ELEVATOR_DEADBAND) {
+				if (target > Constants.ELEVATOR_TARGET_L4
+					- Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
+					elevatorMotor.set(Constants.ELEVATOR_REDUCED_POWER);
+				} else {
+					elevatorMotor.set(Constants.ELEVATOR_POWER);
+				}
+			} else {
+				elevatorMotor.set(0);
+			}
+		}
 
 		@Override
 		public boolean isFinished() {
