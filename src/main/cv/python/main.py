@@ -72,7 +72,7 @@ while True:
 
     frame_idx %= 5
     if ON_RPI and frame_idx == 0:
-        tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
+        tagDataPub = tagDataPub.publish()
         tagDataPub.set(tagData)
     
     frame_idx += 1
