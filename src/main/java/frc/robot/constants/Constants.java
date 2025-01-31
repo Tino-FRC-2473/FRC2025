@@ -20,13 +20,25 @@ public final class Constants {
 
 	public static final double ELEVATOR_DEADBAND = 0.1;
 
-	public static final double ELEVATOR_UPPER_THRESHOLD = 145.16; // DO NOT drive above this!
-	public static final double ELEVATOR_TARGET_L4 = 145.16;
-	public static final double ELEVATOR_TARGET_L3 = 116;
-	public static final double ELEVATOR_TARGET_L2 = 66;
+	public static final double ELEVATOR_UPPER_THRESHOLD = 146; // DO NOT drive above this!
+	public static final double ELEVATOR_TARGET_L4 = 146;
+	public static final double ELEVATOR_TARGET_L3 = 78;
+	public static final double ELEVATOR_TARGET_L2 = 30;
 	public static final double ELEVATOR_TARGET_GROUND = 0;
-	public static final double ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE = 20;
+	public static final double ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE = 10; // 10 not tested YET
 
+	public static final double ELEVATOR_POWER = 0.8;
+	public static final double ELEVATOR_REDUCED_POWER = 0.5;
+
+	/**
+	 * 25 reps trials.
+	 * Format: POWER/REDUCED POWER/SLOWDOWN DISTANCE
+	 *
+	 * Trial 1: 0.7/0.4/20. Funnel servo screw came loose, applied loctite
+	 * Trial 2: 0.8/0.5/15. Funnel servo managed to screw itself loose
+	 * Trial 3: 0.8/0.5/15. Same servo issue. Hard stop not reached. Still able to score.
+	 * Trial 4: 0.8/0.5/10.
+	 */
 
 	public static final double ELEVATOR_MANUAL_SCALE = 0.7;
 	public static final double ELEVATOR_TARGET_MARGIN = 5;
@@ -37,9 +49,6 @@ public final class Constants {
 
 	public static final double CLIMBER_COUNTS_PER_REV = 100;
 	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 0.05;
-
-	public static final double ELEVATOR_POWER = 0.7;
-	public static final double ELEVATOR_REDUCED_POWER = 0.4;
 
 
 	public static final double CLIMB_POWER = 0.2;

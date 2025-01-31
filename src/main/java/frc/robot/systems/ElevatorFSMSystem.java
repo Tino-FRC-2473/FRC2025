@@ -330,7 +330,7 @@ public class ElevatorFSMSystem {
 			elevatorMotor.set(Constants.ELEVATOR_POWER);
 		} else if (elevatorMotor.getPosition().getValueAsDouble()
 			> Constants.ELEVATOR_TARGET_L2) {
-			elevatorMotor.set(-Constants.ELEVATOR_POWER);
+			elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
 		}
 	}
 
@@ -345,7 +345,7 @@ public class ElevatorFSMSystem {
 			elevatorMotor.set(Constants.ELEVATOR_POWER);
 		} else if (elevatorMotor.getPosition().getValueAsDouble()
 			> Constants.ELEVATOR_TARGET_L3) {
-			elevatorMotor.set(-Constants.ELEVATOR_POWER);
+			elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
 		}
 	}
 
