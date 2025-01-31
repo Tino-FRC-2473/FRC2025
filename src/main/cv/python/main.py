@@ -1,5 +1,6 @@
 from config import *
 from visionInput import VisionInput, find_camera_index
+from data_collector import DataCollector
 from apriltag import AprilTag
 import time
 import cv2
@@ -22,30 +23,38 @@ if ON_RPI:
 else:
     index = AT_CAM_INDEX
 
-input = VisionInput(AT_FOV, AT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, index)
+input = VisionInput(AT_FOV, AT_INPUT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, index)
 
 tag_module = AprilTag()
-ARUCO_LENGTH_METERS = 0.165
-NUM_TAGS = 22
 tagData = []
 
 frame_idx = 0
-table = inst.getTable("datatable")
+
+if ON_RPI:
+    table = inst.getTable("datatable")
+
+if DATA_COLLECTION_ENABLED:
+    # check whether resolution is correct
+    initial_frame = input.getFrame()
+    data_collector = DataCollector(initial_frame.shape)
 
 while True:
-    p = time.time()
+    loop_start = time.time()
     try: 
-        frame = input.getFrame()
-        print("framesize", frame.shape)
-        annotated_frame = frame.copy()
-        tagData = tag_module.estimate_3d_pose(frame, annotated_frame, ARUCO_LENGTH_METERS)
-        annotated_frame = cv2.resize(annotated_frame, (320,240))
+        initial_frame = input.getFrame()
+        print("framesize", initial_frame.shape)
+        annotated_frame = initial_frame.copy()
+        tagData = tag_module.estimate_3d_pose(initial_frame, annotated_frame, ARUCO_LENGTH_METERS)
+        annotated_frame = cv2.resize(annotated_frame, AT_RESIZED_RES)
         if(tagData is None):
             print("tagData none")
         print("tagData.items:", tagData)
+
+        if DATA_COLLECTION_ENABLED:
+            data_collector.write_frame(initial_frame, annotated_frame, tagData)
         
         if ON_RPI:
-            framePub.set(frame.sum())
+            framePub.set(initial_frame.sum())
             tagDataPub.set(tagData)
             outputStreamPub.set(annotated_frame.flatten().tolist())
         else:
@@ -68,4 +77,4 @@ while True:
         tagDataPub.set(tagData)
     
     frame_idx += 1
-    print('Loop time: ' + str(time.time()-p))
+    print('Loop time: ' + str(time.time()-loop_start))

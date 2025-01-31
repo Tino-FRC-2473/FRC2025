@@ -46,16 +46,13 @@ Arducam OV9281 USB Camera: Ardu (usb-0000:01:00.0-1.4):
 In this case `usb-0000:01:00.0-1.4` is your id.
 
 ## Running AprilTag Code
-```
-Make sure that self.camera_matrix and self.dist_coffes reference the calibration data files
-```
-Change CALIB_DIR in config.py to be the folder that contains the version of the code locally on yoru computer
-```
-Change AT_CAM_NAME to the name of the camera you are using and the version of the calibration data you are saving if that is applicable
-```
-
+Make sure that the `AT_CAM_NAME` (the npy files are called `[name]matrix.npy` and `[name]dist.npy`) and `AT_NPY_DIR` (path to the folder with all of the npy files) config values are correct
 
 ## Running Calibration Code for the Apriltag
+Run the following
+```
+python calibrate.py [cam_name]
+```
+replacing `[cam_name]` with the name of the files you want to calibrate.
 
-applies if you are trying to get calibration data for the apriltag camera 
-Make sure to go to apriltag.py and comment our the self.dist_coeffs and self.camera_matrix as you can't load calibration files if you are still trying to collect calibration data and save it to certain files
+To enable visualization, add the `-v` option. To use a colored camera, add the `-c` option.
