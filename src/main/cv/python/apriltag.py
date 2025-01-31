@@ -144,9 +144,50 @@ class AprilTag():
                 return pose_list
             else: 
                 return []
-            
     
-    
+    def estimate_3d_pose_v2(self, image, frame_ann, ARUCO_LENGTH_METERS):
+        gray = image[:, :, 0]
+        results = self.detector.detect(gray)
+        ids = [r.tag_id for r in results]
+        corners = [r.corners for r in results]
+
+        pose_list = []
+        num_tags = len(ids) if ids is not None else 0
+        print(f"Number of tags detected: {num_tags}")
+
+        if num_tags != 0:
+            z_values = []  # List to store z values of tvecs
+            # Estimate the pose of each detected marker
+            for i in range(len(ids)):
+                # Estimate the pose
+                tvec, rvec, cvec = self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+                
+                # Append the pose to the pose_list
+                pose_list.append([ids[i], cvec, tvec, rvec])
+
+                # Draw the axis on the image
+                self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+
+                # Extract and store the z value of tvec
+                z_values.append(tvec[2])  # tvec[2] is the z component
+
+            # Print all z values
+            print("Z values of tvecs detected:")
+            for z in z_values:
+                print(z)
+
+            # Calculate and print the average of z values
+            if z_values:
+                average_z = sum(z_values) / len(z_values)
+                print(f"Average Z value: {average_z}")
+            else:
+                print("No Z values to calculate average.")
+
+            return pose_list
+        else:
+            print("No tags detected.")
+            return []
+
     def calculate_camera_position_multiple(self, corners_list, marker_size, camera_matrix, dist_coeffs):
         camera_pos_weights = []
         camera_pos_biases = []
@@ -187,9 +228,6 @@ class AprilTag():
                 camera_pos_biases.append(d_n / d_j_s)
             
             avg_camera_pos = np.average(camera_pos_weights, camera_pos_biases)
-
-
-
 
             print(f"Number of detected tags: {num_detected_tags}")
             print(f"Estimated camera position: {avg_camera_pos}")
