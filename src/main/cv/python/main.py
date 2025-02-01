@@ -67,7 +67,7 @@ while True:
         print("keyboard interrupt")
         framePub.close()
         tagDataPub.close()
-        outputStreamPub 
+        outputStreamPub.close()
         input.close()
         break
     except Exception as error:
