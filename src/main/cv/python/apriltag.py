@@ -22,8 +22,6 @@ class AprilTag():
         self.detectedIDs = []
 
 
-        pass
-
     def draw_axis_on_image(self, image, camera_matrix, dist_coeffs, rvec, tvec,cvec, size=1):
         try:
             # Define axis length
@@ -99,7 +97,6 @@ class AprilTag():
                     
                     print("tvec: ", tvec)
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
-                self.detectedAprilTags = pose_list
 
             return pose_list
     
