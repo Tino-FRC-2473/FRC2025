@@ -14,6 +14,7 @@ AT_INPUT_RES = (640, 380) # If this resolution is not supported by the camera, i
 AT_RESIZED_RES = (320, 240)
 AT_CAM_HEIGHT = 0.4
 AT_CAM_ANGLE = -15 # degrees
+ARUCO_LENGTH_METERS = 0.165
 
 NETWORKTABLES_TEAM = 2473
 
@@ -23,7 +24,6 @@ CALIB_INPUT_DIR = 'calibration_images' # relative to python files
 CALIB_OUTPUT_DIR = AT_NPY_DIR # relative to python files
 CALIB_WIDTH = 6
 CALIB_HEIGHT = 4
-ARUCO_LENGTH_METERS = 0.025
 
 DATA_COLLECTION_ENABLED = True
 DATA_COLLECTION_DIR = 'data_collection' # relative to python files
