@@ -13,16 +13,16 @@ public final class HardwareMap {
 	public static final int FUNNEL_TOF_ID = 13; // TBD
 
 	// rio - dio ports
-	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT = 0; // not confirmed
-	public static final int ELEVATOR_TOP_LIMIT_SWITCH_DIO_PORT = 1; // not confirmed
+	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT = 0; // FINAL
+	public static final int ELEVATOR_TOP_LIMIT_SWITCH_DIO_PORT = 1; // FINAL
 
-	public static final int FUNNEL_BREAK_BEAM_DIO_PORT = 3; // TBD
+	public static final int FUNNEL_BREAK_BEAM_DIO_PORT = 2; // FINAL
 
 	public static final int CLIMBER_LIMIT_SWITCH_DIO_PORT = 5; // for testing only
 
 	// rio - pwm ports
-	public static final int FUNNEL_SERVO_PWM_PORT = 3; // not confirmed with hardware
-	public static final int LED_STRIP_PWM_PORT = 8; // TBD
+	public static final int FUNNEL_SERVO_PWM_PORT = 1; // FINAL
+	public static final int LED_STRIP_PWM_PORT = 9; // TBD
 
 	/* ===== Hardware Availability ===== */
 	/**
@@ -35,6 +35,7 @@ public final class HardwareMap {
 
 	/**
 	 * Check if elevator hardware is available to the RoboRIO.
+	 * Constructor requires funnel hardware to be available as well.
 	 * @return true if elevator hardware is present
 	 */
 	public static boolean isElevatorHardwarePresent() {

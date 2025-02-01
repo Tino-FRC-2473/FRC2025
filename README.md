@@ -5,8 +5,9 @@ This project will use the FSMSystem framework, representing each subsystem as a 
 
 FSM diagrams for each subsystem are located in the [doc](doc) folder.
 * [Drive FSM](doc/DriveFSM.md)
-* [Mech 1 FSM](doc/Mech1FSM.md)
-* [Mech 2 FSM](doc/Mech2FSM.md)
+* [Elevator FSM](doc/ElevatorFSM.md)
+* [Funnel FSM](doc/FunnelFSM.md)
+* [Climber FSM](doc/ClimberFSM.md)
 
 [![Javadoc](https://github.com/Tino-FRC-2473/FRC2025/actions/workflows/javadoc.yml/badge.svg)](https://github.com/Tino-FRC-2473/FRC2025/actions/workflows/javadoc.yml)
 
