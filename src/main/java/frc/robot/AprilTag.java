@@ -10,14 +10,14 @@ public class AprilTag {
 	private String camera;
 	private int tagID;
 
+	/* This is where the camera is positioned relative to the tag. */
+	private Translation3d cameraVector;
+
 	/* Describes the orentation of the marker relative to the camera. */
 	private Rotation3d rotationalVector;
 
 	/* This is where the tag is positioned relative to the camera. */
 	private Translation3d translationalVector;
-
-	/* This is where the camera is positioned relative to the tag. */
-	private Translation3d cameraVector;
 
 	/**
 	* Constructor for the AprilTag class.
@@ -26,25 +26,25 @@ public class AprilTag {
 	*          The ID of the tag
 	* @param   camName
 	*          The name of the camera
+	* @param   camVector
+	*          The position of the camera relative to the tag
 	* @param   transVector
 	*          The position of the tag relative to the camera
 	* @param   rotVector
 	*          The orientation of the tag relative to the camera
-	* @param   camVector
-	*          The position of the camera relative to the tag
 	*/
 	public AprilTag(
 		int id,
 		String camName,
+		Translation3d camVector,
 		Translation3d transVector,
-		Rotation3d rotVector
-		Translation3d camVector) {
+		Rotation3d rotVector) {
 
 		this.tagID = id;
 		this.camera = camName;
+		this.cameraVector = camVector;
 		this.rotationalVector = rotVector;
 		this.translationalVector = transVector;
-		this.cameraVector = camVector;
 	}
 
 	/**
