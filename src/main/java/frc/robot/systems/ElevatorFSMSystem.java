@@ -313,10 +313,14 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleL2State(TeleopInput input) {
 		if (elevatorMotor.getPosition().getValueAsDouble()
-			< Constants.ELEVATOR_TARGET_L2) {
+			< Constants.ELEVATOR_TARGET_L2
+			//< -Constants.ELEVATOR_TARGET_MARGIN
+		) {
 			elevatorMotor.set(Constants.ELEVATOR_POWER);
 		} else if (elevatorMotor.getPosition().getValueAsDouble()
-			> Constants.ELEVATOR_TARGET_L2) {
+			> Constants.ELEVATOR_TARGET_L2
+			//> Constants.ELEVATOR_TARGET_MARGIN
+		) {
 			elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
 		}
 	}
@@ -328,10 +332,14 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleL3State(TeleopInput input) {
 		if (elevatorMotor.getPosition().getValueAsDouble()
-			< Constants.ELEVATOR_TARGET_L3) {
+			< Constants.ELEVATOR_TARGET_L3
+			//< -Constants.ELEVATOR_TARGET_MARGIN)
+		) {
 			elevatorMotor.set(Constants.ELEVATOR_POWER);
 		} else if (elevatorMotor.getPosition().getValueAsDouble()
-			> Constants.ELEVATOR_TARGET_L3) {
+			> Constants.ELEVATOR_TARGET_L3
+			//> Constants.ELEVATOR_TARGET_MARGIN
+		) {
 			elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
 		}
 	}

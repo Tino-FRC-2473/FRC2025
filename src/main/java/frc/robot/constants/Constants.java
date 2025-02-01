@@ -6,8 +6,8 @@ public final class Constants {
 
 	// funnel constants
 
-	public static final double FUNNEL_CLOSED_POS_ROTS = 0;
-	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0.4;
+	public static final double FUNNEL_CLOSED_POS_ROTS = 0.3;
+	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0.7;
 
 	public static final double REEF_DISTANCE_THRESHOLD_MM = 100; // millimeters
 	public static final double FUNNEL_CLOSE_TIME_SECS = 0.5; // seconds
