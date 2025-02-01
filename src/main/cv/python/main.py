@@ -73,7 +73,7 @@ while True:
 
     frame_idx %= 5
     if ON_RPI and frame_idx == 0:
-        tagDataPub = tagDataPub.publish()
+        tagDataPub = tagDataPub.set()
         tagDataPub.set(tagData)
     
     frame_idx += 1
