@@ -144,6 +144,9 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void teleopPeriodic() {
+
+		System.out.println("Heap used: " + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1_048_576) + " MB");
+
 		if (driveSystem != null) {
 			driveSystem.update(input);
 		}

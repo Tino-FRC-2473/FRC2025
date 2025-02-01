@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PubSubOption;
 import frc.robot.constants.VisionConstants;
 
 /**
@@ -22,7 +23,7 @@ public class RaspberryPI {
 	*/
 	public RaspberryPI() {
 		table = NetworkTableInstance.getDefault().getTable("datatable");
-		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
+		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {}, PubSubOption.keepDuplicates(false));
 	}
 
 	/**
@@ -85,7 +86,9 @@ public class RaspberryPI {
 			.findFirst()
 			.orElse(null);
 		var endTime = System.currentTimeMillis();
-		System.out.println("time spent in tag code: " + (endTime - startTime));
+
+		System.out.println("Vision/getAprilTagsWithID() time " + (endTime - startTime));
+
 		return result;
 	}
 }

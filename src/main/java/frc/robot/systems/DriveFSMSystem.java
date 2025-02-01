@@ -5,6 +5,7 @@ package frc.robot.systems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -12,6 +13,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -234,7 +237,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double rotXComp = -MathUtil.applyDeadband(
 			input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-			);
+			) * MAX_SPEED / 2;
 			// Drive left with negative X (left) ^
 
 		if (rotXComp != 0) {
@@ -280,47 +283,64 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		AprilTag tag = rpi.getAprilTagWithID(id);
 
-		System.out.println("Current Pose X" + drivetrain.getState().Pose.getX());
-		System.out.println("Current Pose Y" + drivetrain.getState().Pose.getY());
-
 		if (tagAlignmentPose != null) {
 			System.out.println("Tag Alignment Pose X " + tagAlignmentPose.getX());
 			System.out.println("Tag Alignment Pose Y " + tagAlignmentPose.getY());
 		}
-
 
 		if (tag != null && !tagPositionAligned) {
 
 			Pose2d currPose = drivetrain.getState().Pose;
 
 			// X is forward on robot Pose, z is forward on cv side
-			double rpiX = currPose.getX() + tag.getZ();
+			double rpiX = tag.getZ();
 			// Y is side-to-side on robotPose, x is side-to-side on cv side
-			double rpiY = currPose.getY() + tag.getX();
+			double rpiY = tag.getX();
 			// using rvec to determine the absolute rotation of the apriltag.
-			double rpiTheta = currPose.getRotation().getRadians() + tag.getYaw();
+			double rpiTheta = tag.getYaw();
 
-			Pose2d sendPose = new Pose2d(
-				rpiX,
-				rpiY,
-				new Rotation2d(rpiTheta)
+			double xSpeed = Math.abs(rpiX) > VisionConstants.X_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					rpiX / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				) : 0;
+			double ySpeed = Math.abs(rpiY) > VisionConstants.Y_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					rpiY / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				) : 0;
+			double aSpeed = Math.abs(rpiTheta) > VisionConstants.ROT_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					rpiTheta / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+					VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+				) : 0;
+
+			System.out.println("DriveToPose/X Speed " + xSpeed);
+			System.out.println("DriveToPose/Y Speed " + ySpeed);
+			System.out.println("DriveToPose/A Speed " + aSpeed);
+
+			drivetrain.setControl(
+				drive.withVelocityX(xSpeed * MAX_SPEED)
+				.withVelocityY(-ySpeed * MAX_SPEED)
+				.withRotationalRate(0/*aSpeed * MAX_SPEED * 2*/)//aSpeed * MAX_SPEED)
 			);
 
-			tagPositionAligned = driveToPose(sendPose);
-			tagAlignmentPose = sendPose;
-
+			tagPositionAligned = (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
 			// Logger.recordOutput("Tag Alignment Pose X", tagAlignmentPose.getX());
 			// Logger.recordOutput("Tag Alignment Pose Y",tagAlignmentPose.getY());
 		} else {
-			if (tagPositionAligned) {
-				tagAlignmentPose = null;
-				drivetrain.setControl(brake);
-			}
+			// if (tagPositionAligned) {
+			// 	tagAlignmentPose = null;
+			drivetrain.setControl(brake);
+			//}
 
-			if (tagAlignmentPose != null) {
-				System.out.println("back up alignment reached");
-				tagPositionAligned = driveToPose(tagAlignmentPose);
-			}
+			// if (tagAlignmentPose != null) {
+			// 	System.out.println("back up alignment reached");
+			// 	tagPositionAligned = driveToPose(tagAlignmentPose);
+			// }
 		}
 	}
 
@@ -331,15 +351,19 @@ public class DriveFSMSystem extends SubsystemBase {
 		double yDiff = targetPose.getY() - pose.getY();
 		double aDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
 
-		System.out.println(
-			"XDIFF" + xDiff
-		);
-		System.out.println(
-			"YDIFF" + yDiff
-		);
-		System.out.println(
-			"ADIFF" + aDiff
-		);
+		// System.out.println(
+		// 	"XDIFF" + xDiff
+		// );
+		// System.out.println(
+		// 	"YDIFF" + yDiff
+		// );
+		// System.out.println(
+		// 	"ADIFF" + aDiff
+		// );
+
+		System.out.println("DriveToPose/XDiff " + xDiff);
+		System.out.println("DriveToPose/YDiff " + yDiff);
+		System.out.println("DriveToPose/ADiff " + aDiff);
 
 		Logger.recordOutput("TARGET POSE", targetPose);
 
@@ -362,15 +386,14 @@ public class DriveFSMSystem extends SubsystemBase {
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
 			) : 0;
 
-		Logger.recordOutput("DriveToPose/X Speed", xSpeed);
-		Logger.recordOutput("DriveToPose/Y Speed", ySpeed);
-		Logger.recordOutput("DriveToPose/A Speed", aSpeed);
+		System.out.println("DriveToPose/X Speed " + xSpeed);
+		System.out.println("DriveToPose/Y Speed " + ySpeed);
+		System.out.println("DriveToPose/A Speed " + aSpeed);
 
 		drivetrain.setControl(
-			driveFacingAngle.withVelocityX(xSpeed * MAX_SPEED)
+			drive.withVelocityX(xSpeed * MAX_SPEED)
 			.withVelocityY(-ySpeed * MAX_SPEED)
-			.withTargetRateFeedforward(-aSpeed * MAX_ANGULAR_RATE)
-			.withTargetDirection(targetPose.getRotation())
+			.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
 		);
 
 		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
@@ -440,5 +463,36 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public MapleSimSwerveDrivetrain getMapleSimDrivetrain() {
 		return drivetrain.getSimDrivetrain();
+	}
+
+	/**
+	 * Log the april tag.
+	 * @param tag the april tag to log
+	 * @param robotPose optional robot pose to also log field relative poses
+	 */
+	public void logAprilTag(AprilTag tag, Optional<Pose2d> robotPose) {
+		var prefix = new AtomicReference<>(
+				"Vision/AprilTags/Tag/CamRelative " + tag.getTagID() + "/"
+		);
+
+		Logger.recordOutput(prefix + "ID", tag.getTagID());
+
+		// Camera Relative
+		Logger.recordOutput(prefix + "X Pose", tag.getX());
+		Logger.recordOutput(prefix + "Y Pose", tag.getY());
+		Logger.recordOutput(prefix + "Z Pose", tag.getZ());
+
+		Logger.recordOutput(prefix + "Yaw", tag.getYaw());
+		Logger.recordOutput(prefix + "Pitch", tag.getPitch());
+		Logger.recordOutput(prefix + "Roll", tag.getRoll());
+
+		// Field Relative
+		robotPose.ifPresent(pose -> {
+			prefix.set("Vision/AprilTags/FieldRelative " + tag.getTagID() + "/");
+			var fieldPose = pose.plus(
+					new Transform2d(tag.getX(), tag.getZ(), new Rotation2d(tag.getYaw()))
+			);
+			Logger.recordOutput(prefix + "Pose", fieldPose);
+		});
 	}
 }

@@ -5,7 +5,7 @@ public class VisionConstants {
 	public static final int UNABLE_TO_SEE_TAG_CONSTANT = 4000;
 
 	public static final double MAX_SPEED_METERS_PER_SECOND = 0.1;
-	public static final double MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = Math.PI / 50;
+	public static final double MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = Math.PI / 10;
 
 	public static final double TRANSLATIONAL_ACCEL_CONSTANT = 1.5;
 	public static final double ROTATIONAL_ACCEL_CONSTANT = 2;
