@@ -16,7 +16,7 @@ public final class Constants {
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
 
 	// Encoder Position Constants
-	public static final double ELEVATOR_DEADBAND = 0.1;
+	public static final double ELEVATOR_JOYSTICK_INPUT_DEADBAND = 0.1;
 
 	public static final double ELEVATOR_UPPER_THRESHOLD = 146; // DO NOT drive above this!
 	public static final double ELEVATOR_TARGET_L4 = 146;

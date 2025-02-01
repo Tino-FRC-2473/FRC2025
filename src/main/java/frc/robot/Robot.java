@@ -52,8 +52,8 @@ public class Robot extends LoggedRobot {
 	private PowerDistribution powerLogger;
 
 	private static final Object[] ELEVATOR_TESTING_PATH = new Object[] {
-		AutoCommands.ELEVATOR_GROUND_CMD,
 		AutoCommands.ELEVATOR_STATION_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
 		AutoCommands.ELEVATOR_L4_CMD,
 	};
 
