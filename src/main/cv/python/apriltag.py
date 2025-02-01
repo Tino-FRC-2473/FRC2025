@@ -101,7 +101,7 @@ class AprilTag():
             return pose_list
     
     #returns the apriltag id of the apriltag closest to the center of the camera assuming that the camera is mounted at the center of the robot
-    def calculate_weighted_average(self, pose_list):
+    def get_closest_tag(self, pose_list):
         y_poses = {}
         for i in range(len(pose_list)): 
             translational_vector = pose_list[i][0]
