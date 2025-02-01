@@ -174,10 +174,10 @@ public class FunnelFSMSystem {
 	 */
 	public boolean isHoldingCoral() {
 		if (Robot.isSimulation()) {
-			return false;
+			return true;
 		}
 		// return !coralBreakBeam.get(); // true = beam intact
-		return false; // temp always hold coral
+		return true; // temp always hold coral
 	}
 
 	/* ---- Funnel Commands ---- */

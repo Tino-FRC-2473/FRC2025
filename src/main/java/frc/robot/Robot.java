@@ -82,22 +82,23 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 
-			autoRoutines = new AutoRoutines(driveSystem);
+			// autoRoutines = new AutoRoutines(driveSystem);
 
-			autoChooser.addOption("Path 1",
-				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
+			// autoChooser.addOption("Path 1",
+			// 	autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
 		}
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
-		if (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent()) {
+		if (Robot.isSimulation()
+			|| HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
-		if (HardwareMap.isClimberHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
 	}
