@@ -65,6 +65,9 @@ while True:
         #time.sleep(0.1)
     except KeyboardInterrupt:
         print("keyboard interrupt")
+        framePub.close()
+        tagDataPub.close()
+        outputStreamPub.close()
         input.close()
         break
     except Exception as error:
@@ -73,8 +76,10 @@ while True:
 
     frame_idx %= 5
     if ON_RPI and frame_idx == 0:
-        tagDataPub = tagDataPub.publish()
+        tagDataPub = tagDataPub.set()
         tagDataPub.set(tagData)
     
     frame_idx += 1
     print('Loop time: ' + str(time.time()-loop_start))
+
+
