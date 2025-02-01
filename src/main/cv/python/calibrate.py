@@ -9,6 +9,7 @@ from config import *
 import argparse
 from apriltag import calibrate_camera
 import sys
+from pathlib import Path
 
 # https://stackoverflow.com/a/4042861
 class MyParser(argparse.ArgumentParser):
@@ -29,5 +30,7 @@ if sys.argv == 1:
 args = parser.parse_args()
 
 #callibrate based on images
-calibrate_camera(CALIB_RES, CALIB_INPUT_DIR, CALIB_OUTPUT_DIR, ARUCO_LENGTH_METERS, CALIB_WIDTH, CALIB_HEIGHT, args.cam_name, args.color, args.visualize)
+calib_input_dir = Path(CALIB_INPUT_DIR)
+calib_output_dir = Path(CALIB_OUTPUT_DIR)
+calibrate_camera(CALIB_RES, calib_input_dir, calib_output_dir, ARUCO_LENGTH_METERS, CALIB_WIDTH, CALIB_HEIGHT, args.cam_name, args.color, args.visualize)
 #UNCOMMENT ABOVE IF CALIBRATION DATA is not in /calibration_data direcotry
