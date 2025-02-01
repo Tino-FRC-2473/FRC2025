@@ -52,7 +52,7 @@ while True:
         if DATA_COLLECTION_ENABLED:
             data_collector.write_frame(initial_frame, annotated_frame, tagData)
         
-        if ON_RPI:
+        if ON_RPI and tagData is not None:
             framePub.set(initial_frame.sum())
             tagDataPub.set(tagData)
             outputStreamPub.set(annotated_frame.flatten().tolist())
