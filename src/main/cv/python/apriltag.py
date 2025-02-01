@@ -151,7 +151,7 @@ class AprilTag():
 
 def calibrate_camera(RES: tuple[int, int], input_dir_relative: str, output_dir_relative: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
     """
-    get's intrinsic parameters for the camera
+    gets intrinsic parameters for the camera
 
     Args: 
     RES (typle): camera frame width, height in pixels
