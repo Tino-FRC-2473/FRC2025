@@ -149,13 +149,13 @@ class AprilTag():
         print("No tags detected.")
         return None
 
-def calibrate_camera(RES: tuple[int, int], path: str, output_dir_relative: str, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
+def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_relative: Path, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
     """
     gets intrinsic parameters for the camera
 
     Args: 
     RES (typle): camera frame width, height in pixels
-    path (string): path to folder with images being used for calibration (relative to this file)
+    input_dir_relative (string): path to folder with images being used for calibration (relative to this file)
     output_dir (string): path to folder to save the npy files (relative to this file)
     square_size (int): size of the squares on the checkerboard you are using to calibrate in meters
     width (int): the width of the checkerboard referencing the inner corners of the checkerboard you are using to calibrate (usually 2 less than you actual width)
@@ -181,11 +181,11 @@ def calibrate_camera(RES: tuple[int, int], path: str, output_dir_relative: str, 
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
-    input_dir = os.path.join(basePath, input_dir_relative)
-    output_dir = os.path.join(basePath, output_dir_relative)
+    input_dir = Path.join(basePath, input_dir_relative)
+    output_dir = Path.join(basePath, output_dir_relative)
 
     Path(output_dir).mkdir(exist_ok=True) # create calibration directory if it doesn't exist
-    images = os.listdir(input_dir)
+    images = Path.iterdir(input_dir)
     print(images)
     for i, fname in enumerate(images):
         if not bw_camera:
