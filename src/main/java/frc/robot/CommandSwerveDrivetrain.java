@@ -1,5 +1,7 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.console.SimConsoleSource;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
@@ -17,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
+import frc.robot.constants.SimConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.SimSwerveDrivetrainConfig;
@@ -64,7 +67,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		);
 
 		if (Robot.isSimulation()) {
-			setupSimulation(getState().Pose);
+			setupSimulation(new Pose2d(0, 0, new Rotation2d()));
 		}
 		// setupPathplanner();
 	}

@@ -197,17 +197,17 @@ public class Robot extends LoggedRobot {
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
-			MechLogging.getInstance().getPrimaryElevatorPose()
+			MechLogging.getInstance().getElevatorStage1()
 		);
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Secondary Elevator Pose",
-			MechLogging.getInstance().getSecondaryElevatorPose()
+			MechLogging.getInstance().getElevatorStage2()
 		);
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Climber Pose",
-			MechLogging.getInstance().getClimberPose()
+			MechLogging.getInstance().getClimberPost()
 		);
 
 		Logger.recordOutput(
@@ -230,7 +230,8 @@ public class Robot extends LoggedRobot {
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
-	public void robotPeriodic() { }
+	public void robotPeriodic() {
+	}
 
 	/**
 	 * Gets the autonomous command selected by the auto chooser.

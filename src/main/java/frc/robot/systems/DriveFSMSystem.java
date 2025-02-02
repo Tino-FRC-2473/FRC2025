@@ -149,8 +149,13 @@ public class DriveFSMSystem extends SubsystemBase {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
-		MechLogging.getInstance().
-			setDrivePoseData(drivetrain.getState().Pose);
+		MechLogging
+			.getInstance()
+			.setDrivePoseData(
+				getMapleSimDrivetrain()
+				.getDriveSimulation()
+				.getSimulatedDriveTrainPose()
+			);
 	}
 
 	/**
