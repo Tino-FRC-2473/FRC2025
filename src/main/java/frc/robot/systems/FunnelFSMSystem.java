@@ -1,21 +1,12 @@
 package frc.robot.systems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.playingwithfusion.TimeOfFlight;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.ClosedLoopConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.HardwareMap;
@@ -45,10 +36,6 @@ public class FunnelFSMSystem {
 	private Servo funnelServo;
 	private TimeOfFlight reefDistanceSensor;
 	private DigitalInput coralBreakBeam;
-	private SparkMax funnelMotor;
-	private SparkMaxConfig motorConfig;
-	private ClosedLoopConfig closedLoopConfig;
-	private SparkClosedLoopController pidConroller;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -62,26 +49,6 @@ public class FunnelFSMSystem {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 
 		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
-		funnelMotor = new SparkMax(HardwareMap.CAN_ID_FUNNEL, MotorType.kBrushless);
-		motorConfig = new SparkMaxConfig();
-		closedLoopConfig = motorConfig.closedLoop;
-		pidConroller = funnelMotor.getClosedLoopController();
-
-		funnelMotor.getEncoder().setPosition(0);
-
-		closedLoopConfig
-			.pid(Constants.FUNNEL_MOTOR_P, Constants.FUNNEL_MOTOR_D, 0, ClosedLoopSlot.kSlot0)
-			.iZone(0)
-			.maxOutput(1)
-			.minOutput(-1);
-
-		motorConfig
-			.idleMode(IdleMode.kBrake)
-			.smartCurrentLimit(Constants.FUNNER_MOTOR_CURRENT_LIMIT)
-			.apply(closedLoopConfig);
-
-		funnelMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters,
-				PersistMode.kPersistParameters);
 
 		// Reset state machine
 		reset();
@@ -138,15 +105,14 @@ public class FunnelFSMSystem {
 		currentState = nextState(input);
 
 		// Telemetry and logging
+		Logger.recordOutput("Funnel Position", funnelServo.get());
+		Logger.recordOutput("Funnel State", currentState.toString());
 
-		SmartDashboard.putNumber("Funnel Position", funnelServo.get());
-		SmartDashboard.putString("Funnel State", currentState.toString());
-
-		SmartDashboard.putNumber("Distance to Reef", reefDistanceSensor.getRange());
-		SmartDashboard.putBoolean("Reef in Range?",
+		Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
+		Logger.recordOutput("Reef in Range?",
 			reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
 
-		SmartDashboard.putBoolean("Holding Coral?", isHoldingCoral());
+		Logger.recordOutput("Holding Coral?", isHoldingCoral());
 	}
 
 	/* ======================== Private methods ======================== */
@@ -187,8 +153,6 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		pidConroller.setReference(Constants.FUNNEL_OUTTAKE_POS_ROTS,
-			ControlType.kPosition, ClosedLoopSlot.kSlot0);
 		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
 	}
 	/**
@@ -197,8 +161,6 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleClosedState(TeleopInput input) {
-		pidConroller.setReference(Constants.FUNNEL_CLOSED_POS_ROTS,
-			ControlType.kPosition, ClosedLoopSlot.kSlot0);
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 	}
 

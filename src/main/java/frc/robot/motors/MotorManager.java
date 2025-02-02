@@ -3,7 +3,8 @@ package frc.robot.motors;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.littletonrobotics.junction.Logger;
+
 
 public class MotorManager {
 
@@ -11,7 +12,7 @@ public class MotorManager {
 	private static List<LoggedMotor> motorList = new LinkedList<>();
 
 	/**
-	 * Updates all motors in the global list and logs information to SmartDashboard.
+	 * Updates all motors in the global list and logs information to Ascope.
 	 */
 	public static void update() {
 		for (LoggedMotor motor : motorList) {
@@ -19,11 +20,11 @@ public class MotorManager {
 			motor.update();
 
 			// Log motor information
-			SmartDashboard.putNumber("Motor " + motor.getIdentifier()
+			Logger.recordOutput("Motor " + motor.getIdentifier()
 					+ " Rotations", motor.getLoggedPosition());
-			SmartDashboard.putNumber("Motor " + motor.getIdentifier()
+			Logger.recordOutput("Motor " + motor.getIdentifier()
 					+ " Velocity", motor.getLoggedVelocity());
-			SmartDashboard.putNumber("Motor " + motor.getIdentifier()
+			Logger.recordOutput("Motor " + motor.getIdentifier()
 					+ " Setpoint", motor.getLoggedSetpoint());
 		}
 	}

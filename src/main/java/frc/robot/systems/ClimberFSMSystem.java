@@ -1,12 +1,13 @@
 package frc.robot.systems;
 
+import org.littletonrobotics.junction.Logger;
+
 // WPILib Imports
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // Third party Hardware Imports
 
@@ -117,12 +118,11 @@ public class ClimberFSMSystem {
 		}
 		currentState = nextState(input);
 
-		SmartDashboard.putNumber("Climber encoder", climberMotor.getPosition().getValueAsDouble());
-		SmartDashboard.putNumber("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
-		SmartDashboard.putString("Climber state", currentState.toString());
-		SmartDashboard.putString("Climber control request",
-			climberMotor.getAppliedControl().toString());
-		SmartDashboard.putBoolean("Climber switch pressed?", climbSwitch.get());
+		Logger.recordOutput("Climber encoder", climberMotor.getPosition().getValueAsDouble());
+		Logger.recordOutput("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
+		Logger.recordOutput("Climber state", currentState.toString());
+		Logger.recordOutput("Climber control request", climberMotor.getAppliedControl().toString());
+		Logger.recordOutput("Climber switch pressed?", climbSwitch.get());
 	}
 
 	/* ======================== Private methods ======================== */

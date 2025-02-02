@@ -3,10 +3,11 @@ package frc.robot.auto;
 import java.io.File;
 import java.util.HashMap;
 
+import org.littletonrobotics.junction.Logger;
+
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -158,7 +159,7 @@ public class AutoRoutines {
 			@Override
 			public boolean isFinished() {
 				currentAutoState = cAutoState;
-				SmartDashboard.putString("Auto State", currentAutoState.toString());
+				Logger.recordOutput("Auto State", currentAutoState.toString());
 				return true;
 			}
 		}
