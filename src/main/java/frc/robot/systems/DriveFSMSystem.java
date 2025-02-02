@@ -297,7 +297,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			// Y is side-to-side on robotPose, x is side-to-side on cv side
 			double rpiY = tag.getX();
 			// using rvec to determine the absolute rotation of the apriltag.
-			double rpiTheta = tag.getYaw();
+			double rpiTheta = tag.getPitch();
 
 			double xSpeed = Math.abs(rpiX) > VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
@@ -321,11 +321,16 @@ public class DriveFSMSystem extends SubsystemBase {
 			System.out.println("DriveToPose/X Speed " + xSpeed);
 			System.out.println("DriveToPose/Y Speed " + ySpeed);
 			System.out.println("DriveToPose/A Speed " + aSpeed);
+			System.out.println("Yaw: " + rpiTheta);
+			System.out.println(
+				"Yaw Calc: " +
+				new Rotation2d(rpiY, rpiX).getRadians()
+			);
 
 			drivetrain.setControl(
-				drive.withVelocityX(xSpeed * MAX_SPEED)
-				.withVelocityY(-ySpeed * MAX_SPEED)
-				.withRotationalRate(0/*aSpeed * MAX_SPEED * 2*/)//aSpeed * MAX_SPEED)
+				drive.withVelocityX(0/*xSpeed * MAX_SPEED*/)
+				.withVelocityY(0/*-ySpeed * MAX_SPEED*/)
+				.withRotationalRate(aSpeed * MAX_SPEED)//aSpeed * MAX_SPEED)
 			);
 
 			tagPositionAligned = (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
