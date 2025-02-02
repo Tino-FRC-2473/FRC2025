@@ -99,6 +99,7 @@ public class Robot extends LoggedRobot {
 		if (Robot.isSimulation()
 			|| HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
+			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
 		if (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent()) {
