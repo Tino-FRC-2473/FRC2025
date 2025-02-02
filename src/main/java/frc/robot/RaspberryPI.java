@@ -36,8 +36,7 @@ public class RaspberryPI {
 	/**
 	* Gets the data from the Raspberry Pi.
 	*
-	* @return  ArrayList<AprilTag>
-	*          The data from the Raspberry Pi
+	* @return  List of AprilTags from the Raspberry Pi
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
