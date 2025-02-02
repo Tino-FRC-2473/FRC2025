@@ -1,9 +1,11 @@
 package frc.robot.systems;
 
 
+
 // WPILib Imports
 
 // Third party Hardware Imports
+import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -11,7 +13,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
@@ -155,19 +156,15 @@ public class ElevatorFSMSystem {
 
 		// telemetry and logging
 
-		SmartDashboard.putNumber("Elevator encoder",
-			elevatorMotor.getPosition().getValueAsDouble());
-		SmartDashboard.putNumber("Elevator velocity",
-			elevatorMotor.getVelocity().getValueAsDouble());
+		Logger.recordOutput("Elevator encoder", elevatorMotor.getPosition().getValueAsDouble());
+		Logger.recordOutput("Elevator velocity", elevatorMotor.getVelocity().getValueAsDouble());
 
-		SmartDashboard.putBoolean("Elevator bottom limit switch pressed", isBottomLimitReached());
+		Logger.recordOutput("Elevator bottom limit switch pressed", isBottomLimitReached());
 
-		SmartDashboard.putString("Elevator State", currentState.toString());
-		SmartDashboard.putNumber("Elevator Voltage",
-			elevatorMotor.getMotorVoltage().getValueAsDouble());
+		Logger.recordOutput("Elevator State", currentState.toString());
+		Logger.recordOutput("Elevator Voltage", elevatorMotor.getMotorVoltage().getValueAsDouble());
 
-		SmartDashboard.putNumber("Elevator Accel",
-			elevatorMotor.getAcceleration().getValueAsDouble());
+		Logger.recordOutput("Elevator Accel", elevatorMotor.getAcceleration().getValueAsDouble());
 
 		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition().getValue());
 
