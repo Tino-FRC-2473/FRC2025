@@ -13,10 +13,12 @@ if ON_RPI:
     inst.startClient4(NETWORK_IDENTITY)
     inst.setServerTeam(NETWORKTABLES_TEAM)
 
+    ps_opt = ntcore.PubSubOptions(periodic=0.2)
+
     table = inst.getTable("datatable")
-    framePub = table.getDoubleTopic("fps_incremented_value").publish()
-    tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish()
-    outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
+    framePub = table.getDoubleTopic("fps_incremented_value").publish(options=ps_opt)
+    tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish(options=ps_opt)
+    #outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
 
 if ON_RPI:
     index = find_camera_index(AT_CAM_USB_ID)
@@ -27,8 +29,6 @@ input = VisionInput(AT_FOV, AT_INPUT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, index)
 
 tag_module = AprilTag()
 tagData = []
-
-frame_idx = 0
 
 if ON_RPI:
     table = inst.getTable("datatable")
@@ -56,7 +56,7 @@ while True:
             #when tagData is none a empty frame will be sent over
             framePub.set(initial_frame.sum())
             tagDataPub.set(tagData)
-            outputStreamPub.set(annotated_frame.flatten().tolist())
+            #outputStreamPub.set(annotated_frame.flatten().tolist())
         else:
             cv2.imshow('result', annotated_frame)
             key = cv2.waitKey(1) & 0xFF
@@ -67,18 +67,16 @@ while True:
         print("keyboard interrupt")
         framePub.close()
         tagDataPub.close()
-        outputStreamPub.close()
+        #outputStreamPub.close()
         input.close()
         break
     except Exception as error:
         print("An exception occurred:", error.__class__)
         traceback.print_exc()
 
-    frame_idx %= 5
-    if ON_RPI and frame_idx == 0:
+    if ON_RPI:
         tagDataPub.set(tagData)
     
-    frame_idx += 1
     print('Loop time: ' + str(time.time()-loop_start))
 
 
