@@ -13,6 +13,8 @@ AT_FOV = (50.28, 29.16) # degrees
 AT_INPUT_RES = (640, 380) # If this resolution is not supported by the camera, it will use the camera's default res
 AT_RESIZED_RES = (320, 240)
 AT_CAM_HEIGHT = 0.4
+AT_Z_OFFSET = 0
+AT_X_OFFSET = 0
 AT_CAM_ANGLE = -15 # degrees
 ARUCO_LENGTH_METERS = 0.165
 

@@ -92,6 +92,13 @@ class AprilTag():
                     
                     pose_list.append(ids[i])
                     pose_list.extend(cvec)
+                    
+                    original_z = tvec[2]
+                    tvec[2] =  original_z + AT_Z_OFFSET
+
+                    original_x = tvec[0]
+                    tvec[2] =  original_x + AT_X_OFFSET
+
                     pose_list.extend(tvec)
                     pose_list.extend(rvec)
                     
