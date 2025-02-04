@@ -3,8 +3,8 @@ package frc.robot.auto;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
-import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -12,42 +12,49 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.HardwareMap;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
+import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 
 public class AutoRoutines {
-	private AutoFactory autoFactory;
+
+	// Auto sys instance -- used to convert choreo trajectories into schedulable commands.
+	private AutoRoutine sysRoutine;
 
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
+	private ClimberFSMSystem climberSystem;
 
-	// Initialize all paths
-	private AutoRoutine sysRoutine;
+	// Initialize all paths / commands
+	private Map<String, AutoTrajectory> paths = new HashMap<String, AutoTrajectory>();
+	private Map<AutoCommands, Command> commands = new HashMap<AutoCommands, Command>();
 
-	private HashMap<String, AutoTrajectory> paths;
-	private HashMap<AutoCommands, Command> commands;
 	private Object[] currentAutoState;
 
 	/**
-	 * Constructs an AutoRoutines object with the specified AutoFactory.
-	 * @param system1
+	 * Constructs an AutoRoutines object.
+	 * @param driveFSMSystem
+	 * @param elevatorFSMSystem
+	 * @param funnelFSMSystem
+	 * @param climberFSMSystem
 	 * */
-	public AutoRoutines(DriveFSMSystem system1) {
-		driveSystem = system1;
+	public AutoRoutines(DriveFSMSystem driveFSMSystem, ElevatorFSMSystem elevatorFSMSystem,
+		FunnelFSMSystem funnelFSMSystem, ClimberFSMSystem climberFSMSystem) {
 
-		autoFactory = driveSystem.createAutoFactory();
-		sysRoutine = autoFactory.newRoutine("AutoRoutine");
+		// Assign systems
+		driveSystem = driveFSMSystem;
+		elevatorSystem = elevatorFSMSystem;
+		funnelSystem = funnelFSMSystem;
+		climberSystem = climberFSMSystem;
 
-		paths = new HashMap<String, AutoTrajectory>();
-		commands = new HashMap<AutoCommands, Command>();
-
-		setupCommands();
-		generateSysRoutineMap(new File(Filesystem.getDeployDirectory(), "choreo"));
+		// Set up commands for each system
+		initialize();
 	}
 
 	/**
@@ -55,7 +62,7 @@ public class AutoRoutines {
 	 * @param autoStageSupply string of commands and trajectory names
 	 * @return the auto routine
 	 */
-	public AutoRoutine generateSequentialAutoWorkflow(Object[] autoStageSupply) {
+	public SequentialCommandGroup generateSequentialAutoWorkflow(Object[] autoStageSupply) {
 
 		SequentialCommandGroup seqInstruction = new SequentialCommandGroup();
 
@@ -64,7 +71,7 @@ public class AutoRoutines {
 
 			if (autoStage.getClass().equals(String.class)) {
 				/* -- Processing drive trajs -- */
-				if (paths.containsKey(autoStage)) {
+				if (HardwareMap.isDriveHardwarePresent() && paths.containsKey(autoStage)) {
 					AutoTrajectory traj = paths.get(autoStage);
 					if (i == 0) {
 						seqInstruction.addCommands(traj.resetOdometry());
@@ -98,7 +105,8 @@ public class AutoRoutines {
 				for (Object autoParallelStage: (Object[]) autoStage) {
 
 					/* -- Processing drive trajs -- */
-					if (autoParallelStage.getClass().equals(String.class)) {
+					if (autoParallelStage.getClass().equals(String.class)
+						&& driveSystem != null) {
 						if (paths.containsKey(autoParallelStage)) {
 							AutoTrajectory traj = paths.get(autoParallelStage);
 							if (i == 0) {
@@ -133,15 +141,18 @@ public class AutoRoutines {
 			}
 		}
 
-		sysRoutine.active().onTrue(
-			seqInstruction
-			.andThen(driveSystem.brakeCommand())
-		);
+		if (HardwareMap.isDriveHardwarePresent()) {
+			seqInstruction.addCommands(driveSystem.brakeCommand());
+		}
 
-		return sysRoutine;
+		seqInstruction.schedule();
+
+		return seqInstruction;
 	}
 
-	private void generateSysRoutineMap(File deployDir) {
+	private void generateSysRoutineMap(String deployFolder) {
+		File deployDir = new File(deployFolder + "/choreo");
+
 		for (File choreoFile : deployDir.listFiles()) {
 			if (choreoFile.getName().endsWith(".traj")) {
 				paths.put(choreoFile.getName()
@@ -165,163 +176,134 @@ public class AutoRoutines {
 		return new AutoLogCommand();
 	}
 
-	private void setupCommands() {
-		setUpAlignmentCommands();
 
-		//setUpElevatorCommands();
+	private void initialize() {
 
-		//setUpFunnelCommands();
+		if (HardwareMap.isDriveHardwarePresent()) {
+			setUpDriveCommands();
 
+			sysRoutine = driveSystem.createAutoFactory().newRoutine("AutoRoutine");
+			generateSysRoutineMap(Filesystem.getDeployDirectory().toString());
+
+			if (HardwareMap.isCVHardwarePresent()) {
+				setUpAlignmentCommands();
+			}
+		}
+
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			setUpElevatorCommands();
+		}
+
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			setUpFunnelCommands();
+		}
+	}
+
+	private void setUpDriveCommands() {
 		/* ---- All Drive Commands ---- */
 		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
 			driveSystem.brakeCommand()
+		);
+
+		commands.put(AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
+			driveSystem.driveRobotRelativeOffset(
+				AutoConstants.REEF_OFFSET_X_AUTO_SPEED,
+				AutoConstants.REEF_OFFSET_Y_AUTO_SPEED,
+				AutoConstants.TIME_DRIVING_OFFSET)
+		);
+
+		commands.put(AutoCommands.DRIVE_ROBOT_RIGHT_RELATIVE_OFFSET_TIMED_CMD,
+			driveSystem.driveRobotRelativeOffset(
+				-AutoConstants.REEF_OFFSET_X_AUTO_SPEED,
+				AutoConstants.REEF_OFFSET_Y_AUTO_SPEED,
+				AutoConstants.TIME_DRIVING_OFFSET)
 		);
 	}
 
 	private void setUpAlignmentCommands() {
 		/* ---- All Red AprilTag Alignment Commands ---- */
-		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
+		commands.put(AutoCommands.R_ALIGN_REEF2_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
+					AutoConstants.R_REEF_2_TAG_ID
+				)
 		);
-		commands.put(AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
+		commands.put(AutoCommands.R_ALIGN_REEF3_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
+					AutoConstants.R_REEF_3_TAG_ID
+				)
 		);
-		commands.put(AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
+		commands.put(AutoCommands.R_ALIGN_REEF5_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
+					AutoConstants.R_REEF_5_TAG_ID
+			)
 		);
-		commands.put(AutoCommands.R_ALIGN_REEF3_R_TAG_CMD,
+		commands.put(AutoCommands.R_ALIGN_REEF6_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF5_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF5_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF6_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
+					AutoConstants.R_REEF_6_TAG_ID
+			)
 		);
 		commands.put(AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.RED_L_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET)
+					AutoConstants.RED_L_STATION_ID
+				)
 		);
 		commands.put(AutoCommands.R_ALIGN_STATION_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.RED_R_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET)
+					AutoConstants.RED_R_STATION_ID
+			)
 		);
 
 		/* ---- All Blue AprilTag Alignment Commands ---- */
-		commands.put(AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
+		commands.put(AutoCommands.B_ALIGN_REEF2_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
+					AutoConstants.B_REEF_2_TAG_ID
+			)
 		);
-		commands.put(AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
+		commands.put(AutoCommands.B_ALIGN_REEF3_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
+				AutoConstants.B_REEF_3_TAG_ID
+			)
 		);
-		commands.put(AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
+		commands.put(AutoCommands.B_ALIGN_REEF5_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
+					AutoConstants.B_REEF_5_TAG_ID
+				)
 		);
-		commands.put(AutoCommands.B_ALIGN_REEF3_R_TAG_CMD,
+		commands.put(AutoCommands.B_ALIGN_REEF6_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF5_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF5_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF6_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
+					AutoConstants.B_REEF_6_TAG_ID
+				)
 		);
 		commands.put(AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.BLUE_L_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET)
+					AutoConstants.BLUE_L_STATION_ID
+				)
 		);
 		commands.put(AutoCommands.B_ALIGN_STATION_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
-					AutoConstants.BLUE_R_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET)
+					AutoConstants.BLUE_R_STATION_ID
+			)
 		);
 	}
 
-	// private void setUpElevatorCommands() {
-	// 	commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
-	// 		elevatorSystem.elevatorGroundCommand()
-	// 	);
-	// 	commands.put(AutoCommands.ELEVATOR_STATION_CMD,
-	// 		elevatorSystem.elevatorStationCommand()
-	// 	);
-	// 	commands.put(AutoCommands.ELEVATOR_L4_CMD,
-	// 		elevatorSystem.elevatorL4Command()
-	// 	);
-	// }
+	private void setUpElevatorCommands() {
+		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
+			elevatorSystem.elevatorGroundCommand()
+		);
+		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
+			elevatorSystem.elevatorStationCommand()
+		);
+		commands.put(AutoCommands.ELEVATOR_L4_CMD,
+			elevatorSystem.elevatorL4Command()
+		);
+	}
 
-	// private void setUpFunnelCommands() {
-	// 	commands.put(AutoCommands.FUNNEL_OPEN_CMD,
-	// 		funnelSystem.openFunnelCommand()
-	// 	);
-	// 	commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
-	// 		funnelSystem.closeFunnelCommand()
-	// 	);
-	// }
+	private void setUpFunnelCommands() {
+		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
+			funnelSystem.openFunnelCommand()
+		);
+		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
+			funnelSystem.closeFunnelCommand()
+		);
+	}
 }

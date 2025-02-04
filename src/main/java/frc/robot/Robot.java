@@ -26,9 +26,10 @@ import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
-
+import frc.robot.auto.AutoPaths;
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
+import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
@@ -51,10 +52,6 @@ public class Robot extends LoggedRobot {
 	// Logger
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
-
-	private static final Object[] PATH_1 = new Object[] {
-		"S1_R1"
-	};
 
 	/**
 	 * This function is run when the robot is first started up and should be used for any
@@ -89,10 +86,12 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 
-			autoRoutines = new AutoRoutines(driveSystem);
+			autoRoutines = new AutoRoutines(
+				driveSystem, elevatorSystem, funnelSystem, climberSystem
+			);
 
 			autoChooser.addOption("Path 1",
-				autoRoutines.generateSequentialAutoWorkflow(PATH_1).cmd());
+				autoRoutines.generateSequentialAutoWorkflow(AutoPaths.B_PATH_1)); //TODO: make it generate a list of all Object[] in AutoPaths.java and run through that here.
 		}
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 

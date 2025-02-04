@@ -18,6 +18,7 @@ public class VisionConstants {
 	public static final double N_180 = 180;
 
 	public static final int AT_ARR_INC = 10;
+	public static final int AT_ARR_CAMERA_OFFSET = 1;
 	public static final int AT_ARR_TRANSLATION_OFFSET = 4;
 	public static final int AT_ARR_ROTATION_OFFSET = 7;
 }
