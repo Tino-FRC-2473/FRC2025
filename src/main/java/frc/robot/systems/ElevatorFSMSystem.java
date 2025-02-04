@@ -277,7 +277,8 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleManualState(TeleopInput input) {
 		double signalInput = input.getManualElevatorMovementInput();
-		signalInput = MathUtil.applyDeadband(signalInput, Constants.ELEVATOR_DEADBAND);
+		signalInput = MathUtil.applyDeadband(signalInput,
+			Constants.ELEVATOR_JOYSTICK_INPUT_DEADBAND);
 		if (isBottomLimitReached()) {
 			elevatorMotor.setPosition(Constants.ELEVATOR_TARGET_GROUND);
 			if (signalInput < 0) {
@@ -362,8 +363,6 @@ public class ElevatorFSMSystem {
 	abstract class ElevatorCommand extends Command {
 		private double target;
 
-		ElevatorCommand() { }
-
 		@Override
 		public void execute() {
 			if (isBottomLimitReached()) {
@@ -375,9 +374,9 @@ public class ElevatorFSMSystem {
 			}
 
 			double pos = elevatorMotor.getPosition().getValueAsDouble();
-			if (target - pos < -Constants.ELEVATOR_DEADBAND) {
+			if (target - pos < -Constants.ELEVATOR_TARGET_MARGIN) {
 				elevatorMotor.set(-Constants.ELEVATOR_POWER);
-			} else if (target - pos > Constants.ELEVATOR_DEADBAND) {
+			} else if (target - pos > Constants.ELEVATOR_TARGET_MARGIN) {
 				if (target > Constants.ELEVATOR_TARGET_L4
 					- Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
 					elevatorMotor.set(Constants.ELEVATOR_REDUCED_POWER);
@@ -392,11 +391,13 @@ public class ElevatorFSMSystem {
 		@Override
 		public boolean isFinished() {
 			return Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-			- target) < Constants.ELEVATOR_DEADBAND;
+			- target) < Constants.ELEVATOR_TARGET_MARGIN;
 		}
 
 		@Override
-		public void end(boolean interrupted) { }
+		public void end(boolean interrupted) {
+			elevatorMotor.stopMotor();
+		}
 
 		protected void setTarget(double newTarget) {
 			this.target = newTarget;
@@ -412,18 +413,6 @@ public class ElevatorFSMSystem {
 		ElevatorGroundCommand() {
 			this.setTarget(Constants.ELEVATOR_TARGET_GROUND);
 		}
-
-		// @Override
-		// public void execute() {
-		// 	if (isBottomLimitReached()) {
-		// 		elevatorMotor.set(0);
-		// 		elevatorMotor.setPosition(Constants.ELEVATOR_PID_TARGET_GROUND);
-		// 	} else {
-		// 		elevatorMotor.setControl(
-		// 			mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_GROUND)
-		// 		);
-		// 	}
-		// }
 	}
 
 	/** A command that moves the elevator to the Station position. */
@@ -431,11 +420,6 @@ public class ElevatorFSMSystem {
 		ElevatorStationCommand() {
 			this.setTarget(Constants.ELEVATOR_TARGET_L2);
 		}
-
-		// @Override
-		// public void execute() {
-		// 	elevatorMotor.setControl(mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_STATION));
-		// }
 	}
 
 	/** A command that moves the elevator to the L4 position. */
@@ -443,17 +427,6 @@ public class ElevatorFSMSystem {
 		ElevatorL4Command() {
 			this.setTarget(Constants.ELEVATOR_TARGET_L4);
 		}
-
-		// @Override
-		// public void execute() {
-		// 	if (isTopLimitReached()) {
-		// 		elevatorMotor.set(0);
-		// 	} else {
-		// 		elevatorMotor.setControl(
-		// 			mmVoltage.withPosition(Constants.ELEVATOR_PID_TARGET_L4)
-		// 		);
-		// 	}
-		// }
 	}
 
 	// FOR COMMANDS: JUST SET THE STATE (UPDATE IS STILL CALLED). INVESTIGATE WEEK 4.

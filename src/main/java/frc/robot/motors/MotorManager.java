@@ -26,6 +26,8 @@ public class MotorManager {
 					+ " Velocity", motor.getLoggedVelocity());
 			Logger.recordOutput("Motor " + motor.getIdentifier()
 					+ " Setpoint", motor.getLoggedSetpoint());
+			Logger.recordOutput("Motor" + motor.getIdentifier()
+					+ " Voltage", motor.getLoggedVoltage());
 		}
 	}
 
