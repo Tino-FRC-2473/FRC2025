@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 /**
 * This class is used to store the pose of the AprilTag relative to the camera.
 */
-public class AprilTag {
+public class AprilTag implements Comparable<AprilTag> {
 	private String camera;
 	private int tagID;
 
@@ -137,6 +137,7 @@ public class AprilTag {
 	 * @param other
 	 * @return An{@code int} used to compare two AprilTags
 	 */
+	@Override
 	public int compareTo(AprilTag other) {
 		double dist = getPose().getTranslation().getNorm();
 		double otherDist = other.getPose().getTranslation().getNorm();
