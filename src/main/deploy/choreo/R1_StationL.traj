@@ -1,5 +1,5 @@
 {
- "name":"R1_StationL ",
+ "name":"R1_StationL",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -17,7 +17,7 @@
   "waypoints":[
     {"x":{"exp":"1.058727502822876 m", "val":1.058727502822876}, "y":{"exp":"7.035342693328857 m", "val":7.035342693328857}, "heading":{"exp":"-0.9342877927962367 rad", "val":-0.9342877927962367}, "intervals":92, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"5.891402721405029 m", "val":5.891402721405029}, "y":{"exp":"5.131185054779053 m", "val":5.131185054779053}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":69, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"6.132900238037109 m", "val":6.132900238037109}, "y":{"exp":"4.108406066894531 m", "val":4.108406066894531}, "heading":{"exp":"-3.1112989569121994 rad", "val":-3.1112989569121994}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"5.808132648468018 m", "val":5.808132648468018}, "y":{"exp":"4.017312526702881 m", "val":4.017312526702881}, "heading":{"exp":"0 rad", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
