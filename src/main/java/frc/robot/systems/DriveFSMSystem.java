@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import org.littletonrobotics.junction.Logger;
-
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
@@ -196,9 +194,10 @@ public class DriveFSMSystem extends SubsystemBase {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
-		currentState = nextState(input);
 		MechLogging.getInstance().
 			setDrivePoseData(drivetrain.getState().Pose);
+
+		currentState = nextState(input);
 	}
 
 	/**
@@ -438,33 +437,27 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
-			xDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-			-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-			VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				xDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+				VisionConstants.MAX_SPEED_METERS_PER_SECOND
 			) : 0;
 		double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
-			yDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-			-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-			VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				yDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+				VisionConstants.MAX_SPEED_METERS_PER_SECOND
 			) : 0;
 		double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
 			? SwerveUtils.clamp(
-			aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
-			-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-			VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+				aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
 			) : 0;
 
-		Logger.recordOutput("X Speed", xSpeed);
-		Logger.recordOutput("Y Speed", ySpeed);
-		Logger.recordOutput("A Speed", aSpeed);
-
-		drivetrain.setControl(
-			driveFacingAngle.withVelocityX(xSpeed * MAX_SPEED)
+		driveFacingAngle.withVelocityX(xSpeed * MAX_SPEED)
 			.withVelocityY(-ySpeed * MAX_SPEED)
 			.withTargetRateFeedforward(-aSpeed * MAX_ANGULAR_RATE)
-			.withTargetDirection(targetPose.getRotation())
-		);
+			.withTargetDirection(targetPose.getRotation());
 
 		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
 	}

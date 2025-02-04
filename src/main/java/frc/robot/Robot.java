@@ -29,7 +29,6 @@ import frc.robot.systems.DriveFSMSystem;
 import frc.robot.auto.AutoPaths;
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
-import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
@@ -91,7 +90,8 @@ public class Robot extends LoggedRobot {
 			);
 
 			autoChooser.addOption("Path 1",
-				autoRoutines.generateSequentialAutoWorkflow(AutoPaths.B_PATH_1)); //TODO: make it generate a list of all Object[] in AutoPaths.java and run through that here.
+				autoRoutines.generateSequentialAutoWorkflow(AutoPaths.B_PATH_1));
+				//TODO: make it generate a list of all Object[] in AutoPaths.java.
 		}
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
