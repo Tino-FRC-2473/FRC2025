@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.HardwareMap;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
-import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
@@ -28,7 +27,6 @@ public class AutoRoutines {
 	private DriveFSMSystem driveSystem;
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
-	private ClimberFSMSystem climberSystem;
 
 	// Initialize all paths / commands
 	private Map<String, AutoTrajectory> paths = new HashMap<String, AutoTrajectory>();
@@ -41,16 +39,14 @@ public class AutoRoutines {
 	 * @param driveFSMSystem
 	 * @param elevatorFSMSystem
 	 * @param funnelFSMSystem
-	 * @param climberFSMSystem
 	 * */
 	public AutoRoutines(DriveFSMSystem driveFSMSystem, ElevatorFSMSystem elevatorFSMSystem,
-		FunnelFSMSystem funnelFSMSystem, ClimberFSMSystem climberFSMSystem) {
+		FunnelFSMSystem funnelFSMSystem) {
 
 		// Assign systems
 		driveSystem = driveFSMSystem;
 		elevatorSystem = elevatorFSMSystem;
 		funnelSystem = funnelFSMSystem;
-		climberSystem = climberFSMSystem;
 
 		// Set up commands for each system
 		initialize();
@@ -190,9 +186,6 @@ public class AutoRoutines {
 		}
 		if (funnelSystem != null) {
 			setUpFunnelCommands();
-		}
-		if (climberSystem != null) {
-			setUpClimberCommands();
 		}
 	}
 
@@ -346,9 +339,5 @@ public class AutoRoutines {
 		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
 			funnelSystem.closeFunnelCommand()
 		);
-	}
-
-	private void setUpClimberCommands() {
-
 	}
 }

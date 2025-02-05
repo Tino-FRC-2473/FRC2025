@@ -116,7 +116,7 @@ public class Robot extends LoggedRobot {
 		}
 
 		// Initialize auto commands
-		autoRoutines = new AutoRoutines(driveSystem, elevatorSystem, funnelSystem, climberSystem);
+		autoRoutines = new AutoRoutines(driveSystem, elevatorSystem, funnelSystem);
 
 		// Add auto paths
 		if (HardwareMap.isElevatorHardwarePresent()) {
@@ -233,11 +233,6 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/Robot/Climber Pose",
 			MechLogging.getInstance().getClimberPose()
 		);
-
-		// Logger.recordOutput(
-		// 	"FieldSimulation/SimulatedPose",
-		// 	driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
-		// );
 
 		Logger.recordOutput(
 			"FieldSimulation/AlgaePoses",
