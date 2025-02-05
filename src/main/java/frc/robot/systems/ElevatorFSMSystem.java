@@ -312,14 +312,24 @@ public class ElevatorFSMSystem {
 	private void handleL2State(TeleopInput input) {
 		if (elevatorMotor.getPosition().getValueAsDouble()
 			< Constants.ELEVATOR_TARGET_L2
-			//< -Constants.ELEVATOR_TARGET_MARGIN
 		) {
-			elevatorMotor.set(Constants.ELEVATOR_POWER);
+			if (Constants.ELEVATOR_TARGET_L2 - elevatorMotor.getPosition().getValueAsDouble()
+				< Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE
+			) {
+				elevatorMotor.set(Constants.ELEVATOR_REDUCED_POWER);
+			} else {
+				elevatorMotor.set(Constants.ELEVATOR_POWER);
+			}
 		} else if (elevatorMotor.getPosition().getValueAsDouble()
 			> Constants.ELEVATOR_TARGET_L2
-			//> Constants.ELEVATOR_TARGET_MARGIN
 		) {
-			elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
+			if (elevatorMotor.getPosition().getValueAsDouble() - Constants.ELEVATOR_TARGET_L2
+				< Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE
+			) {
+				elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
+			} else {
+				elevatorMotor.set(-Constants.ELEVATOR_POWER);
+			}
 		}
 	}
 
@@ -331,14 +341,24 @@ public class ElevatorFSMSystem {
 	private void handleL3State(TeleopInput input) {
 		if (elevatorMotor.getPosition().getValueAsDouble()
 			< Constants.ELEVATOR_TARGET_L3
-			//< -Constants.ELEVATOR_TARGET_MARGIN)
 		) {
-			elevatorMotor.set(Constants.ELEVATOR_POWER);
+			if (Constants.ELEVATOR_TARGET_L3 - elevatorMotor.getPosition().getValueAsDouble()
+				< Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE
+			) {
+				elevatorMotor.set(Constants.ELEVATOR_REDUCED_POWER);
+			} else {
+				elevatorMotor.set(Constants.ELEVATOR_POWER);
+			}
 		} else if (elevatorMotor.getPosition().getValueAsDouble()
 			> Constants.ELEVATOR_TARGET_L3
-			//> Constants.ELEVATOR_TARGET_MARGIN
 		) {
-			elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
+			if (elevatorMotor.getPosition().getValueAsDouble() - Constants.ELEVATOR_TARGET_L3
+				< Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE
+			) {
+				elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
+			} else {
+				elevatorMotor.set(-Constants.ELEVATOR_POWER);
+			}
 		}
 	}
 
@@ -415,10 +435,17 @@ public class ElevatorFSMSystem {
 		}
 	}
 
-	/** A command that moves the elevator to the Station position. */
-	class ElevatorStationCommand extends ElevatorCommand {
-		ElevatorStationCommand() {
+	/** A command that moves the elevator to the L2 position. */
+	class ElevatorL2Command extends ElevatorCommand {
+		ElevatorL2Command() {
 			this.setTarget(Constants.ELEVATOR_TARGET_L2);
+		}
+	}
+
+	/** A command that moves the elevator to the L3 position. */
+	class ElevatorL3Command extends ElevatorCommand {
+		ElevatorL3Command() {
+			this.setTarget(Constants.ELEVATOR_TARGET_L3);
 		}
 	}
 
@@ -444,7 +471,7 @@ public class ElevatorFSMSystem {
 	 * @return A new elevator station command.
 	 */
 	public Command elevatorStationCommand() {
-		return new ElevatorStationCommand();
+		return new ElevatorL2Command();
 	}
 
 	/**
