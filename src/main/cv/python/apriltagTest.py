@@ -6,6 +6,7 @@ from config import *
 RES = (1280, 720)
 
 tag_module = AprilTag()
+input = VisionInput(AT_FOV, AT_INPUT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, 0)
 
 
 

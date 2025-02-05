@@ -97,7 +97,7 @@ class AprilTag():
                     tvec[2] =  original_z + AT_Z_OFFSET
 
                     original_x = tvec[0]
-                    tvec[2] =  original_x + AT_X_OFFSET
+                    tvec[0] =  original_x + AT_X_OFFSET
 
                     pose_list.extend(tvec)
                     pose_list.extend(rvec)

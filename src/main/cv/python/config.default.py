@@ -7,10 +7,10 @@ DRIVER_CAM_INDEX = 0 # for when not on RPi
 
 AT_CAM_USB_ID = 'usb-xhci-hcd.0-1' # for when on RPi
 AT_CAM_INDEX = 0 # for when not on RPi
-AT_CAM_NAME = "bw-cam" # used for npy files
+AT_CAM_NAME = "bw_cam" # used for npy files
 AT_NPY_DIR = "calibration_data" # relative to python files
 AT_FOV = (50.28, 29.16) # degrees
-AT_INPUT_RES = (640, 380) # If this resolution is not supported by the camera, it will use the camera's default res
+AT_INPUT_RES = (1280, 720) # If this resolution is not supported by the camera, it will use the camera's default res
 AT_RESIZED_RES = (320, 240)
 AT_CAM_HEIGHT = 0.4
 AT_Z_OFFSET = 0
@@ -21,7 +21,7 @@ ARUCO_LENGTH_METERS = 0.165
 NETWORKTABLES_TEAM = 2473
 
 #change this depending on which directory images for camera callibration are in
-CALIB_RES = (640, 480)
+CALIB_RES = (1280, 720)
 CALIB_INPUT_DIR = 'calibration_images' # relative to python files
 CALIB_OUTPUT_DIR = AT_NPY_DIR # relative to python files
 CALIB_WIDTH = 6
