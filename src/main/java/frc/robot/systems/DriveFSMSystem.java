@@ -5,6 +5,7 @@ package frc.robot.systems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -15,6 +16,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,6 +24,8 @@ import java.util.Comparator;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
+import choreo.trajectory.SwerveSample;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -521,11 +525,29 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * @return the command
 	 */
 	public Command driveRobotRelativeOffset(double xSpeed, double ySpeed, double timeRunning) {
-		class DriveRobotRelativeOffsetCommand extends Command {
+		return new DriveRobotRelativeOffsetCommand(xSpeed, ySpeed, timeRunning);
+	}
+
+	public Command driveRobotLeftRelativeOffset() {
+		return new DriveRobotRelativeOffsetCommand(0, -MAX_SPEED / 10 , AutoConstants.TIME_DRIVING_OFFSET);
+	}
+
+	public Command driveRobotRightRelativeOffset() {
+		return new DriveRobotRelativeOffsetCommand(0, MAX_SPEED / 10 , AutoConstants.TIME_DRIVING_OFFSET);
+	}
+
+	class DriveRobotRelativeOffsetCommand extends Command {
 
 			private Timer timer;
 
-			DriveRobotRelativeOffsetCommand() {
+			private double xS;
+			private double yS;
+			private double duration;
+
+			DriveRobotRelativeOffsetCommand(double xSpeed, double ySpeed, double timeRunning) {
+				xS = xSpeed;
+				yS = ySpeed;
+				duration = timeRunning;
 				timer = new Timer();
 				timer.reset();
 			}
@@ -539,14 +561,14 @@ public class DriveFSMSystem extends SubsystemBase {
 			public void execute() {
 				drivetrain.setControl(
 					driveRobotCentric
-						.withVelocityX(xSpeed * MAX_SPEED)
-						.withVelocityY(ySpeed * MAX_SPEED)
+						.withVelocityX(xS * MAX_SPEED)
+						.withVelocityY(yS * MAX_SPEED)
 				);
 			}
 
 			@Override
 			public boolean isFinished() {
-				return timer.get() >= timeRunning;
+				return timer.get() >= duration;
 			}
 
 			@Override
@@ -554,10 +576,6 @@ public class DriveFSMSystem extends SubsystemBase {
 				timer.stop();
 			}
 		}
-
-		return new DriveRobotRelativeOffsetCommand();
-	}
-
 
 	/**
 	* Get the maple-Sim Swerve simulation.

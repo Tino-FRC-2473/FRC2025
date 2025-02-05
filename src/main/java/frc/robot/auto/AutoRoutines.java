@@ -306,4 +306,29 @@ public class AutoRoutines {
 			funnelSystem.closeFunnelCommand()
 		);
 	}
+
+	public final Object[] B_PATH_1 = new Object[] {
+		funnelSystem.closeFunnelCommand(),
+		new Object[] {
+			"S1_R2",
+			elevatorSystem.elevatorStationCommand()
+		},
+		new Object[] {
+			driveSystem.driveRobotRightRelativeOffset(),
+			elevatorSystem.elevatorL4Command()
+		},
+		funnelSystem.openFunnelCommand(),
+		new Object[] {
+			elevatorSystem.elevatorStationCommand(),
+			"R1_StationL"
+		},
+		funnelSystem.closeFunnelCommand(),
+		driveSystem.alignToTagCommand(AutoConstants.B_REEF_3_TAG_ID),
+		new Object[] {
+			driveSystem.driveRobotLeftRelativeOffset(),
+			elevatorSystem.elevatorL4Command()
+		},
+		funnelSystem.openFunnelCommand(),
+		driveSystem.brakeCommand()
+	};
 }
