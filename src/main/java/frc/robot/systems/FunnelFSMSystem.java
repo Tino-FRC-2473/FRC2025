@@ -50,6 +50,8 @@ public class FunnelFSMSystem {
 
 		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
 
+		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
+
 		// Reset state machine
 		reset();
 	}
@@ -173,8 +175,8 @@ public class FunnelFSMSystem {
 		if (Robot.isSimulation()) {
 			return true;
 		}
-		// return !coralBreakBeam.get(); // true = beam intact
-		return true; // temp always hold coral
+		return !coralBreakBeam.get(); // true = beam intact
+		// return true; // temp always hold coral
 	}
 
 	/* ---- Funnel Commands ---- */
