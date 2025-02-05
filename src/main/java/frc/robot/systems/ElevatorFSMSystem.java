@@ -394,11 +394,14 @@ public class ElevatorFSMSystem {
 			}
 
 			double pos = elevatorMotor.getPosition().getValueAsDouble();
-			if (target - pos < -Constants.ELEVATOR_TARGET_MARGIN) {
-				elevatorMotor.set(-Constants.ELEVATOR_POWER);
-			} else if (target - pos > Constants.ELEVATOR_TARGET_MARGIN) {
-				if (target > Constants.ELEVATOR_TARGET_L4
-					- Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
+			if (target - pos < -Constants.ELEVATOR_TARGET_MARGIN) { // above target
+				if (pos > target + Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
+					elevatorMotor.set(-Constants.ELEVATOR_POWER);
+				} else {
+					elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
+				}
+			} else if (target - pos > Constants.ELEVATOR_TARGET_MARGIN) { // below target
+				if (pos > target - Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
 					elevatorMotor.set(Constants.ELEVATOR_REDUCED_POWER);
 				} else {
 					elevatorMotor.set(Constants.ELEVATOR_POWER);
