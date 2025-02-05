@@ -141,7 +141,6 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
-		//driveSystem.updateAutonomous();
 		MotorManager.update();
 	}
 
@@ -213,7 +212,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
-		//driveSystem.getMapleSimDrivetrain().update();
+		driveSystem.getMapleSimDrivetrain().update();
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
@@ -231,6 +230,11 @@ public class Robot extends LoggedRobot {
 		);
 
 		Logger.recordOutput(
+			"FieldSimulation/Robot/DriveTrain Pose",
+			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
+		);
+
+		Logger.recordOutput(
 			"FieldSimulation/AlgaePoses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
 		);
@@ -239,7 +243,11 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/CoralPoses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
 		);
-		Logger.recordOutput("FieldSimulation/Poses", MechLogging.getInstance().getRobotPoses());
+
+		Logger.recordOutput(
+			"FieldSimulation/Poses",
+			MechLogging.getInstance().getRobotPoses()
+		);
 
 	}
 
