@@ -1,7 +1,7 @@
 package frc.robot.auto;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +37,34 @@ public class AutoRoutines {
 	private Map<AutoCommands, Command> commands = new HashMap<AutoCommands, Command>();
 
 	private Object[] currentAutoState;
+
+	/* ----------------------------------- ALL PATHS ------------------------------------- */
+	private Object[] bPathOne = new Object[] {
+		funnelSystem.closeFunnelCommand(),
+		new Object[] {
+			driveSystem.alignToTagCommand(AutoConstants.B_REEF_1_TAG_ID),
+			elevatorSystem.elevatorStationCommand()
+		},
+		new Object[] {
+			driveSystem.driveRobotRightRelativeOffset(),
+			elevatorSystem.elevatorL4Command()
+		},
+		funnelSystem.openFunnelCommand(),
+		new Object[] {
+			elevatorSystem.elevatorStationCommand(),
+			"R1_StationL"
+		},
+		funnelSystem.closeFunnelCommand(),
+		driveSystem.alignToTagCommand(AutoConstants.B_REEF_3_TAG_ID),
+		new Object[] {
+			driveSystem.driveRobotLeftRelativeOffset(),
+			elevatorSystem.elevatorL4Command()
+		},
+		funnelSystem.openFunnelCommand(),
+		driveSystem.brakeCommand()
+	};
+
+	/* --------------------------------------------------------------------------------------- */
 
 	/**
 	 * Constructs an AutoRoutines object.
@@ -183,34 +211,26 @@ public class AutoRoutines {
 		}
 	}
 
-	public ArrayList<Object[]> getAllAutos() {
-		ArrayList<Object[]> allObjArrays = new ArrayList<Object[]>();
+	/**
+	 * Get all auto object arrays declared in the AutoRoutines file.
+	 * @return array of all Object[] autos
+	 */
+	public HashMap<String, Object[]> getAllAutos() {
+		HashMap<String, Object[]> allObjArrays = new HashMap<String, Object[]>();
+		Field[] allFields = this.getClass().getDeclaredFields();
 
+		for (Field f: allFields) {
+			if (f.getType().equals(Object[].class)) {
+				try {
+					f.setAccessible(true);
+					Object[] array = (Object[]) f.get(this);
+					allObjArrays.put(f.getName(), array);
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return allObjArrays;
 	}
-
-	/* -- ALL PATHS -- */
-	private Object[] bPathOne = new Object[] {
-		funnelSystem.closeFunnelCommand(),
-		new Object[] {
-			driveSystem.alignToTagCommand(AutoConstants.B_REEF_1_TAG_ID),
-			elevatorSystem.elevatorStationCommand()
-		},
-		new Object[] {
-			driveSystem.driveRobotRightRelativeOffset(),
-			elevatorSystem.elevatorL4Command()
-		},
-		funnelSystem.openFunnelCommand(),
-		new Object[] {
-			elevatorSystem.elevatorStationCommand(),
-			"R1_StationL"
-		},
-		funnelSystem.closeFunnelCommand(),
-		driveSystem.alignToTagCommand(AutoConstants.B_REEF_3_TAG_ID),
-		new Object[] {
-			driveSystem.driveRobotLeftRelativeOffset(),
-			elevatorSystem.elevatorL4Command()
-		},
-		funnelSystem.openFunnelCommand(),
-		driveSystem.brakeCommand()
-	};
 }

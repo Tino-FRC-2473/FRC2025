@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import java.util.HashMap;
+
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
 
@@ -26,7 +28,6 @@ import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
-import frc.robot.auto.AutoPaths;
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
 import frc.robot.logging.MechLogging;
@@ -88,12 +89,7 @@ public class Robot extends LoggedRobot {
 			autoRoutines = new AutoRoutines(
 				driveSystem, elevatorSystem, funnelSystem, climberSystem
 			);
-
-			autoChooser.addOption("Path 1",
-				autoRoutines.generateSequentialAutoWorkflow(AutoPaths.B_PATH_1));
-				//TODO: make it generate a list of all Object[] in AutoPaths.java.
 		}
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
@@ -106,6 +102,15 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
+
+		for (HashMap.Entry<String, Object[]> entry: autoRoutines.getAllAutos().entrySet()) {
+			autoChooser.addOption(entry.getKey(),
+				autoRoutines.generateSequentialAutoWorkflow(entry.getValue()));
+				//TODO: make it generate a list of all Object[] in AutoPaths.java.
+		}
+
+		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
+
 	}
 
 	@Override
