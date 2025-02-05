@@ -5,7 +5,6 @@ package frc.robot.systems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -16,7 +15,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,8 +22,6 @@ import java.util.Comparator;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
-import choreo.auto.AutoRoutine;
-import choreo.trajectory.SwerveSample;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -519,63 +515,71 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	/**
 	 * A Drive Robot Relative Offset command used while extending the elevator in auto.
-	 * @param xSpeed x robot relative speed
-	 * @param ySpeed y robot relative speed
-	 * @param timeRunning the amount of time you should be at the x and y speed for
-	 * @return the command
+	 * @return the command that drives left (robot relative) at a certain speed for a set duration.
 	 */
-	public Command driveRobotRelativeOffset(double xSpeed, double ySpeed, double timeRunning) {
-		return new DriveRobotRelativeOffsetCommand(xSpeed, ySpeed, timeRunning);
-	}
-
 	public Command driveRobotLeftRelativeOffset() {
-		return new DriveRobotRelativeOffsetCommand(0, -MAX_SPEED / 10 , AutoConstants.TIME_DRIVING_OFFSET);
+		return new DriveRobotRelativeOffsetCommand(
+			0, -1, AutoConstants.TIME_DRIVING_OFFSET
+		);
 	}
 
+	/**
+	 * A Drive Robot Relative Offset command used while extending the elevator in auto.
+	 * @return the command that drives right (robot relative) at a certain speed for a set duration.
+	 */
 	public Command driveRobotRightRelativeOffset() {
-		return new DriveRobotRelativeOffsetCommand(0, MAX_SPEED / 10 , AutoConstants.TIME_DRIVING_OFFSET);
+		return new DriveRobotRelativeOffsetCommand(
+			0, 1, AutoConstants.TIME_DRIVING_OFFSET
+		);
 	}
 
 	class DriveRobotRelativeOffsetCommand extends Command {
 
-			private Timer timer;
+		private Timer timer;
 
-			private double xS;
-			private double yS;
-			private double duration;
+		private double xS;
+		private double yS;
+		private double duration;
 
-			DriveRobotRelativeOffsetCommand(double xSpeed, double ySpeed, double timeRunning) {
-				xS = xSpeed;
-				yS = ySpeed;
-				duration = timeRunning;
-				timer = new Timer();
-				timer.reset();
-			}
+		/**
+		 * Drive robot relative offset command used in autos for reef adjustment.
+		 * @param xSpeed the robot relative x speed (0 -> 1)
+		 * @param ySpeed the robot relative y speed (0 -> 1)
+		 * @param timeRunning the time it should move at constant speed in seconds.
+		 */
+		DriveRobotRelativeOffsetCommand(double xSpeed, double ySpeed, double timeRunning) {
+			xS = xSpeed;
+			yS = ySpeed;
+			duration = timeRunning;
 
-			@Override
-			public void initialize() {
-				timer.start();
-			}
-
-			@Override
-			public void execute() {
-				drivetrain.setControl(
-					driveRobotCentric
-						.withVelocityX(xS * MAX_SPEED)
-						.withVelocityY(yS * MAX_SPEED)
-				);
-			}
-
-			@Override
-			public boolean isFinished() {
-				return timer.get() >= duration;
-			}
-
-			@Override
-			public void end(boolean interrupted) {
-				timer.stop();
-			}
+			timer = new Timer();
+			timer.reset();
 		}
+
+		@Override
+		public void initialize() {
+			timer.start();
+		}
+
+		@Override
+		public void execute() {
+			drivetrain.setControl(
+				driveRobotCentric
+					.withVelocityX(xS * MAX_SPEED)
+					.withVelocityY(yS * MAX_SPEED)
+			);
+		}
+
+		@Override
+		public boolean isFinished() {
+			return timer.get() >= duration;
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			timer.stop();
+		}
+	}
 
 	/**
 	* Get the maple-Sim Swerve simulation.

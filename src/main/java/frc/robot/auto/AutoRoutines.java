@@ -1,6 +1,7 @@
 package frc.robot.auto;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,21 +87,20 @@ public class AutoRoutines {
 						"Unknown trajectory in sequential stage supply."
 					);
 				}
-			} else if (autoStage.getClass().equals(AutoCommands.class)) {
-				/* -- Processing commands -- */
-				if (commands.containsKey(autoStage)) {
-					seqInstruction.addCommands(
-						commands.get(autoStage)
-						.alongWith(getAutoLogCommand(new String[] {autoStage.toString()}))
-					);
-				} else {
-					throw new IllegalStateException(
-						"Unknown command in sequential stage supply."
-					);
-				}
+			} else if (autoStage.getClass().equals(Command.class)) {
+				/* -- Processing mech commands -- */
+				seqInstruction.addCommands(
+					((Command) autoStage)
+					.alongWith(getAutoLogCommand(
+						new String[] {autoStage.getClass().getSimpleName()}
+					))
+				);
+			/* --- Processing parallel auto commands --- */
 			} else if (autoStage.getClass().equals(Object[].class)) {
 
 				ParallelCommandGroup parallelQueue = new ParallelCommandGroup();
+				String[] loggingString = new String[((Object[]) autoStage).length];
+				int t = 0;
 
 				for (Object autoParallelStage: (Object[]) autoStage) {
 
@@ -114,24 +114,20 @@ public class AutoRoutines {
 							}
 
 							parallelQueue.addCommands(traj.cmd());
+							loggingString[t++] = (String) autoParallelStage;
 						} else {
 							throw new IllegalStateException(
 								"Unknown trajectory in parallel stage supply."
 							);
 						}
-					/* -- Processing commands -- */
-					} else if (autoParallelStage.getClass().equals(AutoCommands.class)) {
-						if (commands.containsKey(autoParallelStage)) {
-							parallelQueue.addCommands(commands.get(autoParallelStage));
-						} else {
-							throw new IllegalStateException(
-								"Unknown command in parallel stage supply."
-							);
-						}
+					/* -- Processing mech commands -- */
+					} else if (autoParallelStage.getClass().equals(Command.class)) {
+						parallelQueue.addCommands(commands.get(autoParallelStage));
+						loggingString[t++] = autoParallelStage.getClass().getSimpleName();
 					}
 				}
 
-				parallelQueue.addCommands(getAutoLogCommand((Object[]) autoStage));
+				parallelQueue.addCommands(getAutoLogCommand(loggingString));
 				seqInstruction.addCommands(parallelQueue);
 
 			} else {
@@ -180,137 +176,23 @@ public class AutoRoutines {
 	private void initialize() {
 
 		if (HardwareMap.isDriveHardwarePresent()) {
-			setUpDriveCommands();
 
 			sysRoutine = driveSystem.createAutoFactory().newRoutine("AutoRoutine");
 			generateSysRoutineMap(Filesystem.getDeployDirectory().toString());
 
-			if (HardwareMap.isCVHardwarePresent()) {
-				setUpAlignmentCommands();
-			}
-		}
-
-		if (HardwareMap.isElevatorHardwarePresent()) {
-			setUpElevatorCommands();
-		}
-
-		if (HardwareMap.isFunnelHardwarePresent()) {
-			setUpFunnelCommands();
 		}
 	}
 
-	private void setUpDriveCommands() {
-		/* ---- All Drive Commands ---- */
-		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
-			driveSystem.brakeCommand()
-		);
+	public ArrayList<Object[]> getAllAutos() {
+		ArrayList<Object[]> allObjArrays = new ArrayList<Object[]>();
 
-		commands.put(AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
-			driveSystem.driveRobotRelativeOffset(
-				AutoConstants.REEF_OFFSET_X_AUTO_SPEED,
-				AutoConstants.REEF_OFFSET_Y_AUTO_SPEED,
-				AutoConstants.TIME_DRIVING_OFFSET)
-		);
-
-		commands.put(AutoCommands.DRIVE_ROBOT_RIGHT_RELATIVE_OFFSET_TIMED_CMD,
-			driveSystem.driveRobotRelativeOffset(
-				-AutoConstants.REEF_OFFSET_X_AUTO_SPEED,
-				AutoConstants.REEF_OFFSET_Y_AUTO_SPEED,
-				AutoConstants.TIME_DRIVING_OFFSET)
-		);
 	}
 
-	private void setUpAlignmentCommands() {
-		/* ---- All Red AprilTag Alignment Commands ---- */
-		commands.put(AutoCommands.R_ALIGN_REEF2_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_2_TAG_ID
-				)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF3_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_3_TAG_ID
-				)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF5_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID
-			)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF6_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_6_TAG_ID
-			)
-		);
-		commands.put(AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.RED_L_STATION_ID
-				)
-		);
-		commands.put(AutoCommands.R_ALIGN_STATION_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.RED_R_STATION_ID
-			)
-		);
-
-		/* ---- All Blue AprilTag Alignment Commands ---- */
-		commands.put(AutoCommands.B_ALIGN_REEF2_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_2_TAG_ID
-			)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF3_TAG_CMD,
-			driveSystem.alignToTagCommand(
-				AutoConstants.B_REEF_3_TAG_ID
-			)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF5_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID
-				)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF6_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_6_TAG_ID
-				)
-		);
-		commands.put(AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.BLUE_L_STATION_ID
-				)
-		);
-		commands.put(AutoCommands.B_ALIGN_STATION_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.BLUE_R_STATION_ID
-			)
-		);
-	}
-
-	private void setUpElevatorCommands() {
-		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
-			elevatorSystem.elevatorGroundCommand()
-		);
-		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
-			elevatorSystem.elevatorStationCommand()
-		);
-		commands.put(AutoCommands.ELEVATOR_L4_CMD,
-			elevatorSystem.elevatorL4Command()
-		);
-	}
-
-	private void setUpFunnelCommands() {
-		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
-			funnelSystem.openFunnelCommand()
-		);
-		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
-			funnelSystem.closeFunnelCommand()
-		);
-	}
-
-	public final Object[] B_PATH_1 = new Object[] {
+	/* -- ALL PATHS -- */
+	private Object[] bPathOne = new Object[] {
 		funnelSystem.closeFunnelCommand(),
 		new Object[] {
-			"S1_R2",
+			driveSystem.alignToTagCommand(AutoConstants.B_REEF_1_TAG_ID),
 			elevatorSystem.elevatorStationCommand()
 		},
 		new Object[] {
