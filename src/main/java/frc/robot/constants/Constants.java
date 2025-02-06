@@ -17,6 +17,22 @@ public final class Constants {
 	// PID Constants
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
 
+	//Elevator motion profile constants
+	public static final double ELEVATOR_KG = 0.3;
+	public static final double ELEVATOR_KS = 0.4;
+	public static final double ELEVATOR_KV = 0.001;
+	public static final double ELEVATOR_KA = 0.0;
+	public static final double ELEVATOR_KP = 0.5;
+	public static final double ELEVATOR_KI = 0.0;
+	public static final double ELEVATOR_KD = 0.0;
+
+	public static final double ELEVATOR_CRUISE_VELO = 100;
+	public static final double ELEVATOR_TARGET_ACCEL = 500;
+	public static final double ELEVATOR_EXPO_KV = 0.12;
+
+	//Elevator Unit Conversion
+	public static final double ELEVATOR_ROTS_TO_INCHES = 1 / (15 / (2 * Math.PI));
+
 	// Encoder Position Constants
 	public static final double ELEVATOR_JOYSTICK_INPUT_DEADBAND = 0.1;
 
@@ -26,7 +42,7 @@ public final class Constants {
 	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(34.75);
 	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(19);
 	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
-	public static final double ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE = 15;
+	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(1);
 
 	public static final double ELEVATOR_POWER = 0.8;
 	public static final double ELEVATOR_REDUCED_POWER = 0.5;

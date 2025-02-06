@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HardwareMap;
@@ -74,29 +75,30 @@ public class ElevatorFSMSystem {
 
 		// apply sw limit
 		var swLimitSwitch = talonFXConfigs.SoftwareLimitSwitch;
-		swLimitSwitch.ForwardSoftLimitEnable = true; // enable top limit
-		swLimitSwitch.ReverseSoftLimitEnable = true; // enable bottom limit
+		swLimitSwitch.ForwardSoftLimitEnable = false; // enable top limit
+		swLimitSwitch.ReverseSoftLimitEnable = false; // enable bottom limit
 		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_THRESHOLD
 			.in(Units.Inches);
 		swLimitSwitch.ReverseSoftLimitThreshold = Units.Inches.of(0).in(Units.Inches);
 
 		var sensorConfig = talonFXConfigs.Feedback;
-		sensorConfig.SensorToMechanismRatio = 0.876;
+		sensorConfig.SensorToMechanismRatio = Constants.ELEVATOR_ROTS_TO_INCHES;
 
 		var slot0Configs = talonFXConfigs.Slot0;
 		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
-		slot0Configs.kG = 0.3;
-		slot0Configs.kS = 0.4;
-		slot0Configs.kV = 0.001;
-		slot0Configs.kA = 0.0;
-		slot0Configs.kP = 0.1;
-		slot0Configs.kI = 0.0;
-		slot0Configs.kD = 0.0;
+		slot0Configs.kG = Constants.ELEVATOR_KG;
+		slot0Configs.kS = Constants.ELEVATOR_KS;
+		slot0Configs.kV = Constants.ELEVATOR_KV;
+		slot0Configs.kA = Constants.ELEVATOR_KA;
+		slot0Configs.kP = Constants.ELEVATOR_KP;
+		slot0Configs.kI = Constants.ELEVATOR_KI;
+		slot0Configs.kD = Constants.ELEVATOR_KD;
 		slot0Configs.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
 		var motionMagicConfigs = talonFXConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = 100;
-		motionMagicConfigs.MotionMagicAcceleration = 500;
+		motionMagicConfigs.MotionMagicCruiseVelocity = Constants.ELEVATOR_CRUISE_VELO;
+		motionMagicConfigs.MotionMagicAcceleration = Constants.ELEVATOR_TARGET_ACCEL;
+		motionMagicConfigs.MotionMagicExpo_kV = Constants.ELEVATOR_EXPO_KV;
 
 		elevatorMotor.getConfigurator().apply(talonFXConfigs);
 
@@ -193,6 +195,12 @@ public class ElevatorFSMSystem {
 
 		Logger.recordOutput("Elevator Accel", elevatorMotor.getAcceleration().getValueAsDouble());
 
+		Logger.recordOutput("Elev Inrage GRND?", inRange(getElevatorpos(),
+			Constants.ELEVATOR_TARGET_GROUND));
+
+		Logger.recordOutput("Elev Inrage L4?", inRange(getElevatorpos(),
+			Constants.ELEVATOR_TARGET_L4));
+
 		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition().getValue());
 
 	}
@@ -256,19 +264,13 @@ public class ElevatorFSMSystem {
 				return ElevatorFSMState.GROUND;
 
 			case LEVEL2:
-				if (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-					- Constants.ELEVATOR_TARGET_L2.in(Units.Inches))
-					< Constants.ELEVATOR_TARGET_MARGIN
-					|| !input.isL2ButtonPressed()) {
+				if (!input.isL2ButtonPressed()) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL2;
 
 			case LEVEL3:
-				if (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-					- Constants.ELEVATOR_TARGET_L3.in(Units.Inches))
-					< Constants.ELEVATOR_TARGET_MARGIN
-					|| !input.isL3ButtonPressed()) {
+				if (!input.isL3ButtonPressed()) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL3;
@@ -293,6 +295,15 @@ public class ElevatorFSMSystem {
 			return false;
 		}
 		return groundLimitSwitch.get(); // switch is normally open
+	}
+
+	private boolean inRange(Distance currentPos, Distance targetPos) {
+		return (currentPos.compareTo(targetPos.minus(Constants.ELEVATOR_INRANGE_VALUE)) > 0)
+				&& currentPos.compareTo(targetPos.plus(Constants.ELEVATOR_INRANGE_VALUE)) < 0;
+	}
+
+	private Distance getElevatorpos() {
+		return Units.Inches.of(elevatorMotor.getPosition().getValueAsDouble());
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
@@ -323,7 +334,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleGroundState(TeleopInput input) {
-		if (isBottomLimitReached()) {
+		if (isBottomLimitReached() || inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_GROUND)) {
 			elevatorMotor.set(0);
 			elevatorMotor.setPosition(0);
 		} else {
@@ -339,9 +350,13 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL2State(TeleopInput input) {
-		elevatorMotor.setControl(
-			motionRequest.withPosition(Constants.ELEVATOR_TARGET_L2.in(Units.Inches))
-		);
+		if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2)) {
+			elevatorMotor.set(0);
+		} else {
+			elevatorMotor.setControl(
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L2.in(Units.Inches))
+			);
+		}
 	}
 
 	/**
@@ -350,9 +365,13 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL3State(TeleopInput input) {
-		elevatorMotor.setControl(
-			motionRequest.withPosition(Constants.ELEVATOR_TARGET_L3.in(Units.Inches))
-		);
+		if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3)) {
+			elevatorMotor.set(0);
+		} else {
+			elevatorMotor.setControl(
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L3.in(Units.Inches))
+			);
+		}
 	}
 
 	/**
@@ -361,49 +380,31 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL4State(TeleopInput input) {
-		elevatorMotor.setControl(
-			motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
-		);
+		if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4)) {
+			elevatorMotor.set(0);
+		} else {
+			elevatorMotor.setControl(
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
+			);
+		}
 	}
 
 	/* ---- Elevator Commands ---- */
 
 	/** Superclass for elevator commands. */
 	abstract class ElevatorCommand extends Command {
-		private double target;
+		private Distance target;
 
 		@Override
 		public void execute() {
-			if (isBottomLimitReached()) {
-				elevatorMotor.setPosition(0);
-				if (elevatorMotor.get() < 0) {
-					elevatorMotor.set(0);
-					return;
-				}
-			}
-
-			double pos = elevatorMotor.getPosition().getValueAsDouble();
-			if (target - pos < -Constants.ELEVATOR_TARGET_MARGIN) { // above target
-				if (pos > target + Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
-					elevatorMotor.set(-Constants.ELEVATOR_POWER);
-				} else {
-					elevatorMotor.set(-Constants.ELEVATOR_REDUCED_POWER);
-				}
-			} else if (target - pos > Constants.ELEVATOR_TARGET_MARGIN) { // below target
-				if (pos > target - Constants.ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE) {
-					elevatorMotor.set(Constants.ELEVATOR_REDUCED_POWER);
-				} else {
-					elevatorMotor.set(Constants.ELEVATOR_POWER);
-				}
-			} else {
-				elevatorMotor.set(0);
-			}
+			elevatorMotor.setControl(
+				motionRequest.withPosition(target.in(Units.Inches))
+			);
 		}
 
 		@Override
 		public boolean isFinished() {
-			return Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-			- target) < Constants.ELEVATOR_TARGET_MARGIN;
+			return inRange(getElevatorpos(), target);
 		}
 
 		@Override
@@ -411,11 +412,11 @@ public class ElevatorFSMSystem {
 			elevatorMotor.stopMotor();
 		}
 
-		protected void setTarget(double newTarget) {
+		protected void setTarget(Distance newTarget) {
 			this.target = newTarget;
 		}
 
-		protected double getTarget() {
+		protected Distance getTarget() {
 			return this.target;
 		}
 	}
@@ -423,28 +424,28 @@ public class ElevatorFSMSystem {
 	/** A command that moves the elevator to the Ground position. */
 	class ElevatorGroundCommand extends ElevatorCommand {
 		ElevatorGroundCommand() {
-			this.setTarget(Constants.ELEVATOR_TARGET_GROUND.in(Units.Inches));
+			this.setTarget(Constants.ELEVATOR_TARGET_GROUND);
 		}
 	}
 
 	/** A command that moves the elevator to the L2 position. */
 	class ElevatorL2Command extends ElevatorCommand {
 		ElevatorL2Command() {
-			this.setTarget(Constants.ELEVATOR_TARGET_L2.in(Units.Inches));
+			this.setTarget(Constants.ELEVATOR_TARGET_L2);
 		}
 	}
 
 	/** A command that moves the elevator to the L3 position. */
 	class ElevatorL3Command extends ElevatorCommand {
 		ElevatorL3Command() {
-			this.setTarget(Constants.ELEVATOR_TARGET_L3.in(Units.Inches));
+			this.setTarget(Constants.ELEVATOR_TARGET_L3);
 		}
 	}
 
 	/** A command that moves the elevator to the L4 position. */
 	class ElevatorL4Command extends ElevatorCommand {
 		ElevatorL4Command() {
-			this.setTarget(Constants.ELEVATOR_TARGET_L4.in(Units.Inches));
+			this.setTarget(Constants.ELEVATOR_TARGET_L4);
 		}
 	}
 
