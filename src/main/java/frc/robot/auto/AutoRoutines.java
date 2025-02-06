@@ -87,7 +87,7 @@ public class AutoRoutines {
 
 			if (autoStage.getClass().equals(String.class)) {
 				/* -- Processing drive trajs -- */
-				if (HardwareMap.isDriveHardwarePresent() && paths.containsKey(autoStage)) {
+				if (paths.containsKey(autoStage)) {
 					AutoTrajectory traj = paths.get(autoStage);
 					if (i == 0) {
 						seqInstruction.addCommands(traj.resetOdometry());
