@@ -6,6 +6,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -80,7 +81,8 @@ public class DriveFSMSystem extends SubsystemBase {
 	// Placeholder for until confidence system implemented
 	private int tagID = AutoConstants.B_REEF_1_TAG_ID;
 
-	private Pose2d tagAlignmentPose = null;
+	private Translation2d alignmentTranslation2d;
+	private double rotationCache2d;
 
 	private Rotation2d rotationAlignmentPose =
 		new Rotation2d(0);
@@ -218,9 +220,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		logger.applyStateLogging(drivetrain.getState());
 
 		/* cv alignment constant resets */
-		if (tagAlignmentPose != null) {
-			tagAlignmentPose = null;
+		if (alignmentTranslation2d != null) {
 			tagPositionAligned = false;
+			alignmentTranslation2d = null;
+			rotationCache2d = 0;
 		}
 
 		//System.out.println("TELEOP IS RUNNING");
@@ -247,10 +250,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		// System.out.println("TELEOP X:" + drivetrain.getState().Pose.getX());
 
 		drivetrain.setControl(
-			driveFacingAngle.withVelocityX(xSpeed)
-			.withVelocityY(ySpeed)
+			driveFacingAngle.withVelocityX(-xSpeed)
+			.withVelocityY(-ySpeed)
 			.withTargetDirection(
-				rotationAlignmentPose
+				rotationAlignmentPose.plus(Rotation2d.k180deg)
 			)
 			.withTargetRateFeedforward(rotXComp)
 		);
@@ -283,11 +286,6 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		AprilTag tag = rpi.getAprilTagWithID(id);
 
-		if (tagAlignmentPose != null) {
-			System.out.println("Tag Alignment Pose X " + tagAlignmentPose.getX());
-			System.out.println("Tag Alignment Pose Y " + tagAlignmentPose.getY());
-		}
-
 		if (tag != null && !tagPositionAligned) {
 
 			Pose2d currPose = drivetrain.getState().Pose;
@@ -297,7 +295,20 @@ public class DriveFSMSystem extends SubsystemBase {
 			// Y is side-to-side on robotPose, x is side-to-side on cv side
 			double rpiY = tag.getX();
 			// using rvec to determine the absolute rotation of the apriltag.
-			double rpiTheta = tag.getPitch();
+			double rpiTheta = 
+				lerp(0, rotationCache2d,
+					Math.hypot(rpiX, rpiY)
+					/ Math.hypot(alignmentTranslation2d.getX(),
+						alignmentTranslation2d.getY()));
+
+			if (alignmentTranslation2d == null) {
+				alignmentTranslation2d = new Translation2d(
+					rpiX,
+					rpiY
+				);
+
+				rotationCache2d = tag.getPitch();
+			}
 
 			double xSpeed = Math.abs(rpiX) > VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
@@ -306,31 +317,29 @@ public class DriveFSMSystem extends SubsystemBase {
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
 				) : 0;
 			double ySpeed = Math.abs(rpiY) > VisionConstants.Y_MARGIN_TO_REEF
-				? SwerveUtils.clamp(
-					rpiY / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) : 0;
+				? (rpiY * xSpeed / rpiX) : 0;
+			Logger.recordOutput("RPI Theta1", tag.getPitch());
+			Logger.recordOutput("RPI Theta2", tag.getRoll());
+			Logger.recordOutput("RPI Theta3", tag.getYaw());
+			Logger.recordOutput("RPI X", rpiX);
+			Logger.recordOutput("RPI Y", rpiY);
+
 			double aSpeed = Math.abs(rpiTheta) > VisionConstants.ROT_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
-					rpiTheta / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+					rpiTheta
+						/ VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
 					-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
 					VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
 				) : 0;
 
-			System.out.println("DriveToPose/X Speed " + xSpeed);
-			System.out.println("DriveToPose/Y Speed " + ySpeed);
-			System.out.println("DriveToPose/A Speed " + aSpeed);
-			System.out.println("Yaw: " + rpiTheta);
-			System.out.println(
-				"Yaw Calc: " +
-				new Rotation2d(rpiY, rpiX).getRadians()
-			);
+			Logger.recordOutput("DriveToPose/X Speed ", xSpeed);
+			Logger.recordOutput("DriveToPose/Y Speed ", ySpeed);
+			Logger.recordOutput("DriveToPose/A Speed ", aSpeed);
 
 			drivetrain.setControl(
-				drive.withVelocityX(0/*xSpeed * MAX_SPEED*/)
-				.withVelocityY(0/*-ySpeed * MAX_SPEED*/)
-				.withRotationalRate(aSpeed * MAX_SPEED)//aSpeed * MAX_SPEED)
+				drive.withVelocityX(-xSpeed * MAX_SPEED)
+				.withVelocityY(ySpeed * MAX_SPEED)
+				.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)//aSpeed * MAX_SPEED)
 			);
 
 			tagPositionAligned = (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
@@ -347,6 +356,10 @@ public class DriveFSMSystem extends SubsystemBase {
 			// 	tagPositionAligned = driveToPose(tagAlignmentPose);
 			// }
 		}
+	}
+
+	private double lerp(double start, double end, double dt) {
+		return start * (1 - dt) + end * (dt);
 	}
 
 	private boolean driveToPose(Pose2d targetPose) {
