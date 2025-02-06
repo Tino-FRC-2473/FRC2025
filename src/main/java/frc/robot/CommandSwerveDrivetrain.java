@@ -1,7 +1,5 @@
 package frc.robot;
 
-import org.littletonrobotics.junction.console.SimConsoleSource;
-
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
@@ -16,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -67,7 +66,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		);
 
 		if (Robot.isSimulation()) {
+			// zero
 			setupSimulation(new Pose2d(0, 0, new Rotation2d()));
+
+			//start in field
+			setupSimulation(new Pose2d(
+				Units.feetToMeters(SimConstants.STARTING_POS_X_FT),
+				Units.feetToMeters(SimConstants.STARTING_POS_Y_FT),
+				new Rotation2d()));
 		}
 		// setupPathplanner();
 	}

@@ -18,4 +18,8 @@ public class SimConstants {
 	public static final double WIDTH_IN = 30;
 	public static final double LENGTH_IN = 30;
 	public static final double WHEEL_COF = 1.2;
+
+	// mech pose logging constants
+	public static final double ELEVATOR_WINCH_DIAMETER_METERS = 0.0463296;
+	public static final double ELEVATOR_GEAR_RATIO = 10; //25.0;
 }

@@ -94,20 +94,19 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
+		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
 
-		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
+		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
 
-		if (Robot.isSimulation()
-			|| (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent())) {
+		if (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent()) {
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
-		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
+		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
 
@@ -226,7 +225,7 @@ public class Robot extends LoggedRobot {
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Climber Pose",
-			MechLogging.getInstance().getClimberPost()
+			MechLogging.getInstance().getClimberPose()
 		);
 
 		Logger.recordOutput(

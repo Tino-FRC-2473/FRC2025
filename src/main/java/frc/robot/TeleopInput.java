@@ -2,7 +2,6 @@ package frc.robot;
 
 // WPILib Imports
 import edu.wpi.first.wpilibj.PS4Controller;
-import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * Common class for providing driver inputs during Teleop.
@@ -19,7 +18,7 @@ public class TeleopInput {
 	/* ======================== Private variables ======================== */
 	// Input objects
 	private PS4Controller mechController;
-	private XboxController driveController;
+	private PS4Controller driveController;
 	/* ======================== Constructor ======================== */
 	/**
 	 * Create a TeleopInput and register input devices. Note that while inputs
@@ -27,7 +26,7 @@ public class TeleopInput {
 	 * by WPILib until teleop mode.
 	 */
 	public TeleopInput() {
-		driveController = new XboxController(DRIVE_CONTROLLER_PORT);
+		driveController = new PS4Controller(DRIVE_CONTROLLER_PORT);
 		mechController = new PS4Controller(MECH_CONTROLLER_PORT);
 	}
 
@@ -41,14 +40,14 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public double getDriveLeftJoystickX() {
-		return driveController.getLeftX();
+		return -driveController.getLeftX();
 	}
 	/**
 	 * Get Y axis of Drive Controller.
 	 * @return Axis value
 	 */
 	public double getDriveLeftJoystickY() {
-		return driveController.getLeftY();
+		return -driveController.getLeftY();
 	}
 	/**
 	 * Get X axis of Drive Controller right.
@@ -69,28 +68,28 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public boolean getDriveTriangleButton() {
-		return driveController.getAButton();
+		return driveController.getTriangleButton();
 	}
 	/**
 	 * Get Square Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveSquareButton() {
-		return driveController.getYButton();
+		return driveController.getSquareButton();
 	}
 	/**
 	 * Get Circle Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveCircleButton() {
-		return driveController.getXButton();
+		return driveController.getCircleButton();
 	}
 		/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveBackButtonPressed() {
-		return driveController.getLeftBumperButton();
+		return driveController.getL1Button();
 	}
 
 	/* ------------------------ Mech Controller ------------------------ */

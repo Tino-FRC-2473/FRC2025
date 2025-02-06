@@ -1,27 +1,17 @@
 package frc.robot.logging;
 
 import static edu.wpi.first.units.Units.Radians;
-
-import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
-import frc.robot.constants.Constants;
+import frc.robot.constants.SimConstants;
 
 public final class MechLogging {
 	private Pose3d elevatorStage1;
 	private Pose3d elevatorStage2;
 	private Pose3d elevatorStage3;
-
-	private Pose3d climberPost;
-	private Pose3d climberPivot;
-
-	private Pose3d drivePose;
+	private Pose3d climberPose;
 
 	private static MechLogging instance = new MechLogging();
 
@@ -29,9 +19,10 @@ public final class MechLogging {
 		elevatorStage1 = new Pose3d();
 		elevatorStage2 = new Pose3d();
 		elevatorStage3 = new Pose3d();
-		climberPost = new Pose3d();
-		drivePose = new Pose3d();
+		climberPose = new Pose3d();
 	}
+	public static final double STAGE_2_RATIO = 1.0 / 3.0;
+	public static final double STAGE_3_RATIO = 2.0 / 3.0;
 
 	/**
 	 * Get the instance of the singleton class.
@@ -46,25 +37,32 @@ public final class MechLogging {
 	 * @param encoderSimPosition the simulated location of the elevator motor encoder.
 	 */
 	public void updateElevatorPose3d(Angle encoderSimPosition) {
-		double totalHeight = encoderSimPosition.in(Radians) * Constants.WINCH_DIAMETER_METERS / 2;
-		System.out.println("Total Height " + totalHeight);
+		double totalHeight =
+			encoderSimPosition
+				.div(SimConstants.ELEVATOR_GEAR_RATIO)
+				.in(Radians)
+			* SimConstants.ELEVATOR_WINCH_DIAMETER_METERS / 2;
 
 		// Stage 1 (bottom stage) moves 1/6 of the total movement
 		elevatorStage1 = new Pose3d(
-			drivePose.getTranslation().plus(new Translation3d(0, 0, totalHeight / 6)),
-			drivePose.getRotation()
+			Pose3d.kZero
+				.getTranslation().plus(new Translation3d(0, 0, 0)),
+			Rotation3d.kZero
 		);
 
 		// Stage 2 (middle stage) moves 1/3 of the total movement
 		elevatorStage2 = new Pose3d(
-			drivePose.getTranslation().plus(new Translation3d(0, 0, totalHeight / 3)),
-			drivePose.getRotation()
+			Pose3d.kZero
+				.getTranslation().plus(new Translation3d(0, 0, totalHeight * STAGE_2_RATIO)),
+			Rotation3d.kZero
 		);
 
 		// Stage 3 (top stage) moves 1/2 of the total movement
 		elevatorStage3 = new Pose3d(
-			drivePose.getTranslation().plus(new Translation3d(0, 0, totalHeight / 2)),
-			drivePose.getRotation()
+			Pose3d.kZero
+				.getTranslation()
+				.plus(new Translation3d(0, 0, totalHeight * STAGE_3_RATIO)),
+			Rotation3d.kZero
 		);
 	}
 
@@ -73,20 +71,10 @@ public final class MechLogging {
 	 * @param encoderSimPosition the simulated location of the climber motor encoder.
 	 */
 	public void updatesClimberPose3d(Angle encoderSimPosition) {
-		climberPost = drivePose;
-
-		climberPivot = new Pose3d(
+		climberPose = new Pose3d(
 			Translation3d.kZero,
 			new Rotation3d(0, encoderSimPosition.in(Radians), 0)
 		);
-	}
-
-	/**
-	 * Get the outer-most elevator pose.
-	 * @return outer-most elevator pose
-	 */
-	public Pose3d getElevatorStage1Pose() {
-		return drivePose;
 	}
 
 	/**
@@ -117,16 +105,8 @@ public final class MechLogging {
 	 * Get the pose of the climber ligament.
 	 * @return pose of the rotating climber ligament.
 	 */
-	public Pose3d getClimberPost() {
-		return climberPost;
-	}
-
-	/**
-	 * Get the pose of the climber pivot.
-	 * @return pose of the climber pivot
-	 */
-	public Pose3d getClimberPivot() {
-		return climberPivot;
+	public Pose3d getClimberPose() {
+		return climberPose;
 	}
 
 	/**
@@ -139,13 +119,5 @@ public final class MechLogging {
 			getElevatorStage2(),
 			getElevatorStage3(),
 		};
-	}
-
-	/**
-	 * Sets the drive pose data, used to determine the components' absolute location.
-	 * @param pose the 2d pose of the robot
-	 */
-	public void setDrivePoseData(Pose2d pose) {
-		this.drivePose = new Pose3d(pose);
 	}
 }
