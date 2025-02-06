@@ -31,14 +31,14 @@ public final class Constants {
 	public static final double ELEVATOR_TARGET_MARGIN = 5;
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
-	public static final double CLIMBER_PID_TARGET_EXTEND = 25;
-	public static final double CLIMBER_PID_TARGET_CLIMB = 75;
+	public static final double CLIMBER_PID_TARGET_EXTEND = 108;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 240;
 
-	public static final double CLIMBER_COUNTS_PER_REV = 100;
-	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 0.1;
+	public static final double CLIMBER_COUNTS_PER_REV = 427;
+	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 15;
 
 
-	public static final double CLIMB_POWER = 0.2;
+	public static final double CLIMB_POWER = 0.5;
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;
