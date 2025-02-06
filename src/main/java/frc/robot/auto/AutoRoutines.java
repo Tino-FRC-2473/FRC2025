@@ -24,6 +24,7 @@ public class AutoRoutines {
 
 	// Auto sys instance -- used to convert choreo trajectories into schedulable commands.
 	private AutoRoutine sysRoutine;
+	private AutoPaths autoPaths;
 
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
@@ -56,14 +57,28 @@ public class AutoRoutines {
 			sysRoutine = driveSystem.createAutoFactory().newRoutine("AutoRoutine");
 			generateSysRoutineMap(Filesystem.getDeployDirectory().toString());
 		}
+
+		autoPaths = new AutoPaths();
 	}
 
 	/**
 	 * Creates and returns a auto routine that start with a path.
+	 * <br> <br>
+	 * For clarification with the throwException parameter, if you set it to FALSE,
+	 * it will just not add the command request into the returned SequentialCommandGroup.
+	 * This could be helpful for testing series of commands when you are working with partial
+	 * systems.
+	 * <br> <br>
+	 * If all systems are available, it should probably be set to TRUE - in an ideal
+	 * environment, no commands should throw this issue if all systems are available. It will be
+	 * more useful for debugging in this environment if you set throwException to true.
+	 *
 	 * @param autoStageSupply string of commands and trajectory names
+	 * @param throwException whether to throw an exception at a missing/unknown command or not.
 	 * @return the auto routine
 	 */
-	public SequentialCommandGroup generateSequentialAutoWorkflow(Object[] autoStageSupply) {
+	public SequentialCommandGroup generateSequentialAutoWorkflow(Object[] autoStageSupply,
+		boolean throwException) {
 
 		SequentialCommandGroup seqInstruction = new SequentialCommandGroup();
 
@@ -83,9 +98,16 @@ public class AutoRoutines {
 						.alongWith(getAutoLogCommand(new String[] {(String) autoStage}))
 					);
 				} else {
-					throw new IllegalStateException(
-						"Unknown trajectory in sequential stage supply."
-					);
+					if (throwException) {
+						throw new IllegalStateException(
+							"Unknown trajectory in sequential stage supply."
+						);
+					} else {
+						System.out.println(
+							" -------------- \n"
+							+ autoStage + " is unavailable."
+							+ "Not adding to sequential flow. ");
+					}
 				}
 			} else if (autoStage.getClass().equals(AutoCommands.class)) {
 				/* -- Processing commands -- */
@@ -96,9 +118,16 @@ public class AutoRoutines {
 						.alongWith(getAutoLogCommand(new String[] {autoStage.toString()}))
 					);
 				} else {
-					throw new IllegalStateException(
-						"Unknown command in sequential stage supply."
-					);
+					if (throwException) {
+						throw new IllegalStateException(
+							"Unknown command in sequential stage supply."
+						);
+					} else {
+						System.out.println(
+							" -------------- \n"
+							+ autoStage.toString() + " is unavailable."
+							+ " Not adding to sequential flow. ");
+					}
 				}
 			} else if (autoStage.getClass().equals(Object[].class)) {
 
@@ -117,20 +146,36 @@ public class AutoRoutines {
 
 							parallelQueue.addCommands(traj.cmd());
 						} else {
-							throw new IllegalStateException(
-								"Unknown trajectory in parallel stage supply."
-							);
+							if (throwException) {
+								throw new IllegalStateException(
+									"Unknown trajectory in parallel stage supply."
+								);
+							} else {
+								System.out.println(
+									" -------------- \n"
+									+ autoParallelStage.toString() + " is unavailable."
+									+ " Not adding to parallel staged flow. ");
+							}
 						}
 					/* -- Processing commands -- */
 					} else if (autoParallelStage.getClass().equals(AutoCommands.class)) {
-						Command processedCommand = initializeCommand((AutoCommands) autoStage);
+						Command processedCommand = initializeCommand(
+							(AutoCommands) autoParallelStage
+						);
 
 						if (processedCommand != null) {
 							parallelQueue.addCommands(processedCommand);
 						} else {
-							throw new IllegalStateException(
-								"Unknown command in parallel stage supply."
-							);
+							if (throwException) {
+								throw new IllegalStateException(
+									"Unknown command in parallel stage supply."
+								);
+							} else {
+								System.out.println(
+									" -------------- \n"
+									+ autoParallelStage.toString() + " is unavailable."
+									+ " Not adding to parallel stage flow. ");
+							}
 						}
 					}
 				}
@@ -139,9 +184,16 @@ public class AutoRoutines {
 				seqInstruction.addCommands(parallelQueue);
 
 			} else {
-				throw new IllegalStateException(
-					"Unknown parameter in stage supply."
-				);
+				if (throwException) {
+					throw new IllegalStateException(
+						"Unknown parameter in stage supply."
+					);
+				} else {
+					System.out.println(
+						" -------------- \n"
+						+ autoStage.toString() + " is an unkown parameter."
+						+ " Not adding to sequential flow. ");
+				}
 			}
 		}
 
@@ -206,6 +258,14 @@ public class AutoRoutines {
 		}
 
 		return returnInitCommand;
+	}
+
+	/**
+	 * Get an AutoPaths instance to return all declared paths in AutoPaths.java.
+	 * @return AutoPaths instance
+	 */
+	public AutoPaths getAutoPathHandler() {
+		return autoPaths;
 	}
 
 	private Command checkDriveCommands(AutoCommands commandEntry) {

@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import java.util.HashMap;
+
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
 
@@ -26,7 +28,6 @@ import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
-import frc.robot.auto.AutoPaths;
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
 import frc.robot.logging.MechLogging;
@@ -84,14 +85,6 @@ public class Robot extends LoggedRobot {
 		// Instantiate all systems here
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
-
-			autoRoutines = new AutoRoutines(
-				driveSystem, elevatorSystem, funnelSystem, climberSystem
-			);
-
-			autoChooser.addOption("Path 1",
-				autoRoutines.generateSequentialAutoWorkflow(AutoPaths.B_PATH_1));
-				//TODO: make it generate a list of all Object[] in AutoPaths.java.
 		}
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
@@ -105,6 +98,24 @@ public class Robot extends LoggedRobot {
 
 		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
+		}
+
+		autoRoutines = new AutoRoutines(
+			driveSystem, elevatorSystem, funnelSystem, climberSystem
+		);
+
+		/* If all available auto systems are true, then it will throw exception. */
+		boolean throwException =
+			HardwareMap.isCVHardwarePresent()
+			&& HardwareMap.isDriveHardwarePresent()
+			&& HardwareMap.isElevatorHardwarePresent()
+			&& HardwareMap.isFunnelHardwarePresent();
+
+		for (HashMap.Entry<String, Object[]> auto
+			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
+			//System.out.println(Arrays.toString(auto.getValue()));
+			autoChooser.addOption(auto.getKey(),
+				autoRoutines.generateSequentialAutoWorkflow(auto.getValue(), throwException));
 		}
 	}
 

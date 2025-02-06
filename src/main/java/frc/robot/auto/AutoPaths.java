@@ -1,5 +1,8 @@
 package frc.robot.auto;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+
 import frc.robot.constants.AutoConstants.AutoCommands;
 
 public class AutoPaths {
@@ -26,4 +29,31 @@ public class AutoPaths {
 		AutoCommands.FUNNEL_OPEN_CMD,
 		AutoCommands.DRIVE_BRAKE_CMD
 	};
+
+	public static final Object[] B_PATH_2 = new Object[] {
+		"S1_R1"
+	};
+
+	/**
+	 * Get all autos declared in the file.
+	 * @return hashmap of auto name and autos.
+	 */
+	public HashMap<String, Object[]> getAllAutos() {
+		HashMap<String, Object[]> allObjArrays = new HashMap<String, Object[]>();
+		Field[] allFields = this.getClass().getDeclaredFields();
+
+		for (Field f: allFields) {
+			if (f.getType().equals(Object[].class)) {
+				try {
+					f.setAccessible(true);
+					Object[] array = (Object[]) f.get(this);
+					allObjArrays.put(f.getName(), array);
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return allObjArrays;
+	}
 }
