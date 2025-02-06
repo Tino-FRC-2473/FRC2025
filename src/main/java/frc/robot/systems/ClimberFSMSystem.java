@@ -7,7 +7,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-// import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 // Third party Hardware Imports
 
@@ -31,7 +31,7 @@ public class ClimberFSMSystem {
 	private ClimberFSMState currentState;
 	private TalonFX climberMotor;
 
-	// private DigitalInput climbSwitch;
+	private DigitalInput climbSwitch;
 
 	private BaseStatusSignal climberPosSignal;
 
@@ -60,7 +60,7 @@ public class ClimberFSMSystem {
 
 		climberPosSignal = climberMotor.getPosition();
 
-		// climbSwitch = new DigitalInput(HardwareMap.CLIMBER_LIMIT_SWITCH_DIO_PORT);
+		climbSwitch = new DigitalInput(HardwareMap.CLIMBER_LIMIT_SWITCH_DIO_PORT);
 
 		// Reset state machine
 		reset();
@@ -123,7 +123,7 @@ public class ClimberFSMSystem {
 		Logger.recordOutput("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
 		Logger.recordOutput("Climber state", currentState.toString());
 		Logger.recordOutput("Climber control request", climberMotor.getAppliedControl().toString());
-		// Logger.recordOutput("Climber switch pressed?", climbSwitch.get());
+		Logger.recordOutput("Climber switch pressed?", climbSwitch.get());
 		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
 	}
 
@@ -221,7 +221,7 @@ public class ClimberFSMSystem {
 			% Constants.CLIMBER_COUNTS_PER_REV,
 			Constants.CLIMBER_PID_TARGET_CLIMB,
 			Constants.CLIMBER_PID_MARGIN_OF_ERROR)
-			// && !climbSwitch.get() // stop climbing if limit switch pressed
+			&& !climbSwitch.get() // stop climbing if limit switch pressed
 		) {
 			climberMotor.set(Constants.CLIMB_POWER);
 		} else {

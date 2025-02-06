@@ -7,7 +7,7 @@ package frc.robot;
 public final class HardwareMap {
 	// ID numbers for devices on the CAN bus
 	public static final int CAN_ID_ELEVATOR = 14; // FINAL
-	public static final int CAN_ID_CLIMBER = 6; // FINAL
+	public static final int CAN_ID_CLIMBER = 8; // FINAL
 
 	// playing with fusion CAN chain
 	public static final int FUNNEL_TOF_ID = 13; // TBD
