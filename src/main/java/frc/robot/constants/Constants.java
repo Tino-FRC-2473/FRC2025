@@ -1,5 +1,8 @@
 package frc.robot.constants;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
+
 public final class Constants {
 	// led constants
 	public static final int LED_STRIP_BUFFER = 3; // TBD
@@ -17,11 +20,12 @@ public final class Constants {
 	// Encoder Position Constants
 	public static final double ELEVATOR_JOYSTICK_INPUT_DEADBAND = 0.1;
 
-	public static final double ELEVATOR_UPPER_THRESHOLD = 146; // DO NOT drive above this!
-	public static final double ELEVATOR_TARGET_L4 = 146;
-	public static final double ELEVATOR_TARGET_L3 = 78;
-	public static final double ELEVATOR_TARGET_L2 = 30;
-	public static final double ELEVATOR_TARGET_GROUND = 0;
+	public static final Distance ELEVATOR_UPPER_THRESHOLD = Units.Inches.of(51);
+	// DO NOT drive above this!
+	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(51);
+	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(34.75);
+	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(19);
+	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
 	public static final double ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE = 15;
 
 	public static final double ELEVATOR_POWER = 0.8;
