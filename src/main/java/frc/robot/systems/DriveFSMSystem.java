@@ -32,7 +32,7 @@ import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.MechLogging;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
-import frc.robot.RaspberryPI;
+import frc.robot.RaspberryPi;
 import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
@@ -71,7 +71,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private CommandSwerveDrivetrain drivetrain;
 
 	/* -- cv constants -- */
-	private RaspberryPI rpi = new RaspberryPI();
+	private RaspberryPi rpi = new RaspberryPi();
 	private boolean tagPositionAligned;
 
 	// Placeholder for until confidence system implemented

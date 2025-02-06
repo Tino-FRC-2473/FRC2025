@@ -13,14 +13,14 @@ import frc.robot.constants.VisionConstants;
 *
 * @author Jaseer Abdulla
 */
-public class RaspberryPI {
+public class RaspberryPi {
 	private NetworkTable table;
 	private DoubleArraySubscriber tagSubscriber;
 
 	/**
 	* Default constructor for the RaspberryPi class.
 	*/
-	public RaspberryPI() {
+	public RaspberryPi() {
 		table = NetworkTableInstance.getDefault().getTable("datatable");
 		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
 	}
@@ -36,8 +36,7 @@ public class RaspberryPI {
 	/**
 	* Gets the data from the Raspberry Pi.
 	*
-	* @return  ArrayList<AprilTag>
-	*          The data from the Raspberry Pi
+	* @return  List of AprilTags from the Raspberry Pi
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
@@ -53,8 +52,14 @@ public class RaspberryPI {
 			i += VisionConstants.AT_ARR_INC
 		) {
 			atList.add(
-				new AprilTag((int) rawData[i],
-				"Reef Camera",
+				new AprilTag(
+					(int) rawData[i],
+					"Reef Camera",
+					new Translation3d(
+						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET],
+						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET + 1],
+						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET + 2]
+					),
 					new Translation3d(
 						rawData[i + VisionConstants.AT_ARR_TRANSLATION_OFFSET],
 						rawData[i + VisionConstants.AT_ARR_TRANSLATION_OFFSET + 1],

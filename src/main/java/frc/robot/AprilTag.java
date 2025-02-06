@@ -6,9 +6,12 @@ import edu.wpi.first.math.geometry.Rotation3d;
 /**
 * This class is used to store the pose of the AprilTag relative to the camera.
 */
-public class AprilTag {
+public class AprilTag implements Comparable<AprilTag> {
 	private String camera;
 	private int tagID;
+
+	/* This is where the camera is positioned relative to the tag. */
+	private Translation3d cameraVector;
 
 	/* Describes the orentation of the marker relative to the camera. */
 	private Rotation3d rotationalVector;
@@ -23,22 +26,25 @@ public class AprilTag {
 	*          The ID of the tag
 	* @param   camName
 	*          The name of the camera
-	* @param   rotVector
-	*          The orientation of the tag relative to the camera
+	* @param   camVector
+	*          The position of the camera relative to the tag
 	* @param   transVector
 	*          The position of the tag relative to the camera
+	* @param   rotVector
+	*          The orientation of the tag relative to the camera
 	*/
 	public AprilTag(
 		int id,
 		String camName,
+		Translation3d camVector,
 		Translation3d transVector,
 		Rotation3d rotVector) {
 
 		this.tagID = id;
 		this.camera = camName;
+		this.cameraVector = camVector;
 		this.rotationalVector = rotVector;
 		this.translationalVector = transVector;
-
 	}
 
 	/**
@@ -122,7 +128,20 @@ public class AprilTag {
 	@Override
 	public String toString() {
 		return String.format(
-			"ID %d  - x: %.3f, y: %.3f, z: %.3f, %s", tagID, getX(), getY(), getZ(), getPose()
-		);
+				"ID %d  - x: %.3f, y: %.3f, z: %.3f, %s", tagID, getX(), getY(), getZ(), getPose());
+	}
+
+
+	/**
+	 * Compares one AptilTag to another.
+	 * @param other
+	 * @return An{@code int} used to compare two AprilTags
+	 */
+	@Override
+	public int compareTo(AprilTag other) {
+		double dist = getPose().getTranslation().getNorm();
+		double otherDist = other.getPose().getTranslation().getNorm();
+
+		return Double.compare(dist, otherDist);
 	}
 }
