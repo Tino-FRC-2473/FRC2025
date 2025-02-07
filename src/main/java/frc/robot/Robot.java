@@ -53,7 +53,7 @@ public class Robot extends LoggedRobot {
 	private NetworkTableInstance ntInstance;
 
 	private static final Object[] PATH_1 = new Object[] {
-		"S1_R1"
+		"S3_R6"
 	};
 
 	/**
