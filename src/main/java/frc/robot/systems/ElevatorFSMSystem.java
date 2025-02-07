@@ -18,6 +18,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
@@ -184,7 +185,14 @@ public class ElevatorFSMSystem {
 		currentState = nextState(input);
 
 		// telemetry and logging
+		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition().getValue());
 
+	}
+
+	/**
+	 * Updates the logging information for the elevator system.
+	 */
+	public void updateLogging() {
 		Logger.recordOutput("Elevator encoder", elevatorMotor.getPosition().getValueAsDouble());
 		Logger.recordOutput("Elevator velocity", elevatorMotor.getVelocity().getValueAsDouble());
 
@@ -200,9 +208,6 @@ public class ElevatorFSMSystem {
 
 		Logger.recordOutput("Elev Inrage L4?", inRange(getElevatorpos(),
 			Constants.ELEVATOR_TARGET_L4));
-
-		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition().getValue());
-
 	}
 
 	/* ======================== Private methods ======================== */
@@ -229,21 +234,18 @@ public class ElevatorFSMSystem {
 					return ElevatorFSMState.GROUND;
 				}
 				if (input.isL4ButtonPressed()
-					// && funnelSystem.isHoldingCoral()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
 				if (input.isL2ButtonPressed()
-					// && funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL2;
 				}
 				if (input.isL3ButtonPressed()
-					// && funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()) {
@@ -390,9 +392,7 @@ public class ElevatorFSMSystem {
 		}
 
 		@Override
-		public void end(boolean interrupted) {
-			elevatorMotor.stopMotor();
-		}
+		public void end(boolean interrupted) { }
 
 		protected void setTarget(Distance newTarget) {
 			this.target = newTarget;
@@ -400,6 +400,26 @@ public class ElevatorFSMSystem {
 
 		protected Distance getTarget() {
 			return this.target;
+		}
+	}
+
+	class WaitCommand extends Command {
+		private Timer timer;
+		private double targTime;
+
+		WaitCommand(double countToSecs) {
+			targTime = countToSecs;
+		}
+
+		@Override
+		public void initialize() {
+			timer = new Timer();
+			timer.start();
+		}
+
+		@Override
+		public boolean isFinished() {
+			return timer.get() > targTime;
 		}
 	}
 
@@ -442,11 +462,19 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
-	 * Creates a Command to move the elevator to the station position.
-	 * @return A new elevator station command.
+	 * Creates a Command to move the elevator to the L2 position.
+	 * @return A new elevator L2 command.
 	 */
-	public Command elevatorStationCommand() {
+	public Command elevatorL2Command() {
 		return new ElevatorL2Command();
+	}
+
+	/**
+	 * Creates a Command to move the elevator to the L3 position.
+	 * @return A new elevator L3 command.
+	 */
+	public Command elevatorL3Command() {
+		return new ElevatorL3Command();
 	}
 
 	/**
@@ -455,5 +483,13 @@ public class ElevatorFSMSystem {
 	 */
 	public Command elevatorL4Command() {
 		return new ElevatorL4Command();
+	}
+
+	/**
+	 * Creates a Command that waits for a specified duration.
+	 * @return A new wait command.
+	 */
+	public Command waitCommand() {
+		return new WaitCommand(0);
 	}
 }

@@ -31,7 +31,7 @@ public final class Constants {
 	public static final double ELEVATOR_EXPO_KV = 0.12;
 
 	//Elevator Unit Conversion
-	public static final double ELEVATOR_ROTS_TO_INCHES = (15 / (2 * Math.PI));
+	public static final double ELEVATOR_ROTS_TO_INCHES = 15 / (2 * Math.PI);
 
 	// Encoder Position Constants
 	public static final double ELEVATOR_JOYSTICK_INPUT_DEADBAND = 0.1;
