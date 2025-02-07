@@ -13,9 +13,9 @@ basePath = Path(__file__).resolve().parent
 # at 18 in -> max left/right was 4.5 in
 class AprilTag():
 
-    def __init__(self):
-        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}dist.npy')
+    def __init__(self, cam_name):
+        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}matrix.npy')
+        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}dist.npy')
 
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
@@ -102,7 +102,7 @@ class AprilTag():
                     pose_list.extend(tvec)
                     pose_list.extend(rvec)
                     
-                    print("tvec: ", tvec)
+                    #print("tvec: ", tvec)
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
 
             return pose_list

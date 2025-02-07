@@ -6,12 +6,13 @@ from config import *
 from pathlib import Path
 
 class DataCollector:
-    def __init__(self, initial_frame_shape: np.ndarray):
+    def __init__(self, cam_name: str, initial_frame_shape: np.ndarray):
         basePath = Path(__file__).resolve().parent
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        self.mp4_raw = cv2.VideoWriter(f'{DATA_COLLECTION_DIR}/data_collection {time.ctime(time.time())}.mp4', fourcc, DATA_COLLECTION_FPS, (initial_frame_shape[1], initial_frame_shape[0]))
-        self.mp4_annotated = cv2.VideoWriter(f'{DATA_COLLECTION_DIR}/data_collection_annotated {time.ctime(time.time())}.mp4', fourcc, DATA_COLLECTION_FPS, AT_RESIZED_RES)
-        self.csv_file =  open(f"{DATA_COLLECTION_DIR}/data_collection {time.ctime(time.time())}.csv", mode='w', newline='')
+        timestamp = time.ctime(time.time())
+        self.mp4_raw = cv2.VideoWriter(f'{DATA_COLLECTION_DIR}/{cam_name} raw {timestamp}.mp4', fourcc, DATA_COLLECTION_FPS, (initial_frame_shape[1], initial_frame_shape[0]))
+        self.mp4_annotated = cv2.VideoWriter(f'{DATA_COLLECTION_DIR}/{cam_name} annotated {timestamp}.mp4', fourcc, DATA_COLLECTION_FPS, AT_RESIZED_RES)
+        self.csv_file =  open(f"{DATA_COLLECTION_DIR}/{cam_name} tag data {timestamp}.csv", mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.frame_id = 0
 
