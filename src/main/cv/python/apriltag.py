@@ -119,7 +119,19 @@ class AprilTag():
         first_key = next(iter(ordered_poses))
         return ordered_poses.get(first_key)
 
-
+    def distance_to_tag(self, image, corners, marker_size):
+        gray = image[:, :, 0]
+        results = self.detector.detect(gray)
+        #print("results from distance to tag", results)
+        corners = [r.corners for r in results]
+        # Testing with coral station apriltag
+        marker_points_3d = np.array([[-marker_size/2, -marker_size/2, 0], [marker_size/2, -marker_size/2, 0], [marker_size/2, marker_size/2, 0], [-marker_size/2, marker_size/2, 0]], dtype=np.float32)
+        image_points_2d = corners
+        _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d[0], self.camera_matrix, self.dist_coeffs)
+        R, _ = cv2.Rodrigues(rvec)
+        list = [0.130175, 0.903224, 0.0536]
+        intake_pos = np.array(list)
+        return R.T @ (tvec - intake_pos)
     
     def calculate_camera_position_multiple(self, corners_list, marker_size, camera_matrix, dist_coeffs):
         camera_positions = []
