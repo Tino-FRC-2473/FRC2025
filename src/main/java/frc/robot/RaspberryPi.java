@@ -1,5 +1,6 @@
 package frc.robot;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -14,34 +15,53 @@ import frc.robot.constants.VisionConstants;
 * @author Jaseer Abdulla
 */
 public class RaspberryPi {
-	private NetworkTable table;
-	private DoubleArraySubscriber tagSubscriber;
+	private NetworkTable reefTable;
+	private NetworkTable sourceTable;
+	private DoubleArraySubscriber reefCamSubscriber;
+	private DoubleArraySubscriber sourceCamSubscriber;
 
 	/**
 	* Default constructor for the RaspberryPi class.
 	*/
 	public RaspberryPi() {
-		table = NetworkTableInstance.getDefault().getTable("datatable");
-		tagSubscriber = table.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
+		reefTable = NetworkTableInstance.getDefault().getTable("reef_table");
+		reefCamSubscriber = reefTable.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
+
+		sourceTable = NetworkTableInstance.getDefault().getTable("source_table");
+		sourceCamSubscriber = sourceTable.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
 	}
 
 	/**
 	 * Prints the raw data for the april tags on the rpi.
 	 */
 	public void printRawData() {
-		double[] rawData = tagSubscriber.get();
-		System.out.println(rawData);
+		double[] reefRawData = reefCamSubscriber.get();
+		double[] sourceRawData = sourceCamSubscriber.get();
+		System.out.println("Reef Raw Data: " + Arrays.toString(reefRawData) + "\nSource Raw Data: " + Arrays.toString(sourceRawData));
 	}
 
 	/**
-	* Gets the data from the Raspberry Pi.
+	* Returns a list of all AprilTags from all cameras
 	*
 	* @return  ArrayList<AprilTag>
-	*          The data from the Raspberry Pi
+	*          A list of visible AprilTags
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
-		double[] rawData = tagSubscriber.get();
+		atList.addAll(getAprilTagsSingleCamera(reefCamSubscriber, VisionConstants.REEF_CAM_NAME));
+		atList.addAll(getAprilTagsSingleCamera(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME));
+		return atList;
+	}
+
+	/**
+	* Returns a list of all AprilTags from one camera
+	*
+	* @return  ArrayList<AprilTag>
+	*          A list of visible AprilTags
+	*/
+	public ArrayList<AprilTag> getAprilTagsSingleCamera(DoubleArraySubscriber camSubscriber, String camName) {
+		ArrayList<AprilTag> atList = new ArrayList<>();
+		double[] rawData = camSubscriber.get();
 
 		if (rawData.length == 0) {
 			return atList;
@@ -55,7 +75,7 @@ public class RaspberryPi {
 			atList.add(
 				new AprilTag(
 					(int) rawData[i],
-					"Reef Camera",
+					camName,
 					new Translation3d(
 						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET],
 						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET + 1],
@@ -74,7 +94,6 @@ public class RaspberryPi {
 				)
 			);
 		}
-
 		return atList;
 	}
 
