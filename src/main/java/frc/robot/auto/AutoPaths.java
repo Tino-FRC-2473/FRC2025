@@ -26,12 +26,14 @@ public class AutoPaths {
 			AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
 			AutoCommands.ELEVATOR_L4_CMD
 		},
-		AutoCommands.FUNNEL_OPEN_CMD,
-		AutoCommands.DRIVE_BRAKE_CMD
+		AutoCommands.FUNNEL_OPEN_CMD
 	};
 
 	public static final Object[] B_PATH_2 = new Object[] {
-		"S1_R1"
+		"S1_R2",
+		"R2_StationL",
+		"StationL_R4",
+		AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD
 	};
 
 	/**

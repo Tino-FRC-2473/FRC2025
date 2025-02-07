@@ -216,7 +216,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			() -> drivetrain.getState().Pose,
 			drivetrain::resetPose,
 			drivetrain::followTrajectory,
-			true,
+			false,
 			this
 		);
 	}
@@ -522,29 +522,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public Command driveRobotRelativeOffset(double xSpeed, double ySpeed, double timeRunning) {
 		return new DriveRobotRelativeOffsetCommand(xSpeed, ySpeed, timeRunning);
-	}
-
-	/**
-	 * Return robot relative offset command that drives to left.
-	 * @return command
-	 */
-	public Command driveRobotLeftRelativeOffset() {
-		return new DriveRobotRelativeOffsetCommand(
-			AutoConstants.REEF_OFFSET_X_AUTO_SPEED,
-			-AutoConstants.REEF_OFFSET_Y_AUTO_SPEED,
-			AutoConstants.TIME_DRIVING_OFFSET
-		);
-	}
-
-	/**
-	 * Return robot relative offset command that drives to right.
-	 * @return command
-	 */
-	public Command driveRobotRightRelativeOffset() {
-		return new DriveRobotRelativeOffsetCommand(
-			AutoConstants.REEF_OFFSET_X_AUTO_SPEED,
-			AutoConstants.REEF_OFFSET_Y_AUTO_SPEED,
-			AutoConstants.TIME_DRIVING_OFFSET);
 	}
 
 	class DriveRobotRelativeOffsetCommand extends Command {

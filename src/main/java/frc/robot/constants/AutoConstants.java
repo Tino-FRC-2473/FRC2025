@@ -1,5 +1,7 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.util.Units;
+
 /** These will be constants associated with each auto path in AutoRoutines. */
 public class AutoConstants {
 
@@ -36,9 +38,17 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double TIME_DRIVING_OFFSET = 0.6;
-	public static final double REEF_OFFSET_X_AUTO_SPEED = 0.2;
-	public static final double REEF_OFFSET_Y_AUTO_SPEED = 0;
+	public static final double TIME_DRIVING_OFFSET = 0.5;
+
+	// 13 inches is the distance between pipes, center to center
+	public static final double ABS_REEF_OFFSET_Y_DISTANCE_METERS = Units.inchesToMeters(13) / 2;
+	public static final double ABS_REEF_OFFSET_X_DISTANCE_METERS = 0;
+
+	//Calculated final offset constants
+	public static final double REEF_OFFSET_X_AUTO_SPEED_M_S
+		= ABS_REEF_OFFSET_X_DISTANCE_METERS / TIME_DRIVING_OFFSET;
+	public static final double REEF_OFFSET_Y_AUTO_SPEED_M_S
+		= ABS_REEF_OFFSET_Y_DISTANCE_METERS / TIME_DRIVING_OFFSET;
 
 
 	/* -- ALL COMMAND NAME CONSTANTS -- */

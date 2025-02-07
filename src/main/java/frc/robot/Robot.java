@@ -3,19 +3,19 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+// Java Imports
 import java.util.HashMap;
 
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import com.ctre.phoenix6.Utils;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 // WPILib Imports
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,11 +23,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 // Systems
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
+
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
 import frc.robot.logging.MechLogging;
@@ -43,8 +46,8 @@ public class Robot extends LoggedRobot {
 	// Systems
 	private DriveFSMSystem driveSystem;
 	private AutoRoutines autoRoutines;
-	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
-	private Command autCommand;
+	private SendableChooser<String> autoChooser = new SendableChooser<String>();
+	private String autCommand;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private ElevatorFSMSystem elevatorSystem;
@@ -86,7 +89,6 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
@@ -101,8 +103,21 @@ public class Robot extends LoggedRobot {
 		}
 
 		autoRoutines = new AutoRoutines(
-			driveSystem, elevatorSystem, funnelSystem, climberSystem
+			driveSystem, elevatorSystem, funnelSystem
 		);
+
+		for (HashMap.Entry<String, Object[]> auto
+			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
+			autoChooser.addOption(auto.getKey(), auto.getKey());
+		}
+
+		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
+	}
+
+	@Override
+	public void autonomousInit() {
+		System.out.println("-------- Autonomous Init --------");
+		autCommand = getAutonomousCommand();
 
 		/* If all available auto systems are true, then it will throw exception. */
 		boolean throwException =
@@ -111,21 +126,17 @@ public class Robot extends LoggedRobot {
 			&& HardwareMap.isElevatorHardwarePresent()
 			&& HardwareMap.isFunnelHardwarePresent();
 
-		for (HashMap.Entry<String, Object[]> auto
-			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
-			//System.out.println(Arrays.toString(auto.getValue()));
-			autoChooser.addOption(auto.getKey(),
-				autoRoutines.generateSequentialAutoWorkflow(auto.getValue(), throwException));
-		}
-	}
-
-	@Override
-	public void autonomousInit() {
-		System.out.println("-------- Autonomous Init --------");
-		autCommand = getAutonomousCommand();
-
 		if (autCommand != null) {
-			autCommand.schedule();
+			Command scheduledCommand = autoRoutines.generateSequentialAutoWorkflow(
+				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
+			);
+
+			if (Utils.isSimulation()) {
+				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
+					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+			}
+
+			scheduledCommand.schedule();
 		}
 	}
 
@@ -247,7 +258,7 @@ public class Robot extends LoggedRobot {
 	 *
 	 * @return the selected autonomous command
 	 */
-	public Command getAutonomousCommand() {
+	public String getAutonomousCommand() {
 		return autoChooser.getSelected();
 	}
 }
