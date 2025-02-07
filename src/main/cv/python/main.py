@@ -35,7 +35,7 @@ if ON_RPI:
 
     ps_opt = ntcore.PubSubOptions(periodic=0.2)
 
-    table = inst.getTable(f"${cam_name}_table")
+    table = inst.getTable(f"{cam_name}_table")
     framePub = table.getDoubleTopic("fps_incremented_value").publish(options=ps_opt)
     tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish(options=ps_opt)
     #outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
