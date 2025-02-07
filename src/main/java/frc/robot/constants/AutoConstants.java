@@ -66,8 +66,10 @@ public class AutoConstants {
 		DRIVE_BRAKE_CMD,
 		/* Elevator Commands */
 		ELEVATOR_GROUND_CMD,
-		ELEVATOR_STATION_CMD,
+		ELEVATOR_L2_CMD,
+		ELEVATOR_L3_CMD,
 		ELEVATOR_L4_CMD,
+		WAIT,
 		/* Funnel Commands */
 		FUNNEL_OPEN_CMD,
 		FUNNEL_CLOSE_CMD,

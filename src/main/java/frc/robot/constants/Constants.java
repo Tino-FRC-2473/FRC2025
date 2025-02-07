@@ -1,5 +1,8 @@
 package frc.robot.constants;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
+
 public final class Constants {
 	// led constants
 	public static final int LED_STRIP_BUFFER = 3; // TBD
@@ -14,15 +17,32 @@ public final class Constants {
 	// PID Constants
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
 
+	//Elevator motion profile constants
+	public static final double ELEVATOR_KG = 0.26;
+	public static final double ELEVATOR_KS = 0.1;
+	public static final double ELEVATOR_KV = 0.001;
+	public static final double ELEVATOR_KA = 0.0;
+	public static final double ELEVATOR_KP = 0.45;
+	public static final double ELEVATOR_KI = 0.0;
+	public static final double ELEVATOR_KD = 0.000;
+
+	public static final double ELEVATOR_CRUISE_VELO = 600;
+	public static final double ELEVATOR_TARGET_ACCEL = 1800;
+	public static final double ELEVATOR_EXPO_KV = 0.12;
+
+	//Elevator Unit Conversion
+	public static final double ELEVATOR_ROTS_TO_INCHES = 15 / (2 * Math.PI);
+
 	// Encoder Position Constants
 	public static final double ELEVATOR_JOYSTICK_INPUT_DEADBAND = 0.1;
 
-	public static final double ELEVATOR_UPPER_THRESHOLD = 146; // DO NOT drive above this!
-	public static final double ELEVATOR_TARGET_L4 = 146;
-	public static final double ELEVATOR_TARGET_L3 = 78;
-	public static final double ELEVATOR_TARGET_L2 = 30;
-	public static final double ELEVATOR_TARGET_GROUND = 0;
-	public static final double ELEVATOR_SPEED_REDUCTION_THRESHOLD_SIZE = 15;
+	public static final Distance ELEVATOR_UPPER_THRESHOLD = Units.Inches.of(37.3);
+	// DO NOT drive above this!
+	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(37.3);
+	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(25);
+	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(15);
+	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
+	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(1);
 
 	public static final double ELEVATOR_POWER = 0.8;
 	public static final double ELEVATOR_REDUCED_POWER = 0.5;

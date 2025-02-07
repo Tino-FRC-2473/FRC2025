@@ -54,9 +54,9 @@ public class Robot extends LoggedRobot {
 	private NetworkTableInstance ntInstance;
 
 	private static final Object[] ELEVATOR_TESTING_PATH = new Object[] {
-		AutoCommands.ELEVATOR_STATION_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
-		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.ELEVATOR_L2_CMD,
+		AutoCommands.WAIT,
+		AutoCommands.ELEVATOR_GROUND_CMD
 	};
 
 	private static final Object[] FUNNEL_TESTING_PATH = new Object[] {
@@ -102,8 +102,8 @@ public class Robot extends LoggedRobot {
 			funnelSystem = new FunnelFSMSystem();
 		}
 
-		if (Robot.isSimulation()
-			|| (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent())) {
+		if (Robot.isSimulation() || (HardwareMap.isFunnelHardwarePresent()
+			&& HardwareMap.isElevatorHardwarePresent())) {
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
@@ -119,10 +119,10 @@ public class Robot extends LoggedRobot {
 			autoChooser.addOption("Elevator Test",
 				autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH));
 		}
-		if (HardwareMap.isFunnelHardwarePresent()) {
-			autoChooser.addOption("Funnel Test",
-				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH));
-		}
+		// if (HardwareMap.isFunnelHardwarePresent()) {
+		// 	autoChooser.addOption("Funnel Test",
+		// 		autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH));
+		// }
 
 		// Log auto chooser
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
@@ -253,7 +253,9 @@ public class Robot extends LoggedRobot {
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
-	public void robotPeriodic() { }
+	public void robotPeriodic() {
+		elevatorSystem.updateLogging();
+	}
 
 	/**
 	 * Gets the autonomous command selected by the auto chooser.
