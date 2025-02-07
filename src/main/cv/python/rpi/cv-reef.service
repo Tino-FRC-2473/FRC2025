@@ -1,8 +1,10 @@
 ## To install this file, run:
-## 	ln -s /home/pi/cv-python-git/rpi/cv-reef.service /etc/systemd/system
+## sudo ln -s /home/pi/cv-python-git/rpi/cv-reef.service /etc/systemd/system
 ## Make sure the original path is an absolute path.
 ## Before running this file, make sure config.py is set properly.
 ## Namely, ON_RPI and AT_USE_CLI_ARGUMENTS must be enabled.
+## To view console output for the service, run:
+## journalctl -fxu cv-reef.serice
 
 [Unit]
 Description=Reef Camera - CV Code
