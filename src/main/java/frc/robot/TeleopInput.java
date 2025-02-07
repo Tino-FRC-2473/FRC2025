@@ -136,6 +136,15 @@ public class TeleopInput {
 	}
 
 	/**
+	 * Gets the value of the share button.
+	 * Intended to signify when the climber should advance at constant power
+	 * @return If the share button was pressed this tick
+	 */
+	public boolean isClimbManualButtonPressed() {
+		return mechController.getShareButton();
+	}
+
+	/**
 	 * Get Y axis of Right Joystick.
 	 * @return Axis value
 	 */
