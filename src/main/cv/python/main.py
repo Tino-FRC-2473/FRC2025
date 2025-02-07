@@ -14,8 +14,10 @@ if AT_USE_CLI_ARGUMENTS:
     id_group.add_argument("-u", "--usb-id", help="USB bus ID (when on raspberry pi)")
     parser.add_argument("cam_name", help="Camera name for calibration files, NetworkTables, etc.")
     args = parser.parse_args()
-    index = int(args.index)
-    usb_id = args.usb_id
+    if args.index:
+        index = int(args.index)
+    else:
+        usb_id = args.usb_id
     cam_name = args.cam_name
 else:
     index = AT_CAM_INDEX
