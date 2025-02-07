@@ -102,10 +102,11 @@ public class Robot extends LoggedRobot {
 			funnelSystem = new FunnelFSMSystem();
 		}
 
-		if (Robot.isSimulation()
-			|| (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent())) {
-			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
-		}
+		// if (Robot.isSimulation()
+		// 	|| (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent())) {
+		// 	elevatorSystem = new ElevatorFSMSystem(funnelSystem);
+		// }
+		elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 
 		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
@@ -115,14 +116,14 @@ public class Robot extends LoggedRobot {
 		autoRoutines = new AutoRoutines(driveSystem, elevatorSystem, funnelSystem);
 
 		// Add auto paths
-		if (HardwareMap.isElevatorHardwarePresent()) {
-			autoChooser.addOption("Elevator Test",
-				autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH));
-		}
-		if (HardwareMap.isFunnelHardwarePresent()) {
-			autoChooser.addOption("Funnel Test",
-				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH));
-		}
+		// if (HardwareMap.isElevatorHardwarePresent()) {
+		// 	autoChooser.addOption("Elevator Test",
+		// 		autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH));
+		// }
+		// if (HardwareMap.isFunnelHardwarePresent()) {
+		// 	autoChooser.addOption("Funnel Test",
+		// 		autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH));
+		// }
 
 		// Log auto chooser
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);

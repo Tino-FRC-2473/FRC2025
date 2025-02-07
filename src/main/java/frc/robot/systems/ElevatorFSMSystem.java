@@ -52,7 +52,7 @@ public class ElevatorFSMSystem {
 	private TalonFX elevatorMotor;
 	private DigitalInput groundLimitSwitch;
 
-	private FunnelFSMSystem funnelSystem; // only used for break beam
+	// private FunnelFSMSystem funnelSystem; // only used for break beam
 
 	/* ======================== Constructor ======================== */
 
@@ -75,8 +75,8 @@ public class ElevatorFSMSystem {
 
 		// apply sw limit
 		var swLimitSwitch = talonFXConfigs.SoftwareLimitSwitch;
-		swLimitSwitch.ForwardSoftLimitEnable = false; // enable top limit
-		swLimitSwitch.ReverseSoftLimitEnable = false; // enable bottom limit
+		swLimitSwitch.ForwardSoftLimitEnable = true; // enable top limit
+		swLimitSwitch.ReverseSoftLimitEnable = true; // enable bottom limit
 		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_THRESHOLD
 			.in(Units.Inches);
 		swLimitSwitch.ReverseSoftLimitThreshold = Units.Inches.of(0).in(Units.Inches);
@@ -121,7 +121,7 @@ public class ElevatorFSMSystem {
 
 		elevatorMotor.setPosition(0);
 
-		this.funnelSystem = funnelFSMSystem;
+		// this.funnelSystem = funnelFSMSystem;
 
 		reset();
 	}
@@ -229,27 +229,21 @@ public class ElevatorFSMSystem {
 					return ElevatorFSMState.GROUND;
 				}
 				if (input.isL4ButtonPressed()
-					&& funnelSystem.isHoldingCoral()
+					// && funnelSystem.isHoldingCoral()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
 				if (input.isL2ButtonPressed()
-					&& (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-					- Constants.ELEVATOR_TARGET_L2.in(Units.Inches))
-					>= Constants.ELEVATOR_TARGET_MARGIN)
-					&& funnelSystem.isHoldingCoral()
+					// && funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL2;
 				}
 				if (input.isL3ButtonPressed()
-					&& (Math.abs(elevatorMotor.getPosition().getValueAsDouble()
-					- Constants.ELEVATOR_TARGET_L3.in(Units.Inches))
-					>= Constants.ELEVATOR_TARGET_MARGIN)
-					&& funnelSystem.isHoldingCoral()
+					// && funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()) {
@@ -334,7 +328,7 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleGroundState(TeleopInput input) {
-		if (isBottomLimitReached() || inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_GROUND)) {
+		if (isBottomLimitReached()) {
 			elevatorMotor.set(0);
 			elevatorMotor.setPosition(0);
 		} else {
@@ -350,13 +344,9 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL2State(TeleopInput input) {
-		if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2)) {
-			elevatorMotor.set(0);
-		} else {
-			elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L2.in(Units.Inches))
-			);
-		}
+		elevatorMotor.setControl(
+			motionRequest.withPosition(Constants.ELEVATOR_TARGET_L2.in(Units.Inches))
+		);
 	}
 
 	/**
@@ -365,13 +355,9 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL3State(TeleopInput input) {
-		if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3)) {
-			elevatorMotor.set(0);
-		} else {
-			elevatorMotor.setControl(
+		elevatorMotor.setControl(
 				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L3.in(Units.Inches))
-			);
-		}
+		);
 	}
 
 	/**
@@ -380,13 +366,9 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL4State(TeleopInput input) {
-		if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4)) {
-			elevatorMotor.set(0);
-		} else {
-			elevatorMotor.setControl(
+		elevatorMotor.setControl(
 				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
-			);
-		}
+		);
 	}
 
 	/* ---- Elevator Commands ---- */
