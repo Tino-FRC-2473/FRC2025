@@ -1,10 +1,10 @@
 ## To install this file, run:
-## sudo ln -s /home/pi/cv-python-git/rpi/cv-driver-cam2.service /etc/systemd/system
+## sudo ln -s /home/pi/cv-python-git/rpi/cv-driver-cam1.service /etc/systemd/system
 ## Make sure the original path is an absolute path.
 ## Before running this file, make sure config.py is set properly.
 ## Namely, ON_RPI and AT_USE_CLI_ARGUMENTS must be enabled.
 ## To view console output for the service, run:
-## journalctl -fxu cv-driver-cam2.service
+## journalctl -fxu cv-driver-cam1.service
 
 [Unit]
 Description=CV Driver Cam 1
@@ -12,7 +12,7 @@ Description=CV Driver Cam 1
 [Service]
 Type=simple
 # Modify the following line to change the port/camera name
-ExecStart=/home/pi/cv-python-git/venv/bin/python StreamDriverCam.py -u usb-xhci-hcd.0-2  1182 cam2
+ExecStart=/home/pi/cv-python-git/venv/bin/python StreamDriverCam.py -u usb-xhci-hcd.0-2  1181 cam1
 WorkingDirectory=/home/pi/cv-python-git
 User=pi
 # Disable Python's buffering of STDOUT and STDERR, so that output from the

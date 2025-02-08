@@ -4,7 +4,7 @@
 ## Before running this file, make sure config.py is set properly.
 ## Namely, ON_RPI and AT_USE_CLI_ARGUMENTS must be enabled.
 ## To view console output for the service, run:
-## journalctl -fxu cv-reef.serice
+## journalctl -fxu cv-reef.service
 
 [Unit]
 Description=Reef Camera - CV Code
