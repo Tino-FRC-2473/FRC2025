@@ -2,8 +2,9 @@ ON_RPI = False # Enable if on Raspberry Pi. Enabled NetworkTables stuff and disa
 
 DRIVER_CAM_LISTEN_PORT = 1181
 DRIVER_CAM_LISTEN_IP = '0.0.0.0' # 0.0.0.0 means it will listen on all IPs
-DRIVER_CAM_USB_ID = 'usb-xhci-hcd.0-2' # for when on RPi
 DRIVER_CAM_INDEX = 0 # for when not on RPi
+DRIVER_CAM_RES_X = 1280
+DRIVER_CAM_RES_Y = 720
 
 AT_USE_CLI_ARGUMENTS = True # Require CLI arguments when running main.py. Used for multiple cameras.
 if not AT_USE_CLI_ARGUMENTS:
