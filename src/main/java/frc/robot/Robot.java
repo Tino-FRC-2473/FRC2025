@@ -143,7 +143,10 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
-		driveSystem.updateAutonomous();
+		if (HardwareMap.isDriveHardwarePresent()) {
+			driveSystem.updateAutonomous();
+		}
+		MotorManager.update();
 	}
 
 	@Override
