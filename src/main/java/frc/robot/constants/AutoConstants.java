@@ -81,5 +81,4 @@ public class AutoConstants {
 		FUNNEL_OPEN_CMD,
 		FUNNEL_CLOSE_CMD,
 	}
-
 }
