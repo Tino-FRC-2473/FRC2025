@@ -29,6 +29,7 @@ CALIB_INPUT_DIR = 'calibration_images' # relative to python files
 CALIB_OUTPUT_DIR = AT_NPY_DIR # relative to python files
 CALIB_WIDTH = 6
 CALIB_HEIGHT = 4
+SQUARE_LENGTH_METERS = 0.017
 
 DATA_COLLECTION_ENABLED = True
 DATA_COLLECTION_DIR = 'data_collection' # relative to python files
