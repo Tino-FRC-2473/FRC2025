@@ -16,25 +16,26 @@ public class AutoConstants {
 	public static final int RED_L_STATION_ID = 2;
 	public static final int RED_R_STATION_ID = 2;
 
-	/* -- ALL REEF SPECIFIC CONSTANTS -- */
 	public static final double REEF_X_L_TAG_OFFSET = -0.5;
 	public static final double REEF_X_R_TAG_OFFSET = 0.5;
 	public static final double REEF_Y_L_TAG_OFFSET = 0;
 	public static final double REEF_Y_R_TAG_OFFSET = 0;
 
-	public static final int R_REEF_1_TAG_ID = 9;
-	public static final int R_REEF_2_TAG_ID = 9;
-	public static final int R_REEF_3_TAG_ID = 9;
-	public static final int R_REEF_4_TAG_ID = 9;
-	public static final int R_REEF_5_TAG_ID = 9;
+	public static final int R_REEF_1_TAG_ID = 10;
+	public static final int R_REEF_2_TAG_ID = 11;
+	public static final int R_REEF_3_TAG_ID = 6;
+	public static final int R_REEF_4_TAG_ID = 7;
+	public static final int R_REEF_5_TAG_ID = 8;
 	public static final int R_REEF_6_TAG_ID = 9;
 
-	public static final int B_REEF_1_TAG_ID = 9;
-	public static final int B_REEF_2_TAG_ID = 9;
-	public static final int B_REEF_3_TAG_ID = 9;
-	public static final int B_REEF_4_TAG_ID = 9;
-	public static final int B_REEF_5_TAG_ID = 9;
-	public static final int B_REEF_6_TAG_ID = 9;
+	public static final int B_REEF_1_TAG_ID = 21;
+	public static final int B_REEF_2_TAG_ID = 20;
+	public static final int B_REEF_3_TAG_ID = 19;
+	public static final int B_REEF_4_TAG_ID = 18;
+	public static final int B_REEF_5_TAG_ID = 17;
+	public static final int B_REEF_6_TAG_ID = 22;
+
+	public static final double TIME_DRIVING_OFFSET = 0.5;
 
 	/* -- ALL COMMAND NAME CONSTANTS -- */
 

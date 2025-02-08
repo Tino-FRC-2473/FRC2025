@@ -2,6 +2,7 @@ package frc.robot.simulation;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -68,6 +69,14 @@ public class RaspberryPiSim extends RaspberryPi {
 		return atList;
 	}
 
+	public ArrayList<AprilTag> getReefAprilTags() {
+		return getAprilTagsSingleCamera(reefCamera);
+	}
+
+	public ArrayList<AprilTag> getStationAprilTags() {
+		return getAprilTagsSingleCamera(stationCamera);
+	}
+
 	public ArrayList<AprilTag> getAprilTagsSingleCamera(PhotonCamera camera) {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 
@@ -79,14 +88,17 @@ public class RaspberryPiSim extends RaspberryPi {
 					camera.getName(),
 					new Translation3d(), //camera vector, unused
 					new Translation3d(
-						target.getBestCameraToTarget().getZ(),
 						target.getBestCameraToTarget().getY(),
+						target.getBestCameraToTarget().getZ(),
 						target.getBestCameraToTarget().getX()
 					),
 					new Rotation3d(
-						target.getBestCameraToTarget().getRotation().getX(),
-						target.getBestCameraToTarget().getRotation().getY(),
-						target.getBestCameraToTarget().getRotation().getZ()
+						target.getBestCameraToTarget().getRotation()
+							.plus(new Rotation3d(Rotation2d.kPi)).getY(),
+						target.getBestCameraToTarget().getRotation()
+							.plus(new Rotation3d(Rotation2d.kPi)).getZ(),
+						target.getBestCameraToTarget().getRotation()
+							.plus(new Rotation3d(Rotation2d.kPi)).getX()
 					)
 				);
 				atList.add(at);

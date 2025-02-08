@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.Utils;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -267,7 +269,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		logger.applyStateLogging(drivetrain.getState());
 
 		/* cv alignment constant resets */
-		if (tagAlignmentPose != null) {
+		if (tagID != -1) {
 			tagAlignmentPose = null;
 			tagPositionAligned = false;
 			rotationCache2d = 0;
@@ -326,36 +328,46 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void handleReefTagAlignment(TeleopInput input) {
 
-		ArrayList<AprilTag> sortedTagList = rpi.getAprilTags();
+		ArrayList<AprilTag> sortedTagList = rpi.getReefAprilTags();
 		Collections.sort(rpi.getAprilTags(), aComparator);
 
-		System.out.println(sortedTagList);
-		System.out.println(DriverStation.getAlliance().toString());
+		//System.out.println(DriverStation.getAlliance().get().toString());
 
-
-		if (DriverStation.getAlliance().equals(Alliance.Blue) && tagID == -1) {
+		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
-				for (int id: blueReefTagArray) {
-					if (tag.getTagID() == id) {
-						tagID = id;
-						break;
+				System.out.println("TAG ID: " + tag.getTagID());
+				if (tagID == -1) {
+					for (int id: blueReefTagArray) {
+						if (tag.getTagID() == id) {
+							System.out.println("TAG ID MATCHED!!: " + tag.getTagID());
+							tagID = id;
+							break;
+						}
 					}
+				} else {
+					break;
 				}
 			}
 
-		} else if (DriverStation.getAlliance().equals(Alliance.Red) && tagID == -1) {
+		} else if (DriverStation.getAlliance().get().equals(Alliance.Red) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
-				for (int id: redReefTagArray) {
-					if (tag.getTagID() == id) {
-						tagID = id;
-						break;
+				System.out.println("TAG ID: " + tag.getTagID());
+				if (tagID == -1) {
+					for (int id: redReefTagArray) {
+						if (tag.getTagID() == id) {
+							System.out.println("TAG ID MATCHED!!: " + tag.getTagID());
+							tagID = id;
+							break;
+						}
 					}
+				} else {
+					break;
 				}
 			}
 
 		}
 
-		System.out.println("REEF TAG ID: " + tagID);
+		//System.out.println("REEF TAG ID: " + tagID);
 
 		if (tagID != -1) {
 			handleTagAlignment(input, tagID);
@@ -370,10 +382,10 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void handleStationTagAlignment(TeleopInput input) {
 
-		ArrayList<AprilTag> sortedTagList = rpi.getAprilTags();
+		ArrayList<AprilTag> sortedTagList = rpi.getStationAprilTags();
 		Collections.sort(rpi.getAprilTags(), aComparator);
 
-		if (DriverStation.getAlliance().equals(Alliance.Blue) && tagID == -1) {
+		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
 				for (int id: blueStationTagArray) {
 					if (tag.getTagID() == id) {
@@ -383,7 +395,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				}
 			}
 
-		} else if (DriverStation.getAlliance().equals(Alliance.Red) && tagID == -1) {
+		} else if (DriverStation.getAlliance().get().equals(Alliance.Red) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
 				for (int id: redStationTagArray) {
 					if (tag.getTagID() == id) {
@@ -412,6 +424,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		AprilTag tag = rpi.getAprilTagWithID(id);
 
+		Logger.recordOutput("APRILTAG ID", id);
+
 		if (tag != null && !tagPositionAligned) {
 
 			// X is forward on robot Pose, z is forward on cv side
@@ -439,8 +453,8 @@ public class DriveFSMSystem extends SubsystemBase {
 				) : 0;
 
 			drivetrain.setControl(
-				drive.withVelocityX(xSpeed * MAX_SPEED)
-				.withVelocityY(ySpeed * MAX_SPEED)
+				drive.withVelocityX(-xSpeed * MAX_SPEED)
+				.withVelocityY(-ySpeed * MAX_SPEED)
 				.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
 			);
 

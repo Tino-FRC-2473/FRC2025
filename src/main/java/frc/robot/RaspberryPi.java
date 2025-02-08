@@ -78,6 +78,14 @@ public class RaspberryPi {
 		return atList;
 	}
 
+	public ArrayList<AprilTag> getReefAprilTags() {
+		return new ArrayList<>();
+	}
+
+	public ArrayList<AprilTag> getStationAprilTags() {
+		return new ArrayList<>();
+	}
+
 	/**
 	 * Gets an April Tag from the list given a certain tag.
 	 * @param id id of the april tag
