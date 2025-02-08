@@ -30,7 +30,8 @@ if sys.argv == 1:
 args = parser.parse_args()
 
 #callibrate based on images
-calib_input_dir = Path(CALIB_INPUT_DIR)
-calib_output_dir = Path(CALIB_OUTPUT_DIR)
-calibrate_camera(CALIB_RES, calib_input_dir, calib_output_dir, ARUCO_LENGTH_METERS, CALIB_WIDTH, CALIB_HEIGHT, args.cam_name, args.color, args.visualize)
+#calib_input_dir = Path(CALIB_INPUT_DIR)
+#calib_output_dir = Path(CALIB_OUTPUT_DIR)
+
+calibrate_camera(CALIB_RES, CALIB_INPUT_DIR, CALIB_OUTPUT_DIR, ARUCO_LENGTH_METERS, CALIB_WIDTH, CALIB_HEIGHT, args.cam_name, args.color, args.visualize)
 #UNCOMMENT ABOVE IF CALIBRATION DATA is not in /calibration_data direcotry

@@ -200,8 +200,8 @@ def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
-    input_dir = Path.join(basePath, input_dir_relative)
-    output_dir = Path.join(basePath, output_dir_relative)
+    input_dir = os.path.join(basePath, input_dir_relative)
+    output_dir = os.path.join(basePath, output_dir_relative)
 
     Path(output_dir).mkdir(exist_ok=True) # create calibration directory if it doesn't exist
     images = Path.iterdir(input_dir)
