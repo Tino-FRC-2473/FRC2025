@@ -95,7 +95,7 @@ public class Robot extends LoggedRobot {
 		}
 
 		if (HardwareMap.isElevatorHardwarePresent()) {
-			elevatorSystem = new ElevatorFSMSystem();
+			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
 		if (HardwareMap.isClimberHardwarePresent()) {
@@ -214,7 +214,9 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
-		driveSystem.getMapleSimDrivetrain().update();
+		if (HardwareMap.isDriveHardwarePresent()) {
+			driveSystem.getMapleSimDrivetrain().update();
+		}
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
@@ -251,7 +253,10 @@ public class Robot extends LoggedRobot {
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
-	public void robotPeriodic() { }
+	public void robotPeriodic() {
+		funnelSystem.updateLogging();
+		elevatorSystem.updateLogging();
+	}
 
 	/**
 	 * Gets the autonomous command selected by the auto chooser.

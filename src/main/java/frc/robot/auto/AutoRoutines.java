@@ -124,8 +124,10 @@ public class AutoRoutines {
 		switch (commandEntry) {
 			case ELEVATOR_GROUND_CMD:
 				return elevatorSystem.elevatorGroundCommand();
-			case ELEVATOR_STATION_CMD:
-				return elevatorSystem.elevatorStationCommand();
+			case ELEVATOR_L2_CMD:
+				return elevatorSystem.elevatorL2Command();
+			case ELEVATOR_L3_CMD:
+				return elevatorSystem.elevatorL3Command();
 			case ELEVATOR_L4_CMD:
 				return elevatorSystem.elevatorL4Command();
 			default:
@@ -134,6 +136,7 @@ public class AutoRoutines {
 	}
 
 	private Command checkFunnelCommands(AutoCommands commandEntry) {
+		System.out.println("REACHED FUNNEL PARSE");
 		switch (commandEntry) {
 			case FUNNEL_OPEN_CMD:
 				return funnelSystem.openFunnelCommand();
@@ -227,6 +230,7 @@ public class AutoRoutines {
 						processedCommand
 						.alongWith(getAutoLogCommand(new String[] {autoStage.toString()}))
 					);
+					System.out.println("Added" + autoStage.toString());
 				} else {
 					if (throwException) {
 						throw new IllegalStateException(
@@ -322,6 +326,7 @@ public class AutoRoutines {
 			sysRoutine.active().onTrue(
 				seqInstruction
 				.andThen(driveSystem.brakeCommand())
+				.andThen(getAutoLogCommand(new Object[] {"AUTO COMPLETE"}))
 			);
 
 			return sysRoutine.cmd();
