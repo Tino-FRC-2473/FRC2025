@@ -21,4 +21,7 @@ public class VisionConstants {
 	public static final int AT_ARR_CAMERA_OFFSET = 1;
 	public static final int AT_ARR_TRANSLATION_OFFSET = 4;
 	public static final int AT_ARR_ROTATION_OFFSET = 7;
+
+	public static final String REEF_CAM_NAME = "Reef Cam";
+	public static final String SOURCE_CAM_NAME = "Source Cam";
 }

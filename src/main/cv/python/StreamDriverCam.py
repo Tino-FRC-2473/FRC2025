@@ -1,48 +1,56 @@
-from config import *
-import cv2
 import time
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import socket
-from visionInput import find_camera_index
+import cv2
+from cscore import CameraServer
+import numpy
+from config import *
+from argparse import ArgumentParser
+from visionInput import VisionInput, find_camera_index
+
+if AT_USE_CLI_ARGUMENTS:
+    parser = ArgumentParser("streamdrivercam.py", description="2473 Driver Camera Code")
+    id_group = parser.add_mutually_exclusive_group(required=True)
+    id_group.add_argument("-i", "--index", help="Manual USB index (when not on raspberry pi)")
+    id_group.add_argument("-u", "--usb-id", help="USB bus ID (when on raspberry pi)")
+    parser.add_argument("port", help="Port to stream the camera on")
+    parser.add_argument("cam_name", help="Camera name to show on Shuffleboard")
+    args = parser.parse_args()
+    if args.index:
+        index = int(args.index)
+    else:
+        usb_id = args.usb_id
+    cam_name = args.cam_name
+    port = args.port
+else:
+    index = AT_CAM_INDEX
+    usb_id = AT_CAM_USB_ID
+    cam_name = AT_CAM_NAME
+    port = DRIVER_CAM_LISTEN_PORT
+
+CameraServer.enableLogging()
 
 if ON_RPI:
-    index = find_camera_index(DRIVER_CAM_USB_ID)
+    camera = CameraServer.startAutomaticCapture(name=cam_name, dev=find_camera_index(usb_id))
 else:
-    index = DRIVER_CAM_INDEX
-camera = cv2.VideoCapture(index)
-class MJPEGStreamHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/stream.mjpg':
-            self.send_response(200)
-            self.send_header('Content-type', 'multipart/x-mixed-replace; boundary=frame')
-            self.end_headers()
-
-            while True:
-                ret, frame = camera.read()
-                if not ret:
-                    continue
-
-                ret, jpeg = cv2.imencode('.jpg', frame)
-                if not ret:
-                    continue
-
-                self.wfile.write(b'--frame\r\n')
-                self.send_header('Content-Type', 'image/jpeg')
-                self.send_header('Content-Length', str(len(jpeg)))
-                self.end_headers()
-                self.wfile.write(jpeg.tobytes())
-                self.wfile.write(b'\r\n\r\n')
-                time.sleep(0.03)
-
-        else:
-            self.send_response(404)
-            self.end_headers()
+    camera = CameraServer.startAutomaticCapture(name=cam_name, dev=index)
 
 
-def StreamDriverCam():
-    server_address = (DRIVER_CAM_LISTEN_IP, DRIVER_CAM_LISTEN_PORT) 
-    httpd = HTTPServer(server_address, MJPEGStreamHandler)
-    print(f'Streaming video at http://{DRIVER_CAM_LISTEN_IP}:{DRIVER_CAM_LISTEN_PORT}/stream.mjpg')
-    httpd.serve_forever()
+camera.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
 
-StreamDriverCam()
+cv_sink = CameraServer.getVideo()
+
+output_stream = CameraServer.putVideo(cam_name, DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
+
+frame = numpy.zeros((DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y, 3), dtype=numpy.uint8) 
+
+print("Camera is running")
+
+while True:
+     time_stamp, frame = cv_sink.grabFrame(frame)
+     if time_stamp == 0:
+          print(f"{cam_name} Error: {cv_sink.getError()} ")
+          output_stream.notifyError(cv_sink.getError())
+          continue
+
+     output_stream.putFrame(frame)
+
+     time.sleep(0.02)

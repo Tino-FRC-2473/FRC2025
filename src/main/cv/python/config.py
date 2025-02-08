@@ -3,15 +3,15 @@ ON_RPI = False # Enable if on Raspberry Pi. Enabled NetworkTables stuff and disa
 DRIVER_CAM_LISTEN_PORT = 1181
 DRIVER_CAM_LISTEN_IP = '0.0.0.0' # 0.0.0.0 means it will listen on all IPs
 DRIVER_CAM_INDEX = 0 # for when not on RPi
-DRIVER_CAM_RES_X = 1280 # Horizontal resolution of the driver camera
-DRIVER_CAM_RES_Y = 720 # Vertical resolution of the driver camera
+DRIVER_CAM_RES_X = 1280
+DRIVER_CAM_RES_Y = 720
 
 AT_USE_CLI_ARGUMENTS = True # Require CLI arguments when running main.py. Used for multiple cameras.
 if not AT_USE_CLI_ARGUMENTS:
     AT_CAM_USB_ID = 'usb-xhci-hcd.0-1' # for when on RPi
     AT_CAM_INDEX = 0 # for when not on RPi
     AT_CAM_NAME = "bw_cam" # used for npy files
-AT_CAM_NAME = "bw_cam" # used for npy files
+AT_CAM_NAME = "bw_cam_2v6" # used for npy files
 AT_NPY_DIR = "calibration_data" # relative to python files
 AT_FOV = (50.28, 29.16) # degrees
 AT_INPUT_RES = (1280, 720) # If this resolution is not supported by the camera, it will use the camera's default res
@@ -28,8 +28,8 @@ NETWORKTABLES_TEAM = 2473
 CALIB_RES = (1280, 720)
 CALIB_INPUT_DIR = 'calibration_images' # relative to python files
 CALIB_OUTPUT_DIR = AT_NPY_DIR # relative to python files
-CALIB_WIDTH = 6
-CALIB_HEIGHT = 4
+CALIB_WIDTH = 13
+CALIB_HEIGHT = 9
 SQUARE_LENGTH_METERS = 0.017
 
 DATA_COLLECTION_ENABLED = True

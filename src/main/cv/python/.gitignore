@@ -1,6 +1,6 @@
 venv/
 .env
-config.py
+/config.py 
 calibration_data/
 calibration_input/
 calibration_images/
