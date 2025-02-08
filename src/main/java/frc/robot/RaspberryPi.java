@@ -5,6 +5,7 @@ import java.util.Arrays;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoubleArrayTopic;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.constants.VisionConstants;
@@ -25,10 +26,12 @@ public class RaspberryPi {
 	*/
 	public RaspberryPi() {
 		reefTable = NetworkTableInstance.getDefault().getTable("reef_table");
-		reefCamSubscriber = reefTable.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
+		DoubleArrayTopic reefCamTopic = reefTable.getDoubleArrayTopic("april_tag_data");
+		reefCamSubscriber = reefCamTopic.subscribe(new double[] {});
 
 		sourceTable = NetworkTableInstance.getDefault().getTable("source_table");
-		sourceCamSubscriber = sourceTable.getDoubleArrayTopic("april_tag_data").subscribe(new double[] {});
+		DoubleArrayTopic sourceCamTopic = sourceTable.getDoubleArrayTopic("april_tag_data");
+		sourceCamSubscriber = sourceCamTopic.subscribe(new double[] {});
 	}
 
 	/**
@@ -37,11 +40,12 @@ public class RaspberryPi {
 	public void printRawData() {
 		double[] reefRawData = reefCamSubscriber.get();
 		double[] sourceRawData = sourceCamSubscriber.get();
-		System.out.println("Reef Raw Data: " + Arrays.toString(reefRawData) + "\nSource Raw Data: " + Arrays.toString(sourceRawData));
+		System.out.println("Reef Raw Data: " + Arrays.toString(reefRawData));
+		System.out.println("Source Raw Data: " + Arrays.toString(sourceRawData));
 	}
 
 	/**
-	* Returns a list of all AprilTags from all cameras
+	* Returns a list of all AprilTags from all cameras.
 	*
 	* @return  ArrayList<AprilTag>
 	*          A list of visible AprilTags
@@ -54,14 +58,15 @@ public class RaspberryPi {
 	}
 
 	/**
-	* Returns a list of all AprilTags from one camera
-	*
+	* Returns a list of all AprilTags from one camera.
+	* @param camSub subscriber for the camera
+	* @param camName camera name
 	* @return  ArrayList<AprilTag>
 	*          A list of visible AprilTags
 	*/
-	public ArrayList<AprilTag> getAprilTagsSingleCamera(DoubleArraySubscriber camSubscriber, String camName) {
+	public ArrayList<AprilTag> getAprilTagsSingleCamera(DoubleArraySubscriber camSub, String camName) {
 		ArrayList<AprilTag> atList = new ArrayList<>();
-		double[] rawData = camSubscriber.get();
+		double[] rawData = camSub.get();
 
 		if (rawData.length == 0) {
 			return atList;
