@@ -1,5 +1,10 @@
 package frc.robot.constants;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+
 // Values provided by Maple-Sim to reduce commonly found bugs while simulating.
 public class SimConstants {
 	public static final double MODULE_STEER_P = 70;
@@ -22,4 +27,41 @@ public class SimConstants {
 	// mech pose logging constants
 	public static final double ELEVATOR_WINCH_DIAMETER_METERS = 0.0463296;
 	public static final double ELEVATOR_GEAR_RATIO = 10; //25.0;
+
+	//vision related constants
+	public static final AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT =
+		AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+	// Camera names, must match names configured on coprocessor
+	public static final String REEF_CAMERA_NAME = "Reef CV Camera";
+	public static final String STATION_CAMERA_NAME = "Station CV Camera";
+
+	// Robot to camera transforms
+	// (Not used by Limelight, configure in web UI instead)
+	public static final Transform3d ROBOT_TO_REEF_CAMERA =
+		new Transform3d(0.25, 0.1, 0.4, new Rotation3d(0.0, 0.0, 0.0));
+	public static final Transform3d ROBOT_TO_STATION_CAMERA =
+		new Transform3d(-0.25, 0.1, 1.016, new Rotation3d(0.0, -0.4, Math.PI));
+
+	// Basic filtering thresholds
+	public static final double MAX_AMBIGUITY = 0.3;
+	public static final double MAX_Z_ERROR = 0.75;
+
+	// Standard deviation baselines, for 1 meter distance and 1 tag
+	// (Adjusted automatically based on distance and # of tags)
+	public static final double LINEAR_STD_DEV_BASELINE = 0.02; // Meters
+	public static final double ANGULAR_STD_DEV_BASELINE = 0.06; // Radians
+
+	// Standard deviation multipliers for each camera
+	// (Adjust to trust some cameras more than others)
+	public static final double[] CAMERA_STD_DEV_MULTIPLIERS =
+		new double[] {
+			1.0, // Camera 0
+			1.0 // Camera 1
+		};
+
+	// Multipliers to apply for MegaTag 2 observations
+	public static final double LINEAR_STD_MEGATAG_2_FACTOR = 0.5; // More stable than full 3D solve
+	public static final double ANGULAR_STD_MEGATAG_2_FACTOR =
+		Double.POSITIVE_INFINITY; // No rotation data available
 }

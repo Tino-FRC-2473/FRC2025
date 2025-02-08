@@ -15,6 +15,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.Utils;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
@@ -28,6 +29,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
+import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
@@ -70,7 +72,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private CommandSwerveDrivetrain drivetrain;
 
 	/* -- cv constants -- */
-	private RaspberryPi rpi = new RaspberryPi();
+	private RaspberryPi rpi;
 	private boolean tagPositionAligned;
 
 	// Placeholder for until confidence system implemented
@@ -95,6 +97,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	public DriveFSMSystem() {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
+		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPi();
 
 		// Reset state machine
 		reset();
@@ -135,7 +138,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		drivetrain.applyOperatorPerspective();
-		//System.out.println("TELEOP-X " + drivetrain.getState().Pose.getX());
+		if (Utils.isSimulation()) {
+			rpi.update(getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose());
+		}
+		rpi.printRawData();
 
 		switch (currentState) {
 			case TELEOP_STATE:
