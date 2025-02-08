@@ -330,23 +330,6 @@ public class AutoRoutines {
 		}
 	}
 
-	/**
-	 * For staging auto routines / commands for robot.
-	 * @param seqInstruction
-	 * @return command
-	 */
-	public Command stageAuto(Command seqInstruction) {
-		if (HardwareMap.isDriveHardwarePresent()) {
-			sysRoutine.active().onTrue(
-				seqInstruction
-			);
-
-			return sysRoutine.cmd();
-		} else {
-			return seqInstruction;
-		}
-	}
-
 	private void generateSysRoutineMap(String deployFolder) {
 		File deployDir = new File(deployFolder + "/choreo");
 
