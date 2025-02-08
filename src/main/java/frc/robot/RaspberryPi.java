@@ -20,6 +20,8 @@ public class RaspberryPi {
 	private NetworkTable sourceTable;
 	private DoubleArraySubscriber reefCamSubscriber;
 	private DoubleArraySubscriber sourceCamSubscriber;
+	final private String REEF_CAM_NAME;
+	final private String SOURCE_CAM_NAME;
 
 	/**
 	* Default constructor for the RaspberryPi class.
@@ -32,6 +34,9 @@ public class RaspberryPi {
 		sourceTable = NetworkTableInstance.getDefault().getTable("source_table");
 		DoubleArrayTopic sourceCamTopic = sourceTable.getDoubleArrayTopic("april_tag_data");
 		sourceCamSubscriber = sourceCamTopic.subscribe(new double[] {});
+
+		REEF_CAM_NAME = VisionConstants.REEF_CAM_NAME;
+		SOURCE_CAM_NAME = VisionConstants.SOURCE_CAM_NAME;
 	}
 
 	/**
@@ -52,8 +57,8 @@ public class RaspberryPi {
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
-		atList.addAll(getAprilTagsSingleCamera(reefCamSubscriber, VisionConstants.REEF_CAM_NAME));
-		atList.addAll(getAprilTagsSingleCamera(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME));
+		atList.addAll(getAprilTagsSingleCam(reefCamSubscriber, REEF_CAM_NAME));
+		atList.addAll(getAprilTagsSingleCam(sourceCamSubscriber, SOURCE_CAM_NAME));
 		return atList;
 	}
 
@@ -64,7 +69,7 @@ public class RaspberryPi {
 	* @return  ArrayList<AprilTag>
 	*          A list of visible AprilTags
 	*/
-	public ArrayList<AprilTag> getAprilTagsSingleCamera(DoubleArraySubscriber camSub, String camName) {
+	public ArrayList<AprilTag> getAprilTagsSingleCam(DoubleArraySubscriber camSub, String camName) {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 		double[] rawData = camSub.get();
 
