@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -53,7 +54,7 @@ public class ElevatorFSMSystem {
 	private TalonFX elevatorMotor;
 	private DigitalInput groundLimitSwitch;
 
-	// private FunnelFSMSystem funnelSystem; // only used for break beam
+	private FunnelFSMSystem funnelSystem; // only used for break beam
 
 	/* ======================== Constructor ======================== */
 
@@ -122,7 +123,7 @@ public class ElevatorFSMSystem {
 
 		elevatorMotor.setPosition(0);
 
-		// this.funnelSystem = funnelFSMSystem;
+		this.funnelSystem = funnelFSMSystem;
 
 		reset();
 	}
@@ -234,18 +235,21 @@ public class ElevatorFSMSystem {
 					return ElevatorFSMState.GROUND;
 				}
 				if (input.isL4ButtonPressed()
+					&& funnelSystem.isHoldingCoral()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
 				if (input.isL2ButtonPressed()
+					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL2;
 				}
 				if (input.isL3ButtonPressed()
+					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()) {
@@ -321,7 +325,11 @@ public class ElevatorFSMSystem {
 			}
 		}
 
-		elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
+		if (signalInput == 0) {
+			elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
+		} else {
+			elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
+		}
 	}
 
 	/**

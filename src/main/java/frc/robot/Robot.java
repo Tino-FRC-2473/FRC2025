@@ -119,10 +119,10 @@ public class Robot extends LoggedRobot {
 			autoChooser.addOption("Elevator Test",
 				autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH));
 		}
-		// if (HardwareMap.isFunnelHardwarePresent()) {
-		// 	autoChooser.addOption("Funnel Test",
-		// 		autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH));
-		// }
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			autoChooser.addOption("Funnel Test",
+				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH));
+		}
 
 		// Log auto chooser
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);

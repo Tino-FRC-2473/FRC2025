@@ -18,13 +18,13 @@ public final class Constants {
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
 
 	//Elevator motion profile constants
-	public static final double ELEVATOR_KG = 0.26;
+	public static final double ELEVATOR_KG = 0.20;
 	public static final double ELEVATOR_KS = 0.1;
 	public static final double ELEVATOR_KV = 0.001;
 	public static final double ELEVATOR_KA = 0.0;
 	public static final double ELEVATOR_KP = 0.45;
 	public static final double ELEVATOR_KI = 0.0;
-	public static final double ELEVATOR_KD = 0.000;
+	public static final double ELEVATOR_KD = 0.000; // may need to tune for going down
 
 	public static final double ELEVATOR_CRUISE_VELO = 600;
 	public static final double ELEVATOR_TARGET_ACCEL = 1800;
@@ -47,7 +47,7 @@ public final class Constants {
 	public static final double ELEVATOR_POWER = 0.8;
 	public static final double ELEVATOR_REDUCED_POWER = 0.5;
 
-	public static final double ELEVATOR_MANUAL_SCALE = 0.8;
+	public static final double ELEVATOR_MANUAL_SCALE = 0.5;
 	public static final double ELEVATOR_TARGET_MARGIN = 5;
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
