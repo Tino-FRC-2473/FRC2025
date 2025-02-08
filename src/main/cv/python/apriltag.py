@@ -208,13 +208,13 @@ def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_
     print(images)
     for i, fname in enumerate(images):
         if not bw_camera:
-            img_path = os.path.join(input_dir, fname)
+            img_path = input_dir.joinpath(fname)
             img = cv2.imread(img_path)
             img = cv2.resize(img, RES)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         else:
             try:
-                img = cv2.imread(os.path.join(input_dir, fname), cv2.IMREAD_GRAYSCALE)
+                img = cv2.imread(input_dir.joinpath(fname), cv2.IMREAD_GRAYSCALE)
                 img = cv2.resize(img, RES)
             except Exception as e:
                 print(f"Error reading or resizing image {fname}: {e}")
