@@ -55,7 +55,7 @@ public final class HardwareMap {
 	 * @return true if funnel hardware is present
 	 */
 	public static boolean isFunnelHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**

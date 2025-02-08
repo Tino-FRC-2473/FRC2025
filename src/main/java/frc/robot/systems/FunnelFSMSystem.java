@@ -105,7 +105,12 @@ public class FunnelFSMSystem {
 
 		// Switch state
 		currentState = nextState(input);
+	}
 
+	/**
+	 * Calls all logging and telemetry to be updated periodically.
+	 */
+	public void updateLogging() {
 		// Telemetry and logging
 		Logger.recordOutput("Funnel Position", funnelServo.get());
 		Logger.recordOutput("Funnel State", currentState.toString());
