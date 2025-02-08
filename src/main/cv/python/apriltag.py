@@ -5,6 +5,7 @@ import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
 
+
 basePath = Path(__file__).resolve().parent
 
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
@@ -13,10 +14,9 @@ basePath = Path(__file__).resolve().parent
 # at 18 in -> max left/right was 4.5 in
 class AprilTag():
 
-    def __init__(self, cam_name):
-        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}matrix.npy')
-        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}dist.npy')
-
+    def __init__(self):
+        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
@@ -200,8 +200,8 @@ def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
-    input_dir = os.path.join(basePath, input_dir_relative)
-    output_dir = os.path.join(basePath, output_dir_relative)
+    input_dir = basePath.joinpath(input_dir_relative)
+    output_dir = basePath.joinpath(output_dir_relative)
 
     Path(output_dir).mkdir(exist_ok=True) # create calibration directory if it doesn't exist
     images = Path.iterdir(input_dir)
