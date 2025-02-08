@@ -3,7 +3,6 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,12 +19,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import org.littletonrobotics.junction.Logger;
-
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 // Robot Imports
@@ -396,8 +392,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Handle tag alignment state.
 	 * @param input
 	 * @param id
-	 * @param xOff
-	 * @param yOff
 	 */
 	private void handleTagAlignment(TeleopInput input, int id) {
 		logger.applyStateLogging(drivetrain.getState());
