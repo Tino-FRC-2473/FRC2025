@@ -13,7 +13,7 @@ public class VisionConstants {
 	public static final double X_MARGIN_TO_REEF = 0.05;
 	public static final double Y_MARGIN_TO_REEF = 0.05;
 	public static final double ROT_MARGIN_TO_REEF = 0.09;
-	public static final double REEF_TARGET_DISTANCE = 1.2;
+	public static final double TAG_TARGET_DISTANCE = .2;
 
 	public static final double N_180 = 180;
 

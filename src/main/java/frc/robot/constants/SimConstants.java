@@ -1,7 +1,5 @@
 package frc.robot.constants;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 
@@ -29,8 +27,8 @@ public class SimConstants {
 	public static final double ELEVATOR_GEAR_RATIO = 10; //25.0;
 
 	//vision related constants
-	public static final AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT =
-		AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+	public static final String APRIL_TAG_FIELD_LAYOUT_JSON =
+		"src/main/java/frc/robot/constants/2025tagLayout.json";
 
 	// Camera names, must match names configured on coprocessor
 	public static final String REEF_CAMERA_NAME = "Reef CV Camera";

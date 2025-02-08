@@ -1,5 +1,6 @@
 package frc.robot.simulation;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -36,7 +37,13 @@ public class RaspberryPiSim extends RaspberryPi {
 		// Initialize vision sim
 		if (visionSim == null) {
 			visionSim = new VisionSystemSim("main");
-			visionSim.addAprilTags(SimConstants.APRIL_TAG_FIELD_LAYOUT);
+			try {
+				visionSim.addAprilTags(
+					new AprilTagFieldLayout(SimConstants.APRIL_TAG_FIELD_LAYOUT_JSON)
+				);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		// Add sim camera
