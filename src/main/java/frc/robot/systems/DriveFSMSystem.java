@@ -45,7 +45,8 @@ public class DriveFSMSystem extends SubsystemBase {
 	// FSM state definitions
 	public enum FSMState {
 		TELEOP_STATE,
-		ALIGN_TO_TAG_STATE
+		ALIGN_TO_REEF_TAG_STATE,
+		ALIGN_TO_STATION_TAG_STATE
 	}
 
 	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
@@ -174,14 +175,17 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (Utils.isSimulation()) {
 			rpi.update(getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose());
 		}
-		rpi.printRawData();
+		//rpi.printRawData();
 
 		switch (currentState) {
 			case TELEOP_STATE:
 				handleTeleOpState(input);
 				break;
-			case ALIGN_TO_TAG_STATE:
-				handleTagAlignment(input, tagID);
+			case ALIGN_TO_REEF_TAG_STATE:
+				handleReefTagAlignment(input);
+				break;
+			case ALIGN_TO_STATION_TAG_STATE:
+				handleStationTagAlignment(input);
 				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -225,13 +229,25 @@ public class DriveFSMSystem extends SubsystemBase {
 		switch (currentState) {
 			case TELEOP_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_TAG_STATE;
+					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+				}  else if (input.getDriveTriangleButton()) {
+					return FSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
 					return FSMState.TELEOP_STATE;
 				}
-			case ALIGN_TO_TAG_STATE:
+			case ALIGN_TO_REEF_TAG_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_TAG_STATE;
+					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+				}  else if (input.getDriveTriangleButton()) {
+					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+				} else {
+					return FSMState.TELEOP_STATE;
+				}
+			case ALIGN_TO_STATION_TAG_STATE:
+				if (input.getDriveSquareButton()) {
+					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+				}  else if (input.getDriveTriangleButton()) {
+					return FSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
 					return FSMState.TELEOP_STATE;
 				}
@@ -254,6 +270,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (tagAlignmentPose != null) {
 			tagAlignmentPose = null;
 			tagPositionAligned = false;
+			rotationCache2d = 0;
+			tagID = -1;
 		}
 
 		//System.out.println("TELEOP IS RUNNING");
@@ -274,7 +292,12 @@ public class DriveFSMSystem extends SubsystemBase {
 			// Drive left with negative X (left) ^
 
 		if (rotXComp != 0) {
-			rotationAlignmentPose = drivetrain.getState().Pose.getRotation();
+			rotationAlignmentPose =
+				(Utils.isSimulation())
+					? getMapleSimDrivetrain().getDriveSimulation()
+					.getSimulatedDriveTrainPose().getRotation()
+					: drivetrain.getState().Pose.getRotation();
+
 		}
 
 		// System.out.println("TELEOP X:" + drivetrain.getState().Pose.getX());
@@ -288,15 +311,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			.withTargetRateFeedforward(rotXComp)
 		);
 
-		if (input.getDriveTriangleButton()) {
-			drivetrain.setControl(brake);
-		}
-
 		if (input.getDriveCircleButton()) {
-			drivetrain.setControl(
-				point.withModuleDirection(new Rotation2d(-input.getDriveLeftJoystickY(),
-					-input.getDriveLeftJoystickX()))
-			);
+			drivetrain.setControl(brake);
 		}
 
 		if (input.getDriveBackButtonPressed()) {
@@ -312,6 +328,10 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		ArrayList<AprilTag> sortedTagList = rpi.getAprilTags();
 		Collections.sort(rpi.getAprilTags(), aComparator);
+
+		System.out.println(sortedTagList);
+		System.out.println(DriverStation.getAlliance().toString());
+
 
 		if (DriverStation.getAlliance().equals(Alliance.Blue) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
@@ -334,6 +354,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 
 		}
+
+		System.out.println("REEF TAG ID: " + tagID);
 
 		if (tagID != -1) {
 			handleTagAlignment(input, tagID);
