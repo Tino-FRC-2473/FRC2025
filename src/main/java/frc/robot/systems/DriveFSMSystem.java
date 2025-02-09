@@ -120,6 +120,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 	};
 
+	private Translation2d alignmentTranslation2d;
+	private double dl;
+	private double rotationCache2d;
+
 
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;
@@ -433,7 +437,23 @@ public class DriveFSMSystem extends SubsystemBase {
 			// Y is side-to-side on robotPose, x is side-to-side on cv side
 			double rpiY = tag.getX();
 			// using rvec to determine the absolute rotation of the apriltag.
-			double rpiTheta = tag.getPitch();
+			//double rpiTheta = tag.getPitch();
+
+			if (alignmentTranslation2d == null) {
+				alignmentTranslation2d = new Translation2d(
+					rpiX,
+					rpiY
+				);
+
+				rotationCache2d = tag.getPitch();
+				dl = alignmentTranslation2d.getNorm() / VisionConstants.MAX_SPEED_METERS_PER_SECOND;
+			}
+
+			double rpiTheta =
+				lerp(rotationCache2d, 0,
+					Math.hypot(rpiX, rpiY)
+					/ Math.hypot(alignmentTranslation2d.getX(),
+						alignmentTranslation2d.getY()));
 
 			double xSpeed = Math.abs(rpiX) > VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
