@@ -2,7 +2,6 @@ package frc.robot.simulation;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -93,12 +92,9 @@ public class RaspberryPiSim extends RaspberryPi {
 						target.getBestCameraToTarget().getX()
 					),
 					new Rotation3d(
-						target.getBestCameraToTarget().getRotation()
-							.plus(new Rotation3d(Rotation2d.kPi)).getY(),
-						target.getBestCameraToTarget().getRotation()
-							.plus(new Rotation3d(Rotation2d.kPi)).getZ(),
-						target.getBestCameraToTarget().getRotation()
-							.plus(new Rotation3d(Rotation2d.kPi)).getX()
+						target.getBestCameraToTarget().getRotation().getY(),
+						target.getBestCameraToTarget().getRotation().getZ(),
+						target.getBestCameraToTarget().getRotation().getX()
 					)
 				);
 				atList.add(at);
