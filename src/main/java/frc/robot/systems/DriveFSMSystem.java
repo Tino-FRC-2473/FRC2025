@@ -436,48 +436,45 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		Logger.recordOutput("APRILTAG ID", id);
 		Logger.recordOutput("APRILTAG", tag != null);
+		Logger.recordOutput("ROT ALIGNED", tagAlignedRotation);
 		Logger.recordOutput("POS ALIGNED", tagPositionAligned);
-		Logger.recordOutput("alignment pose 2d null", alignmentPose2d != null);
 
-		if (!tagPositionAligned || !tagAlignedRotation) {
+		//handle if the tag's x, y, and rot position is aligned.
+		if (tagPositionAligned) {
+			drivetrain.setControl(brake);
+			return;
+		}
 
-			if (tag != null) {
-				double rpiTheta = tag.getPitch();
+		if (tag != null) {
+			double rpiTheta = tag.getPitch();
 
-				double aSpeed = Math.abs(rpiTheta)
-					> VisionConstants.ROT_MARGIN_TO_REEF ? SwerveUtils.clamp(
-						rpiTheta / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
-					-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-					VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-				) : 0;
+			double aSpeed = Math.abs(rpiTheta)
+				> VisionConstants.ROT_MARGIN_TO_REEF ? SwerveUtils.clamp(
+					rpiTheta / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+			) : 0;
 
-				Logger.recordOutput("RPI THETA", rpiTheta);
-				Logger.recordOutput("ASpeed", aSpeed);
+			Logger.recordOutput("RPI THETA", rpiTheta);
+			Logger.recordOutput("ASpeed", aSpeed);
 
-				positionCache2d = new Translation2d(
-					// X is forward on robot Pose, z is forward on cv side
-					drivetrain.getState().Pose.getX() + tag.getZ(),
-					// using rvec to determine the absolute rotation of the apriltag.
-					drivetrain.getState().Pose.getY() + tag.getX()
+			positionCache2d = new Translation2d(
+				// X is forward on robot Pose, z is forward on cv side
+				drivetrain.getState().Pose.getX() + tag.getZ() - VisionConstants.TAG_TARGET_DISTANCE,
+				// using rvec to determine the absolute rotation of the apriltag.
+				drivetrain.getState().Pose.getY() + tag.getX()
+			);
+
+			Logger.recordOutput("POSITION CACHE 2d", positionCache2d);
+
+			if (aSpeed == 0) {
+				tagAlignedRotation = true;
+
+				alignmentPose2d = new Pose2d(
+					positionCache2d,
+					drivetrain.getState().Pose.getRotation()
 				);
 
-				if (aSpeed == 0) {
-					tagAlignedRotation = true;
-				}
-
-				if (alignmentPose2d == null) {
-					//System.out.println("REACHING HERE");
-					drivetrain.setControl(
-						drive.withVelocityX(0)
-						.withVelocityY(0)
-						.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
-					);
-				}
-			}
-
-			Logger.recordOutput("TAG ALIGNED ROTATION", tagAlignedRotation);
-
-			if (alignmentPose2d != null) {
 				double xSpeed = Math.abs(alignmentPose2d.getX() - drivetrain.getState().Pose.getX())
 					> VisionConstants.X_MARGIN_TO_REEF
 					? SwerveUtils.clamp(
@@ -504,79 +501,55 @@ public class DriveFSMSystem extends SubsystemBase {
 					.withVelocityY(ySpeed * MAX_SPEED)
 				);
 
-				tagPositionAligned = (xSpeed == 0 && ySpeed == 0);
+				tagPositionAligned = xSpeed == 0 && ySpeed == 0;
+
 			} else {
-				System.out.println("REACHING HERE");
-				drivetrain.setControl(brake);
+				drivetrain.setControl(
+					drive.withVelocityX(0)
+					.withVelocityY(0)
+					.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
+				);
 			}
 		} else {
-			System.out.println("REACHING HERE 2");
-			drivetrain.setControl(brake);
+			if (tagAlignedRotation) {
+				tagPositionAligned = true;
+
+				alignmentPose2d = new Pose2d(
+					positionCache2d,
+					drivetrain.getState().Pose.getRotation()
+				);
+
+				double xSpeed = Math.abs(alignmentPose2d.getX() - drivetrain.getState().Pose.getX())
+					> VisionConstants.X_MARGIN_TO_REEF
+					? SwerveUtils.clamp(
+						(alignmentPose2d.getX() - drivetrain.getState().Pose.getX())
+						/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+						-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+						VisionConstants.MAX_SPEED_METERS_PER_SECOND
+					) : 0;
+
+				double ySpeed = Math.abs(alignmentPose2d.getY() - drivetrain.getState().Pose.getY())
+					> VisionConstants.Y_MARGIN_TO_REEF
+					? SwerveUtils.clamp(
+						(alignmentPose2d.getY() - drivetrain.getState().Pose.getY())
+						/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+						-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+						VisionConstants.MAX_SPEED_METERS_PER_SECOND
+					) : 0;
+
+				Logger.recordOutput("XSPEED", xSpeed);
+				Logger.recordOutput("YSPEED", ySpeed);
+
+				drivetrain.setControl(
+					driveRobotCentric.withVelocityX(xSpeed * MAX_SPEED)
+					.withVelocityY(ySpeed * MAX_SPEED)
+				);
+
+				tagPositionAligned = xSpeed == 0 && ySpeed == 0;
+			} else {
+				drivetrain.setControl(brake);
+			}
 		}
-
-
-
-			// X is forward on robot Pose, z is forward on cv side
-			//double rpiX = tag.getZ() - VisionConstants.TAG_TARGET_DISTANCE;
-			// Y is side-to-side on robotPose, x is side-to-side on cv side
-			//double rpiY = tag.getX();
-			// using rvec to determine the absolute rotation of the apriltag.
-			//double rpiTheta = tag.getPitch();
-
-			// if (alignmentTranslation2d == null) {
-			// 	alignmentTranslation2d = new Translation2d(
-			// 		rpiX,
-			// 		rpiY
-			// 	);
-
-			// 	rotationCache2d = tag.getPitch();
-			// }
-
-			// double rpiTheta =
-			// 	lerp(0, rotationCache2d,
-			// 		Math.hypot(rpiX, rpiY)
-			// 		/ Math.hypot(alignmentTranslation2d.getX(),
-			// 			alignmentTranslation2d.getY()));
-
-			// double xSpeed = Math.abs(rpiX) > VisionConstants.X_MARGIN_TO_REEF
-			// 	? SwerveUtils.clamp(
-			// 		rpiX / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-			// 		-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-			// 		VisionConstants.MAX_SPEED_METERS_PER_SECOND
-			// 	) : 0;
-
-			// double ySpeed = Math.abs(rpiY) > VisionConstants.Y_MARGIN_TO_REEF
-			// 	? (rpiY * xSpeed / rpiX) : 0;
-
-			// ds = -rotationCache2d * Math.hypot(xSpeed, ySpeed)
-			// 	/ Math.hypot(alignmentTranslation2d.getX(), alignmentTranslation2d.getY());
-
-			// double aSpeed = Math.abs(rotationCache2d - rpiTheta)
-			// 	> VisionConstants.ROT_MARGIN_TO_REEF ? SwerveUtils.clamp(
-			// 			ds / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
-			// 		-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-			// 		VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-			// 	) : 0;
-
-			// drivetrain.setControl(
-			// 	drive.withVelocityX(-xSpeed * MAX_SPEED)
-			// 	.withVelocityY(-ySpeed * MAX_SPEED)
-			// 	.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
-			// );
-
-			// Logger.recordOutput("RPI THETA", rpiTheta);
-			// Logger.recordOutput("rortation2d cache", rotationCache2d);
-			// Logger.recordOutput("DS", ds);
-
-			// Logger.recordOutput("XSPEED", xSpeed);
-			// Logger.recordOutput("YSPEED", ySpeed);
-			// Logger.recordOutput("ASPEED", aSpeed);
-
-			// tagPositionAligned = (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
-	}
-
-	private double lerp(double start, double end, double dt) {
-		return start * (1 - dt) + end * (dt);
 	}
 
 	/**
