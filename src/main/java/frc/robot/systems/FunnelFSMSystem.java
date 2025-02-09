@@ -187,29 +187,17 @@ public class FunnelFSMSystem {
 	/* ---- Funnel Commands ---- */
 
 	/** A command that opens the funnel servo. */
-	class OpenFunnelCommand extends Command {
-		OpenFunnelCommand() { }
+	class IntakeCoralCommand extends Command {
 
-		@Override
-		public void execute() {
-			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
-		}
-
-		@Override
-		public boolean isFinished() {
-			return !isHoldingCoral(); // done when no coral
-		}
-
-		@Override
-		public void end(boolean interrupted) { }
-	}
-
-	/** A command that closes the funnel servo. */
-	class CloseFunnelCommand extends Command {
 		private Timer timer;
 
-		CloseFunnelCommand() {
+		IntakeCoralCommand() {
 			timer = new Timer();
+		}
+
+		@Override
+		public void initialize() {
+			timer.reset();
 			timer.start();
 		}
 
@@ -220,11 +208,43 @@ public class FunnelFSMSystem {
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() >= Constants.FUNNEL_CLOSE_TIME_SECS;
+			return timer.get() > Constants.FUNNEL_INOUT_TIME_SECS || isHoldingCoral();
 		}
 
 		@Override
 		public void end(boolean interrupted) {
+			timer.stop();
+			timer.reset();
+		}
+	}
+
+	/** A command that closes the funnel servo. */
+	class OuttakeCoralCommand extends Command {
+		private Timer timer;
+
+		OuttakeCoralCommand() {
+			timer = new Timer();
+		}
+
+		public void initialize() {
+			timer.reset();
+			timer.start();
+		}
+
+		@Override
+		public void execute() {
+			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+		}
+
+		@Override
+		public boolean isFinished() {
+			//return true;
+			return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS || !isHoldingCoral();
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 			timer.stop();
 		}
 	}
@@ -233,15 +253,15 @@ public class FunnelFSMSystem {
 	 * Creates a Command to open the funnel.
 	 * @return A new funnel open command.
 	 */
-	public Command openFunnelCommand() {
-		return new OpenFunnelCommand();
+	public Command intakeCoralCommand() {
+		return new IntakeCoralCommand();
 	}
 
 	/**
 	 * Creates a Command to close the funnel.
 	 * @return A new funnel close command.
 	 */
-	public Command closeFunnelCommand() {
-		return new CloseFunnelCommand();
+	public Command outtakeCoralCommand() {
+		return new OuttakeCoralCommand();
 	}
 }
