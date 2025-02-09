@@ -5,6 +5,7 @@ package frc.robot.systems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -272,13 +273,12 @@ public class DriveFSMSystem extends SubsystemBase {
 		logger.applyStateLogging(drivetrain.getState());
 
 		/* cv alignment constant resets */
-		if (tagID != -1) {
-			alignmentPose2d = null;
-			tagAlignedRotation = false;
-			positionCache2d = null;
-			tagPositionAligned = false;
-			tagID = -1;
-		}
+		alignmentPose2d = null;
+		tagAlignedRotation = false;
+		positionCache2d = null;
+		tagPositionAligned = false;
+		tagID = -1;
+
 
 		//System.out.println("TELEOP IS RUNNING");
 
@@ -438,6 +438,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		Logger.recordOutput("APRILTAG", tag != null);
 		Logger.recordOutput("ROT ALIGNED", tagAlignedRotation);
 		Logger.recordOutput("POS ALIGNED", tagPositionAligned);
+		Logger.recordOutput("Alignment Pose 2d", alignmentPose2d);
 
 		//handle if the tag's x, y, and rot position is aligned.
 		if (tagPositionAligned) {
@@ -458,44 +459,35 @@ public class DriveFSMSystem extends SubsystemBase {
 			) : 0;
 
 			if (Utils.isSimulation()) {
-				positionCache2d = getMapleSimDrivetrain()
-					.getDriveSimulation().getSimulatedDriveTrainPose().getTranslation()
-					.plus(new Translation2d(tag.getZ(), tag.getX()));
-
-				alignmentPose2d = new Pose2d(
-					positionCache2d,
-					getMapleSimDrivetrain().getDriveSimulation()
-						.getSimulatedDriveTrainPose().getRotation()
-				);
+				alignmentPose2d = getMapleSimDrivetrain()
+					.getDriveSimulation().getSimulatedDriveTrainPose()
+					.plus(new Transform2d(tag.getZ(), tag.getX(), new Rotation2d()));
 			} else {
-				positionCache2d = drivetrain.getState().Pose.getTranslation()
-					.plus(new Translation2d(tag.getZ(), tag.getX()));
-
-				alignmentPose2d = new Pose2d(
-					positionCache2d,
-					drivetrain.getState().Pose.getRotation()
-				);
+				alignmentPose2d = drivetrain.getState().Pose
+					.plus(new Transform2d(tag.getZ(), tag.getX(), new Rotation2d()));
 			}
 
-			// natural mk4 deadband
-			if (Math.abs(aSpeed) < 0.09) {
-				tagAlignedRotation = true;
-			}
+			Logger.recordOutput("rot speed", aSpeed);
+
+			tagAlignedRotation = (Math.abs(aSpeed) < 0.09);
+
+			drivetrain.setControl(
+				drive.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
+			);
 		}
 
-		if (positionCache2d != null || !tagPositionAligned) {
-
+		if (alignmentPose2d != null || !tagPositionAligned) {
 			Logger.recordOutput("ALignment Pose 2d", alignmentPose2d);
 
 			double xDiff = (!Utils.isSimulation())
-				? Math.abs(alignmentPose2d.getX() - drivetrain.getState().Pose.getX())
-				: Math.abs(alignmentPose2d.getX() - getMapleSimDrivetrain().getDriveSimulation()
-					.getSimulatedDriveTrainPose().getX());
+				? alignmentPose2d.getX() - drivetrain.getState().Pose.getX()
+				: alignmentPose2d.getX() - getMapleSimDrivetrain().getDriveSimulation()
+					.getSimulatedDriveTrainPose().getX();
 
 			double yDiff = (!Utils.isSimulation())
-				? Math.abs(alignmentPose2d.getY() - drivetrain.getState().Pose.getY())
-				: Math.abs(alignmentPose2d.getY() - getMapleSimDrivetrain().getDriveSimulation()
-					.getSimulatedDriveTrainPose().getY());
+				? alignmentPose2d.getY() - drivetrain.getState().Pose.getY()
+				: alignmentPose2d.getY() - getMapleSimDrivetrain().getDriveSimulation()
+					.getSimulatedDriveTrainPose().getY();
 
 			double xSpeed = Math.abs(xDiff)
 				> VisionConstants.X_MARGIN_TO_REEF
@@ -516,9 +508,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			Logger.recordOutput("ASpeed", aSpeed);
 
 			drivetrain.setControl(
-				driveRobotCentric.withVelocityX(xSpeed * MAX_SPEED)
+				drive.withVelocityX(xSpeed * MAX_SPEED)
 				.withVelocityY(ySpeed * MAX_SPEED)
-				.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
 			);
 
 			// natural mk4 deadband
