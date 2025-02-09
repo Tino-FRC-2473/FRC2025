@@ -78,8 +78,9 @@ public class AutoConstants {
 		ELEVATOR_L2_CMD,
 		ELEVATOR_L3_CMD,
 		ELEVATOR_L4_CMD,
+		WAIT,
 		/* Funnel Commands */
-		FUNNEL_OPEN_CMD,
-		FUNNEL_CLOSE_CMD
+		INTAKE_CORAL_CMD,
+		OUTTAKE_CORAL_CMD
 	}
 }

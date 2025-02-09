@@ -138,10 +138,10 @@ public class AutoRoutines {
 	private Command checkFunnelCommands(AutoCommands commandEntry) {
 		System.out.println("REACHED FUNNEL PARSE");
 		switch (commandEntry) {
-			case FUNNEL_OPEN_CMD:
-				return funnelSystem.openFunnelCommand();
-			case FUNNEL_CLOSE_CMD:
-				return funnelSystem.closeFunnelCommand();
+			case INTAKE_CORAL_CMD:
+				return funnelSystem.intakeCoralCommand();
+			case OUTTAKE_CORAL_CMD:
+				return funnelSystem.outtakeCoralCommand();
 			default:
 				return null;
 		}
@@ -197,7 +197,7 @@ public class AutoRoutines {
 
 			if (autoStage.getClass().equals(String.class)) {
 				/* -- Processing drive trajs -- */
-				if (paths.containsKey(autoStage)) {
+				if (HardwareMap.isDriveHardwarePresent() && paths.containsKey(autoStage)) {
 					AutoTrajectory traj = paths.get(autoStage);
 					if (trajIdx++ == 0) {
 						seqInstruction.addCommands(traj.resetOdometry());

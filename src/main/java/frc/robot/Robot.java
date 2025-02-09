@@ -46,16 +46,17 @@ public class Robot extends LoggedRobot {
 	// Systems
 	private DriveFSMSystem driveSystem;
 	private AutoRoutines autoRoutines;
+
 	private SendableChooser<String> autoChooser = new SendableChooser<String>();
 	private String autCommand;
+
+	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
-	private ElevatorFSMSystem elevatorSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
-
 	/**
 	 * This function is run when the robot is first started up and should be used for any
 	 * initialization code.
@@ -86,19 +87,20 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
 
-		if (HardwareMap.isFunnelHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
 
-		if (HardwareMap.isElevatorHardwarePresent()) {
+		if (Robot.isSimulation() || (HardwareMap.isFunnelHardwarePresent()
+			&& HardwareMap.isElevatorHardwarePresent())) {
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
-		if (HardwareMap.isClimberHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
 
@@ -237,7 +239,7 @@ public class Robot extends LoggedRobot {
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/SimulatedPose",
+			"FieldSimulation/Robot/DriveTrain Pose",
 			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
 		);
 
@@ -250,15 +252,24 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/CoralPoses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
 		);
-		Logger.recordOutput("FieldSimulation/Poses", MechLogging.getInstance().getRobotPoses());
+
+		Logger.recordOutput(
+			"FieldSimulation/Poses",
+			MechLogging.getInstance().getRobotPoses()
+		);
 
 	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
 	public void robotPeriodic() {
-		funnelSystem.updateLogging();
-		elevatorSystem.updateLogging();
+		if (funnelSystem != null) {
+			funnelSystem.updateLogging();
+		}
+
+		if (elevatorSystem != null) {
+			elevatorSystem.updateLogging();
+		}
 	}
 
 	/**
