@@ -64,6 +64,10 @@ public class Robot extends LoggedRobot {
 		AutoCommands.FUNNEL_CLOSE_CMD,
 	};
 
+	private static final Object[] SAMPLE_RED_TEST_PATH = new Object[] {
+		"S1_R1"
+	};
+
 	/**
 	 * This function is run when the robot is first started up and should be used for any
 	 * initialization code.
@@ -116,11 +120,15 @@ public class Robot extends LoggedRobot {
 		// Add auto paths
 		if (HardwareMap.isElevatorHardwarePresent()) {
 			autoChooser.addOption("Elevator Test",
-				autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH));
+				autoRoutines.generateSequentialAutoWorkflow(ELEVATOR_TESTING_PATH, false));
 		}
 		if (HardwareMap.isFunnelHardwarePresent()) {
 			autoChooser.addOption("Funnel Test",
-				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH));
+				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH, false));
+		}
+		if (HardwareMap.isDriveHardwarePresent()) {
+			autoChooser.addOption("Drive Test",
+				autoRoutines.generateSequentialAutoWorkflow(SAMPLE_RED_TEST_PATH, false));
 		}
 
 		// Log auto chooser
@@ -211,7 +219,10 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
-		driveSystem.getMapleSimDrivetrain().update();
+		if (HardwareMap.isDriveHardwarePresent()) {
+			driveSystem.updateSimStartingPosition();
+			driveSystem.getMapleSimDrivetrain().update();
+		}
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",

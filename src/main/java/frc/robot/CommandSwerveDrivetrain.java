@@ -68,12 +68,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		if (Robot.isSimulation()) {
 			// zero
 			setupSimulation(new Pose2d(0, 0, new Rotation2d()));
-
-			//start in field
-			setupSimulation(new Pose2d(
-				Units.feetToMeters(SimConstants.STARTING_POS_X_FT),
-				Units.feetToMeters(SimConstants.STARTING_POS_Y_FT),
-				new Rotation2d()));
 		}
 		// setupPathplanner();
 	}
@@ -155,5 +149,50 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	 */
 	public MapleSimSwerveDrivetrain getSimDrivetrain() {
 		return mapleSimSwerveDrivetrain;
+	}
+
+	/**
+	 * Update the starting point of the simulation.
+	 * @return true if the simulation was updated, false if not
+	 */
+	public boolean updateSimStartingPose() {
+		//start in field
+		if (!DriverStation.getAlliance().isEmpty()) {
+			if (DriverStation.getAlliance().get().equals(Alliance.Blue)) {
+				switch (DriverStation.getLocation().getAsInt()) {
+					case 1:
+						setupSimulation(SimConstants.BLUE_1_STARTING_POS_M);
+						break;
+					case 2:
+						setupSimulation(SimConstants.BLUE_2_STARTING_POS_M);
+						break;
+					case 3:
+						setupSimulation(SimConstants.BLUE_3_STARTING_POS_M);
+						break;
+					default:
+						setupSimulation(new Pose2d(0, 0, new Rotation2d()));
+						break;
+				}
+			} else {
+				switch (DriverStation.getLocation().getAsInt()) {
+					case 1:
+						setupSimulation(SimConstants.RED_1_STARTING_POS_M);
+						break;
+					case 2:
+						setupSimulation(SimConstants.RED_2_STARTING_POS_M);
+						break;
+					case 3:
+						setupSimulation(SimConstants.RED_3_STARTING_POS_M);
+						break;
+					default:
+						setupSimulation(new Pose2d(0, 0, new Rotation2d()));
+						break;
+				}
+			}
+
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

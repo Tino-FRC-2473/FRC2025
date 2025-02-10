@@ -1,5 +1,7 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 
@@ -13,8 +15,39 @@ public class SimConstants {
 
 	public static final double STEER_INERTIA_KGMS2 = 0.05;
 
-	public static final double STARTING_POS_X_FT = 5;
-	public static final double STARTING_POS_Y_FT = 5;
+	public static final Pose2d BLUE_1_STARTING_POS_M = new Pose2d(
+		7.5856494,
+		6.4390466,
+		new Rotation2d(Math.PI)
+	);
+
+	public static final Pose2d BLUE_2_STARTING_POS_M = new Pose2d(
+		7.5856494,
+		4.0468566,
+		new Rotation2d(Math.PI)
+	);
+
+	public static final Pose2d BLUE_3_STARTING_POS_M = new Pose2d(
+		7.5856494,
+		1.5596578,
+		new Rotation2d(Math.PI)
+	);
+
+	public static final Pose2d RED_1_STARTING_POS_M = new Pose2d(
+		9.972452163696289,
+		1.5596578,
+		new Rotation2d(Math.PI)
+	);
+	public static final Pose2d RED_2_STARTING_POS_M = new Pose2d(
+		9.972452163696289,
+		4.0468566,
+		new Rotation2d(Math.PI)
+	);
+	public static final Pose2d RED_3_STARTING_POS_M = new Pose2d(
+		9.972452163696289,
+		6.4390466,
+		new Rotation2d(Math.PI)
+	);
 
 	// Estimated values for now, need to be calculated later
 	public static final double MASS_WITH_BUMPER_LBS = 115;

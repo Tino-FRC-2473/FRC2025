@@ -1,6 +1,7 @@
 package frc.robot.systems;
 
 
+import edu.wpi.first.hal.AllianceStationID;
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -88,8 +89,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	private Translation2d positionCache2d;
 	private double ds;
 	private boolean tagAlignedRotation;
-
 	private Rotation2d rotationAlignmentPose;
+
+	private boolean updateSimStartingPose = false;
 
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,
@@ -161,6 +163,10 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void reset() {
 		currentState = FSMState.TELEOP_STATE;
+
+		if (Utils.isSimulation()) {
+			updateSimStartingPose = false;
+		}
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -442,6 +448,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		//handle if the tag's x, y, and rot position is aligned.
 		if (tagPositionAligned) {
+			//reset odometry to tag abs position, w/ calculated offset.
 			drivetrain.setControl(brake);
 			return;
 		}
@@ -468,15 +475,9 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 
 			Logger.recordOutput("rot speed", aSpeed);
-
-			tagAlignedRotation = (Math.abs(aSpeed) < 0.09);
-
-			drivetrain.setControl(
-				drive.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
-			);
 		}
 
-		if (alignmentPose2d != null || !tagPositionAligned) {
+		if (alignmentPose2d != null) {
 			Logger.recordOutput("ALignment Pose 2d", alignmentPose2d);
 
 			double xDiff = (!Utils.isSimulation())
@@ -503,6 +504,11 @@ public class DriveFSMSystem extends SubsystemBase {
 				? yDiff / xDiff * xSpeed
 				: 0;
 
+			// if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
+			// 	xSpeed = -xSpeed;
+			// 	ySpeed = -ySpeed;
+			// }
+
 			Logger.recordOutput("XSPEED", xSpeed);
 			Logger.recordOutput("YSPEED", ySpeed);
 			Logger.recordOutput("ASpeed", aSpeed);
@@ -510,11 +516,12 @@ public class DriveFSMSystem extends SubsystemBase {
 			drivetrain.setControl(
 				drive.withVelocityX(xSpeed * MAX_SPEED)
 				.withVelocityY(ySpeed * MAX_SPEED)
+				.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
 			);
 
 			// natural mk4 deadband
 			tagPositionAligned =
-				xSpeed == 0 && ySpeed == 0 && tagAlignedRotation;
+				xSpeed == 0 && ySpeed == 0;
 		} else {
 			drivetrain.setControl(brake);
 		}
@@ -632,5 +639,14 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public MapleSimSwerveDrivetrain getMapleSimDrivetrain() {
 		return drivetrain.getSimDrivetrain();
+	}
+
+	/**
+	 * Update the starting pose of the simulation's drivetrain based on the selected position.
+	 */
+	public void updateSimStartingPosition() {
+		if (!updateSimStartingPose) {
+			updateSimStartingPose = drivetrain.updateSimStartingPose();
+		}
 	}
 }
