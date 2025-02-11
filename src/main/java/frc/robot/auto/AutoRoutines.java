@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ctre.phoenix6.Utils;
+
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -22,6 +26,10 @@ public class AutoRoutines {
 
 	// Auto sys instance -- used to convert choreo trajectories into schedulable commands.
 	private AutoRoutine sysRoutine;
+	private AutoPaths autoPaths;
+
+	// for sim purposes
+	private Pose2d initPose;
 
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
@@ -30,9 +38,118 @@ public class AutoRoutines {
 
 	// Initialize all paths / commands
 	private Map<String, AutoTrajectory> paths = new HashMap<String, AutoTrajectory>();
-	private Map<AutoCommands, Command> commands = new HashMap<AutoCommands, Command>();
 
-	private Object[] currentAutoState;
+	/* ------------------------ ALL COMMANDS AND PRESETS ------------------------- */
+	/* ----- this is the only part you should ever have to edit in this file ----- */
+
+	private Command checkDriveCommands(AutoCommands commandEntry) {
+		/* ---- All Drive Commands ---- */
+		switch (commandEntry) {
+			case DRIVE_BRAKE_CMD:
+				return driveSystem.brakeCommand();
+			case DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD:
+				return driveSystem.driveRobotRelativeOffset(
+					AutoConstants.REEF_OFFSET_X_AUTO_SPEED_M_S,
+					AutoConstants.REEF_OFFSET_Y_AUTO_SPEED_M_S,
+					AutoConstants.TIME_DRIVING_OFFSET);
+			case DRIVE_ROBOT_RIGHT_RELATIVE_OFFSET_TIMED_CMD:
+				return driveSystem.driveRobotRelativeOffset(
+					-AutoConstants.REEF_OFFSET_X_AUTO_SPEED_M_S,
+					AutoConstants.REEF_OFFSET_Y_AUTO_SPEED_M_S,
+					AutoConstants.TIME_DRIVING_OFFSET);
+			default:
+				return null;
+		}
+	}
+
+	private Command checkAlignmentCommands(AutoCommands commandEntry) {
+		/* ---- All Red AprilTag Alignment Commands ---- */
+		switch (commandEntry) {
+			case R_ALIGN_REEF2_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_2_TAG_ID
+				);
+			case R_ALIGN_REEF3_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_3_TAG_ID
+				);
+			case R_ALIGN_REEF5_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+						AutoConstants.R_REEF_5_TAG_ID
+				);
+			case R_ALIGN_REEF6_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+						AutoConstants.R_REEF_6_TAG_ID
+				);
+			case R_ALIGN_STATION_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.RED_L_STATION_ID
+				);
+			case R_ALIGN_STATION_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+						AutoConstants.RED_R_STATION_ID
+				);
+
+			/* ---- All Blue AprilTag Alignment Commands ---- */
+			case B_ALIGN_REEF2_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_2_TAG_ID
+				);
+			case B_ALIGN_REEF3_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_3_TAG_ID
+				);
+			case B_ALIGN_REEF5_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_5_TAG_ID
+				);
+			case B_ALIGN_REEF6_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_6_TAG_ID
+				);
+			case B_ALIGN_STATION_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.BLUE_L_STATION_ID
+				);
+			case B_ALIGN_STATION_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.BLUE_R_STATION_ID
+				);
+			default:
+				return null;
+		}
+	}
+
+	private Command checkElevatorCommands(AutoCommands commandEntry) {
+		switch (commandEntry) {
+			case ELEVATOR_GROUND_CMD:
+				return elevatorSystem.elevatorGroundCommand();
+			case ELEVATOR_L2_CMD:
+				return elevatorSystem.elevatorL2Command();
+			case ELEVATOR_L3_CMD:
+				return elevatorSystem.elevatorL3Command();
+			case ELEVATOR_L4_CMD:
+				return elevatorSystem.elevatorL4Command();
+			case WAIT:
+				return elevatorSystem.waitCommand();
+			default:
+				return null;
+		}
+	}
+
+	private Command checkFunnelCommands(AutoCommands commandEntry) {
+		System.out.println("REACHED FUNNEL PARSE");
+		switch (commandEntry) {
+			case INTAKE_CORAL_CMD:
+				return funnelSystem.intakeCoralCommand();
+			case OUTTAKE_CORAL_CMD:
+				return funnelSystem.outtakeCoralCommand();
+			default:
+				return null;
+		}
+	}
+
+	/* ----------------------------------------------------------- */
 
 	/**
 	 * Constructs an AutoRoutines object.
@@ -48,28 +165,47 @@ public class AutoRoutines {
 		elevatorSystem = elevatorFSMSystem;
 		funnelSystem = funnelFSMSystem;
 
-		// Set up commands for each system
-		initialize();
+		if (driveSystem != null) {
+			sysRoutine = driveSystem.createAutoFactory().newRoutine("AutoRoutine");
+			generateSysRoutineMap(Filesystem.getDeployDirectory().toString());
+		}
+
+		autoPaths = new AutoPaths();
 	}
 
 	/**
 	 * Creates and returns a auto routine that start with a path.
+	 * <br> <br>
+	 * For clarification with the throwException parameter, if you set it to FALSE,
+	 * it will just not add the command request into the returned SequentialCommandGroup.
+	 * This could be helpful for testing series of commands when you are working with partial
+	 * systems.
+	 * <br> <br>
+	 * If all systems are available, it should be set to TRUE - in an ideal
+	 * environment, no commands should throw this issue if all systems are available. It will be
+	 * more useful for debugging in this environment if you set throwException to true.
+	 *
 	 * @param autoStageSupply string of commands and trajectory names
+	 * @param throwException whether to throw an exception at a missing/unknown command or not.
 	 * @return the auto routine
 	 */
-	public SequentialCommandGroup generateSequentialAutoWorkflow(Object[] autoStageSupply) {
-
+	public Command generateSequentialAutoWorkflow(Object[] autoStageSupply,
+		boolean throwException) {
 		SequentialCommandGroup seqInstruction = new SequentialCommandGroup();
+		int trajIdx = 0;
 
 		for (int i = 0; i < autoStageSupply.length; i++) {
 			var autoStage = autoStageSupply[i];
 
 			if (autoStage.getClass().equals(String.class)) {
 				/* -- Processing drive trajs -- */
-				if (HardwareMap.isDriveHardwarePresent() && paths.containsKey(autoStage)) {
+				if (driveSystem != null && paths.containsKey(autoStage)) {
 					AutoTrajectory traj = paths.get(autoStage);
-					if (i == 0) {
+					if (trajIdx++ == 0) {
 						seqInstruction.addCommands(traj.resetOdometry());
+						if (Utils.isSimulation()) {
+							initPose = traj.getInitialPose().get();
+						}
 					}
 
 					seqInstruction.addCommands(
@@ -77,25 +213,43 @@ public class AutoRoutines {
 						.alongWith(getAutoLogCommand(new String[] {(String) autoStage}))
 					);
 				} else {
-					throw new IllegalStateException(
-						"Unknown trajectory in sequential stage supply."
-					);
+					if (throwException) {
+						throw new IllegalStateException(
+							"Unknown trajectory in sequential stage supply."
+						);
+					} else {
+						System.out.println(
+							" -------------- \n"
+							+ autoStage + " is unavailable."
+							+ "Not adding to sequential flow. ");
+					}
 				}
 			} else if (autoStage.getClass().equals(AutoCommands.class)) {
 				/* -- Processing commands -- */
-				if (commands.containsKey(autoStage)) {
+				Command processedCommand = initializeCommand((AutoCommands) autoStage);
+				if (processedCommand != null) {
 					seqInstruction.addCommands(
-						commands.get(autoStage)
+						processedCommand
 						.alongWith(getAutoLogCommand(new String[] {autoStage.toString()}))
 					);
+					System.out.println("Added" + autoStage.toString());
 				} else {
-					throw new IllegalStateException(
-						"Unknown command in sequential stage supply."
-					);
+					if (throwException) {
+						throw new IllegalStateException(
+							"Unknown command in sequential stage supply."
+						);
+					} else {
+						System.out.println(
+							" -------------- \n"
+							+ autoStage.toString() + " is unavailable."
+							+ " Not adding to sequential flow. ");
+					}
 				}
 			} else if (autoStage.getClass().equals(Object[].class)) {
 
 				ParallelCommandGroup parallelQueue = new ParallelCommandGroup();
+				String[] loggingString = new String[((Object[]) autoStage).length];
+				int t = 0;
 
 				for (Object autoParallelStage: (Object[]) autoStage) {
 
@@ -104,45 +258,83 @@ public class AutoRoutines {
 						&& driveSystem != null) {
 						if (paths.containsKey(autoParallelStage)) {
 							AutoTrajectory traj = paths.get(autoParallelStage);
-							if (i == 0) {
-								parallelQueue.addCommands(traj.resetOdometry());
+							if (trajIdx++ == 0) {
+								parallelQueue.addCommands(
+									traj.resetOdometry().andThen(traj.cmd())
+								);
+
+								if (Utils.isSimulation()) {
+									initPose = traj.getInitialPose().get();
+								}
+
+							} else {
+								parallelQueue.addCommands(traj.cmd());
 							}
 
-							parallelQueue.addCommands(traj.cmd());
+							loggingString[t++] = (String) autoParallelStage;
 						} else {
-							throw new IllegalStateException(
-								"Unknown trajectory in parallel stage supply."
-							);
+							if (throwException) {
+								throw new IllegalStateException(
+									"Unknown trajectory in parallel stage supply."
+								);
+							} else {
+								System.out.println(
+									" -------------- \n"
+									+ autoParallelStage.toString() + " is unavailable."
+									+ " Not adding to parallel staged flow. ");
+							}
 						}
 					/* -- Processing commands -- */
 					} else if (autoParallelStage.getClass().equals(AutoCommands.class)) {
-						if (commands.containsKey(autoParallelStage)) {
-							parallelQueue.addCommands(commands.get(autoParallelStage));
+						Command processedCommand = initializeCommand(
+							(AutoCommands) autoParallelStage
+						);
+
+						if (processedCommand != null) {
+							parallelQueue.addCommands(processedCommand);
+							loggingString[t++] = autoParallelStage.toString();
 						} else {
-							throw new IllegalStateException(
-								"Unknown command in parallel stage supply."
-							);
+							if (throwException) {
+								throw new IllegalStateException(
+									"Unknown command in parallel stage supply."
+								);
+							} else {
+								System.out.println(
+									" -------------- \n"
+									+ autoParallelStage.toString() + " is unavailable."
+									+ " Not adding to parallel stage flow. ");
+							}
 						}
 					}
 				}
 
-				parallelQueue.addCommands(getAutoLogCommand((Object[]) autoStage));
+				parallelQueue.addCommands(getAutoLogCommand(loggingString));
 				seqInstruction.addCommands(parallelQueue);
-
 			} else {
-				throw new IllegalStateException(
-					"Unknown parameter in stage supply."
-				);
+				if (throwException) {
+					throw new IllegalStateException(
+						"Unknown parameter in stage supply."
+					);
+				} else {
+					System.out.println(
+						" -------------- \n"
+						+ autoStage.toString() + " is an unkown parameter."
+						+ " Not adding to sequential flow. ");
+				}
 			}
 		}
 
-		if (HardwareMap.isDriveHardwarePresent()) {
-			seqInstruction.addCommands(driveSystem.brakeCommand());
+		if (driveSystem != null) {
+			sysRoutine.active().onTrue(
+				seqInstruction
+				.andThen(driveSystem.brakeCommand())
+				.andThen(getAutoLogCommand(new Object[] {"AUTO COMPLETE"}))
+			);
+
+			return sysRoutine.cmd();
+		} else {
+			return seqInstruction;
 		}
-
-		seqInstruction.schedule();
-
-		return seqInstruction;
 	}
 
 	private void generateSysRoutineMap(String deployFolder) {
@@ -162,8 +354,7 @@ public class AutoRoutines {
 
 			@Override
 			public boolean isFinished() {
-				currentAutoState = cAutoState;
-				SmartDashboard.putString("Auto State", Arrays.toString(currentAutoState));
+				SmartDashboard.putString("Auto State", Arrays.toString(cAutoState));
 				return true;
 			}
 		}
@@ -171,179 +362,47 @@ public class AutoRoutines {
 		return new AutoLogCommand();
 	}
 
-	// Initialize commands for each system
-	private void initialize() {
-		// Set up commands
+
+	private Command initializeCommand(AutoCommands commandEntry) {
+
+		Command returnInitCommand = null;
+
 		if (driveSystem != null) {
-			sysRoutine = driveSystem.createAutoFactory().newRoutine("AutoRoutine");
+			returnInitCommand = (returnInitCommand == null)
+				? checkDriveCommands(commandEntry) : returnInitCommand;
 
-			setUpDriveCommands();
+			if (HardwareMap.isCVHardwarePresent()) {
+				returnInitCommand = (returnInitCommand == null)
+					? checkAlignmentCommands(commandEntry) : returnInitCommand;
+			}
+		}
 
-			generateSysRoutineMap("src/main/deploy");
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			returnInitCommand = (returnInitCommand == null)
+				? checkElevatorCommands(commandEntry) : returnInitCommand;
 		}
-		if (elevatorSystem != null) {
-			setUpElevatorCommands();
+
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			returnInitCommand = (returnInitCommand == null)
+				? checkFunnelCommands(commandEntry) : returnInitCommand;
 		}
-		if (funnelSystem != null) {
-			setUpFunnelCommands();
-		}
+
+		return returnInitCommand;
 	}
 
-	private void setUpDriveCommands() {
-		/* ---- All Red AprilTag Alignment Commands ---- */
-		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF3_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF5_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF5_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_REEF6_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.RED_L_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET)
-		);
-		commands.put(AutoCommands.R_ALIGN_STATION_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.RED_R_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET)
-		);
-
-		/* ---- All Blue AprilTag Alignment Commands ---- */
-		commands.put(AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF3_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF5_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF5_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_REEF6_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.BLUE_L_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET)
-		);
-		commands.put(AutoCommands.B_ALIGN_STATION_R_TAG_CMD,
-			driveSystem.alignToTagCommand(
-					AutoConstants.BLUE_R_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET)
-		);
-
-		/* ---- All Drive Commands ---- */
-		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
-			driveSystem.brakeCommand()
-		);
+	/**
+	 * Get an AutoPaths instance to return all declared paths in AutoPaths.java.
+	 * @return AutoPaths instance
+	 */
+	public AutoPaths getAutoPathHandler() {
+		return autoPaths;
 	}
 
-	private void setUpElevatorCommands() {
-		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
-			elevatorSystem.elevatorGroundCommand()
-		);
-		commands.put(AutoCommands.ELEVATOR_L2_CMD,
-			elevatorSystem.elevatorL2Command()
-		);
-		commands.put(AutoCommands.ELEVATOR_L3_CMD,
-			elevatorSystem.elevatorL3Command()
-		);
-		commands.put(AutoCommands.ELEVATOR_L4_CMD,
-			elevatorSystem.elevatorL4Command()
-		);
-		commands.put(AutoCommands.WAIT,
-			elevatorSystem.waitCommand()
-		);
-	}
-
-	private void setUpFunnelCommands() {
-		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
-			funnelSystem.openFunnelCommand()
-		);
-		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
-			funnelSystem.closeFunnelCommand()
-		);
+	/**
+	 * Get the initial pose of the robot for simulation purposes.
+	 * @return Pose2d initial pose
+	 */
+	public Pose2d getInitialAutoPose() {
+		return initPose;
 	}
 }

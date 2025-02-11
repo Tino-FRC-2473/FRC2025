@@ -132,7 +132,13 @@ public class ClimberFSMSystem {
 		if (isLimitSwitchPressed()) {
 			climberMotor.setPosition(Constants.CLIMBER_ENCODER_RESET_POSITION);
 		}
+		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
+	}
 
+	/**
+	 * Updates the logging for the climber system.
+	 */
+	public void updateLogging() {
 		Logger.recordOutput("Climber encoder absolute",
 			climberMotor.getPosition().getValueAsDouble());
 		Logger.recordOutput("Climber encoder relative",
@@ -146,7 +152,6 @@ public class ClimberFSMSystem {
 		Logger.recordOutput("Climber state", currentState.toString());
 		Logger.recordOutput("Climber control request", climberMotor.getAppliedControl().toString());
 		Logger.recordOutput("Climber switch pressed?", climbSwitch.get());
-		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
 	}
 
 	/* ======================== Private methods ======================== */

@@ -1,5 +1,7 @@
 package frc.robot.constants;
 
+import com.ctre.phoenix6.Utils;
+
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 
@@ -60,6 +62,12 @@ public final class Constants {
 
 	public static final double CLIMB_POWER = 0.5;
 	public static final double CLIMB_REDUCED_POWER = 0.3;
+
+	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 0.5; // seconds
+	public static final double FUNNEL_INOUT_SIM_TIME_SECS
+		= FUNNEL_INOUT_REAL_TIME_SECS * 2; // seconds
+	public static final double FUNNEL_INOUT_TIME_SECS =
+		(Utils.isSimulation()) ? FUNNEL_INOUT_SIM_TIME_SECS : FUNNEL_INOUT_REAL_TIME_SECS;
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;

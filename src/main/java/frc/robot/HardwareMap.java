@@ -24,7 +24,7 @@ public final class HardwareMap {
 	 * @return true if drive hardware is present
 	 */
 	public static boolean isDriveHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -41,7 +41,7 @@ public final class HardwareMap {
 	 * @return true if climber hardware is present
 	 */
 	public static boolean isClimberHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**

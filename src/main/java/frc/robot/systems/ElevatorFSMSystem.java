@@ -413,21 +413,22 @@ public class ElevatorFSMSystem {
 
 	class WaitCommand extends Command {
 		private Timer timer;
-		private double targTime;
-
-		WaitCommand(double countToSecs) {
-			targTime = countToSecs;
-		}
 
 		@Override
 		public void initialize() {
 			timer = new Timer();
+			timer.reset();
 			timer.start();
 		}
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() > targTime;
+			return timer.get() > 1;
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			timer.reset();
 		}
 	}
 
@@ -498,6 +499,6 @@ public class ElevatorFSMSystem {
 	 * @return A new wait command.
 	 */
 	public Command waitCommand() {
-		return new WaitCommand(0);
+		return new WaitCommand();
 	}
 }
