@@ -1,13 +1,15 @@
 package frc.robot.constants;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
+
 public final class Constants {
 	// led constants
 	public static final int LED_STRIP_BUFFER = 3; // TBD
 
 	// funnel constants
-
-	public static final double FUNNEL_CLOSED_POS_ROTS = 1;
-	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0;
+	public static final double FUNNEL_CLOSED_POS_ROTS = 0.4;
+	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0.8;
 
 	public static final double REEF_DISTANCE_THRESHOLD_MM = 100; // millimeters
 	public static final double FUNNEL_CLOSE_TIME_SECS = 0.5; // seconds
@@ -15,48 +17,50 @@ public final class Constants {
 	// PID Constants
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
 
+	//Elevator motion profile constants
+	public static final double ELEVATOR_KG = 0.20;
+	public static final double ELEVATOR_KS = 0.1;
+	public static final double ELEVATOR_KV = 0.001;
+	public static final double ELEVATOR_KA = 0.0;
+	public static final double ELEVATOR_KP = 0.45;
+	public static final double ELEVATOR_KI = 0.0;
+	public static final double ELEVATOR_KD = 0.000; // may need to tune for going down
+
+	public static final double ELEVATOR_CRUISE_VELO = 600;
+	public static final double ELEVATOR_TARGET_ACCEL = 1800;
+	public static final double ELEVATOR_EXPO_KV = 0.12;
+
+	//Elevator Unit Conversion
+	public static final double ELEVATOR_ROTS_TO_INCHES = 15 / (2 * Math.PI);
+
 	// Encoder Position Constants
-		// None of these are tuned at all
+	public static final double ELEVATOR_JOYSTICK_INPUT_DEADBAND = 0.1;
 
-	public static final double ELEVATOR_DEADBAND = 0.1;
+	public static final Distance ELEVATOR_UPPER_THRESHOLD = Units.Inches.of(37.3);
+	// DO NOT drive above this!
+	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(37.3);
+	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(25);
+	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(15);
+	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
+	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(1);
 
-	public static final double ELEVATOR_PID_TARGET_L4 = 132;
-	public static final double ELEVATOR_PID_TARGET_STATION = 66;
-	public static final double ELEVATOR_PID_TARGET_GROUND = 0;
+	public static final double ELEVATOR_POWER = 0.8;
+	public static final double ELEVATOR_REDUCED_POWER = 0.5;
 
-	public static final double ELEVATOR_MANUAL_SCALE = 0.75;
+	public static final double ELEVATOR_MANUAL_SCALE = 0.5;
+	public static final double ELEVATOR_TARGET_MARGIN = 5;
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
-	public static final double CLIMBER_PID_TARGET_EXTEND = 25;
-	public static final double CLIMBER_PID_TARGET_CLIMB = 75;
+	public static final double CLIMBER_PID_TARGET_EXTEND = 118;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 295;
+	public static final double CLIMBER_ENCODER_RESET_POSITION = 310;
 
-	public static final double CLIMBER_COUNTS_PER_REV = 100;
-	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 0.05;
+	public static final double CLIMBER_COUNTS_PER_REV = 427;
+	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 7;
 
-	// Motion Magic Constants
-	public static final double ELEVATOR_MM_CONSTANT_G = 0.1;
-		// Voltage required to overcome gravity
-	public static final double ELEVATOR_MM_CONSTANT_S = 0.15;
-		//Voltage required to overcome static friction
 
-	// these two fields need to be retuned to account for 25:1 gearbox
-	public static final double ELEVATOR_MM_CONSTANT_V = 0.1; // 0.1
-		//Voltage for velocity of 1rps (0.1) retune
-	public static final double ELEVATOR_MM_CONSTANT_A = 0.01; // 0.01
-		//Voltage for acceleration of 1rps/s (0.01)
-
-	public static final double ELEVATOR_MM_CONSTANT_P = 0.1;
-		//Voltgae for Proportional error of 1 rot(0.7)
-	public static final double ELEVATOR_MM_CONSTANT_I = 0;
-		//Voltage for Integrated error of 1 r*s
-	public static final double ELEVATOR_MM_CONSTANT_D = 0.0;
-		//Voltage for Derivative error of 1 rps
-
-	public static final double CLIMB_POWER = 0.2;
-
-	public static final double ELEVATOR_CONFIG_CONSTANT_CV = 80; // Cruise Velo in rps (10)
-	public static final double ELEVATOR_CONFIG_CONSTANT_A = 160; // Max acceleration in rps/s (80)
-	public static final double ELEVATOR_CONFIG_CONSTANT_J = 1600; // Target jerk in rps/s/s (110)
+	public static final double CLIMB_POWER = 0.5;
+	public static final double CLIMB_REDUCED_POWER = 0.3;
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;

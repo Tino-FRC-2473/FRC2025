@@ -3,15 +3,15 @@ package frc.robot.auto;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
-import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.HardwareMap;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.systems.DriveFSMSystem;
@@ -19,35 +19,37 @@ import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 
 public class AutoRoutines {
-	private AutoFactory autoFactory;
+
+	// Auto sys instance -- used to convert choreo trajectories into schedulable commands.
+	private AutoRoutine sysRoutine;
 
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 
-	// Initialize all paths
-	private AutoRoutine sysRoutine;
+	// Initialize all paths / commands
+	private Map<String, AutoTrajectory> paths = new HashMap<String, AutoTrajectory>();
+	private Map<AutoCommands, Command> commands = new HashMap<AutoCommands, Command>();
 
-	private HashMap<String, AutoTrajectory> paths;
-	private HashMap<AutoCommands, Command> commands;
 	private Object[] currentAutoState;
 
 	/**
-	 * Constructs an AutoRoutines object with the specified AutoFactory.
-	 * @param system1
+	 * Constructs an AutoRoutines object.
+	 * @param driveFSMSystem
+	 * @param elevatorFSMSystem
+	 * @param funnelFSMSystem
 	 * */
-	public AutoRoutines(DriveFSMSystem system1) {
-		driveSystem = system1;
+	public AutoRoutines(DriveFSMSystem driveFSMSystem, ElevatorFSMSystem elevatorFSMSystem,
+		FunnelFSMSystem funnelFSMSystem) {
 
-		autoFactory = driveSystem.createAutoFactory();
-		sysRoutine = autoFactory.newRoutine("AutoRoutine");
+		// Assign systems
+		driveSystem = driveFSMSystem;
+		elevatorSystem = elevatorFSMSystem;
+		funnelSystem = funnelFSMSystem;
 
-		paths = new HashMap<String, AutoTrajectory>();
-		commands = new HashMap<AutoCommands, Command>();
-
-		setupCommands();
-		generateSysRoutineMap(new File(Filesystem.getDeployDirectory(), "choreo"));
+		// Set up commands for each system
+		initialize();
 	}
 
 	/**
@@ -55,7 +57,7 @@ public class AutoRoutines {
 	 * @param autoStageSupply string of commands and trajectory names
 	 * @return the auto routine
 	 */
-	public AutoRoutine generateSequentialAutoWorkflow(Object[] autoStageSupply) {
+	public SequentialCommandGroup generateSequentialAutoWorkflow(Object[] autoStageSupply) {
 
 		SequentialCommandGroup seqInstruction = new SequentialCommandGroup();
 
@@ -64,7 +66,7 @@ public class AutoRoutines {
 
 			if (autoStage.getClass().equals(String.class)) {
 				/* -- Processing drive trajs -- */
-				if (paths.containsKey(autoStage)) {
+				if (HardwareMap.isDriveHardwarePresent() && paths.containsKey(autoStage)) {
 					AutoTrajectory traj = paths.get(autoStage);
 					if (i == 0) {
 						seqInstruction.addCommands(traj.resetOdometry());
@@ -98,7 +100,8 @@ public class AutoRoutines {
 				for (Object autoParallelStage: (Object[]) autoStage) {
 
 					/* -- Processing drive trajs -- */
-					if (autoParallelStage.getClass().equals(String.class)) {
+					if (autoParallelStage.getClass().equals(String.class)
+						&& driveSystem != null) {
 						if (paths.containsKey(autoParallelStage)) {
 							AutoTrajectory traj = paths.get(autoParallelStage);
 							if (i == 0) {
@@ -133,15 +136,18 @@ public class AutoRoutines {
 			}
 		}
 
-		sysRoutine.active().onTrue(
-			seqInstruction
-			.andThen(driveSystem.brakeCommand())
-		);
+		if (HardwareMap.isDriveHardwarePresent()) {
+			seqInstruction.addCommands(driveSystem.brakeCommand());
+		}
 
-		return sysRoutine;
+		seqInstruction.schedule();
+
+		return seqInstruction;
 	}
 
-	private void generateSysRoutineMap(File deployDir) {
+	private void generateSysRoutineMap(String deployFolder) {
+		File deployDir = new File(deployFolder + "/choreo");
+
 		for (File choreoFile : deployDir.listFiles()) {
 			if (choreoFile.getName().endsWith(".traj")) {
 				paths.put(choreoFile.getName()
@@ -165,20 +171,25 @@ public class AutoRoutines {
 		return new AutoLogCommand();
 	}
 
-	private void setupCommands() {
-		setUpAlignmentCommands();
+	// Initialize commands for each system
+	private void initialize() {
+		// Set up commands
+		if (driveSystem != null) {
+			sysRoutine = driveSystem.createAutoFactory().newRoutine("AutoRoutine");
 
-		//setUpElevatorCommands();
+			setUpDriveCommands();
 
-		//setUpFunnelCommands();
-
-		/* ---- All Drive Commands ---- */
-		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
-			driveSystem.brakeCommand()
-		);
+			generateSysRoutineMap("src/main/deploy");
+		}
+		if (elevatorSystem != null) {
+			setUpElevatorCommands();
+		}
+		if (funnelSystem != null) {
+			setUpFunnelCommands();
+		}
 	}
 
-	private void setUpAlignmentCommands() {
+	private void setUpDriveCommands() {
 		/* ---- All Red AprilTag Alignment Commands ---- */
 		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
@@ -302,26 +313,37 @@ public class AutoRoutines {
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET)
 		);
+
+		/* ---- All Drive Commands ---- */
+		commands.put(AutoCommands.DRIVE_BRAKE_CMD,
+			driveSystem.brakeCommand()
+		);
 	}
 
-	// private void setUpElevatorCommands() {
-	// 	commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
-	// 		elevatorSystem.elevatorGroundCommand()
-	// 	);
-	// 	commands.put(AutoCommands.ELEVATOR_STATION_CMD,
-	// 		elevatorSystem.elevatorStationCommand()
-	// 	);
-	// 	commands.put(AutoCommands.ELEVATOR_L4_CMD,
-	// 		elevatorSystem.elevatorL4Command()
-	// 	);
-	// }
+	private void setUpElevatorCommands() {
+		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
+			elevatorSystem.elevatorGroundCommand()
+		);
+		commands.put(AutoCommands.ELEVATOR_L2_CMD,
+			elevatorSystem.elevatorL2Command()
+		);
+		commands.put(AutoCommands.ELEVATOR_L3_CMD,
+			elevatorSystem.elevatorL3Command()
+		);
+		commands.put(AutoCommands.ELEVATOR_L4_CMD,
+			elevatorSystem.elevatorL4Command()
+		);
+		commands.put(AutoCommands.WAIT,
+			elevatorSystem.waitCommand()
+		);
+	}
 
-	// private void setUpFunnelCommands() {
-	// 	commands.put(AutoCommands.FUNNEL_OPEN_CMD,
-	// 		funnelSystem.openFunnelCommand()
-	// 	);
-	// 	commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
-	// 		funnelSystem.closeFunnelCommand()
-	// 	);
-	// }
+	private void setUpFunnelCommands() {
+		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
+			funnelSystem.openFunnelCommand()
+		);
+		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
+			funnelSystem.closeFunnelCommand()
+		);
+	}
 }
