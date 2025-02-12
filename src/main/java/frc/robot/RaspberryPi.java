@@ -1,6 +1,7 @@
 package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -118,5 +119,25 @@ public class RaspberryPi {
 			.filter(tag -> tag.getTagID() == id)
 			.findFirst()
 			.orElse(null);
+	}
+
+	/**
+	 * Checks if any AprilTags are in view.
+	 * @return A boolean representing if any tags are in view
+	 */
+	public boolean canSeeTags() {
+		return getAprilTags().size() != 0;
+	}
+
+	/**
+	 * Returns the closest AprilTag from any camera.
+	 * @return The closest AprilTag object. If none are in view, returns null.
+	 */
+	public AprilTag getClosestTag() {
+		ArrayList<AprilTag> atlist = getAprilTags();
+		if(getAprilTags().size() == 0) {
+			return null;
+		}
+		return Collections.max(atlist);
 	}
 }
