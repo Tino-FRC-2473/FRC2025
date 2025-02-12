@@ -53,6 +53,8 @@ public class Robot extends LoggedRobot {
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
 
+	private RaspberryPi rpi = new RaspberryPi();
+
 	private static final Object[] ELEVATOR_TESTING_PATH = new Object[] {
 		AutoCommands.ELEVATOR_L2_CMD,
 		AutoCommands.WAIT,
@@ -199,7 +201,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testPeriodic() {
-
+		System.out.println(rpi.getAprilTags().toString());
 	}
 
 	/* Simulation mode handlers, only used for simulation testing  */
