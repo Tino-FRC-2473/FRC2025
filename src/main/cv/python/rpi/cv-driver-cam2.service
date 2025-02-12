@@ -12,7 +12,7 @@ Description=CV Driver Cam 2
 [Service]
 Type=simple
 # Modify the following line to change the port/camera name
-ExecStart=/home/pi/cv-python-git/venv/bin/python StreamDriverCam.py -u usb-xhci-hcd.0-2  1182 cam2
+ExecStart=/home/pi/cv-python-git/venv/bin/python StreamDriverCam.py -u usb-xhci-hcd.1-2  1182 cam2
 WorkingDirectory=/home/pi/cv-python-git
 User=pi
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
