@@ -3,7 +3,7 @@ import cv2
 def find_camera_index(usbId):
     from linuxpy.video.device import Device
     
-    for index in range(4): # there probably won't be more than 4 cameras on the pi
+    for index in range(10): # there probably won't be more than 10 indexes on the pi
         try:
             with Device.from_id(index) as cam:
                 if cam.info.bus_info == usbId:
