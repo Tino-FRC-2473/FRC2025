@@ -5,6 +5,7 @@ package frc.robot.systems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -12,8 +13,14 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-
+import frc.robot.logging.SimLogging;
+import frc.robot.TeleopInput;
 import org.littletonrobotics.junction.Logger;
+
+import frc.robot.AprilTag;
+import frc.robot.CommandSwerveDrivetrain;
+import frc.robot.Robot;
+import frc.robot.RaspberryPi;
 
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -22,17 +29,14 @@ import choreo.auto.AutoFactory;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 // Robot Imports
-import frc.robot.TeleopInput;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.SimConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.SwerveLogging;
-import frc.robot.CommandSwerveDrivetrain;
-import frc.robot.RaspberryPi;
-import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
@@ -135,6 +139,11 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		drivetrain.applyOperatorPerspective();
+
+		if (Robot.isSimulation()) {
+			SimLogging.getInstance().applySimLogging(getMapleSimDrivetrain());
+		}
+
 		//System.out.println("TELEOP-X " + drivetrain.getState().Pose.getX());
 
 		switch (currentState) {
@@ -402,6 +411,24 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		return new AlignToReefTagCommand(tagID, xOffset, yOffset);
+	}
+
+	/**
+	 * Get the front center-point of the drivetrain.
+	 * @return the front center point of the drivetrain.
+	 */
+	public Pose2d getFrontOfDrivetrain() {
+		var pose = Robot.isSimulation()
+			? SimLogging.getInstance().getSimRobotPose()
+			: drivetrain.getState().Pose;
+
+		return pose.plus(
+			new Transform2d(
+				SimConstants.WIDTH_IN / 2.0 * pose.getRotation().getSin(),
+				SimConstants.LENGTH_IN / 2.0 * pose.getRotation().getCos(),
+				pose.getRotation()
+			)
+		);
 	}
 
 

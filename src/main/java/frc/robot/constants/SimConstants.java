@@ -21,5 +21,8 @@ public class SimConstants {
 
 	// mech pose logging constants
 	public static final double ELEVATOR_WINCH_DIAMETER_METERS = 0.0463296;
-	public static final double ELEVATOR_GEAR_RATIO = 10; //25.0;
+	public static final double ELEVATOR_GEAR_RATIO = 10; // 25.0;
+
+	public static final double FUNNEL_OUTTAKE_ROT_DEG = -30;
+	public static final double FUNNEL_OUTTAKE_INIT_SPD_MPS = 1.1;
 }

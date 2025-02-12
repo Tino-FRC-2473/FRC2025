@@ -3,7 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 // Third Party Imports
+import frc.robot.logging.SimLogging;
 import org.ironmaple.simulation.SimulatedArena;
 
 import org.littletonrobotics.junction.LogFileUtil;
@@ -213,6 +215,8 @@ public class Robot extends LoggedRobot {
 	public void simulationPeriodic() {
 		driveSystem.getMapleSimDrivetrain().update();
 
+		var simPose = SimLogging.getInstance().getSimRobotPose();
+
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
 			MechLogging.getInstance().getElevatorStage1()
@@ -230,7 +234,7 @@ public class Robot extends LoggedRobot {
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/DriveTrain Pose",
-			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
+			simPose
 		);
 
 		Logger.recordOutput(
@@ -248,6 +252,12 @@ public class Robot extends LoggedRobot {
 			MechLogging.getInstance().getRobotPoses()
 		);
 
+
+		Logger.recordOutput("FieldSimulation/FrontOfRobot", driveSystem.getFrontOfDrivetrain());
+
+		if (driveSystem.getFrontOfDrivetrain().equals(new Pose2d())) {
+			funnelSystem.giveCoral();
+		}
 	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
