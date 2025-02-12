@@ -7,31 +7,38 @@ import frc.robot.constants.AutoConstants.AutoCommands;
 
 public class AutoPaths {
 	public static final Object[] B_PATH_1 = new Object[] {
-		AutoCommands.FUNNEL_CLOSE_CMD, // should be redundant
 		new Object[] {
-			AutoCommands.ELEVATOR_STATION_CMD, "S2_R1"
+			AutoCommands.ELEVATOR_L2_CMD, "S2_R1"
 		},
 		new Object[] {
 			AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
 			AutoCommands.ELEVATOR_L4_CMD
 		},
-		AutoCommands.FUNNEL_OPEN_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
 		new Object[] {
-			AutoCommands.ELEVATOR_STATION_CMD,
+			AutoCommands.ELEVATOR_L2_CMD,
 			"R1_StationL" //should check if it will return to the center before running w/ choreo
 		},
-		AutoCommands.FUNNEL_CLOSE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
 		AutoCommands.B_ALIGN_REEF3_TAG_CMD,
 		new Object[] {
 			AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
 			AutoCommands.ELEVATOR_L4_CMD
 		},
-		AutoCommands.FUNNEL_OPEN_CMD,
-		AutoCommands.DRIVE_BRAKE_CMD
+		AutoCommands.OUTTAKE_CORAL_CMD
 	};
 
 	public static final Object[] B_PATH_2 = new Object[] {
-		"S1_R1"
+		"S1_R2",
+		"R2_StationL",
+		"StationL_R4",
+		AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD
+	};
+
+	public static final Object[] B_PATH_3 = new Object[] {
+		"S1_R2",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.ELEVATOR_L2_CMD
 	};
 
 	/**

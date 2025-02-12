@@ -44,3 +44,17 @@ Arducam OV9281 USB Camera: Ardu (usb-0000:01:00.0-1.4):
 	/dev/media4
 ```
 In this case `usb-0000:01:00.0-1.4` is your id.
+
+## Running AprilTag Code
+Make sure that the `AT_CAM_NAME` (the npy files are called `[name]matrix.npy` and `[name]dist.npy`) and `AT_NPY_DIR` (path to the folder with all of the npy files) config values are correct
+
+## Running Calibration Code for the Apriltag
+Make sure all the `CALIB_` config values are set correctly. Place your images in `CALIB_INPUT_DIR` (default `calibration_images`).
+
+Run
+```
+python calibrate.py [cam_name]
+```
+replacing `[cam_name]` with the name of the files you want to calibrate.
+
+To enable visualization, add the `-v` option. To use a colored camera, add the `-c` option.

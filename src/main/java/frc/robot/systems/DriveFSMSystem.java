@@ -3,8 +3,8 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,7 +22,6 @@ import java.util.Comparator;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 // Robot Imports
@@ -33,11 +32,12 @@ import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.utils.SwerveUtils;
-import frc.robot.logging.MechLogging;
+// import frc.robot.logging.MechLogging;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPi;
 import frc.robot.AprilTag;
+import frc.robot.logging.MechLogging;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
@@ -79,9 +79,10 @@ public class DriveFSMSystem extends SubsystemBase {
 	private RaspberryPi rpi = new RaspberryPi();
 	private boolean tagPositionAligned;
 	private int tagID = -1;
-	private Pose2d tagAlignmentPose = null;
-	private Rotation2d rotationAlignmentPose =
-		new Rotation2d(0);
+	private Translation2d alignmentTranslation2d = null;
+	private double rotationCache2d = 0;
+
+	private Rotation2d rotationAlignmentPose;
 
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,
@@ -173,8 +174,9 @@ public class DriveFSMSystem extends SubsystemBase {
 			case TELEOP_STATE:
 
 				/* cv alignment constant resets */
-				if (tagAlignmentPose != null) {
-					tagAlignmentPose = null;
+				if (alignmentTranslation2d != null) {
+					alignmentTranslation2d = null;
+					rotationCache2d = 0;
 					tagPositionAligned = false;
 					tagID = -1;
 				}
@@ -216,7 +218,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			() -> drivetrain.getState().Pose,
 			drivetrain::resetPose,
 			drivetrain::followTrajectory,
-			true,
+			false,
 			this
 		);
 	}
@@ -388,10 +390,10 @@ public class DriveFSMSystem extends SubsystemBase {
 	}
 
 	/**
-	* Handle tag alignment state.
-	* @param input
-	* @param id
-	*/
+	 * Handle tag alignment state.
+	 * @param input
+	 * @param id
+	 */
 	private void handleTagAlignment(TeleopInput input, int id) {
 		logger.applyStateLogging(drivetrain.getState());
 
@@ -399,67 +401,40 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (tag != null && !tagPositionAligned) {
 
-			Pose2d currPose = drivetrain.getState().Pose;
-
 			// X is forward on robot Pose, z is forward on cv side
-			double rpiX = currPose.getX() + tag.getZ();
+			double rpiX = tag.getZ() - VisionConstants.TAG_TARGET_DISTANCE;
 			// Y is side-to-side on robotPose, x is side-to-side on cv side
-			double rpiY = currPose.getY() + tag.getX();
-			// Pitch is the value that is coupled with rotation on cv side
-			double rpiTheta = currPose.getRotation().getRadians() + tag.getPitch();
+			double rpiY = tag.getX();
+			// using rvec to determine the absolute rotation of the apriltag.
+			double rpiTheta = tag.getPitch();
 
-			Pose2d sendPose = new Pose2d(
-				rpiX,
-				rpiY,
-				new Rotation2d(rpiTheta)
+			double xSpeed = Math.abs(rpiX) > VisionConstants.X_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					rpiX / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				) : 0;
+
+			double ySpeed = Math.abs(rpiY) > VisionConstants.Y_MARGIN_TO_REEF
+				? (rpiY * xSpeed / rpiX) : 0;
+
+			double aSpeed = Math.abs(rpiTheta) > VisionConstants.ROT_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+						rpiTheta / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
+					VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
+				) : 0;
+
+			drivetrain.setControl(
+				drive.withVelocityX(xSpeed * MAX_SPEED)
+				.withVelocityY(ySpeed * MAX_SPEED)
+				.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
 			);
 
-			tagPositionAligned = driveToPose(sendPose);
-			tagAlignmentPose = sendPose;
+			tagPositionAligned = (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
 		} else {
-			if (tagPositionAligned) {
-				tagAlignmentPose = null;
-				drivetrain.setControl(brake);
-			}
-
-			if (tagAlignmentPose != null) {
-				tagPositionAligned = driveToPose(tagAlignmentPose);
-			}
+			drivetrain.setControl(brake);
 		}
-	}
-
-	private boolean driveToPose(Pose2d targetPose) {
-		Pose2d pose = drivetrain.getState().Pose;
-
-		double xDiff = targetPose.getX() - pose.getX();
-		double yDiff = targetPose.getY() - pose.getY();
-		double aDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
-
-		double xSpeed = Math.abs(xDiff) > VisionConstants.X_MARGIN_TO_REEF
-			? SwerveUtils.clamp(
-				xDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-				VisionConstants.MAX_SPEED_METERS_PER_SECOND
-			) : 0;
-		double ySpeed = Math.abs(yDiff) > VisionConstants.Y_MARGIN_TO_REEF
-			? SwerveUtils.clamp(
-				yDiff / VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-				VisionConstants.MAX_SPEED_METERS_PER_SECOND
-			) : 0;
-		double aSpeed = Math.abs(aDiff) > VisionConstants.ROT_MARGIN_TO_REEF
-			? SwerveUtils.clamp(
-				aDiff / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
-				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
-				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-			) : 0;
-
-		driveFacingAngle.withVelocityX(xSpeed * MAX_SPEED)
-			.withVelocityY(-ySpeed * MAX_SPEED)
-			.withTargetRateFeedforward(-aSpeed * MAX_ANGULAR_RATE)
-			.withTargetDirection(targetPose.getRotation());
-
-		return (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
 	}
 
 	/**
@@ -506,7 +481,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				drivetrain.setControl(brake);
 				tagPositionAligned = false;
 				tagID = -1;
-				tagAlignmentPose = null;
+				alignmentTranslation2d = null;
 			}
 		}
 
@@ -522,29 +497,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public Command driveRobotRelativeOffset(double xSpeed, double ySpeed, double timeRunning) {
 		return new DriveRobotRelativeOffsetCommand(xSpeed, ySpeed, timeRunning);
-	}
-
-	/**
-	 * Return robot relative offset command that drives to left.
-	 * @return command
-	 */
-	public Command driveRobotLeftRelativeOffset() {
-		return new DriveRobotRelativeOffsetCommand(
-			AutoConstants.REEF_OFFSET_X_AUTO_SPEED,
-			-AutoConstants.REEF_OFFSET_Y_AUTO_SPEED,
-			AutoConstants.TIME_DRIVING_OFFSET
-		);
-	}
-
-	/**
-	 * Return robot relative offset command that drives to right.
-	 * @return command
-	 */
-	public Command driveRobotRightRelativeOffset() {
-		return new DriveRobotRelativeOffsetCommand(
-			AutoConstants.REEF_OFFSET_X_AUTO_SPEED,
-			AutoConstants.REEF_OFFSET_Y_AUTO_SPEED,
-			AutoConstants.TIME_DRIVING_OFFSET);
 	}
 
 	class DriveRobotRelativeOffsetCommand extends Command {

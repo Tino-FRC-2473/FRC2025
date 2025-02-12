@@ -39,4 +39,10 @@ public interface LoggedMotor {
 	 */
 	double getLoggedSetpoint();
 
+	/**
+	 * a.
+	 * @return a
+	 */
+	double getLoggedVoltage();
+
 }

@@ -3,19 +3,19 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+// Java Imports
 import java.util.HashMap;
 
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import com.ctre.phoenix6.Utils;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 // WPILib Imports
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,11 +23,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 // Systems
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.DriveFSMSystem;
+
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
 import frc.robot.logging.MechLogging;
@@ -43,16 +46,17 @@ public class Robot extends LoggedRobot {
 	// Systems
 	private DriveFSMSystem driveSystem;
 	private AutoRoutines autoRoutines;
-	private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
-	private Command autCommand;
+
+	private SendableChooser<String> autoChooser = new SendableChooser<String>();
+	private String autCommand;
+
+	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
-	private ElevatorFSMSystem elevatorSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
-
 	/**
 	 * This function is run when the robot is first started up and should be used for any
 	 * initialization code.
@@ -83,26 +87,39 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 
-		if (HardwareMap.isFunnelHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
 
-		if (HardwareMap.isElevatorHardwarePresent()) {
-			elevatorSystem = new ElevatorFSMSystem();
+		if (Robot.isSimulation() || (HardwareMap.isFunnelHardwarePresent()
+			&& HardwareMap.isElevatorHardwarePresent())) {
+			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
-		if (HardwareMap.isClimberHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
 
 		autoRoutines = new AutoRoutines(
-			driveSystem, elevatorSystem, funnelSystem, climberSystem
+			driveSystem, elevatorSystem, funnelSystem
 		);
+
+		for (HashMap.Entry<String, Object[]> auto
+			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
+			autoChooser.addOption(auto.getKey(), auto.getKey());
+		}
+
+		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
+	}
+
+	@Override
+	public void autonomousInit() {
+		System.out.println("-------- Autonomous Init --------");
+		autCommand = getAutonomousCommand();
 
 		/* If all available auto systems are true, then it will throw exception. */
 		boolean throwException =
@@ -111,28 +128,27 @@ public class Robot extends LoggedRobot {
 			&& HardwareMap.isElevatorHardwarePresent()
 			&& HardwareMap.isFunnelHardwarePresent();
 
-		for (HashMap.Entry<String, Object[]> auto
-			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
-			//System.out.println(Arrays.toString(auto.getValue()));
-			autoChooser.addOption(auto.getKey(),
-				autoRoutines.generateSequentialAutoWorkflow(auto.getValue(), throwException));
-		}
-	}
-
-	@Override
-	public void autonomousInit() {
-		System.out.println("-------- Autonomous Init --------");
-		autCommand = getAutonomousCommand();
-
 		if (autCommand != null) {
-			autCommand.schedule();
+			Command scheduledCommand = autoRoutines.generateSequentialAutoWorkflow(
+				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
+			);
+
+			if (Utils.isSimulation()) {
+				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
+					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+			}
+
+			scheduledCommand.schedule();
 		}
 	}
 
 	@Override
 	public void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
-		driveSystem.updateAutonomous();
+		if (HardwareMap.isDriveHardwarePresent()) {
+			driveSystem.updateAutonomous();
+		}
+		MotorManager.update();
 	}
 
 	@Override
@@ -203,7 +219,9 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
-		driveSystem.getMapleSimDrivetrain().update();
+		if (HardwareMap.isDriveHardwarePresent()) {
+			driveSystem.getMapleSimDrivetrain().update();
+		}
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
@@ -221,7 +239,7 @@ public class Robot extends LoggedRobot {
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/SimulatedPose",
+			"FieldSimulation/Robot/DriveTrain Pose",
 			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
 		);
 
@@ -234,20 +252,32 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/CoralPoses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
 		);
-		Logger.recordOutput("FieldSimulation/Poses", MechLogging.getInstance().getRobotPoses());
+
+		Logger.recordOutput(
+			"FieldSimulation/Poses",
+			MechLogging.getInstance().getRobotPoses()
+		);
 
 	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
-	public void robotPeriodic() { }
+	public void robotPeriodic() {
+		if (funnelSystem != null) {
+			funnelSystem.updateLogging();
+		}
+
+		if (elevatorSystem != null) {
+			elevatorSystem.updateLogging();
+		}
+	}
 
 	/**
 	 * Gets the autonomous command selected by the auto chooser.
 	 *
 	 * @return the selected autonomous command
 	 */
-	public Command getAutonomousCommand() {
+	public String getAutonomousCommand() {
 		return autoChooser.getSelected();
 	}
 }
