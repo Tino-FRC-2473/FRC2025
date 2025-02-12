@@ -96,4 +96,9 @@ public class SparkMaxWrapper extends SparkMax implements LoggedMotor {
 		return motorSim.getSetpoint();
 	}
 
+	@Override
+	public double getLoggedVoltage() {
+		return motorSim.getBusVoltage();
+	}
+
 }

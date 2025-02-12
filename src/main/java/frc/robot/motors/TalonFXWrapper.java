@@ -118,4 +118,9 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 	public double getLoggedSetpoint() {
 		return get();
 	}
+
+	@Override
+	public double getLoggedVoltage() {
+		return getMotorVoltage().getValue().in(Volts);
+	}
 }

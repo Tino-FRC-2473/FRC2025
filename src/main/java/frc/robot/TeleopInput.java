@@ -95,11 +95,11 @@ public class TeleopInput {
 	/* ------------------------ Mech Controller ------------------------ */
 
 	/**
-	 * Get the value of the source elevator target button (cross).
+	 * Get the value of the L2 elevator target button (square).
 	 * @return If the button is pressed
 	 */
-	public boolean isStationButtonPressed() {
-		return mechController.getCrossButton();
+	public boolean isL2ButtonPressed() {
+		return mechController.getSquareButton();
 	}
 
 	/**
@@ -111,10 +111,18 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get the value of the ground elevator target button (circle).
+	 * Get the value of the ground elevator target button (cross).
 	 * @return If the button is pressed
 	 */
 	public boolean isGroundButtonPressed() {
+		return mechController.getCrossButton();
+	}
+
+	/**
+	 * Get the value of the L3 elevator target button (circle).
+	 * @return If the button is pressed
+	 */
+	public boolean isL3ButtonPressed() {
 		return mechController.getCircleButton();
 	}
 
@@ -128,6 +136,15 @@ public class TeleopInput {
 	}
 
 	/**
+	 * Gets the value of the share button.
+	 * Intended to signify when the climber should advance at constant power
+	 * @return If the share button was pressed this tick
+	 */
+	public boolean isClimbManualButtonPressed() {
+		return mechController.getShareButton();
+	}
+
+	/**
 	 * Get Y axis of Right Joystick.
 	 * @return Axis value
 	 */
@@ -136,9 +153,9 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Gets the value of the options button.
+	 * Gets the value of the L1 button.
 	 * Intended to signify when the climber should go to the next state.
-	 * @return If the share button was pressed this tick
+	 * @return If the L1 button was pressed this tick
 	 */
 	public boolean isFunnelButtonPressed() {
 		return mechController.getL1Button();
