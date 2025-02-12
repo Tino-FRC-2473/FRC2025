@@ -23,7 +23,7 @@ public final class Constants {
 	public static final double ELEVATOR_KS = 0.1;
 	public static final double ELEVATOR_KV = 0.001;
 	public static final double ELEVATOR_KA = 0.0;
-	public static final double ELEVATOR_KP = 0.45;
+	public static final double ELEVATOR_KP = 0.60;
 	public static final double ELEVATOR_KI = 0.0;
 	public static final double ELEVATOR_KD = 0.000; // may need to tune for going down
 
@@ -39,9 +39,9 @@ public final class Constants {
 
 	public static final Distance ELEVATOR_UPPER_THRESHOLD = Units.Inches.of(37.3);
 	// DO NOT drive above this!
-	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(37.3);
-	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(25);
-	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(15);
+	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(37.0);
+	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(19.1);
+	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.3);
 	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
 	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(1);
 
