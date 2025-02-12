@@ -1,6 +1,7 @@
 import time
 import cv2
 from cscore import CameraServer
+import ntcore
 import numpy
 from config import *
 from argparse import ArgumentParser
@@ -29,6 +30,11 @@ else:
 CameraServer.enableLogging()
 
 if ON_RPI:
+    NETWORK_IDENTITY = "python-drivercam"
+    inst = ntcore.NetworkTableInstance.getDefault()
+    inst.startClient4(NETWORK_IDENTITY)
+    inst.setServerTeam(NETWORKTABLES_TEAM)
+
     camera = CameraServer.startAutomaticCapture(name=cam_name, dev=find_camera_index(usb_id))
 else:
     camera = CameraServer.startAutomaticCapture(name=cam_name, dev=index)
@@ -40,17 +46,17 @@ cv_sink = CameraServer.getVideo()
 
 output_stream = CameraServer.putVideo(cam_name, DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
 
-frame = numpy.zeros((DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y, 3), dtype=numpy.uint8) 
+frame = numpy.zeros((DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y, 3), dtype=numpy.uint8)
 
 print("Camera is running")
 
 while True:
-     time_stamp, frame = cv_sink.grabFrame(frame)
-     if time_stamp == 0:
-          print(f"{cam_name} Error: {cv_sink.getError()} ")
-          output_stream.notifyError(cv_sink.getError())
-          continue
+    time_stamp, frame = cv_sink.grabFrame(frame)
+    if time_stamp == 0:
+        print(f"{cam_name} Error: {cv_sink.getError()} ")
+        output_stream.notifyError(cv_sink.getError())
+        continue
 
-     output_stream.putFrame(frame)
+    output_stream.putFrame(frame)
 
-     time.sleep(0.02)
+    time.sleep(0.02)
