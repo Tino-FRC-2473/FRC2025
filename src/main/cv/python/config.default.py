@@ -1,17 +1,19 @@
 ON_RPI = False # Enable if on Raspberry Pi. Enabled NetworkTables stuff and disables imshow
+USE_CLI_ARGUMENTS = False # Require CLI arguments when running main.py and StreamDriverCam.py. Used for multiple cameras.
 
-DRIVER_CAM_LISTEN_PORT = 1181
+if not USE_CLI_ARGUMENTS:
+    DRIVER_CAM_LISTEN_PORT = 1181
+    DRIVER_CAM_USB_ID = 'usb-xhci-hcd.0-1' # for when on RPi
+    DRIVER_CAM_NAME = 'cam1'
+    DRIVER_CAM_INDEX = 0 # for when not on RPi
 DRIVER_CAM_LISTEN_IP = '0.0.0.0' # 0.0.0.0 means it will listen on all IPs
-DRIVER_CAM_INDEX = 0 # for when not on RPi
 DRIVER_CAM_RES_X = 1280 # Horizontal resolution of the driver camera
 DRIVER_CAM_RES_Y = 720 # Vertical resolution of the driver camera
 
-AT_USE_CLI_ARGUMENTS = True # Require CLI arguments when running main.py. Used for multiple cameras.
-if not AT_USE_CLI_ARGUMENTS:
+if not USE_CLI_ARGUMENTS:
     AT_CAM_USB_ID = 'usb-xhci-hcd.0-1' # for when on RPi
     AT_CAM_INDEX = 0 # for when not on RPi
     AT_CAM_NAME = "bw_cam" # used for npy files
-AT_CAM_NAME = "bw_cam" # used for npy files
 AT_NPY_DIR = "calibration_data" # relative to python files
 AT_FOV = (50.28, 29.16) # degrees
 AT_INPUT_RES = (1280, 720) # If this resolution is not supported by the camera, it will use the camera's default res

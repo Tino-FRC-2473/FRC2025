@@ -6,7 +6,7 @@ from config import *
 from argparse import ArgumentParser
 from visionInput import VisionInput, find_camera_index
 
-if AT_USE_CLI_ARGUMENTS:
+if USE_CLI_ARGUMENTS:
     parser = ArgumentParser("streamdrivercam.py", description="2473 Driver Camera Code")
     id_group = parser.add_mutually_exclusive_group(required=True)
     id_group.add_argument("-i", "--index", help="Manual USB index (when not on raspberry pi)")
@@ -21,9 +21,9 @@ if AT_USE_CLI_ARGUMENTS:
     cam_name = args.cam_name
     port = args.port
 else:
-    index = AT_CAM_INDEX
-    usb_id = AT_CAM_USB_ID
-    cam_name = AT_CAM_NAME
+    index = DRIVER_CAM_INDEX
+    usb_id = DRIVER_CAM_USB_ID
+    cam_name = DRIVER_CAM_NAME
     port = DRIVER_CAM_LISTEN_PORT
 
 CameraServer.enableLogging()
