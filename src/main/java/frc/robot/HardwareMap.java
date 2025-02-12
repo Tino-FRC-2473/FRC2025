@@ -59,10 +59,10 @@ public final class HardwareMap {
 	}
 
 	/**
-	 * Check if drive hardware is available to the RoboRIO.
+	 * Check if CV hardware is available to the RoboRIO.
 	 * @return true if drive hardware is present
 	 */
 	public static boolean isCVHardwarePresent() {
-		return false;
+		return true;
 	}
 }

@@ -47,16 +47,6 @@ public class AutoRoutines {
 		switch (commandEntry) {
 			case DRIVE_BRAKE_CMD:
 				return driveSystem.brakeCommand();
-			case DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD:
-				return driveSystem.driveRobotRelativeOffset(
-					AutoConstants.REEF_OFFSET_X_AUTO_SPEED_M_S,
-					AutoConstants.REEF_OFFSET_Y_AUTO_SPEED_M_S,
-					AutoConstants.TIME_DRIVING_OFFSET);
-			case DRIVE_ROBOT_RIGHT_RELATIVE_OFFSET_TIMED_CMD:
-				return driveSystem.driveRobotRelativeOffset(
-					-AutoConstants.REEF_OFFSET_X_AUTO_SPEED_M_S,
-					AutoConstants.REEF_OFFSET_Y_AUTO_SPEED_M_S,
-					AutoConstants.TIME_DRIVING_OFFSET);
 			default:
 				return null;
 		}
@@ -65,55 +55,127 @@ public class AutoRoutines {
 	private Command checkAlignmentCommands(AutoCommands commandEntry) {
 		/* ---- All Red AprilTag Alignment Commands ---- */
 		switch (commandEntry) {
-			case R_ALIGN_REEF2_TAG_CMD:
+			case R_ALIGN_REEF2_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_2_TAG_ID
+					AutoConstants.R_REEF_2_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
-			case R_ALIGN_REEF3_TAG_CMD:
+			case R_ALIGN_REEF3_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_3_TAG_ID
+					AutoConstants.R_REEF_3_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
-			case R_ALIGN_REEF5_TAG_CMD:
+			case R_ALIGN_REEF5_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-						AutoConstants.R_REEF_5_TAG_ID
+					AutoConstants.R_REEF_5_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
-			case R_ALIGN_REEF6_TAG_CMD:
+			case R_ALIGN_REEF6_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-						AutoConstants.R_REEF_6_TAG_ID
+					AutoConstants.R_REEF_6_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case R_ALIGN_REEF2_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_2_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case R_ALIGN_REEF3_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_3_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case R_ALIGN_REEF5_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_5_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case R_ALIGN_REEF6_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_6_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_R_TAG_OFFSET
 				);
 			case R_ALIGN_STATION_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.RED_L_STATION_ID
+					AutoConstants.RED_L_STATION_ID,
+					AutoConstants.SOURCE_X_OFFSET,
+					AutoConstants.SOURCE_Y_OFFSET
 				);
 			case R_ALIGN_STATION_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-						AutoConstants.RED_R_STATION_ID
+					AutoConstants.RED_R_STATION_ID,
+					AutoConstants.SOURCE_X_OFFSET,
+					AutoConstants.SOURCE_Y_OFFSET
 				);
 
 			/* ---- All Blue AprilTag Alignment Commands ---- */
-			case B_ALIGN_REEF2_TAG_CMD:
+			case B_ALIGN_REEF2_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_2_TAG_ID
+					AutoConstants.B_REEF_2_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
-			case B_ALIGN_REEF3_TAG_CMD:
+			case B_ALIGN_REEF3_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_3_TAG_ID
+					AutoConstants.B_REEF_3_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
-			case B_ALIGN_REEF5_TAG_CMD:
+			case B_ALIGN_REEF5_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID
+					AutoConstants.B_REEF_5_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
-			case B_ALIGN_REEF6_TAG_CMD:
+			case B_ALIGN_REEF6_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_6_TAG_ID
+					AutoConstants.B_REEF_6_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case B_ALIGN_REEF2_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_2_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case B_ALIGN_REEF3_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_3_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case B_ALIGN_REEF5_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_5_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case B_ALIGN_REEF6_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_6_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case B_ALIGN_STATION_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.BLUE_L_STATION_ID
+					AutoConstants.BLUE_L_STATION_ID,
+					AutoConstants.SOURCE_X_OFFSET,
+					AutoConstants.SOURCE_Y_OFFSET
 				);
 			case B_ALIGN_STATION_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
-					AutoConstants.BLUE_R_STATION_ID
+					AutoConstants.BLUE_R_STATION_ID,
+					AutoConstants.SOURCE_X_OFFSET,
+					AutoConstants.SOURCE_Y_OFFSET
 				);
 			default:
 				return null;

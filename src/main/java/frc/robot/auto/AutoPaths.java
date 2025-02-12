@@ -20,7 +20,7 @@ public class AutoPaths {
 			"R1_StationL" //should check if it will return to the center before running w/ choreo
 		},
 		AutoCommands.INTAKE_CORAL_CMD,
-		AutoCommands.B_ALIGN_REEF3_TAG_CMD,
+		AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
 		new Object[] {
 			AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
 			AutoCommands.ELEVATOR_L4_CMD
@@ -39,6 +39,23 @@ public class AutoPaths {
 		"S1_R2",
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.ELEVATOR_L2_CMD
+	};
+
+	public static final Object[] B_AT_ALIGN_TEST_1 = new Object[] {
+		"S1_R2_H",
+		new Object[] {AutoCommands.B_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		new Object[] {"R2_StationL", AutoCommands.ELEVATOR_GROUND_CMD},
+		AutoCommands.INTAKE_CORAL_CMD,
+		new Object[] {AutoCommands.B_ALIGN_REEF3_R_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD
+	};
+
+	public static final Object[] B_AT_ALIGN_TEST_2 = new Object[] {
+		"S3_R6_H",
+		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD
 	};
 
 	/**
