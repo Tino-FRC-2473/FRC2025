@@ -1,5 +1,7 @@
 package frc.robot.constants;
 
+import com.ctre.phoenix6.Utils;
+
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 
@@ -12,7 +14,11 @@ public final class Constants {
 	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0.8;
 
 	public static final double REEF_DISTANCE_THRESHOLD_MM = 100; // millimeters
-	public static final double FUNNEL_CLOSE_TIME_SECS = 0.5; // seconds
+	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 0.5; // seconds
+	public static final double FUNNEL_INOUT_SIM_TIME_SECS
+		= FUNNEL_INOUT_REAL_TIME_SECS * 2; // seconds
+	public static final double FUNNEL_INOUT_TIME_SECS =
+		(Utils.isSimulation()) ? FUNNEL_INOUT_SIM_TIME_SECS : FUNNEL_INOUT_REAL_TIME_SECS;
 
 	// PID Constants
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
