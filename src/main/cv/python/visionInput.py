@@ -9,9 +9,10 @@ def find_camera_index(usbId):
                 if cam.info.bus_info == usbId:
                     return index
         except:
-            print("not connected")
+            print(f"find_camera_index: index {index} not connected")
             
     print(f"find_camera_index: Could not find camera on {usbId}")
+    raise OSError(f"find_camera_index: Could not find camera on {usbId}")
 
 class VisionInput:
     def __init__(self, fov, res: tuple, cam_height, cam_angle, cam_index):
