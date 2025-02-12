@@ -198,49 +198,49 @@ public class AutoRoutines {
 		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF3_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF5_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF5_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF6_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
@@ -260,49 +260,49 @@ public class AutoRoutines {
 		commands.put(AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF3_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF5_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF5_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF6_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_STATION_L_TAG_CMD,

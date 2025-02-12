@@ -18,19 +18,19 @@ public class SimConstants {
 	public static final Pose2d BLUE_1_STARTING_POS_M = new Pose2d(
 		7.5856494,
 		6.4390466,
-		new Rotation2d(Math.PI)
+		new Rotation2d()
 	);
 
 	public static final Pose2d BLUE_2_STARTING_POS_M = new Pose2d(
 		7.5856494,
 		4.0468566,
-		new Rotation2d(Math.PI)
+		new Rotation2d()
 	);
 
 	public static final Pose2d BLUE_3_STARTING_POS_M = new Pose2d(
 		7.5856494,
 		1.5596578,
-		new Rotation2d(Math.PI)
+		new Rotation2d()
 	);
 
 	public static final Pose2d RED_1_STARTING_POS_M = new Pose2d(

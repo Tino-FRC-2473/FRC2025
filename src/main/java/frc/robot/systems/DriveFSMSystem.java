@@ -47,6 +47,7 @@ import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
+
 	// FSM state definitions
 	public enum FSMState {
 		TELEOP_STATE,
@@ -90,6 +91,8 @@ public class DriveFSMSystem extends SubsystemBase {
 	private double ds;
 	private boolean tagAlignedRotation;
 	private Rotation2d rotationAlignmentPose;
+
+	private double alignmentYOff = 0;
 
 	private boolean updateSimStartingPose = false;
 
@@ -163,6 +166,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void reset() {
 		currentState = FSMState.TELEOP_STATE;
+
 
 		if (Utils.isSimulation()) {
 			updateSimStartingPose = false;
@@ -285,7 +289,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		tagPositionAligned = false;
 		tagID = -1;
 
-
 		//System.out.println("TELEOP IS RUNNING");
 
 		double xSpeed = -MathUtil.applyDeadband(
@@ -309,7 +312,6 @@ public class DriveFSMSystem extends SubsystemBase {
 					? getMapleSimDrivetrain().getDriveSimulation()
 					.getSimulatedDriveTrainPose().getRotation()
 					: drivetrain.getState().Pose.getRotation();
-
 		}
 
 		// System.out.println("TELEOP X:" + drivetrain.getState().Pose.getX());
@@ -329,12 +331,6 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (input.getDriveBackButtonPressed()) {
 			drivetrain.seedFieldCentric();
-			if (Utils.isSimulation()) {
-				drivetrain.setOperatorPerspectiveForward(
-					getMapleSimDrivetrain().getDriveSimulation()
-					.getSimulatedDriveTrainPose().getRotation()
-				);
-			}
 		}
 	}
 
@@ -453,6 +449,16 @@ public class DriveFSMSystem extends SubsystemBase {
 			return;
 		}
 
+		if (input != null) {
+			if (input.getDriveLeftBumperButton()) {
+				alignmentYOff = -AutoConstants.REEF_X_TAG_OFFSET;
+			} else if (input.getDriveRightBumperButton()) {
+				alignmentYOff = AutoConstants.REEF_X_TAG_OFFSET;
+			} else {
+				alignmentYOff = 0;
+			}
+		}
+
 		double aSpeed = 0;
 
 		if (tag != null) {
@@ -468,10 +474,17 @@ public class DriveFSMSystem extends SubsystemBase {
 			if (Utils.isSimulation()) {
 				alignmentPose2d = getMapleSimDrivetrain()
 					.getDriveSimulation().getSimulatedDriveTrainPose()
-					.plus(new Transform2d(tag.getZ(), tag.getX(), new Rotation2d()));
+					.plus(new Transform2d(
+						tag.getZ() + AutoConstants.REEF_X_TAG_OFFSET,
+						tag.getX() + alignmentYOff,
+						new Rotation2d()));
 			} else {
 				alignmentPose2d = drivetrain.getState().Pose
-					.plus(new Transform2d(tag.getZ(), tag.getX(), new Rotation2d()));
+					.plus(new Transform2d(
+						tag.getZ() + AutoConstants.REEF_X_TAG_OFFSET,
+						tag.getX() + alignmentYOff,
+						new Rotation2d())
+					);
 			}
 
 			Logger.recordOutput("rot speed", aSpeed);
@@ -504,14 +517,17 @@ public class DriveFSMSystem extends SubsystemBase {
 				? yDiff / xDiff * xSpeed
 				: 0;
 
-			// if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
-			// 	xSpeed = -xSpeed;
-			// 	ySpeed = -ySpeed;
-			// }
-
 			Logger.recordOutput("XSPEED", xSpeed);
 			Logger.recordOutput("YSPEED", ySpeed);
 			Logger.recordOutput("ASpeed", aSpeed);
+
+			if (
+				DriverStation.getAlliance() != null
+					&& DriverStation.getAlliance().get() == Alliance.Red
+			) {
+				xSpeed = -xSpeed;
+				ySpeed = -ySpeed;
+			}
 
 			drivetrain.setControl(
 				drive.withVelocityX(xSpeed * MAX_SPEED)
@@ -521,7 +537,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			// natural mk4 deadband
 			tagPositionAligned =
-				xSpeed == 0 && ySpeed == 0;
+				xSpeed == 0 && ySpeed == 0 && aSpeed == 0;
 		} else {
 			drivetrain.setControl(brake);
 		}
@@ -560,6 +576,11 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 
 			@Override
+			public void initialize() {
+				alignmentYOff = y;
+			}
+
+			@Override
 			public void execute() {
 				handleTagAlignment(null, tagID);
 			}
@@ -575,6 +596,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				tagPositionAligned = false;
 				tagID = -1;
 				alignmentPose2d = null;
+				alignmentYOff = 0;
 			}
 		}
 

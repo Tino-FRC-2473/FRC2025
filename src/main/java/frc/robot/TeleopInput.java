@@ -89,7 +89,23 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public boolean getDriveBackButtonPressed() {
+		return driveController.getOptionsButton();
+	}
+
+	/**
+	 * Get the value of the L1 button.
+	 * @return L1 button value
+	 */
+	public boolean getDriveLeftBumperButton() {
 		return driveController.getL1Button();
+	}
+
+	/**
+	 * Get the value of the R1 button.
+	 * @return R1 button value
+	 */
+	public boolean getDriveRightBumperButton() {
+		return driveController.getR1Button();
 	}
 
 	/* ------------------------ Mech Controller ------------------------ */

@@ -64,8 +64,9 @@ public class Robot extends LoggedRobot {
 		AutoCommands.FUNNEL_CLOSE_CMD,
 	};
 
-	private static final Object[] SAMPLE_RED_TEST_PATH = new Object[] {
-		"S1_R1"
+	private static final Object[] SAMPLE_AUTO_ALIGN = new Object[] {
+		"B_S1_R2",
+		AutoCommands.B_ALIGN_REEF2_L_TAG_CMD
 	};
 
 	/**
@@ -128,7 +129,7 @@ public class Robot extends LoggedRobot {
 		}
 		if (HardwareMap.isDriveHardwarePresent()) {
 			autoChooser.addOption("Drive Test",
-				autoRoutines.generateSequentialAutoWorkflow(SAMPLE_RED_TEST_PATH, false));
+				autoRoutines.generateSequentialAutoWorkflow(SAMPLE_AUTO_ALIGN, true));
 		}
 
 		// Log auto chooser
@@ -170,6 +171,11 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void teleopPeriodic() {
+
+		if (HardwareMap.isDriveHardwarePresent()) {
+			driveSystem.updateSimStartingPosition();
+		}
+
 		if (driveSystem != null) {
 			driveSystem.update(input);
 		}
@@ -219,8 +225,8 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
+
 		if (HardwareMap.isDriveHardwarePresent()) {
-			driveSystem.updateSimStartingPosition();
 			driveSystem.getMapleSimDrivetrain().update();
 		}
 
