@@ -275,6 +275,7 @@ public class ClimberFSMSystem {
 			Constants.CLIMBER_PID_TARGET_CLIMB,
 			Constants.CLIMBER_PID_MARGIN_OF_ERROR)
 			&& !isLimitSwitchPressed() // stop climbing if limit switch pressed
+			// && input.isClimbButtonHeld() // stop climbing if driver lifts button
 		) {
 			climberMotor.set(Constants.CLIMB_REDUCED_POWER);
 		} else {

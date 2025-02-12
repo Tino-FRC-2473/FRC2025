@@ -129,10 +129,19 @@ public class TeleopInput {
 	/**
 	 * Gets the value of the options button.
 	 * Intended to signify when the climber should go to the next state.
-	 * @return If the options button was pressed this tick
+	 * @return If the options button was pressed this tick and if it wasn't before
 	 */
 	public boolean isClimbAdvanceStateButtonPressed() {
 		return mechController.getOptionsButtonPressed();
+	}
+
+	/**
+	 * Gets the value of the options button.
+	 * Intended to signify when the climber should climb.
+	 * @return If the options button was pressed
+	 */
+	public boolean isClimbButtonHeld() {
+		return mechController.getOptionsButton();
 	}
 
 	/**
