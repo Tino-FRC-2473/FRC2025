@@ -20,7 +20,7 @@ public class AutoPaths {
 			"R1_StationL" //should check if it will return to the center before running w/ choreo
 		},
 		AutoCommands.INTAKE_CORAL_CMD,
-		AutoCommands.B_ALIGN_REEF3_TAG_CMD,
+		AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
 		new Object[] {
 			AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
 			AutoCommands.ELEVATOR_L4_CMD
