@@ -490,8 +490,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	/**
 	 * A Drive Robot Relative Offset command used while extending the elevator in auto.
-	 * @param xSpeed x robot relative speed
-	 * @param ySpeed y robot relative speed
+	 * @param xSpeed x robot relative speed in m/s
+	 * @param ySpeed y robot relative speed in m/s
 	 * @param timeRunning the amount of time you should be at the x and y speed for
 	 * @return the command
 	 */
@@ -524,8 +524,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		public void execute() {
 			drivetrain.setControl(
 				driveRobotCentric
-					.withVelocityX(xS * MAX_SPEED)
-					.withVelocityY(yS * MAX_SPEED)
+					.withVelocityX(xS)
+					.withVelocityY(yS)
 			);
 		}
 

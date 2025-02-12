@@ -169,6 +169,7 @@ public class AutoRoutines {
 		}
 
 		autoPaths = new AutoPaths();
+		SmartDashboard.putString("Auto State", "AUTO INIT");
 	}
 
 	/**
