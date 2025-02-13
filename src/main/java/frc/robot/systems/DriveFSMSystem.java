@@ -94,8 +94,6 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private double alignmentYOff = 0;
 
-	private boolean updateSimStartingPose = false;
-
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,
 		AutoConstants.B_REEF_2_TAG_ID,
