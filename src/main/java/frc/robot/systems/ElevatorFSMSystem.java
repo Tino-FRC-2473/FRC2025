@@ -109,7 +109,9 @@ public class ElevatorFSMSystem {
 				elevatorMotor.getPosition(),
 				elevatorMotor.getVelocity(),
 				elevatorMotor.getAcceleration(),
-				elevatorMotor.getMotorVoltage()
+				elevatorMotor.getMotorVoltage(),
+				elevatorMotor.getRotorPosition(),
+				elevatorMotor.getRotorVelocity()
 		);
 
 		elevatorMotor.optimizeBusUtilization();
@@ -209,6 +211,9 @@ public class ElevatorFSMSystem {
 
 		Logger.recordOutput("Elev Inrage L4?", inRange(getElevatorpos(),
 			Constants.ELEVATOR_TARGET_L4));
+
+		Logger.recordOutput("ROOR POS", elevatorMotor.getRotorPosition().getValueAsDouble());
+		Logger.recordOutput("ROOR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
 	}
 
 	/* ======================== Private methods ======================== */
@@ -325,7 +330,8 @@ public class ElevatorFSMSystem {
 			}
 		}
 
-		if (signalInput == 0) {
+		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
+			> Constants.KG_CHECK.in(Units.Inches)) {
 			elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
 		} else {
 			elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
@@ -339,7 +345,6 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleGroundState(TeleopInput input) {
 		if (isBottomLimitReached()) {
-			elevatorMotor.set(0);
 			elevatorMotor.setPosition(0);
 		} else {
 			elevatorMotor.setControl(
