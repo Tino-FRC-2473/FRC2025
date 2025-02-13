@@ -7,7 +7,7 @@ import time
 import cv2
 import traceback
 
-if AT_USE_CLI_ARGUMENTS:
+if USE_CLI_ARGUMENTS:
     parser = ArgumentParser("main.py", description="2473 CV Code")
     id_group = parser.add_mutually_exclusive_group(required=True)
     id_group.add_argument("-i", "--index", help="Manual USB index (when not on raspberry po)")
