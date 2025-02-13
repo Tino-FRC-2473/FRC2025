@@ -197,7 +197,8 @@ public class FunnelFSMSystem {
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() > Constants.FUNNEL_INOUT_TIME_SECS || isHoldingCoral();
+			return isHoldingCoral();
+			// return timer.get() > Constants.FUNNEL_INOUT_TIME_SECS || isHoldingCoral();
 		}
 
 		@Override
@@ -228,7 +229,8 @@ public class FunnelFSMSystem {
 		@Override
 		public boolean isFinished() {
 			//return true;
-			return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS || !isHoldingCoral();
+			// return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS || !isHoldingCoral();
+			return !isHoldingCoral();
 		}
 
 		@Override

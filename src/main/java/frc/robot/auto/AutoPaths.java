@@ -48,6 +48,13 @@ public class AutoPaths {
 		AutoCommands.ELEVATOR_GROUND_CMD
 	};
 
+	public static final Object[] FUNNEL_TEST_PATH = new Object[] {
+		"No_Path",
+		AutoCommands.INTAKE_CORAL_CMD,
+		AutoCommands.WAIT,
+		AutoCommands.OUTTAKE_CORAL_CMD
+	};
+
 	/**
 	 * Get all autos declared in the file.
 	 * @return hashmap of auto name and autos.
