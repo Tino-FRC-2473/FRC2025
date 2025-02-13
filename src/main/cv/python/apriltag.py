@@ -213,7 +213,7 @@ def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_
     output_dir = basePath.joinpath(output_dir_relative)
 
     #Path(output_dir).mkdir(exist_ok=True) # create calibration directory if it doesn't exist
-    images = os.listdir(input_dir)
+    images = input_dir.iterdir()
 
     #print(images)
 

@@ -135,7 +135,7 @@ public class RaspberryPi {
 	 */
 	public AprilTag getClosestTag() {
 		ArrayList<AprilTag> atlist = getAprilTags();
-		if(getAprilTags().size() == 0) {
+		if (getAprilTags().size() == 0) {
 			return null;
 		}
 		return Collections.max(atlist);
