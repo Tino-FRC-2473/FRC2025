@@ -58,6 +58,7 @@ public class Robot extends LoggedRobot {
 	// Logger
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
+	private RaspberryPi rpi = new RaspberryPi();
 	/**
 	 * This function is run when the robot is first started up and should be used for any
 	 * initialization code.
@@ -209,7 +210,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testPeriodic() {
-
+		System.out.println(rpi.getAprilTags().toString());
 	}
 
 	/* Simulation mode handlers, only used for simulation testing  */
