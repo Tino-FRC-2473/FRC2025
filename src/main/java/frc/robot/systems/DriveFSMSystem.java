@@ -460,7 +460,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double aSpeed = 0;
 
-		if (tag != null) {
+		if (tag != null && !tagAlignedRotation) {
 			double rpiTheta = tag.getPitch();
 
 			aSpeed = Math.abs(rpiTheta)
@@ -489,7 +489,23 @@ public class DriveFSMSystem extends SubsystemBase {
 					);
 			}
 
+			if (!tagAlignedRotation) {
+				drivetrain.setControl(
+					drive
+					.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
+				);
+			}
+
+			if (aSpeed == 0) {
+				tagAlignedRotation = true;
+			}
+
 			Logger.recordOutput("rot speed", aSpeed);
+		} else {
+			if (alignmentPose2d == null) {
+				drivetrain.setControl(brake);
+				return;
+			}
 		}
 
 		if (alignmentPose2d != null) {
@@ -516,7 +532,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			double ySpeed = Math.abs(yDiff)
 				> VisionConstants.Y_MARGIN_TO_REEF
-				? SwerveUtils.clamp(
+				?  SwerveUtils.clamp(
 					yDiff
 					/ VisionConstants.TRANSLATIONAL_Y_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
@@ -530,16 +546,13 @@ public class DriveFSMSystem extends SubsystemBase {
 			drivetrain.setControl(
 				drive.withVelocityX(xSpeed * MAX_SPEED)
 				.withVelocityY(ySpeed * MAX_SPEED)
-				.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
 			);
 
 			System.out.println("REAHED SPEED SET TAG AL != NULL");
 
 			// natural mk4 deadband
 			tagPositionAligned =
-				xSpeed == 0 && ySpeed == 0 && aSpeed == 0;
-		} else {
-			drivetrain.setControl(brake);
+				xSpeed == 0 && ySpeed == 0;
 		}
 
 	}
@@ -596,6 +609,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				System.out.println("ENDED");
 				drivetrain.setControl(brake);
 				tagPositionAligned = false;
+				tagAlignedRotation = false;
 				tagID = -1;
 				alignmentPose2d = null;
 				alignmentYOff = 0;
