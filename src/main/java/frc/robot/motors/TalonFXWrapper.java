@@ -3,18 +3,17 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Robot;
 
 public class TalonFXWrapper extends TalonFX implements LoggedMotor {
-
-	// Attributes
-	private static final double K_GEAR_RATIO = 15.;
 	private static final double INERTIA_CONSTANT = 0.001;
 
 	// Components
@@ -49,7 +48,7 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 	 * @param canbus the string form of the canbus
 	 */
 	public TalonFXWrapper(int deviceId, String canbus) {
-		this(deviceId, canbus, DCMotor.getKrakenX60Foc(1));
+		this(deviceId, canbus, DCMotor.getKrakenX60(1));
 	}
 
 	/**
@@ -69,7 +68,7 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 			LinearSystemId.createDCMotorSystem(
 				kraken,
 				INERTIA_CONSTANT,
-				K_GEAR_RATIO
+				1.0
 			),
 			kraken
 		);
@@ -94,9 +93,17 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 			// apply the new rotor position and velocity to the TalonFX;
 			// note that this is rotor position/velocity (before gear ratio), but
 			// DCMotorSim returns mechanism position/velocity (after gear ratio)
-			talonFXSim.setRawRotorPosition(motorSimModel.getAngularPosition().times(K_GEAR_RATIO));
-			talonFXSim.setRotorVelocity(motorSimModel.getAngularVelocity().times(K_GEAR_RATIO));
+			talonFXSim.setRawRotorPosition(motorSimModel.getAngularPosition());
+			talonFXSim.setRotorVelocity(motorSimModel.getAngularVelocity());
 		}
+	}
+
+	@Override
+	public StatusCode setPosition(double pos) {
+		StatusCode s = super.setPosition(pos);
+		motorSimModel.setAngle(Units.rotationsToRadians(pos));
+		getSimState().setRawRotorPosition(Units.rotationsToRadians(pos));
+		return s;
 	}
 
 	@Override

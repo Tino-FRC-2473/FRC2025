@@ -62,8 +62,8 @@ public final class Constants {
 	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 7;
 
 
-	public static final double CLIMB_POWER = 1.0;
-	public static final double CLIMB_REDUCED_POWER = 0.3;
+	public static final double CLIMB_POWER = 1;
+	public static final double CLIMB_REDUCED_POWER = 0.5;
 
 	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 0.5; // seconds
 	public static final double FUNNEL_INOUT_SIM_TIME_SECS
