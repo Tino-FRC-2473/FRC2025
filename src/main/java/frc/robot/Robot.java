@@ -221,6 +221,7 @@ public class Robot extends LoggedRobot {
 	public void simulationPeriodic() {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem.getMapleSimDrivetrain().update();
+			driveSystem.updateRaspberryPi();
 		}
 
 		Logger.recordOutput(

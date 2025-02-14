@@ -41,6 +41,18 @@ public class AutoPaths {
 		AutoCommands.ELEVATOR_L2_CMD
 	};
 
+	public static final Object[] B_AT_ALIGN_TEST_1 = new Object[] {
+		"S1_R2_H",
+		AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
+		"R2_StationL",
+		AutoCommands.B_ALIGN_REEF3_R_TAG_CMD
+	};
+
+	public static final Object[] B_AT_ALIGN_TEST_2 = new Object[] {
+		"S3_R6_H",
+		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD
+	};
+
 	/**
 	 * Get all autos declared in the file.
 	 * @return hashmap of auto name and autos.

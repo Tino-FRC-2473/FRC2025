@@ -1,7 +1,5 @@
 package frc.robot.systems;
 
-
-import edu.wpi.first.hal.AllianceStationID;
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -164,12 +162,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void reset() {
 		currentState = FSMState.TELEOP_STATE;
-
-
-		if (Utils.isSimulation()) {
-			updateSimStartingPose = false;
-		}
-
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
 	}
@@ -181,14 +173,12 @@ public class DriveFSMSystem extends SubsystemBase {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
+		drivetrain.applyOperatorPerspective();
+
 		if (input == null) {
 			return;
 		}
 
-		drivetrain.applyOperatorPerspective();
-		if (Utils.isSimulation()) {
-			rpi.update(getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose());
-		}
 		//rpi.printRawData();
 
 		switch (currentState) {
@@ -328,6 +318,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		if (input.getDriveBackButtonPressed()) {
+			System.out.println("Sex");
 			drivetrain.seedFieldCentric();
 		}
 	}
@@ -338,10 +329,20 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void handleReefTagAlignment(TeleopInput input) {
 
+		if (input != null) {
+			if (input.getDriveLeftBumperButton()) {
+				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
+			} else if (input.getDriveRightBumperButton()) {
+				alignmentYOff = AutoConstants.REEF_Y_R_TAG_OFFSET;
+			} else {
+				alignmentYOff = 0;
+			}
+		}
+
 		ArrayList<AprilTag> sortedTagList = rpi.getReefAprilTags();
 		Collections.sort(rpi.getAprilTags(), aComparator);
 
-		//System.out.println(DriverStation.getAlliance().get().toString());
+		System.out.println("reef state reached");
 
 		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
@@ -391,6 +392,16 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * @param input
 	 */
 	public void handleStationTagAlignment(TeleopInput input) {
+
+		if (input != null) {
+			if (input.getDriveLeftBumperButton()) {
+				alignmentYOff = AutoConstants.STATION_Y_L_TAG_OFFSET;
+			} else if (input.getDriveRightBumperButton()) {
+				alignmentYOff = AutoConstants.STATION_Y_R_TAG_OFFSET;
+			} else {
+				alignmentYOff = 0;
+			}
+		}
 
 		ArrayList<AprilTag> sortedTagList = rpi.getStationAprilTags();
 		Collections.sort(rpi.getAprilTags(), aComparator);
@@ -447,16 +458,6 @@ public class DriveFSMSystem extends SubsystemBase {
 			return;
 		}
 
-		if (input != null) {
-			if (input.getDriveLeftBumperButton()) {
-				alignmentYOff = -AutoConstants.REEF_X_TAG_OFFSET;
-			} else if (input.getDriveRightBumperButton()) {
-				alignmentYOff = AutoConstants.REEF_X_TAG_OFFSET;
-			} else {
-				alignmentYOff = 0;
-			}
-		}
-
 		double aSpeed = 0;
 
 		if (tag != null) {
@@ -468,6 +469,9 @@ public class DriveFSMSystem extends SubsystemBase {
 				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
 			) : 0;
+
+			Logger.recordOutput("Tag Z", tag.getZ());
+			Logger.recordOutput("Tag X", tag.getX());
 
 			if (Utils.isSimulation()) {
 				alignmentPose2d = getMapleSimDrivetrain()
@@ -505,33 +509,31 @@ public class DriveFSMSystem extends SubsystemBase {
 				> VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
 					xDiff
-					/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+					/ VisionConstants.TRANSLATIONAL_X_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
 				) : 0;
 
 			double ySpeed = Math.abs(yDiff)
 				> VisionConstants.Y_MARGIN_TO_REEF
-				? yDiff / xDiff * xSpeed
-				: 0;
+				? SwerveUtils.clamp(
+					yDiff
+					/ VisionConstants.TRANSLATIONAL_Y_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				) : 0;
 
 			Logger.recordOutput("XSPEED", xSpeed);
 			Logger.recordOutput("YSPEED", ySpeed);
 			Logger.recordOutput("ASpeed", aSpeed);
-
-			if (
-				DriverStation.getAlliance() != null
-					&& DriverStation.getAlliance().get() == Alliance.Red
-			) {
-				xSpeed = -xSpeed;
-				ySpeed = -ySpeed;
-			}
 
 			drivetrain.setControl(
 				drive.withVelocityX(xSpeed * MAX_SPEED)
 				.withVelocityY(ySpeed * MAX_SPEED)
 				.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
 			);
+
+			System.out.println("REAHED SPEED SET TAG AL != NULL");
 
 			// natural mk4 deadband
 			tagPositionAligned =
@@ -575,12 +577,13 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			@Override
 			public void initialize() {
+				System.out.println("y: " + y);
 				alignmentYOff = y;
 			}
 
 			@Override
 			public void execute() {
-				handleTagAlignment(null, tagID);
+				handleTagAlignment(null, id);
 			}
 
 			@Override
@@ -590,6 +593,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			@Override
 			public void end(boolean interrupted) {
+				System.out.println("ENDED");
 				drivetrain.setControl(brake);
 				tagPositionAligned = false;
 				tagID = -1;
@@ -659,5 +663,12 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public MapleSimSwerveDrivetrain getMapleSimDrivetrain() {
 		return drivetrain.getSimDrivetrain();
+	}
+
+	/**
+	 * Update the raspberry pi simulation state.
+	 */
+	public void updateRaspberryPi() {
+		rpi.update(getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose());
 	}
 }

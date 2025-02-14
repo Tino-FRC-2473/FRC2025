@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 
 // Values provided by Maple-Sim to reduce commonly found bugs while simulating.
 public class SimConstants {
@@ -51,8 +52,8 @@ public class SimConstants {
 
 	// Estimated values for now, need to be calculated later
 	public static final double MASS_WITH_BUMPER_LBS = 115;
-	public static final double WIDTH_IN = 30;
-	public static final double LENGTH_IN = 30;
+	public static final double WIDTH_IN = 35.5;
+	public static final double LENGTH_IN = 35.5;
 	public static final double WHEEL_COF = 1.2;
 
 	// mech pose logging constants
@@ -61,7 +62,7 @@ public class SimConstants {
 
 	//vision related constants
 	public static final String APRIL_TAG_FIELD_LAYOUT_JSON =
-		"src/main/java/frc/robot/constants/2025tagLayout.json";
+		"src/main/java/frc/robot/constants/tagAbsPos.json";
 
 	// Camera names, must match names configured on coprocessor
 	public static final String REEF_CAMERA_NAME = "Reef CV Camera";
@@ -70,9 +71,11 @@ public class SimConstants {
 	// Robot to camera transforms - not entirely accurate, but close enough for simulation
 	// (Not used by Limelight, configure in web UI instead)
 	public static final Transform3d ROBOT_TO_REEF_CAMERA =
-		new Transform3d(0.25, 0, 0.4, new Rotation3d(0.0, 0.0, 0.0));
+		new Transform3d(Units.inchesToMeters(6), -Units.inchesToMeters(8.5),
+		0.4, new Rotation3d(0.0, 0.0, 0));
 	public static final Transform3d ROBOT_TO_STATION_CAMERA =
-		new Transform3d(-0.25, 0, 1.016, new Rotation3d(0.0, -0.0, Math.PI));
+		new Transform3d(-Units.inchesToMeters(6), -Units.inchesToMeters(8.5),
+		1.016, new Rotation3d(0.0, -0.0, Math.PI));
 
 	// Basic filtering thresholds
 	public static final double MAX_AMBIGUITY = 0.3;

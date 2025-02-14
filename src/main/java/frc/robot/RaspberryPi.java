@@ -1,6 +1,7 @@
 package frc.robot;
 import java.util.ArrayList;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
@@ -77,6 +78,14 @@ public class RaspberryPi {
 		return atList;
 	}
 
+	public ArrayList<AprilTag> getReefAprilTags() {
+		return new ArrayList<>();
+	}
+
+	public ArrayList<AprilTag> getStationAprilTags() {
+		return new ArrayList<>();
+	}
+
 	/**
 	 * Gets an April Tag from the list given a certain tag.
 	 * @param id id of the april tag
@@ -88,5 +97,10 @@ public class RaspberryPi {
 			.filter(tag -> tag.getTagID() == id)
 			.findFirst()
 			.orElse(null);
+	}
+
+
+	public void update(Pose2d robotPoseMeters) {
+		// Do nothing
 	}
 }
