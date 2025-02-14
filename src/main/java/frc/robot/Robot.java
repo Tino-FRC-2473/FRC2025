@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 // Third Party Imports
 import frc.robot.logging.SimLogging;
 import org.ironmaple.simulation.SimulatedArena;
@@ -209,6 +208,7 @@ public class Robot extends LoggedRobot {
 		System.out.println("-------- Simulation Init --------");
 		// don't preform simulated hardware init here, robotInit() still runs during sim
 		SimulatedArena.getInstance().resetFieldForAuto();
+		SimLogging.shouldGiveCoral();
 	}
 
 	@Override
@@ -252,10 +252,9 @@ public class Robot extends LoggedRobot {
 			MechLogging.getInstance().getRobotPoses()
 		);
 
-
 		Logger.recordOutput("FieldSimulation/FrontOfRobot", driveSystem.getFrontOfDrivetrain());
 
-		if (driveSystem.getFrontOfDrivetrain().equals(new Pose2d())) {
+		if (SimLogging.shouldGiveCoral()) {
 			funnelSystem.giveCoral();
 		}
 	}
