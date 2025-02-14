@@ -39,7 +39,7 @@ public final class HardwareMap {
 	 * @return true if elevator hardware is present
 	 */
 	public static boolean isElevatorHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -55,11 +55,11 @@ public final class HardwareMap {
 	 * @return true if funnel hardware is present
 	 */
 	public static boolean isFunnelHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
-	 * Check if drive hardware is available to the RoboRIO.
+	 * Check if CV hardware is available to the RoboRIO.
 	 * @return true if drive hardware is present
 	 */
 	public static boolean isCVHardwarePresent() {

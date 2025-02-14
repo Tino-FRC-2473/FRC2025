@@ -43,9 +43,14 @@ public class AutoPaths {
 
 	public static final Object[] B_AT_ALIGN_TEST_1 = new Object[] {
 		"S1_R2_H",
-		AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
-		"R2_StationL",
-		AutoCommands.B_ALIGN_REEF3_R_TAG_CMD
+		new Object[] {AutoCommands.B_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		new Object[] {"R2_StationL", AutoCommands.ELEVATOR_GROUND_CMD},
+		AutoCommands.INTAKE_CORAL_CMD,
+		new Object[] {AutoCommands.B_ALIGN_REEF3_R_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD
 	};
 
 	public static final Object[] B_AT_ALIGN_TEST_2 = new Object[] {
