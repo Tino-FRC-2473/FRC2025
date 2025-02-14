@@ -63,33 +63,52 @@ public class RaspberryPiSim extends RaspberryPi {
 
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
-		atList.addAll(getAprilTagsSingleCamera(reefCamera));
-		atList.addAll(getAprilTagsSingleCamera(stationCamera));
+		atList.addAll(getReefAprilTags());
+		atList.addAll(getStationAprilTags());
 		return atList;
 	}
 
 	public ArrayList<AprilTag> getReefAprilTags() {
-		return getAprilTagsSingleCamera(reefCamera);
-	}
-
-	public ArrayList<AprilTag> getStationAprilTags() {
-		return getAprilTagsSingleCamera(stationCamera);
-	}
-
-	public ArrayList<AprilTag> getAprilTagsSingleCamera(PhotonCamera camera) {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 
-		var results = camera.getLatestResult();
+		var results = reefCamera.getLatestResult();
 		if (results.hasTargets()) {
 			for (var target: results.getTargets()) {
 				AprilTag at = new AprilTag(
 					target.fiducialId,
-					camera.getName(),
+					reefCamera.getName(),
 					new Translation3d(), //camera vector, unused
 					new Translation3d(
 						target.getBestCameraToTarget().getY(),
 						target.getBestCameraToTarget().getZ(),
 						target.getBestCameraToTarget().getX()
+					),
+					new Rotation3d(
+						target.getBestCameraToTarget().getRotation().getY(),
+						target.getBestCameraToTarget().getRotation().getZ(),
+						target.getBestCameraToTarget().getRotation().getX()
+					)
+				);
+				atList.add(at);
+			}
+		}
+		return atList;
+	}
+
+	public ArrayList<AprilTag> getStationAprilTags() {
+		ArrayList<AprilTag> atList = new ArrayList<>();
+
+		var results = stationCamera.getLatestResult();
+		if (results.hasTargets()) {
+			for (var target: results.getTargets()) {
+				AprilTag at = new AprilTag(
+					target.fiducialId,
+					stationCamera.getName(),
+					new Translation3d(), //camera vector, unused
+					new Translation3d(
+						-target.getBestCameraToTarget().getY(),
+						-target.getBestCameraToTarget().getZ(),
+						-target.getBestCameraToTarget().getX()
 					),
 					new Rotation3d(
 						target.getBestCameraToTarget().getRotation().getY(),

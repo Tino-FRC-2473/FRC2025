@@ -19,6 +19,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.function.IntSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -123,6 +124,11 @@ public class DriveFSMSystem extends SubsystemBase {
 		public int compare(AprilTag o1, AprilTag o2) {
 			return o1.compareTo(o2);
 		}
+	};
+
+	private IntSupplier allianceOriented = () -> {
+		if (!DriverStation.getAlliance().isPresent()) return -1;
+		return DriverStation.getAlliance().get() == Alliance.Red ? 1 : -1;
 	};
 
 
@@ -305,8 +311,12 @@ public class DriveFSMSystem extends SubsystemBase {
 		// System.out.println("TELEOP X:" + drivetrain.getState().Pose.getX());
 
 		drivetrain.setControl(
-			driveFacingAngle.withVelocityX(xSpeed)
-			.withVelocityY(ySpeed)
+			driveFacingAngle.withVelocityX(
+				xSpeed * allianceOriented.getAsInt()
+			)
+			.withVelocityY(
+				ySpeed * allianceOriented.getAsInt()
+			)
 			.withTargetDirection(
 				rotationAlignmentPose
 			)
@@ -381,7 +391,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		//System.out.println("REEF TAG ID: " + tagID);
 
 		if (tagID != -1) {
-			handleTagAlignment(input, tagID);
+			handleTagAlignment(input, tagID, true);
 		} else {
 			drivetrain.setControl(brake);
 		}
@@ -429,7 +439,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		if (tagID != -1) {
-			handleTagAlignment(input, tagID);
+			handleTagAlignment(input, tagID, true);
 		} else {
 			drivetrain.setControl(brake);
 		}
@@ -439,8 +449,10 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Handle tag alignment state.
 	 * @param input
 	 * @param id
+	 * @param allianceFlip whether or not to invert the controls.
+	 * allianceFlip should be true in TeleOp.
 	 */
-	private void handleTagAlignment(TeleopInput input, int id) {
+	private void handleTagAlignment(TeleopInput input, int id, boolean allianceFlip) {
 		logger.applyStateLogging(drivetrain.getState());
 
 		AprilTag tag = rpi.getAprilTagWithID(id);
@@ -454,13 +466,18 @@ public class DriveFSMSystem extends SubsystemBase {
 		//handle if the tag's x, y, and rot position is aligned.
 		if (tagPositionAligned) {
 			//reset odometry to tag abs position, w/ calculated offset.
-			drivetrain.setControl(brake);
+			drivetrain.setControl(
+				driveRobotCentric.withVelocityX(
+					DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
+					* (allianceFlip ? allianceOriented.getAsInt() : -1)
+				)
+			);
 			return;
 		}
 
 		double aSpeed = 0;
 
-		if (tag != null && !tagAlignedRotation) {
+		if (tag != null) {
 			double rpiTheta = tag.getPitch();
 
 			aSpeed = Math.abs(rpiTheta)
@@ -489,23 +506,11 @@ public class DriveFSMSystem extends SubsystemBase {
 					);
 			}
 
-			if (!tagAlignedRotation) {
-				drivetrain.setControl(
-					drive
-					.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
-				);
-			}
-
 			if (aSpeed == 0) {
 				tagAlignedRotation = true;
 			}
 
 			Logger.recordOutput("rot speed", aSpeed);
-		} else {
-			if (alignmentPose2d == null) {
-				drivetrain.setControl(brake);
-				return;
-			}
 		}
 
 		if (alignmentPose2d != null) {
@@ -525,7 +530,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				> VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
 					xDiff
-					/ VisionConstants.TRANSLATIONAL_X_ACCEL_CONSTANT,
+					/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
 				) : 0;
@@ -534,7 +539,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				> VisionConstants.Y_MARGIN_TO_REEF
 				?  SwerveUtils.clamp(
 					yDiff
-					/ VisionConstants.TRANSLATIONAL_Y_ACCEL_CONSTANT,
+					/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
 				) : 0;
@@ -544,15 +549,20 @@ public class DriveFSMSystem extends SubsystemBase {
 			Logger.recordOutput("ASpeed", aSpeed);
 
 			drivetrain.setControl(
-				drive.withVelocityX(xSpeed * MAX_SPEED)
-				.withVelocityY(ySpeed * MAX_SPEED)
+				drive.withVelocityX(
+					xSpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+				)
+				.withVelocityY(
+					ySpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+				)
+				.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
 			);
 
 			System.out.println("REAHED SPEED SET TAG AL != NULL");
 
 			// natural mk4 deadband
 			tagPositionAligned =
-				xSpeed == 0 && ySpeed == 0;
+				xSpeed == 0 && ySpeed == 0 && aSpeed == 0;
 		}
 
 	}
@@ -583,30 +593,55 @@ public class DriveFSMSystem extends SubsystemBase {
 	public Command alignToTagCommand(int id, double x, double y) {
 		class AlignToReefTagCommand extends Command {
 
+			private Timer passiveTimer;
+			private boolean passiveForwardStageStarted = false;
+			private boolean autoCompleted = false;
+
 			AlignToReefTagCommand(int id) {
 				tagID = id;
 				tagPositionAligned = false; //likely redundant.
+				passiveTimer = new Timer();
 			}
 
 			@Override
 			public void initialize() {
 				System.out.println("y: " + y);
 				alignmentYOff = y;
+				passiveTimer.reset();
 			}
 
 			@Override
 			public void execute() {
-				handleTagAlignment(null, id);
+				handleTagAlignment(null, id, false);
+
+				if (tagPositionAligned && !passiveForwardStageStarted) {
+					passiveTimer.start();
+					passiveForwardStageStarted = true;
+				}
+
+				if (passiveForwardStageStarted) {
+					if (passiveTimer.get() <= AutoConstants.PASSIVE_ROBOT_FWD_TIME_S) {
+						drivetrain.setControl(
+							driveRobotCentric.withVelocityX(
+								DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
+							)
+						);
+					} else {
+						autoCompleted = true;
+						drivetrain.setControl(brake);
+					}
+				}
 			}
 
 			@Override
 			public boolean isFinished() {
-				return tagPositionAligned;
+				return autoCompleted;
 			}
 
 			@Override
 			public void end(boolean interrupted) {
 				System.out.println("ENDED");
+				
 				drivetrain.setControl(brake);
 				tagPositionAligned = false;
 				tagAlignedRotation = false;

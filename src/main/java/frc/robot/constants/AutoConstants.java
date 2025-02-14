@@ -41,6 +41,8 @@ public class AutoConstants {
 
 	public static final double TIME_DRIVING_OFFSET = 0.5;
 
+	public static final double PASSIVE_ROBOT_FWD_TIME_S = 0.2;
+
 	/* -- ALL COMMAND NAME CONSTANTS -- */
 
 	public enum AutoCommands {
