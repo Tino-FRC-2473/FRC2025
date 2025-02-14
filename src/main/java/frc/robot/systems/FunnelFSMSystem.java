@@ -229,14 +229,15 @@ public class FunnelFSMSystem {
 		@Override
 		public boolean isFinished() {
 			//return true;
-			// return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS || !isHoldingCoral();
-			return !isHoldingCoral();
+			return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS;
+			// return !isHoldingCoral();
 		}
 
 		@Override
 		public void end(boolean interrupted) {
 			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 			timer.stop();
+			timer.reset();
 		}
 	}
 

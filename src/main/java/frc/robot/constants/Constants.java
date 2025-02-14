@@ -65,7 +65,7 @@ public final class Constants {
 	public static final double CLIMB_POWER = 1.0;
 	public static final double CLIMB_REDUCED_POWER = 0.3;
 
-	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 0.5; // seconds
+	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 1.0; // seconds
 	public static final double FUNNEL_INOUT_SIM_TIME_SECS
 		= FUNNEL_INOUT_REAL_TIME_SECS * 2; // seconds
 	public static final double FUNNEL_INOUT_TIME_SECS =

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -129,6 +130,34 @@ public class DriveFSMSystem extends SubsystemBase {
 	public DriveFSMSystem() {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
+
+		SmartDashboard.putData("Swerve",
+			builder -> {
+				builder.setSmartDashboardType("SwerveDrive");
+
+				builder.addDoubleProperty("FL ANGLE", () -> drivetrain.getModule(0)
+					.getPosition(true).angle.getDegrees(), null);
+				builder.addDoubleProperty("FL SPEED", () -> drivetrain.getModule(0)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("FR ANGLE", () -> drivetrain.getModule(1)
+					.getPosition(true).angle.getDegrees(), null);
+				builder.addDoubleProperty("FR SPEED", () -> drivetrain.getModule(1)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("BL ANGLE", () -> drivetrain.getModule(2)
+					.getPosition(true).angle.getDegrees(), null);
+				builder.addDoubleProperty("BL SPEED", () -> drivetrain.getModule(2)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("BR ANGLE", () -> drivetrain.getModule(2 + 1)
+					.getPosition(true).angle.getDegrees(), null);
+				builder.addDoubleProperty("BR SPEED", () -> drivetrain.getModule(2 + 1)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("ROBOT ROT", () -> drivetrain.getState()
+					.Pose.getRotation().getDegrees(), null);
+			});
 
 		// Reset state machine
 		reset();

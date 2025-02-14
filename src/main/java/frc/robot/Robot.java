@@ -29,6 +29,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.utils.Elastic;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
@@ -119,6 +120,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
+		Elastic.selectTab("Autonomous");
 		autoCommand = getAutonomousCommand();
 
 		/* If all available auto systems are true, then it will throw exception. */
@@ -154,6 +156,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void teleopInit() {
 		System.out.println("-------- Teleop Init --------");
+		Elastic.selectTab("Teleoperated");
 		if (driveSystem != null) {
 			driveSystem.reset();
 		}
