@@ -3,16 +3,12 @@ package frc.robot.simulation;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.AprilTag;
 import frc.robot.RaspberryPi;
 import frc.robot.constants.SimConstants;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
@@ -55,12 +51,19 @@ public class RaspberryPiSim extends RaspberryPi {
 		visionSim.addCamera(stationCameraSim, SimConstants.ROBOT_TO_STATION_CAMERA);
 	}
 
+	/**
+	 * Prints all raw apriltag data to console.
+	 */
 	public void printRawData() {
 		for (AprilTag tag: getAprilTags()) {
 			System.out.println("AprilTag " + tag.getTagID() + " -> " + tag.getPose().toString());
 		}
 	}
 
+	/**
+	 * Returns a list of all april tags from reef and station camera.
+	 * @return all april tags
+	 */
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 		atList.addAll(getReefAprilTags());
@@ -68,6 +71,10 @@ public class RaspberryPiSim extends RaspberryPi {
 		return atList;
 	}
 
+	/**
+	 * Returns a list of all april tags from reef CV camera.
+	 * @return all visible reef april tags.
+	 */
 	public ArrayList<AprilTag> getReefAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 
@@ -95,6 +102,10 @@ public class RaspberryPiSim extends RaspberryPi {
 		return atList;
 	}
 
+	/**
+	 * Returns all april tags visible from Station CV Camera.
+	 * @return list of all april tags
+	 */
 	public ArrayList<AprilTag> getStationAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 
@@ -122,6 +133,10 @@ public class RaspberryPiSim extends RaspberryPi {
 		return atList;
 	}
 
+	/**
+	 * Updates raspberry pi's simulated pose based on MapleSim pose.
+	 * @param robotPoseMeters current pose
+	 */
 	public void update(Pose2d robotPoseMeters) {
 		visionSim.update(robotPoseMeters);
 	}
