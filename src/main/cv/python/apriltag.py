@@ -97,8 +97,7 @@ class AprilTag():
                     tvec[2] =  original_z + AT_Z_OFFSET
 
                     original_x = tvec[0]
-                     # multiplying by negative one b/c of the way that vector adition works
-                    tvec[0] =  (original_x + AT_X_OFFSET) * -1
+                    tvec[0] =  (original_x + AT_X_OFFSET)
 
                     pose_list.extend(tvec)
                     pose_list.extend(rvec)
@@ -140,6 +139,7 @@ class AprilTag():
         pose_list = R.T @ (tvec - intake_pos)
         # multiplying by negative one b/c of the way that vector adition works
         pose_list[2] = -1 * pose_list[2]
+        pose_list[0] = -1 * pose_list[0]
 
         return pose_list
     
