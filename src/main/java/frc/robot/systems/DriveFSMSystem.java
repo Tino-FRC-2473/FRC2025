@@ -499,13 +499,13 @@ public class DriveFSMSystem extends SubsystemBase {
 					.getDriveSimulation().getSimulatedDriveTrainPose()
 					.plus(new Transform2d(
 						tag.getZ() + AutoConstants.REEF_X_TAG_OFFSET,
-						-tag.getX() + alignmentYOff,
+						-(tag.getX() + alignmentYOff),
 						new Rotation2d()));
 			} else {
 				alignmentPose2d = drivetrain.getState().Pose
 					.plus(new Transform2d(
 						tag.getZ() + AutoConstants.REEF_X_TAG_OFFSET,
-						-tag.getX() + alignmentYOff,
+						-(tag.getX() + alignmentYOff),
 						new Rotation2d())
 					);
 			}
@@ -620,16 +620,16 @@ public class DriveFSMSystem extends SubsystemBase {
 				}
 
 				if (passiveForwardStageStarted) {
-					if (passiveTimer.get() <= AutoConstants.PASSIVE_ROBOT_FWD_TIME_S) {
-						drivetrain.setControl(
-							driveRobotCentric.withVelocityX(
-								DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
-							)
-						);
-					} else {
-						autoCompleted = true;
-						drivetrain.setControl(brake);
-					}
+					// if (passiveTimer.get() <= AutoConstants.PASSIVE_ROBOT_FWD_TIME_S) {
+					// 	drivetrain.setControl(
+					// 		driveRobotCentric.withVelocityX(
+					// 			DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
+					// 		)
+					// 	);
+					// } else {
+					autoCompleted = true;
+					drivetrain.setControl(brake);
+					//}
 				}
 			}
 
