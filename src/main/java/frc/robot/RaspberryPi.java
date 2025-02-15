@@ -3,7 +3,6 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -22,8 +21,8 @@ import frc.robot.constants.VisionConstants;
 public class RaspberryPi {
 	private NetworkTable reefTable;
 	private NetworkTable sourceTable;
-	public DoubleArraySubscriber reefCamSubscriber;
-	public DoubleArraySubscriber sourceCamSubscriber;
+	private DoubleArraySubscriber reefCamSubscriber;
+	private DoubleArraySubscriber sourceCamSubscriber;
 	private final String reefCamName;
 	private final String sourceCamName;
 
@@ -124,10 +123,18 @@ public class RaspberryPi {
 			.orElse(null);
 	}
 
+	/**
+	 * Get all april tags reported from the station camera.
+	 * @return list of all apriltags
+	 */
 	public ArrayList<AprilTag> getStationAprilTags() {
 		return getAprilTagsSingleCam(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME);
 	}
 
+	/**
+	 * Get all april tags reported from the reef camera.
+	 * @return list of all april tags
+	 */
 	public ArrayList<AprilTag> getReefAprilTags() {
 		return getAprilTagsSingleCam(reefCamSubscriber, VisionConstants.REEF_CAM_NAME);
 	}
@@ -152,6 +159,11 @@ public class RaspberryPi {
 		return Collections.max(atlist);
 	}
 
+	/**
+	 * Updates the raspberry pi's values given the current robot pose.
+	 * Not used for teleop functionality.
+	 * @param pose
+	 */
 	public void update(Pose2d pose) {
 		// pass
 	}

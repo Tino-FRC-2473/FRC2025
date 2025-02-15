@@ -127,7 +127,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	};
 
 	private IntSupplier allianceOriented = () -> {
-		if (!DriverStation.getAlliance().isPresent()) return -1;
+		if (!DriverStation.getAlliance().isPresent()) {
+			return -1;
+		}
 		return DriverStation.getAlliance().get() == Alliance.Red ? 1 : -1;
 	};
 
@@ -328,7 +330,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		if (input.getDriveBackButtonPressed()) {
-			System.out.println("Sex");
 			drivetrain.seedFieldCentric();
 		}
 	}
@@ -353,6 +354,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		Collections.sort(rpi.getAprilTags(), aComparator);
 
 		System.out.println("reef state reached");
+
+		Logger.recordOutput("AprilTags", (sortedTagList).toString());
 
 		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
@@ -466,12 +469,13 @@ public class DriveFSMSystem extends SubsystemBase {
 		//handle if the tag's x, y, and rot position is aligned.
 		if (tagPositionAligned) {
 			//reset odometry to tag abs position, w/ calculated offset.
-			drivetrain.setControl(
-				driveRobotCentric.withVelocityX(
-					DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
-					* (allianceFlip ? allianceOriented.getAsInt() : -1)
-				)
-			);
+			// drivetrain.setControl(
+			// 	driveRobotCentric.withVelocityX(
+			// 		DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
+			// 		* (allianceFlip ? allianceOriented.getAsInt() : -1)
+			// 	)
+			// );
+			drivetrain.setControl(brake);
 			return;
 		}
 
@@ -495,13 +499,13 @@ public class DriveFSMSystem extends SubsystemBase {
 					.getDriveSimulation().getSimulatedDriveTrainPose()
 					.plus(new Transform2d(
 						tag.getZ() + AutoConstants.REEF_X_TAG_OFFSET,
-						tag.getX() + alignmentYOff,
+						-tag.getX() + alignmentYOff,
 						new Rotation2d()));
 			} else {
 				alignmentPose2d = drivetrain.getState().Pose
 					.plus(new Transform2d(
 						tag.getZ() + AutoConstants.REEF_X_TAG_OFFSET,
-						tag.getX() + alignmentYOff,
+						-tag.getX() + alignmentYOff,
 						new Rotation2d())
 					);
 			}
@@ -537,11 +541,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			double ySpeed = Math.abs(yDiff)
 				> VisionConstants.Y_MARGIN_TO_REEF
-				?  SwerveUtils.clamp(
-					yDiff
-					/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-					VisionConstants.MAX_SPEED_METERS_PER_SECOND
+				?  (yDiff * xSpeed / xDiff
 				) : 0;
 
 			Logger.recordOutput("XSPEED", xSpeed);
@@ -550,10 +550,10 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			drivetrain.setControl(
 				drive.withVelocityX(
-					xSpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-xSpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
 				.withVelocityY(
-					ySpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-ySpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
 				.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
 			);
@@ -641,7 +641,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			@Override
 			public void end(boolean interrupted) {
 				System.out.println("ENDED");
-				
+
 				drivetrain.setControl(brake);
 				tagPositionAligned = false;
 				tagAlignedRotation = false;
