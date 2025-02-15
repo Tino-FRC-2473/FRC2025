@@ -1,7 +1,12 @@
 package frc.robot.logging;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.constants.SimConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 
@@ -12,7 +17,7 @@ public final class SimLogging {
 	private Pose2d simRobotPose = new Pose2d();
 	private ChassisSpeeds simRobotChassisSpeeds = new ChassisSpeeds();
 
-	private SimLogging() {}
+	private SimLogging() { }
 
 	/**
 	 * Get the instance of the singleton class.
@@ -26,10 +31,34 @@ public final class SimLogging {
 	 * Checks if the robot has hit the station corresponding to the alliance.
 	 * @return if the robot can be given a coral
 	 */
-	public static boolean shouldGiveCoral() {
-		isPoseOnLine(new Pose2d(), new Pose2d(), new Pose2d());
-		isPoseOnLineSlope(new Pose2d(), new Pose2d(), new Pose2d());
-		return true;
+	public boolean shouldGiveCoral() {
+		var shouldGive = new AtomicBoolean(false);
+
+		DriverStation.getAlliance().ifPresent(alliance -> {
+			var backPose = new Pose2d(
+				alliance == Alliance.Blue
+					? SimConstants.STATION_BLUE_LEFT_BACK_X
+					: SimConstants.STATION_RED_LEFT_BACK_X,
+				alliance == Alliance.Blue
+					? SimConstants.STATION_BLUE_LEFT_BACK_X
+					: SimConstants.STATION_RED_LEFT_BACK_X,
+				new Rotation2d()
+			);
+
+			var forwardPose = new Pose2d(
+				alliance == Alliance.Blue
+					? SimConstants.STATION_BLUE_LEFT_FORWARD_X
+					: SimConstants.STATION_RED_LEFT_FORWARD_X,
+				alliance == Alliance.Blue
+					? SimConstants.STATION_BLUE_LEFT_FORWARD_X
+					: SimConstants.STATION_RED_LEFT_FORWARD_X,
+				new Rotation2d()
+			);
+
+			shouldGive.set(isPoseOnLine(simRobotPose, backPose, forwardPose));
+		});
+
+		return shouldGive.get();
 	}
 
 	private static boolean isPoseOnLine(Pose2d pose, Pose2d pointA, Pose2d pointB) {
@@ -55,8 +84,8 @@ public final class SimLogging {
 		var end = System.currentTimeMillis();
 
 		System.out.println(
-			"Time it takes to check if a pose is on the line using dots and crosses: " +
-			(end - start)
+			"Time it takes to check if a "
+			+ "pose is on the line using dots and crosses: " + (end - start)
 		);
 
 		// Combine both checks
