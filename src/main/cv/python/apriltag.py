@@ -97,7 +97,8 @@ class AprilTag():
                     tvec[2] =  original_z + AT_Z_OFFSET
 
                     original_x = tvec[0]
-                    tvec[0] =  original_x + AT_X_OFFSET
+                     # multiplying by negative one b/c of the way that vector adition works
+                    tvec[0] =  (original_x + AT_X_OFFSET) * -1
 
                     pose_list.extend(tvec)
                     pose_list.extend(rvec)
@@ -122,7 +123,7 @@ class AprilTag():
     def distance_to_tag(self, image, marker_size):
         gray = image[:, :, 0]
         results = self.detector.detect(gray)
-        #print("results from distance to tag", results)
+        # print("results from distance to tag", results)
         corners = [r.corners for r in results]
         # Testing with coral station apriltag
         marker_points_3d = np.array([[-marker_size/2, -marker_size/2, 0], [marker_size/2, -marker_size/2, 0], [marker_size/2, marker_size/2, 0], [-marker_size/2, marker_size/2, 0]], dtype=np.float32)
@@ -133,11 +134,11 @@ class AprilTag():
         _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, self.camera_matrix, self.dist_coeffs)
 
         R, _ = cv2.Rodrigues(rvec)
-        #there's a negative for the x position b/c to the left is negative in the opencv2 systems
+        # there's a negative for the x position b/c to the left is negative in the opencv2 systems
         list = [-0.130175, 0.903224, 0.0536]
         intake_pos = np.array(list)
         pose_list = R.T @ (tvec - intake_pos)
-        #multuplying by negative one b/c of the way that vector adition works
+        # multiplying by negative one b/c of the way that vector adition works
         pose_list[2] = -1 * pose_list[2]
 
         return pose_list
