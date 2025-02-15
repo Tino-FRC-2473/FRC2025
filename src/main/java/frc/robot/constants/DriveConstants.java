@@ -19,4 +19,5 @@ public class DriveConstants {
 	public static final double SPEED_DAMP_FACTOR = 2;
 
 	public static final double PASSIVE_ROBOT_FWD_M_S = 0.1;
+	public static final double SLEW_RATE = 0.5;
 }

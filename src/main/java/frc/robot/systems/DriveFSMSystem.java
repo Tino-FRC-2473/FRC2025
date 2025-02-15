@@ -2,6 +2,7 @@ package frc.robot.systems;
 
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -133,6 +134,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		return DriverStation.getAlliance().get() == Alliance.Red ? 1 : -1;
 	};
 
+	private SlewRateLimiter slewRate;
+
 
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;
@@ -147,6 +150,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
 		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPi();
+		slewRate = new SlewRateLimiter(DriveConstants.SLEW_RATE);
 
 		// Reset state machine
 		reset();
@@ -314,15 +318,17 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		drivetrain.setControl(
 			driveFacingAngle.withVelocityX(
-				xSpeed * allianceOriented.getAsInt()
+				slewRate.calculate(xSpeed) * allianceOriented.getAsInt()
 			)
 			.withVelocityY(
-				ySpeed * allianceOriented.getAsInt()
+				slewRate.calculate(ySpeed) * allianceOriented.getAsInt()
 			)
 			.withTargetDirection(
 				rotationAlignmentPose
 			)
-			.withTargetRateFeedforward(rotXComp)
+			.withTargetRateFeedforward(
+				slewRate.calculate(rotXComp)
+			)
 		);
 
 		if (input.getDriveCircleButton()) {
@@ -550,12 +556,15 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			drivetrain.setControl(
 				drive.withVelocityX(
-					-xSpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-slewRate.calculate(xSpeed) * MAX_SPEED
+						* ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
 				.withVelocityY(
-					-ySpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-slewRate.calculate(ySpeed) * MAX_SPEED
+						* ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
-				.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
+				.withRotationalRate(
+					-slewRate.calculate(aSpeed) * MAX_ANGULAR_RATE)
 			);
 
 			System.out.println("REAHED SPEED SET TAG AL != NULL");
