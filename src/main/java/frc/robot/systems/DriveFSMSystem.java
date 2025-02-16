@@ -568,10 +568,10 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			drivetrain.setControl(
 				drive.withVelocityX(
-					-xSpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-xSpeed / 2 * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
 				.withVelocityY(
-					-ySpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-ySpeed / 2 * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
 				.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
 			);
