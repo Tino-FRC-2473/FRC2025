@@ -25,7 +25,7 @@ public final class SimLogging {
 
 	private Pose2d simRobotPose = new Pose2d();
 	private ChassisSpeeds simRobotChassisSpeeds = new ChassisSpeeds();
-	private boolean robotHasCoral = true; // One Coral is preloaded
+	private boolean robotHasCoral = false;
 
 	private SimLogging() { }
 
@@ -154,6 +154,7 @@ public final class SimLogging {
 						MetersPerSecond.of(SimConstants.FUNNEL_OUTTAKE_INIT_SPD_MPS),
 						// The coral is ejected vertically downwards
 						Degrees.of(SimConstants.FUNNEL_OUTTAKE_ROT_DEG)));
+		robotHasCoral = false;
 	}
 
 	/**

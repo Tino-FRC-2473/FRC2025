@@ -37,8 +37,6 @@ public class FunnelFSMSystem {
 	// private TimeOfFlight reefDistanceSensor;
 	private DigitalInput coralBreakBeam;
 
-	private boolean holdingCoral = true;
-
 	/* ======================== Constructor ======================== */
 	/**
 	 * Create a FunnelFSMSystem and initialize to starting state. Also perform any
@@ -116,8 +114,6 @@ public class FunnelFSMSystem {
 		// Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
 		// Logger.recordOutput("Reef in Range?",
 		// reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
-
-		Logger.recordOutput("Holding Coral?", isHoldingCoral());
 	}
 
 	/* ======================== Private methods ======================== */

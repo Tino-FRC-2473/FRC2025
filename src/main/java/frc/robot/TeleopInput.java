@@ -1,7 +1,6 @@
 package frc.robot;
 
 // WPILib Imports
-import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
@@ -69,28 +68,28 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public boolean getDriveTriangleButton() {
-		return driveController.getTriangleButton();
+		return driveController.getYButton();
 	}
 	/**
 	 * Get Square Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveSquareButton() {
-		return driveController.getSquareButton();
+		return driveController.getXButton();
 	}
 	/**
 	 * Get Circle Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveCircleButton() {
-		return driveController.getCircleButton();
+		return driveController.getBButton();
 	}
 		/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveBackButtonPressed() {
-		return driveController.getL1Button();
+		return driveController.getRightBumperButton();
 	}
 
 	/* ------------------------ Mech Controller ------------------------ */
@@ -100,7 +99,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL2ButtonPressed() {
-		return mechController.getCrossButton();
+		return mechController.getXButton();
 	}
 
 	/**
@@ -108,7 +107,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL4ButtonPressed() {
-		return mechController.getTriangleButton();
+		return mechController.getYButton();
 	}
 
 	/**
@@ -144,7 +143,7 @@ public class TeleopInput {
 		return -mechController.getRightY(); //up is negative y, negate for simplicity
 	}
 
-	/**
+	/**	wsx
 	 * Gets the value of the L1 button.
 	 * Intended to signify when the climber should go to the next state.
 	 * @return If the L1 button was pressed this tick

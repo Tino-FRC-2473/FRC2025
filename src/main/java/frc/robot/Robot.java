@@ -208,7 +208,7 @@ public class Robot extends LoggedRobot {
 		System.out.println("-------- Simulation Init --------");
 		// don't preform simulated hardware init here, robotInit() still runs during sim
 		SimulatedArena.getInstance().resetFieldForAuto();
-		SimLogging.getInstance().shouldGiveCoral();
+		SimLogging.getInstance().loadSimCoral();
 	}
 
 	@Override
