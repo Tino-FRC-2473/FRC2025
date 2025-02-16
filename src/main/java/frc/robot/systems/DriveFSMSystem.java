@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -25,6 +26,15 @@ import java.util.Comparator;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
+import frc.robot.logging.SimLogging;
+import frc.robot.TeleopInput;
+import org.littletonrobotics.junction.Logger;
+
+import frc.robot.AprilTag;
+import frc.robot.CommandSwerveDrivetrain;
+import frc.robot.Robot;
+import frc.robot.RaspberryPi;
+
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import choreo.auto.AutoFactory;
@@ -32,18 +42,15 @@ import choreo.auto.AutoFactory;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 // Robot Imports
-import frc.robot.TeleopInput;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.SimConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.SwerveLogging;
-import frc.robot.CommandSwerveDrivetrain;
-import frc.robot.RaspberryPi;
-import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
@@ -188,10 +195,14 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		drivetrain.applyOperatorPerspective();
-		if (Utils.isSimulation()) {
+		//rpi.printRawData();
+
+		if (Robot.isSimulation()) {
+			SimLogging.getInstance().applySimLogging(getMapleSimDrivetrain());
 			rpi.update(getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose());
 		}
-		//rpi.printRawData();
+
+		//System.out.println("TELEOP-X " + drivetrain.getState().Pose.getX());
 
 		switch (currentState) {
 			case TELEOP_STATE:
@@ -654,6 +665,23 @@ public class DriveFSMSystem extends SubsystemBase {
 			timer.stop();
 		}
 	}
+	 * Get the front center-point of the drivetrain.
+	 * @return the front center point of the drivetrain.
+	 */
+	public Pose2d getFrontOfDrivetrain() {
+		var pose = Robot.isSimulation()
+			? SimLogging.getInstance().getSimRobotPose()
+			: drivetrain.getState().Pose;
+
+		return pose.plus(
+			new Transform2d(
+				Units.inchesToMeters(SimConstants.WIDTH_IN) / 2.0 * pose.getRotation().getCos(),
+				Units.inchesToMeters(SimConstants.LENGTH_IN) / 2.0 * pose.getRotation().getSin(),
+				pose.getRotation()
+			)
+		);
+	}
+
 
 	/**
 	 * Get the maple-Sim Swerve simulation.

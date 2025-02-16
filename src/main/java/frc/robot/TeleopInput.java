@@ -1,7 +1,7 @@
 package frc.robot;
 
 // WPILib Imports
-import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * Common class for providing driver inputs during Teleop.
@@ -17,8 +17,8 @@ public class TeleopInput {
 
 	/* ======================== Private variables ======================== */
 	// Input objects
-	private PS4Controller mechController;
-	private PS4Controller driveController;
+	private XboxController mechController;
+	private XboxController driveController;
 	/* ======================== Constructor ======================== */
 	/**
 	 * Create a TeleopInput and register input devices. Note that while inputs
@@ -26,8 +26,8 @@ public class TeleopInput {
 	 * by WPILib until teleop mode.
 	 */
 	public TeleopInput() {
-		driveController = new PS4Controller(DRIVE_CONTROLLER_PORT);
-		mechController = new PS4Controller(MECH_CONTROLLER_PORT);
+		driveController = new XboxController(DRIVE_CONTROLLER_PORT);
+		mechController = new XboxController(MECH_CONTROLLER_PORT);
 	}
 
 	/* ======================== Public methods ======================== */
@@ -68,21 +68,21 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public boolean getDriveTriangleButton() {
-		return driveController.getTriangleButton();
+		return driveController.getYButton();
 	}
 	/**
 	 * Get Square Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveSquareButton() {
-		return driveController.getSquareButton();
+		return driveController.getXButton();
 	}
 	/**
 	 * Get Circle Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveCircleButton() {
-		return driveController.getCircleButton();
+		return driveController.getBButton();
 	}
 		/**
 	 * Get Share Button Pressed for Drive Controller.
@@ -115,7 +115,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL2ButtonPressed() {
-		return mechController.getCrossButton();
+		return mechController.getXButton();
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL4ButtonPressed() {
-		return mechController.getTriangleButton();
+		return mechController.getYButton();
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isGroundButtonPressed() {
-		return mechController.getCircleButton();
+		return mechController.getAButton();
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL3ButtonPressed() {
-		return mechController.getSquareButton();
+		return mechController.getXButton();
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class TeleopInput {
 	 * @return If the options button was pressed this tick
 	 */
 	public boolean isClimbAdvanceStateButtonPressed() {
-		return mechController.getOptionsButtonPressed();
+		return mechController.getStartButton();
 	}
 
 	/**
@@ -159,13 +159,13 @@ public class TeleopInput {
 		return -mechController.getRightY(); //up is negative y, negate for simplicity
 	}
 
-	/**
+	/**	wsx
 	 * Gets the value of the L1 button.
 	 * Intended to signify when the climber should go to the next state.
 	 * @return If the L1 button was pressed this tick
 	 */
 	public boolean isFunnelButtonPressed() {
-		return mechController.getL1Button();
+		return mechController.getLeftBumperButton();
 	}
 
 	/* ======================== Private methods ======================== */
