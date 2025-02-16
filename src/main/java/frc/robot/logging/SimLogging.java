@@ -65,35 +65,13 @@ public final class SimLogging {
 				new Rotation2d()
 			);
 
-			shouldGive.set(isPoseOnLineSlope(simRobotPose, backPose, forwardPose));
+			shouldGive.set(isPoseOnLine(simRobotPose, backPose, forwardPose));
 		});
 
 		return shouldGive.get();
 	}
 
 	private static boolean isPoseOnLine(Pose2d pose, Pose2d pointA, Pose2d pointB) {
-		double aX = pointA.getX();
-		double aY = pointA.getY();
-		double bX = pointB.getX();
-		double bY = pointB.getY();
-		double pX = pose.getX();
-		double pY = pose.getY();
-
-		// Check if all the poses are on the same line.
-		double crossProd = (pY - aY) * (bX - aX) - (pX - aX) * (bY - aY);
-		if (Math.abs(crossProd) > SimConstants.N_1EN9 /* 1e-9 */) {
-			return false;
-		}
-
-		// Check if the pose is in between pointA and pointB
-		double dotProd = (pX - aX) * (bX - aX) + (pY - aY) * (bY - aY);
-		double squaredLength = Math.pow(bX - aX, 2) + Math.pow(bY - aY, 2);
-
-		// Combine both checks
-		return dotProd >= 0 && dotProd <= squaredLength;
-	}
-
-	private static boolean isPoseOnLineSlope(Pose2d pose, Pose2d pointA, Pose2d pointB) {
 		var slopeA2B = getSlopeBetweenPoses(pointA, pointB);
 		var slopeP2A = getSlopeBetweenPoses(pose, pointA);
 		var slopeP2B = getSlopeBetweenPoses(pose, pointB);
@@ -147,8 +125,7 @@ public final class SimLogging {
 						simPose.getRotation(),
 						// The height at which the coral is ejected
 						Meters.of(MechLogging.getInstance().getElevatorStage2().getZ()
-							+ Units.inchesToMeters(32)
-							- Units.inchesToMeters(12)
+							+ Units.inchesToMeters(SimConstants.FUNNEL_HEIGHT_REL_ELEV_IN)
 						),
 						// The initial speed of the coral
 						MetersPerSecond.of(SimConstants.FUNNEL_OUTTAKE_INIT_SPD_MPS),
