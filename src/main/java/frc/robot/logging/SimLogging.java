@@ -1,10 +1,19 @@
 package frc.robot.logging;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.constants.SimConstants;
@@ -16,6 +25,7 @@ public final class SimLogging {
 
 	private Pose2d simRobotPose = new Pose2d();
 	private ChassisSpeeds simRobotChassisSpeeds = new ChassisSpeeds();
+	private boolean robotHasCoral = true; // One Coral is preloaded
 
 	private SimLogging() { }
 
@@ -55,15 +65,13 @@ public final class SimLogging {
 				new Rotation2d()
 			);
 
-			shouldGive.set(isPoseOnLine(simRobotPose, backPose, forwardPose));
+			shouldGive.set(isPoseOnLineSlope(simRobotPose, backPose, forwardPose));
 		});
 
 		return shouldGive.get();
 	}
 
 	private static boolean isPoseOnLine(Pose2d pose, Pose2d pointA, Pose2d pointB) {
-		var start = System.currentTimeMillis();
-
 		double aX = pointA.getX();
 		double aY = pointA.getY();
 		double bX = pointB.getX();
@@ -81,27 +89,14 @@ public final class SimLogging {
 		double dotProd = (pX - aX) * (bX - aX) + (pY - aY) * (bY - aY);
 		double squaredLength = Math.pow(bX - aX, 2) + Math.pow(bY - aY, 2);
 
-		var end = System.currentTimeMillis();
-
-		System.out.println(
-			"Time it takes to check if a "
-			+ "pose is on the line using dots and crosses: " + (end - start)
-		);
-
 		// Combine both checks
 		return dotProd >= 0 && dotProd <= squaredLength;
 	}
 
 	private static boolean isPoseOnLineSlope(Pose2d pose, Pose2d pointA, Pose2d pointB) {
-		var start = System.currentTimeMillis();
-
 		var slopeA2B = getSlopeBetweenPoses(pointA, pointB);
 		var slopeP2A = getSlopeBetweenPoses(pose, pointA);
 		var slopeP2B = getSlopeBetweenPoses(pose, pointB);
-
-		var end = System.currentTimeMillis();
-
-		System.out.println("Time it takes if its slopes" + (end - start));
 
 		return slopeA2B == slopeP2A && slopeP2A == slopeP2B;
 	}
@@ -127,6 +122,55 @@ public final class SimLogging {
 		simRobotChassisSpeeds = simSwerveDrivetrain
 				.getDriveSimulation().getDriveTrainSimulatedChassisSpeedsFieldRelative();
 	}
+
+	/**
+	 * Drops the coral from the funnel.
+	 */
+	public void dropSimCoral() {
+		if (!simRobotHasCoral()) {
+			return;
+		}
+
+		var simPose = SimLogging.getInstance().getSimRobotPose();
+
+		SimulatedArena.getInstance()
+				.addGamePieceProjectile(new ReefscapeCoralOnFly(
+						// Obtain robot position from drive simulation
+						simPose.getTranslation(),
+						// The scoring mechanism is installed at (0.46, 0) (meters) on the robot
+						new Translation2d(
+								Units.inchesToMeters(SimConstants.WIDTH_IN)
+								/ 2, 0),
+						// Obtain robot speed from drive simulation
+						SimLogging.getInstance().getSimRobotChassisSpeeds(),
+						// Obtain robot facing from drive simulation
+						simPose.getRotation(),
+						// The height at which the coral is ejected
+						Meters.of(MechLogging.getInstance().getElevatorStage2().getZ()
+							+ Units.inchesToMeters(32)
+							- Units.inchesToMeters(12)
+						),
+						// The initial speed of the coral
+						MetersPerSecond.of(SimConstants.FUNNEL_OUTTAKE_INIT_SPD_MPS),
+						// The coral is ejected vertically downwards
+						Degrees.of(SimConstants.FUNNEL_OUTTAKE_ROT_DEG)));
+	}
+
+	/**
+	 * Determines if the sim robot has a coral loaded in.
+	 * @return if the sim robot has a coral loaded in.
+	 */
+	public boolean simRobotHasCoral() {
+		return robotHasCoral;
+	}
+
+	/**
+	 * Load a coral into the robot.
+	 */
+	public void loadSimCoral() {
+		robotHasCoral = true;
+	}
+
 
 	/**
 	 * Get the simulated robot chassis speeds.

@@ -1,13 +1,5 @@
 package frc.robot.systems;
 
-import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.constants.SimConstants;
-import frc.robot.logging.MechLogging;
-import frc.robot.logging.SimLogging;
-import static edu.wpi.first.units.Units.Degrees; import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
-import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.Logger;
 
 // import com.playingwithfusion.TimeOfFlight;
@@ -17,9 +9,8 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
+import frc.robot.logging.SimLogging;
 import frc.robot.HardwareMap;
-import frc.robot.Robot;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 
 // WPILib Imports
 
@@ -169,9 +160,7 @@ public class FunnelFSMSystem {
 	private void handleOuttakeState(TeleopInput input) {
 		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
 
-		if (Robot.isSimulation() && isHoldingCoral()) {
-			dropSimCoral();
-		}
+		SimLogging.getInstance().dropSimCoral();
 	}
 
 	/**
@@ -189,18 +178,8 @@ public class FunnelFSMSystem {
 	 * @return whether the limit is reached
 	 */
 	public boolean isHoldingCoral() {
-		if (Robot.isSimulation()) {
-			return holdingCoral;
-		}
 		return !coralBreakBeam.get(); // true = beam intact
 		// return true; // temp always hold coral
-	}
-
-	/**
-	 * Give the funnel a coral.
-	 */
-	public void giveCoral() {
-		holdingCoral = true;
 	}
 
 	/* ---- Funnel Commands ---- */
@@ -267,33 +246,4 @@ public class FunnelFSMSystem {
 		return new CloseFunnelCommand();
 	}
 
-	/**
-	 * Drops the coral from the funnel.
-	 */
-	public void dropSimCoral() {
-		if (!isHoldingCoral()) {
-			return;
-		}
-
-		var simPose = SimLogging.getInstance().getSimRobotPose();
-
-		SimulatedArena.getInstance()
-				.addGamePieceProjectile(new ReefscapeCoralOnFly(
-						// Obtain robot position from drive simulation
-						simPose.getTranslation(),
-						// The scoring mechanism is installed at (0.46, 0) (meters) on the robot
-						new Translation2d(
-							SimConstants.WIDTH_IN / 2 * simPose.getRotation().getSin(), 0),
-						// Obtain robot speed from drive simulation
-						SimLogging.getInstance().getSimRobotChassisSpeeds(),
-						// Obtain robot facing from drive simulation
-						simPose.getRotation(),
-						// The height at which the coral is ejected
-						Meters.of(MechLogging.getInstance().getElevatorStage3().getZ()),
-						// The initial speed of the coral
-						MetersPerSecond.of(SimConstants.FUNNEL_OUTTAKE_INIT_SPD_MPS),
-						// The coral is ejected vertically downwards
-						Degrees.of(SimConstants.FUNNEL_OUTTAKE_ROT_DEG)));
-		holdingCoral = false;
-	}
 }

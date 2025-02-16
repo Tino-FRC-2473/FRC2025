@@ -208,7 +208,7 @@ public class Robot extends LoggedRobot {
 		System.out.println("-------- Simulation Init --------");
 		// don't preform simulated hardware init here, robotInit() still runs during sim
 		SimulatedArena.getInstance().resetFieldForAuto();
-		SimLogging.shouldGiveCoral();
+		SimLogging.getInstance().shouldGiveCoral();
 	}
 
 	@Override
@@ -218,44 +218,33 @@ public class Robot extends LoggedRobot {
 		var simPose = SimLogging.getInstance().getSimRobotPose();
 
 		Logger.recordOutput(
-			"FieldSimulation/Robot/Primary Elevator Pose",
-			MechLogging.getInstance().getElevatorStage1()
-		);
-
-		Logger.recordOutput(
-			"FieldSimulation/Robot/Secondary Elevator Pose",
-			MechLogging.getInstance().getElevatorStage2()
-		);
-
-		Logger.recordOutput(
-			"FieldSimulation/Robot/Climber Pose",
-			MechLogging.getInstance().getClimberPose()
-		);
-
-		Logger.recordOutput(
-			"FieldSimulation/Robot/DriveTrain Pose",
+			"Field Simulation/Robot/Drivetrain Pose",
 			simPose
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/AlgaePoses",
+			"Field Simulation/Game Pieces/Algae Poses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/CoralPoses",
+			"Field Simulation/Game Pieces/Coral Poses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/Poses",
+			"Field Simulation/Robot/Mech Poses",
 			MechLogging.getInstance().getRobotPoses()
 		);
 
-		Logger.recordOutput("FieldSimulation/FrontOfRobot", driveSystem.getFrontOfDrivetrain());
+		Logger.recordOutput(
+			"Field Simulation/Robot/Front Of Robot", driveSystem.getFrontOfDrivetrain());
 
-		if (SimLogging.shouldGiveCoral()) {
-			funnelSystem.giveCoral();
+		Logger.recordOutput(
+			"Field Simulation/Robot/Coral Loaded?", SimLogging.getInstance().simRobotHasCoral());
+
+		if (HardwareMap.isFunnelHardwarePresent() && SimLogging.getInstance().shouldGiveCoral()) {
+			SimLogging.getInstance().loadSimCoral();
 		}
 	}
 
