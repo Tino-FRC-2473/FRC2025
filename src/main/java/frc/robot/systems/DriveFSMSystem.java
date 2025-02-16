@@ -1,7 +1,5 @@
 package frc.robot.systems;
 
-
-import edu.wpi.first.hal.AllianceStationID;
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,7 +26,6 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.Utils;
 import frc.robot.logging.SimLogging;
 import frc.robot.TeleopInput;
-import org.littletonrobotics.junction.Logger;
 
 import frc.robot.AprilTag;
 import frc.robot.CommandSwerveDrivetrain;
@@ -199,7 +196,9 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (Robot.isSimulation()) {
 			SimLogging.getInstance().applySimLogging(getMapleSimDrivetrain());
-			rpi.update(getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose());
+			((RaspberryPiSim) rpi).update(
+				getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
+			);
 		}
 
 		//System.out.println("TELEOP-X " + drivetrain.getState().Pose.getX());
@@ -665,6 +664,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			timer.stop();
 		}
 	}
+
+	/**
 	 * Get the front center-point of the drivetrain.
 	 * @return the front center point of the drivetrain.
 	 */
