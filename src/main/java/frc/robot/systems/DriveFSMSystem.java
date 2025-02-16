@@ -498,7 +498,7 @@ public class DriveFSMSystem extends SubsystemBase {
 					rpiTheta / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
 				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-			) : 0;
+			) * MAX_ANGULAR_RATE * VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND : 0;
 
 			Logger.recordOutput("Tag Z", tag.getZ());
 			Logger.recordOutput("Tag X", tag.getX());
@@ -547,20 +547,18 @@ public class DriveFSMSystem extends SubsystemBase {
 			xSpeed = Math.abs(xDiff)
 				> VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
-					xDiff
-					* VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+					xDiff,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) : 0;
+				) * MAX_SPEED * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT : 0;
 
 			ySpeed = Math.abs(yDiff)
 				> VisionConstants.Y_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
-					yDiff
-					* VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+					yDiff,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) : 0;
+				) * MAX_SPEED * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT : 0;
 
 			Logger.recordOutput("XSPEED", xSpeed);
 			Logger.recordOutput("YSPEED", ySpeed);
@@ -568,12 +566,12 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			drivetrain.setControl(
 				drive.withVelocityX(
-					-xSpeed / 2 * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-xSpeed * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
 				.withVelocityY(
-					-ySpeed / 2 * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-ySpeed * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
-				.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
+				.withRotationalRate(aSpeed)
 			);
 
 			System.out.println("REAHED SPEED SET TAG AL != NULL");
