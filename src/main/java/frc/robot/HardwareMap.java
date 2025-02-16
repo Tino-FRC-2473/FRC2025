@@ -21,7 +21,7 @@ public final class HardwareMap {
 	public static final int CLIMBER_LIMIT_SWITCH_DIO_PORT = 5; // for testing only
 
 	// rio - pwm ports
-	public static final int FUNNEL_SERVO_PWM_PORT = 1; // FINAL
+	public static final int FUNNEL_SERVO_PWM_PORT = 0; // FINAL
 	public static final int LED_STRIP_PWM_PORT = 9; // TBD
 
 	/* ===== Hardware Availability ===== */
@@ -39,7 +39,7 @@ public final class HardwareMap {
 	 * @return true if elevator hardware is present
 	 */
 	public static boolean isElevatorHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public final class HardwareMap {
 	 * @return true if funnel hardware is present
 	 */
 	public static boolean isFunnelHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**

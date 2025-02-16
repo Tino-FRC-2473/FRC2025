@@ -134,7 +134,9 @@ public class DriveFSMSystem extends SubsystemBase {
 		return DriverStation.getAlliance().get() == Alliance.Red ? 1 : -1;
 	};
 
-	private SlewRateLimiter slewRate;
+	private SlewRateLimiter slewRateX;
+	private SlewRateLimiter slewRateY;
+	private SlewRateLimiter slewRateA;
 
 
 	/* ======================== Private variables ======================== */
@@ -150,8 +152,9 @@ public class DriveFSMSystem extends SubsystemBase {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
 		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPi();
-		slewRate = new SlewRateLimiter(DriveConstants.SLEW_RATE);
-
+		slewRateX = new SlewRateLimiter(DriveConstants.SLEW_RATE, -DriveConstants.SLEW_RATE, 0);
+		slewRateY = new SlewRateLimiter(DriveConstants.SLEW_RATE, -DriveConstants.SLEW_RATE, 0);
+		slewRateA = new SlewRateLimiter(DriveConstants.SLEW_RATE, -DriveConstants.SLEW_RATE, 0);
 		// Reset state machine
 		reset();
 	}
@@ -292,18 +295,18 @@ public class DriveFSMSystem extends SubsystemBase {
 		//System.out.println("TELEOP IS RUNNING");
 
 		double xSpeed = -MathUtil.applyDeadband(
-			input.getDriveLeftJoystickY(), DriveConstants.DRIVE_DEADBAND
+			slewRateX.calculate(input.getDriveLeftJoystickY()), DriveConstants.DRIVE_DEADBAND
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
 			// Drive forward with negative Y (forward) ^
 
 		double ySpeed = -MathUtil.applyDeadband(
-			input.getDriveLeftJoystickX(), DriveConstants.DRIVE_DEADBAND
+			slewRateY.calculate(input.getDriveLeftJoystickX()), DriveConstants.DRIVE_DEADBAND
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
 			// Drive left with negative X (left) ^
 
 		double rotXComp = -MathUtil.applyDeadband(
-			input.getDriveRightJoystickX(), DriveConstants.DRIVE_DEADBAND
-			);
+			slewRateA.calculate(input.getDriveRightJoystickX()), DriveConstants.ROTATION_DEADBAND
+			) * MAX_ANGULAR_RATE;
 			// Drive left with negative X (left) ^
 
 		if (rotXComp != 0) {
@@ -318,16 +321,16 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		drivetrain.setControl(
 			driveFacingAngle.withVelocityX(
-				slewRate.calculate(xSpeed) * allianceOriented.getAsInt()
+				xSpeed * allianceOriented.getAsInt()
 			)
 			.withVelocityY(
-				slewRate.calculate(ySpeed) * allianceOriented.getAsInt()
+				ySpeed * allianceOriented.getAsInt()
 			)
 			.withTargetDirection(
 				rotationAlignmentPose
 			)
 			.withTargetRateFeedforward(
-				slewRate.calculate(rotXComp)
+				rotXComp
 			)
 		);
 
@@ -475,12 +478,12 @@ public class DriveFSMSystem extends SubsystemBase {
 		//handle if the tag's x, y, and rot position is aligned.
 		if (tagPositionAligned) {
 			//reset odometry to tag abs position, w/ calculated offset.
-			// drivetrain.setControl(
-			// 	driveRobotCentric.withVelocityX(
-			// 		DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
-			// 		* (allianceFlip ? allianceOriented.getAsInt() : -1)
-			// 	)
-			// );
+			drivetrain.setControl(
+				driveRobotCentric.withVelocityX(
+					DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
+					* (allianceFlip ? allianceOriented.getAsInt() : -1)
+				)
+			);
 			drivetrain.setControl(brake);
 			return;
 		}
@@ -499,6 +502,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			Logger.recordOutput("Tag Z", tag.getZ());
 			Logger.recordOutput("Tag X", tag.getX());
+			Logger.recordOutput("Tag Angle", tag.getPitch());
 
 			if (Utils.isSimulation()) {
 				alignmentPose2d = getMapleSimDrivetrain()
@@ -536,18 +540,26 @@ public class DriveFSMSystem extends SubsystemBase {
 				: alignmentPose2d.getY() - getMapleSimDrivetrain().getDriveSimulation()
 					.getSimulatedDriveTrainPose().getY();
 
-			double xSpeed = Math.abs(xDiff)
+
+			double xSpeed;
+			double ySpeed;
+
+			xSpeed = Math.abs(xDiff)
 				> VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
 					xDiff
-					/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+					* VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
 				) : 0;
 
-			double ySpeed = Math.abs(yDiff)
+			ySpeed = Math.abs(yDiff)
 				> VisionConstants.Y_MARGIN_TO_REEF
-				?  (yDiff * xSpeed / xDiff
+				? SwerveUtils.clamp(
+					yDiff
+					* VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+					VisionConstants.MAX_SPEED_METERS_PER_SECOND
 				) : 0;
 
 			Logger.recordOutput("XSPEED", xSpeed);
@@ -556,15 +568,12 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			drivetrain.setControl(
 				drive.withVelocityX(
-					-slewRate.calculate(xSpeed) * MAX_SPEED
-						* ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-xSpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
 				.withVelocityY(
-					-slewRate.calculate(ySpeed) * MAX_SPEED
-						* ((allianceFlip) ? allianceOriented.getAsInt() : 1)
+					-ySpeed * MAX_SPEED * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
-				.withRotationalRate(
-					-slewRate.calculate(aSpeed) * MAX_ANGULAR_RATE)
+				.withRotationalRate(aSpeed * MAX_ANGULAR_RATE)
 			);
 
 			System.out.println("REAHED SPEED SET TAG AL != NULL");
@@ -629,16 +638,16 @@ public class DriveFSMSystem extends SubsystemBase {
 				}
 
 				if (passiveForwardStageStarted) {
-					// if (passiveTimer.get() <= AutoConstants.PASSIVE_ROBOT_FWD_TIME_S) {
-					// 	drivetrain.setControl(
-					// 		driveRobotCentric.withVelocityX(
-					// 			DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
-					// 		)
-					// 	);
-					// } else {
-					autoCompleted = true;
-					drivetrain.setControl(brake);
-					//}
+					if (passiveTimer.get() <= AutoConstants.PASSIVE_ROBOT_FWD_TIME_S) {
+						drivetrain.setControl(
+							driveRobotCentric.withVelocityX(
+								DriveConstants.PASSIVE_ROBOT_FWD_M_S * MAX_SPEED
+							)
+						);
+					} else {
+						autoCompleted = true;
+						drivetrain.setControl(brake);
+					}
 				}
 			}
 
