@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -495,10 +496,10 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			aSpeed = Math.abs(rpiTheta)
 				> VisionConstants.ROT_MARGIN_TO_REEF ? SwerveUtils.clamp(
-					rpiTheta / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+					rpiTheta * VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
 				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-			) * MAX_ANGULAR_RATE * VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND : 0;
+			) * MAX_ANGULAR_RATE : 0;
 
 			Logger.recordOutput("Tag Z", tag.getZ());
 			Logger.recordOutput("Tag X", tag.getX());
@@ -540,7 +541,6 @@ public class DriveFSMSystem extends SubsystemBase {
 				: alignmentPose2d.getY() - getMapleSimDrivetrain().getDriveSimulation()
 					.getSimulatedDriveTrainPose().getY();
 
-
 			double xSpeed;
 			double ySpeed;
 
@@ -550,7 +550,7 @@ public class DriveFSMSystem extends SubsystemBase {
 					xDiff,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) * MAX_SPEED * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT : 0;
+				) * MAX_SPEED : 0;
 
 			ySpeed = Math.abs(yDiff)
 				> VisionConstants.Y_MARGIN_TO_REEF
@@ -558,7 +558,7 @@ public class DriveFSMSystem extends SubsystemBase {
 					yDiff,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) * MAX_SPEED * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT : 0;
+				) * MAX_SPEED : 0;
 
 			Logger.recordOutput("XSPEED", xSpeed);
 			Logger.recordOutput("YSPEED", ySpeed);
