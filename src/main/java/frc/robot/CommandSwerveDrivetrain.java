@@ -12,9 +12,9 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -71,8 +71,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 
 			//start in field
 			setupSimulation(new Pose2d(
-				Units.feetToMeters(SimConstants.STARTING_POS_X_FT),
-				Units.feetToMeters(SimConstants.STARTING_POS_Y_FT),
+				new Translation2d(),
 				new Rotation2d()));
 		}
 		// setupPathplanner();
@@ -172,7 +171,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 					case 2:
 						setupSimulation(SimConstants.BLUE_2_STARTING_POS_M);
 						break;
-					case 3:
+					case SimConstants.N_3:
 						setupSimulation(SimConstants.BLUE_3_STARTING_POS_M);
 						break;
 					default:
@@ -187,7 +186,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 					case 2:
 						setupSimulation(SimConstants.RED_2_STARTING_POS_M);
 						break;
-					case 3:
+					case SimConstants.N_3:
 						setupSimulation(SimConstants.RED_3_STARTING_POS_M);
 						break;
 					default:
