@@ -23,6 +23,8 @@ public class SimConstants {
 		new Rotation2d()
 	);
 
+	public static final int N_3 = 3;
+
 	public static final Pose2d BLUE_2_STARTING_POS_M = new Pose2d(
 		7.5856494,
 		4.0468566,
@@ -61,9 +63,12 @@ public class SimConstants {
 	public static final double ELEVATOR_WINCH_DIAMETER_METERS = 0.0463296;
 	public static final double ELEVATOR_GEAR_RATIO = 10; //25.0;
 
+	// The height of the funnel relative to the elevator stage 3 bottom.
+	public static final double FUNNEL_HEIGHT_REL_ELEV_IN = 20;
+
 	//vision related constants
 	public static final String APRIL_TAG_FIELD_LAYOUT_JSON =
-		"src/main/java/frc/robot/constants/2025tagLayout.json";
+		"src/main/deploy/2025tagLayout.json";
 
 	// Camera names, must match names configured on coprocessor
 	public static final String REEF_CAMERA_NAME = "Reef CV Camera";
@@ -124,5 +129,4 @@ public class SimConstants {
 	public static final double STATION_RED_RIGHT_FORWARD_Y = 8.089945793151855;
 	public static final double STATION_RED_RIGHT_BACK_X = 17.572349548339844;
 	public static final double STATION_RED_RIGHT_BACK_Y = 6.808928489685059;
-
 }
