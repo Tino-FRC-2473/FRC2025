@@ -206,7 +206,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testPeriodic() {
-		System.out.println(rpi.getAprilTags().toString());
+
 	}
 
 	/* Simulation mode handlers, only used for simulation testing  */
