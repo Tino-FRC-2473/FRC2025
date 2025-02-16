@@ -84,12 +84,13 @@ public class TeleopInput {
 	public boolean getDriveCircleButton() {
 		return driveController.getBButton();
 	}
-		/**
+
+	/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveBackButtonPressed() {
-		return driveController.getOptionsButton();
+		return driveController.getBackButton();
 	}
 
 	/**
@@ -97,7 +98,7 @@ public class TeleopInput {
 	 * @return L1 button value
 	 */
 	public boolean getDriveLeftBumperButton() {
-		return driveController.getL1Button();
+		return driveController.getLeftBumperButton();
 	}
 
 	/**
@@ -105,7 +106,7 @@ public class TeleopInput {
 	 * @return R1 button value
 	 */
 	public boolean getDriveRightBumperButton() {
-		return driveController.getR1Button();
+		return driveController.getRightBumperButton();
 	}
 
 	/* ------------------------ Mech Controller ------------------------ */
