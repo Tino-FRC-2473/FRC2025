@@ -1,8 +1,9 @@
 package frc.robot.constants;
 
 public class DriveConstants {
-	public static final double DRIVE_DEADBAND = 0.1;
-	public static final double ROTATION_DEADBAND = 0.06;
+	public static final double DRIVE_DEADBAND = 0.04;
+	public static final double ROTATION_DEADBAND = 0.04;
+	public static final double JOYSTICK_DEADBAND = 0.02;
 
 	public static final double MAX_ANGULAR_VELO_RPS = 0.6 / 2;
 
@@ -19,5 +20,5 @@ public class DriveConstants {
 	public static final double SPEED_DAMP_FACTOR = 2;
 
 	public static final double PASSIVE_ROBOT_FWD_M_S = 0.1;
-	public static final double SLEW_RATE = 0.98;
+	public static final double SLEW_RATE = 2.2;
 }

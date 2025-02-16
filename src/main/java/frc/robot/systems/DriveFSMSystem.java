@@ -6,7 +6,6 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -63,21 +62,21 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private final SwerveRequest.FieldCentric drive
 		= new SwerveRequest.FieldCentric()
-		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
-		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 4% deadband
+		.withRotationalDeadband(MAX_ANGULAR_RATE
+		* DriveConstants.ROTATION_DEADBAND) //4% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.FieldCentricFacingAngle driveFacingAngle
 		= new SwerveRequest.FieldCentricFacingAngle()
-		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
-		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 4% deadband
+		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //4% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.RobotCentric driveRobotCentric
 		= new SwerveRequest.RobotCentric()
-		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 20% deadband
-		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //10% deadband
+		.withDeadband(MAX_SPEED * DriveConstants.DRIVE_DEADBAND) // 4% deadband
+		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //4% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
 	private final SwerveLogging logger = new SwerveLogging(MAX_SPEED);
 	private CommandSwerveDrivetrain drivetrain;
@@ -87,8 +86,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	private boolean tagPositionAligned;
 	private int tagID = -1;
 	private Pose2d alignmentPose2d;
-	private Translation2d positionCache2d;
-	private double ds;
 	private boolean tagAlignedRotation;
 	private Rotation2d rotationAlignmentPose;
 
@@ -177,6 +174,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void reset() {
 		currentState = FSMState.TELEOP_STATE;
+		rotationAlignmentPose = drivetrain.getState().Pose.getRotation();
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
 	}
@@ -288,24 +286,23 @@ public class DriveFSMSystem extends SubsystemBase {
 		/* cv alignment constant resets */
 		alignmentPose2d = null;
 		tagAlignedRotation = false;
-		positionCache2d = null;
 		tagPositionAligned = false;
 		tagID = -1;
 
 		//System.out.println("TELEOP IS RUNNING");
 
 		double xSpeed = -MathUtil.applyDeadband(
-			slewRateX.calculate(input.getDriveLeftJoystickY()), DriveConstants.DRIVE_DEADBAND
+			slewRateX.calculate(input.getDriveLeftJoystickY()), DriveConstants.JOYSTICK_DEADBAND
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
 			// Drive forward with negative Y (forward) ^
 
 		double ySpeed = -MathUtil.applyDeadband(
-			slewRateY.calculate(input.getDriveLeftJoystickX()), DriveConstants.DRIVE_DEADBAND
+			slewRateY.calculate(input.getDriveLeftJoystickX()), DriveConstants.JOYSTICK_DEADBAND
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
 			// Drive left with negative X (left) ^
 
 		double rotXComp = -MathUtil.applyDeadband(
-			slewRateA.calculate(input.getDriveRightJoystickX()), DriveConstants.ROTATION_DEADBAND
+			slewRateA.calculate(input.getDriveRightJoystickX()), DriveConstants.JOYSTICK_DEADBAND
 			) * MAX_ANGULAR_RATE;
 			// Drive left with negative X (left) ^
 
@@ -495,10 +492,10 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			aSpeed = Math.abs(rpiTheta)
 				> VisionConstants.ROT_MARGIN_TO_REEF ? SwerveUtils.clamp(
-					rpiTheta / VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
+					rpiTheta * VisionConstants.ROTATIONAL_ACCEL_CONSTANT,
 				-VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND,
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
-			) * MAX_ANGULAR_RATE * VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND : 0;
+			) * MAX_ANGULAR_RATE : 0;
 
 			Logger.recordOutput("Tag Z", tag.getZ());
 			Logger.recordOutput("Tag X", tag.getX());
@@ -540,25 +537,24 @@ public class DriveFSMSystem extends SubsystemBase {
 				: alignmentPose2d.getY() - getMapleSimDrivetrain().getDriveSimulation()
 					.getSimulatedDriveTrainPose().getY();
 
-
 			double xSpeed;
 			double ySpeed;
 
 			xSpeed = Math.abs(xDiff)
 				> VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
-					xDiff,
+					xDiff * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) * MAX_SPEED * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT : 0;
+				) * MAX_SPEED : 0;
 
 			ySpeed = Math.abs(yDiff)
 				> VisionConstants.Y_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
-					yDiff,
+					yDiff * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
-				) * MAX_SPEED * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT : 0;
+				) * MAX_SPEED : 0;
 
 			Logger.recordOutput("XSPEED", xSpeed);
 			Logger.recordOutput("YSPEED", ySpeed);
