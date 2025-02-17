@@ -157,7 +157,7 @@ public class TeleopInput {
 	 * @return If the options button was pressed this tick
 	 */
 	public boolean isClimbManualButtonPressed() {
-		return mechController.getL1Button();
+		return mechController.getL2Button();
 	}
 
 	/**

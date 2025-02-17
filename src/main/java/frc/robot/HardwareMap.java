@@ -18,7 +18,7 @@ public final class HardwareMap {
 
 	public static final int FUNNEL_BREAK_BEAM_DIO_PORT = 2; // FINAL
 
-	public static final int CLIMBER_LIMIT_SWITCH_DIO_PORT = 5; // for testing only
+	public static final int CLIMBER_LIMIT_SWITCH_DIO_PORT = 3; // for testing only
 
 	// rio - pwm ports
 	public static final int FUNNEL_SERVO_PWM_PORT = 0; // FINAL
@@ -47,7 +47,7 @@ public final class HardwareMap {
 	 * @return true if climber hardware is present
 	 */
 	public static boolean isClimberHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**

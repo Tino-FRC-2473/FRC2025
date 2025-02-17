@@ -271,6 +271,10 @@ public class Robot extends LoggedRobot {
 		if (elevatorSystem != null) {
 			elevatorSystem.updateLogging();
 		}
+
+		if (climberSystem != null) {
+			climberSystem.updateLogging();
+		}
 	}
 
 	/**

@@ -132,7 +132,13 @@ public class ClimberFSMSystem {
 		if (isLimitSwitchPressed()) {
 			climberMotor.setPosition(Constants.CLIMBER_ENCODER_RESET_POSITION);
 		}
+		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
+	}
 
+	/**
+	 * Updates the logging for the climber system.
+	 */
+	public void updateLogging() {
 		Logger.recordOutput("Climber encoder absolute",
 			climberMotor.getPosition().getValueAsDouble());
 		Logger.recordOutput("Climber encoder relative",
@@ -146,7 +152,6 @@ public class ClimberFSMSystem {
 		Logger.recordOutput("Climber state", currentState.toString());
 		Logger.recordOutput("Climber control request", climberMotor.getAppliedControl().toString());
 		Logger.recordOutput("Climber switch pressed?", climbSwitch.get());
-		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
 	}
 
 	/* ======================== Private methods ======================== */
@@ -234,6 +239,7 @@ public class ClimberFSMSystem {
 			Constants.CLIMBER_PID_TARGET_LOW,
 			Constants.CLIMBER_PID_MARGIN_OF_ERROR)
 		) {
+			System.out.println("REACHED");
 			climberMotor.set(Constants.CLIMB_POWER);
 		} else {
 			climberMotor.set(0);
@@ -270,6 +276,7 @@ public class ClimberFSMSystem {
 			Constants.CLIMBER_PID_TARGET_CLIMB,
 			Constants.CLIMBER_PID_MARGIN_OF_ERROR)
 			&& !isLimitSwitchPressed() // stop climbing if limit switch pressed
+			// && input.isClimbButtonHeld() // stop climbing if driver lifts button
 		) {
 			climberMotor.set(Constants.CLIMB_REDUCED_POWER);
 		} else {

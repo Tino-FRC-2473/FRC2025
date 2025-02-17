@@ -364,7 +364,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		Logger.recordOutput("AprilTags", (sortedTagList).toString());
 
-		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
+		if (DriverStation.getAlliance().get().equals(Alliance.Blue)) {
 			for (AprilTag tag: sortedTagList) {
 				System.out.println("TAG ID: " + tag.getTagID());
 				if (tagID == -1) {
@@ -380,7 +380,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				}
 			}
 
-		} else if (DriverStation.getAlliance().get().equals(Alliance.Red) && tagID == -1) {
+		} else if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
 			for (AprilTag tag: sortedTagList) {
 				System.out.println("TAG ID: " + tag.getTagID());
 				if (tagID == -1) {
@@ -538,31 +538,22 @@ public class DriveFSMSystem extends SubsystemBase {
 			double xSpeed;
 			double ySpeed;
 
-			if (xDiff > yDiff) {
-				xSpeed = Math.abs(xDiff)
-					> VisionConstants.X_MARGIN_TO_REEF
-					? SwerveUtils.clamp(
-						xDiff * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
-						-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
-						VisionConstants.MAX_SPEED_METERS_PER_SECOND
-					) * MAX_SPEED : 0;
-
-				ySpeed = Math.abs(yDiff)
-					> VisionConstants.Y_MARGIN_TO_REEF
-					? (xSpeed / xDiff * yDiff) : 0;
-			} else {
-				ySpeed = Math.abs(yDiff)
-					> VisionConstants.Y_MARGIN_TO_REEF
-					? SwerveUtils.clamp(
-					yDiff * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+			xSpeed = Math.abs(xDiff)
+				> VisionConstants.X_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+					xDiff * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
 				) * MAX_SPEED : 0;
 
-				xSpeed = Math.abs(yDiff)
-					> VisionConstants.X_MARGIN_TO_REEF
-					? (ySpeed / yDiff * xDiff) : 0;
-			}
+			ySpeed = Math.abs(yDiff)
+				> VisionConstants.Y_MARGIN_TO_REEF
+				? SwerveUtils.clamp(
+				yDiff * VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+				-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+				VisionConstants.MAX_SPEED_METERS_PER_SECOND
+			) * MAX_SPEED : 0;
+
 
 			Logger.recordOutput("XSPEED", xSpeed);
 			Logger.recordOutput("YSPEED", ySpeed);
@@ -575,7 +566,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				.withVelocityY(
 					-ySpeed * ((allianceFlip) ? allianceOriented.getAsInt() : 1)
 				)
-				.withRotationalRate(-aSpeed)
+				.withRotationalRate(0)
 			);
 
 			System.out.println("REAHED SPEED SET TAG AL != NULL");

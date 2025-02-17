@@ -142,6 +142,6 @@ public class AprilTag implements Comparable<AprilTag> {
 		double dist = getPose().getTranslation().getNorm();
 		double otherDist = other.getPose().getTranslation().getNorm();
 
-		return Double.compare(otherDist, dist);
+		return Double.compare(dist, otherDist);
 	}
 }
