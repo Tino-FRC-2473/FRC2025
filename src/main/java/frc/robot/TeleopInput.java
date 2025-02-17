@@ -99,7 +99,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL2ButtonPressed() {
-		return mechController.getSquareButton();
+		return mechController.getSquareButtonPressed();
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL4ButtonPressed() {
-		return mechController.getTriangleButton();
+		return mechController.getTriangleButtonPressed();
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isGroundButtonPressed() {
-		return mechController.getCrossButton();
+		return mechController.getCrossButtonPressed();
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL3ButtonPressed() {
-		return mechController.getCircleButton();
+		return mechController.getCircleButtonPressed();
 	}
 
 	/**

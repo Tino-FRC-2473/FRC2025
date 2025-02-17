@@ -7,6 +7,7 @@ package frc.robot.systems;
 // Third party Hardware Imports
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -263,25 +264,26 @@ public class ElevatorFSMSystem {
 				return ElevatorFSMState.MANUAL;
 
 			case GROUND:
-				if (isBottomLimitReached() || !input.isGroundButtonPressed()) {
+				if (isBottomLimitReached() || inRange(getElevatorpos(),
+					Constants.ELEVATOR_TARGET_GROUND)) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.GROUND;
 
 			case LEVEL2:
-				if (!input.isL2ButtonPressed()) {
+				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2)) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL2;
 
 			case LEVEL3:
-				if (!input.isL3ButtonPressed()) {
+				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3)) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL3;
 
 			case LEVEL4:
-				if (!input.isL4ButtonPressed()) {
+				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4)) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL4;
@@ -332,7 +334,9 @@ public class ElevatorFSMSystem {
 
 		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
 			> Constants.KG_CHECK.in(Units.Inches)) {
-			elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
+			if (!Utils.isSimulation()) {
+				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
+			}
 		} else {
 			elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
 		}
