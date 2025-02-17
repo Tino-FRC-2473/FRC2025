@@ -144,14 +144,6 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get the value of the L3 elevator target button (square).
-	 * @return If the button is pressed
-	 */
-	public boolean isL3ButtonPressed() {
-		return mechController.getSquareButton();
-	}
-
-	/**
 	 * Gets the value of the options button.
 	 * Intended to signify when the climber should go to the next state.
 	 * @return If the options button was pressed this tick

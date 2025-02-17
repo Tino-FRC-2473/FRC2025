@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.logging.SimLogging;
 import frc.robot.HardwareMap;
-import frc.robot.Robot;
 
 // WPILib Imports
 
@@ -35,7 +34,7 @@ public class FunnelFSMSystem {
 	// be private to their owner system and may not be used elsewhere.
 
 	private Servo funnelServo;
-	// private TimeOfFlight reefDistanceSensor;
+	private TimeOfFlight reefDistanceSensor;
 	private DigitalInput coralBreakBeam;
 
 	/* ======================== Constructor ======================== */

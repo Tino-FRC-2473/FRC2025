@@ -57,7 +57,7 @@ public class RaspberryPi {
 		atList.addAll(getAprilTagsSingleCam(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME));
 		return atList;
 	}
-  
+
 	/**
 	* Returns a list of all AprilTags from one camera.
 	* @param camSub subscriber for the camera
@@ -117,26 +117,6 @@ public class RaspberryPi {
 	 */
 	public ArrayList<AprilTag> getStationAprilTags() {
 		return getAprilTagsSingleCam(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME);
-	}
-
-	/**
-	 * Checks if any AprilTags are in view.
-	 * @return A boolean representing if any tags are in view
-	 */
-	public boolean canSeeTags() {
-		return getAprilTags().size() != 0;
-	}
-
-	/**
-	 * Returns the closest AprilTag from any camera.
-	 * @return The closest AprilTag object. If none are in view, returns null.
-	 */
-	public AprilTag getClosestTag() {
-		ArrayList<AprilTag> atlist = getAprilTags();
-		if (getAprilTags().size() == 0) {
-			return null;
-		}
-		return Collections.max(atlist);
 	}
 
 	/**
