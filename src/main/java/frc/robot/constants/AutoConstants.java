@@ -38,9 +38,20 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double TIME_DRIVING_OFFSET = 0.5;
+	public static final double ALIGN_MAX_T_SPEED = 3.8;
+	public static final double ALIGN_MAX_T_ACCEL = 3.0;
+	public static final double ALIGN_DRIVE_P = 0.75;
+	public static final double ALIGN_DRIVE_D = 0.0;
+	public static final double ALIGN_THETA_P = 4.0;
+	public static final double ALIGN_THETA_D = 0.0;
+	public static final double DRIVE_TOLERANCE = 0.01;
+	public static final double THETA_TOLERANCE = Units.degreesToRadians(1.0);
+	public static final double ALIGN_TOLERANCE = 0.1;
+	public static final double ALIGN_MAX_R_SPEED = Units.degreesToRadians(360.0);
+	public static final double ALIGN_MAX_R_ACCEL = 8.0;
+	public static final double FF_MIN_RADIUS = 0.1;
+	public static final double FF_MAX_RADIUS = 0.15;
 
-	public static final double PASSIVE_ROBOT_FWD_TIME_S = 0.2;
 
 	/* -- ALL COMMAND NAME CONSTANTS -- */
 

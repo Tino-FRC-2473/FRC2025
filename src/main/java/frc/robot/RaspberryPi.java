@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -25,6 +26,13 @@ public class RaspberryPi {
 	private DoubleArraySubscriber sourceCamSubscriber;
 	private final String reefCamName;
 	private final String sourceCamName;
+
+	private Comparator<AprilTag> aComparator = new Comparator<AprilTag>() {
+		@Override
+		public int compare(AprilTag o1, AprilTag o2) {
+			return o1.compareTo(o2);
+		}
+	};
 
 	/**
 	* Default constructor for the RaspberryPi class.
