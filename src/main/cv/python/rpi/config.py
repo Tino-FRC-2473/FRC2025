@@ -1,5 +1,5 @@
-ON_RPI = False # Enable if on Raspberry Pi. Enabled NetworkTables stuff and disables imshow
-USE_CLI_ARGUMENTS = False # Require CLI arguments when running main.py and StreamDriverCam.py. Used for multiple cameras.
+ON_RPI = True # Enable if on Raspberry Pi. Enabled NetworkTables stuff and disables imshow
+USE_CLI_ARGUMENTS = True # Require CLI arguments when running main.py and StreamDriverCam.py. Used for multiple cameras.
 
 DRIVER_CAM_LISTEN_PORT = 1181
 DRIVER_CAM_1 = ('usb-xhci-hcd.0-2', 'front') # ( usb_id, name )

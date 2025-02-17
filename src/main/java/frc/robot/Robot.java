@@ -54,10 +54,12 @@ public class Robot extends LoggedRobot {
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
 
+	private RaspberryPi rpi = new RaspberryPi();
+
 	private static final Object[] ELEVATOR_TESTING_PATH = new Object[] {
-		AutoCommands.ELEVATOR_STATION_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
-		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.ELEVATOR_L2_CMD,
+		AutoCommands.WAIT,
+		AutoCommands.ELEVATOR_GROUND_CMD
 	};
 
 	private static final Object[] FUNNEL_TESTING_PATH = new Object[] {
@@ -100,19 +102,20 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
 
-		if (HardwareMap.isFunnelHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
 
-		if (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent()) {
+		if (Robot.isSimulation() || (HardwareMap.isFunnelHardwarePresent()
+			&& HardwareMap.isElevatorHardwarePresent())) {
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
-		if (HardwareMap.isClimberHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
 
@@ -131,6 +134,10 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			autoChooser.addOption("Drive Test",
 				autoRoutines.generateSequentialAutoWorkflow(SAMPLE_AUTO_ALIGN, true));
+		}
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			autoChooser.addOption("Funnel Test",
+				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH, false));
 		}
 
 		// Log auto chooser
@@ -213,7 +220,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testPeriodic() {
-
+		System.out.println(rpi.getAprilTags().toString());
 	}
 
 	/* Simulation mode handlers, only used for simulation testing  */
@@ -268,6 +275,8 @@ public class Robot extends LoggedRobot {
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
 	public void robotPeriodic() {
+		elevatorSystem.updateLogging();
+		funnelSystem.updateLogging();
 	}
 
 	/**

@@ -2,7 +2,7 @@ package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
 
-// import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.logging.SimLogging;
 import frc.robot.HardwareMap;
+import frc.robot.Robot;
 
 // WPILib Imports
 
@@ -50,7 +51,7 @@ public class FunnelFSMSystem {
 
 		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
 
-		// reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
+		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
 
 		// Reset state machine
 		reset();
@@ -106,14 +107,21 @@ public class FunnelFSMSystem {
 
 		// Switch state
 		currentState = nextState(input);
+	}
 
+	/**
+	 * Calls all logging and telemetry to be updated periodically.
+	 */
+	public void updateLogging() {
 		// Telemetry and logging
 		Logger.recordOutput("Funnel Position", funnelServo.get());
 		Logger.recordOutput("Funnel State", currentState.toString());
 
-		// Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
-		// Logger.recordOutput("Reef in Range?",
-		// reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
+		Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
+		Logger.recordOutput("Reef in Range?",
+			reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
+
+		Logger.recordOutput("Holding Coral?", isHoldingCoral());
 	}
 
 	/* ======================== Private methods ======================== */

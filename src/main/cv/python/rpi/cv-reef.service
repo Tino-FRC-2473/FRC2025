@@ -1,0 +1,28 @@
+## To install this file, run:
+## sudo ln -s /home/pi/cv-python-git/rpi/cv-reef.service /etc/systemd/system
+## Make sure the original path is an absolute path.
+## Before running this file, make sure config.py is set properly.
+## Namely, ON_RPI and USE_CLI_ARGUMENTS must be enabled.
+## To view console output for the service, run:
+## journalctl -fxu cv-reef.service
+
+[Unit]
+Description=Reef Camera - CV Code
+
+[Service]
+Type=simple
+# Modify the following line to change the port/camera name
+ExecStart=/home/pi/cv-python-git/venv/bin/python main.py -u usb-xhci-hcd.1-1 reef
+WorkingDirectory=/home/pi/cv-python-git
+User=pi
+# Disable Python's buffering of STDOUT and STDERR, so that output from the
+# service shows up immediately in systemd's logs
+Environment=PYTHONUNBUFFERED=1
+# Automatically restart the service if it crashes
+Restart=on-failure
+
+[Install]
+# Tell systemd to automatically start this service when the system boots
+# (assuming the service is enabled)
+WantedBy=network-online.target
+
