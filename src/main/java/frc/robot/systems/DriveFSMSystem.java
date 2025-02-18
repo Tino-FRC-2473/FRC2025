@@ -173,9 +173,10 @@ public class DriveFSMSystem extends SubsystemBase {
 	private ArrayList<Pose2d> aprilTagStationRefPoses;
 	private ArrayList<Pose2d> aprilTagVisionPoses;
 
-	private boolean driveToPoseRunning = false;
 	private Timer driveToPoseTimer = new Timer();
 	private boolean driveToPoseFinished = false;
+	private boolean aligningToReef = false;
+		// False => aligning to station, True => aligning to reef
 
 	private final PIDController autoXPid = new PIDController(0.3, 0, 0);
 	private final PIDController autoYPid = new PIDController(0.3, 0, 0);
@@ -369,7 +370,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		tagID = -1;
 		alignmentXOff = 0;
 		alignmentYOff = 0;
-		driveToPoseRunning = false;
 		driveToPoseFinished = false;
 
 		double xSpeed = -MathUtil.applyDeadband(
@@ -536,20 +536,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Drive to pose function.
 	 * @param target target pose to align to.
 	 */
-	public void driveToPose(Pose2d target) {
-
-		if (driveToPoseFinished) {
-			drivetrain.setControl(brake);
-			return;
-		}
-
-		if (!driveToPoseRunning) {
-			driveToPoseRunning = true;
-
-			driveToPoseTimer.reset();
-			driveToPoseTimer.start();
-		}
-
+	public boolean driveToPose(Pose2d target) {
 		Pose2d currPose = (Utils.isSimulation())
 			? getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
 			: drivetrain.getState().Pose;
@@ -588,10 +575,6 @@ public class DriveFSMSystem extends SubsystemBase {
 			"DriveToPose/IsFinished", driveToPoseFinished
 		);
 		Logger.recordOutput(
-			"DriveToPose/IsRunning", driveToPoseRunning
-		);
-
-		Logger.recordOutput(
 			"DriveToPose/XSpeed", xSpeed
 		);
 		Logger.recordOutput(
@@ -613,6 +596,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			"DriveToPose/YDiff",
 				(target.getY() - currPose.getY())
 		);
+		Logger.recordOutput("DriveToPose/TagID", tagID);
+		Logger.recordOutput("DriveToPose/TargetPose", target);
 
 
 		drivetrain.setControl(
@@ -622,6 +607,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			.withTargetRateFeedforward(-rotSpeed)
 			.withTargetDirection(target.getRotation())
 		);
+
+		return driveToPoseFinished;
 	}
 
 	/**
@@ -676,6 +663,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		if (tagID != -1) {
+			aligningToReef = true;
 			handleTagAlignment(input, tagID, true);
 		} else {
 			drivetrain.setControl(brake);
@@ -697,6 +685,8 @@ public class DriveFSMSystem extends SubsystemBase {
 				alignmentYOff = 0;
 			}
 		}
+
+		alignmentXOff = AutoConstants.SOURCE_X_OFFSET;
 
 		ArrayList<AprilTag> sortedTagList = rpi.getStationAprilTags();
 		Collections.sort(sortedTagList, aComparator);
@@ -724,6 +714,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		if (tagID != -1) {
+			aligningToReef = false;
 			handleTagAlignment(input, tagID, true);
 		} else {
 			drivetrain.setControl(brake);
@@ -748,14 +739,14 @@ public class DriveFSMSystem extends SubsystemBase {
 				new Transform2d(
 					alignmentXOff,
 					alignmentYOff,
-					Rotation2d.k180deg
+					(aligningToReef) ? Rotation2d.k180deg : new Rotation2d()
 				)
 			);
 
-			driveToPose(alignmentPose);
-
-			Logger.recordOutput("AprilTag ID", id);
-			Logger.recordOutput("Alignment Pose", alignmentPose);
+			if (driveToPose(alignmentPose)) {
+				drivetrain.setControl(brake);
+				return;
+			}
 		}
 
 	}
