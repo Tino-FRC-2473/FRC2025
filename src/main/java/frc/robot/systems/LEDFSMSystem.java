@@ -13,8 +13,8 @@ public class LEDFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum LEDFSMState {
-		REEF_ALIGNING,
-		STATION_ALIGNING,
+		REEF_ALIGNED,
+		STATION_ALIGNED,
 		OFFSET_FROM_TAG,
 		YES_CORAL,
 		NO_CORAL,
@@ -93,10 +93,10 @@ public class LEDFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case REEF_ALIGNING:
+			case REEF_ALIGNED:
 				handleReefAlignedState(input);
 				break;
-			case STATION_ALIGNING:
+			case STATION_ALIGNED:
 				handleStationAlignedState(input);
 				break;
 			case OFFSET_FROM_TAG:
@@ -156,13 +156,23 @@ public class LEDFSMSystem {
 
 		//align states
 		if (driveFSMSystem.getCurrentState()
-			== DriveFSMSystem.DriveFSMState.ALIGN_TO_REEF_TAG_STATE) {
-			return LEDFSMState.REEF_ALIGNING;
+			== DriveFSMSystem.DriveFSMState.ALIGN_TO_REEF_TAG_STATE
+			&& driveFSMSystem.isAlignedToTag()) {
+			return LEDFSMState.REEF_ALIGNED;
 		}
 
 		if (driveFSMSystem.getCurrentState()
-			== DriveFSMSystem.DriveFSMState.ALIGN_TO_STATION_TAG_STATE) {
-			return LEDFSMState.STATION_ALIGNING;
+			== DriveFSMSystem.DriveFSMState.ALIGN_TO_STATION_TAG_STATE
+			&& driveFSMSystem.isAlignedToTag()) {
+			return LEDFSMState.STATION_ALIGNED;
+		}
+
+		if ((driveFSMSystem.getCurrentState()
+			== DriveFSMSystem.DriveFSMState.ALIGN_TO_REEF_TAG_STATE
+			|| driveFSMSystem.getCurrentState()
+			== DriveFSMSystem.DriveFSMState.ALIGN_TO_STATION_TAG_STATE)
+			&& !driveFSMSystem.isAlignedToTag()) {
+			return LEDFSMState.OFFSET_FROM_TAG;
 		}
 
 		//coral states
@@ -175,7 +185,8 @@ public class LEDFSMSystem {
 
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
-	 * Handle behavior in REEF_ALIGNING.
+	 * Handle behavior in REEF_ALIGNED
+.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
@@ -184,7 +195,7 @@ public class LEDFSMSystem {
 	}
 
 	/**
-	 * Handle behavior in STATION_ALIGNING.
+	 * Handle behavior in STATION_ALIGNED.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */

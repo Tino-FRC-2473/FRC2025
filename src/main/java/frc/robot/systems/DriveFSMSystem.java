@@ -252,6 +252,14 @@ public class DriveFSMSystem extends SubsystemBase {
 		);
 	}
 
+	/**
+	* Gets robot alignment status (for LEDs).
+	* @return Whether the robot is aligned to the target apriltag.
+	*/
+	public boolean isAlignedToTag() {
+		return tagPositionAligned;
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	* Decide the next state to transition to. This is a function of the inputs
