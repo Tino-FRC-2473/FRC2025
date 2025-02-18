@@ -9,6 +9,9 @@ public final class HardwareMap {
 	public static final int CAN_ID_ELEVATOR = 14; // FINAL
 	public static final int CAN_ID_CLIMBER = 8; // FINAL
 
+	// playing with fusion CAN chain
+	public static final int FUNNEL_TOF_ID = 13; // FINAL
+
 	// rio - dio ports
 	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT = 0; // FINAL
 	public static final int FUNNEL_BREAK_BEAM_DIO_PORT = 2; // FINAL
