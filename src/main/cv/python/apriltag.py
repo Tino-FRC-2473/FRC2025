@@ -4,6 +4,8 @@ import os
 import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
+from scipy.spatial.transform import Rotation
+
 
 
 basePath = Path(__file__).resolve().parent
@@ -15,8 +17,8 @@ basePath = Path(__file__).resolve().parent
 class AprilTag():
 
     def __init__(self):
-        #self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}matrix.npy')
-        #self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}dist.npy')
+        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}matrix.npy')
+        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
@@ -79,21 +81,27 @@ class AprilTag():
         R, _ = cv2.Rodrigues(rvec)
         
         # Extract Euler angles (assuming a standard rotation order like XYZ)
-        sy = np.sqrt(R[0, 0]**2 + R[1, 0]**2)
+        euler_angles = Rotation.from_matrix(R).as_euler("xyz", degrees=False)
+
+        print("Euler x angle: ", euler_angles[0]) 
+        print("Euler y angle: ", euler_angles[1])
+        print("Euler z angle: ", euler_angles[2])
+
+        # sy = np.sqrt(R[0, 0]**2 + R[1, 0]**2)
         
-        singular = sy < 1e-6  # If close to zero, gimbal lock occurs
-        #your order of rotation about axis apprently matters should be XYZ 
-        # here but may need to be changed
-        if not singular:
-            x_angle = np.arctan2(R[2, 1], R[2, 2])  # Rotation about X-axis
-            y_angle = np.arctan2(-R[2, 0], sy)      # Rotation about Y-axis
-            z_angle = np.arctan2(R[1, 0], R[0, 0])  # Rotation about Z-axis
-        else:
-            x_angle = np.arctan2(-R[1, 2], R[1, 1])
-            y_angle = np.arctan2(-R[2, 0], sy)
-            z_angle = 0  # Set arbitrarily due to gimbal lock
+        # singular = sy < 1e-6  # If close to zero, gimbal lock occurs
+        # # your order of rotation about axis apprently matters should be XYZ 
+        # # here but may need to be changed
+        # if not singular:
+        #     x_angle = np.arctan2(R[2, 1], R[2, 2])  # Rotation about X-axis
+        #     y_angle = np.arctan2(-R[2, 0], sy)      # Rotation about Y-axis
+        #     z_angle = np.arctan2(R[1, 0], R[0, 0])  # Rotation about Z-axis
+        # else:
+        #     x_angle = np.arctan2(-R[1, 2], R[1, 1])
+        #     y_angle = np.arctan2(-R[2, 0], sy)
+        #     z_angle = 0  # Set arbitrarily due to gimbal lock
         
-        return np.array([x_angle, y_angle, z_angle])  # Return angles in radians
+        # return np.array([x_angle, y_angle, z_angle])  # Return angles in radians
 
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
@@ -121,10 +129,10 @@ class AprilTag():
                     tvec[0] =  (original_x + AT_X_OFFSET)
 
                     pose_list.extend(tvec)
-                    euler_rvec = self.rotation_vector_to_euler_anlges(rvec)
-                    pose_list.extend(euler_rvec)
+                    euler_rvec = self.rotation_vector_to_euler_angles(rvec)
+                    pose_list.extend(rvec)
                     
-                    #print("tvec: ", tvec)
+                    # print("euler_rvec: ", euler_rvec)
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
 
             return pose_list

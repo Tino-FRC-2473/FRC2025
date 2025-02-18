@@ -11,10 +11,10 @@ input = VisionInput(AT_FOV, AT_INPUT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, 0)
 while True:
     
     # Example rvec from solvePnP
-    rvec = np.array([[0.1], [0.2], [0.3]])  # Example rotation vector
-    euler_angles = tag_module.rotation_vector_to_euler_angles(rvec)
-    print("Euler Angles (radians):", euler_angles)
-    '''
+    # rvec = np.array([[0.1], [0.2], [0.3]])  # Example rotation vector
+    # euler_angles = tag_module.rotation_vector_to_euler_angles(rvec)
+    # print("Euler Angles (radians):", euler_angles)
+    
     frame = input.getFrame()
     cv2.imshow("frame", frame)
     print("frame size", frame.shape)
@@ -27,4 +27,4 @@ while True:
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
         break
-    '''
+    
