@@ -1,28 +1,28 @@
 package frc.robot.logging;
 
 import static edu.wpi.first.units.Units.Radians;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
-import frc.robot.constants.Constants;
+import frc.robot.constants.SimConstants;
 
 public final class MechLogging {
-	private Pose3d primaryElevatorPose;
-	private Pose3d secondaryElevatorPose;
+	private Pose3d elevatorStage1;
+	private Pose3d elevatorStage2;
+	private Pose3d elevatorStage3;
 	private Pose3d climberPose;
-	private Pose3d drivePose;
 
 	private static MechLogging instance = new MechLogging();
 
 	private MechLogging() {
-		primaryElevatorPose = new Pose3d();
-		secondaryElevatorPose = new Pose3d();
+		elevatorStage1 = new Pose3d();
+		elevatorStage2 = new Pose3d();
+		elevatorStage3 = new Pose3d();
 		climberPose = new Pose3d();
-		drivePose = new Pose3d();
 	}
+	public static final double STAGE_2_RATIO = 1.0 / 3.0;
+	public static final double STAGE_3_RATIO = 2.0 / 3.0;
 
 	/**
 	 * Get the instance of the singleton class.
@@ -37,15 +37,33 @@ public final class MechLogging {
 	 * @param encoderSimPosition the simulated location of the elevator motor encoder.
 	 */
 	public void updateElevatorPose3d(Angle encoderSimPosition) {
-		double height = encoderSimPosition.in(Radians) * Constants.WINCH_DIAMETER_METERS / 2;
+		double totalHeight =
+			encoderSimPosition
+				.div(SimConstants.ELEVATOR_GEAR_RATIO)
+				.in(Radians)
+			* SimConstants.ELEVATOR_WINCH_DIAMETER_METERS / 2;
 
-		var pose = new Pose3d(
-			new Translation3d(0, 0, height),
+		// Stage 1 (bottom stage) moves 1/6 of the total movement
+		elevatorStage1 = new Pose3d(
+			Pose3d.kZero
+				.getTranslation().plus(new Translation3d(0, 0, 0)),
 			Rotation3d.kZero
 		);
 
-		primaryElevatorPose = pose;
-		secondaryElevatorPose = pose.div(2);
+		// Stage 2 (middle stage) moves 1/3 of the total movement
+		elevatorStage2 = new Pose3d(
+			Pose3d.kZero
+				.getTranslation().plus(new Translation3d(0, 0, totalHeight * STAGE_2_RATIO)),
+			Rotation3d.kZero
+		);
+
+		// Stage 3 (top stage) moves 1/2 of the total movement
+		elevatorStage3 = new Pose3d(
+			Pose3d.kZero
+				.getTranslation()
+				.plus(new Translation3d(0, 0, totalHeight * STAGE_3_RATIO)),
+			Rotation3d.kZero
+		);
 	}
 
 	/**
@@ -63,16 +81,24 @@ public final class MechLogging {
 	 * Get the primary elevator pose.
 	 * @return the pose of the inner part of the elevator
 	 */
-	public Pose3d getPrimaryElevatorPose() {
-		return primaryElevatorPose.relativeTo(drivePose);
+	public Pose3d getElevatorStage1() {
+		return elevatorStage1;
 	}
 
 	/**
 	 * Get the secondary elevator pose.
 	 * @return the pose of the inner-most part of the elevator
 	 */
-	public Pose3d getSecondaryElevatorPose() {
-		return secondaryElevatorPose.relativeTo(drivePose);
+	public Pose3d getElevatorStage2() {
+		return elevatorStage2;
+	}
+
+	/**
+	 * Get the elevator stage 3 position.
+	 * @return the elevator stage 3 position
+	 */
+	public Pose3d getElevatorStage3() {
+		return elevatorStage3;
 	}
 
 	/**
@@ -80,7 +106,7 @@ public final class MechLogging {
 	 * @return pose of the rotating climber ligament.
 	 */
 	public Pose3d getClimberPose() {
-		return climberPose.relativeTo(drivePose);
+		return climberPose;
 	}
 
 	/**
@@ -89,18 +115,9 @@ public final class MechLogging {
 	 */
 	public Pose3d[] getRobotPoses() {
 		return new Pose3d[]{
-			drivePose,
-			getPrimaryElevatorPose(),
-			getSecondaryElevatorPose(),
-			getClimberPose()
+			getElevatorStage1(),
+			getElevatorStage2(),
+			getElevatorStage3(),
 		};
-	}
-
-	/**
-	 * Sets the drive pose data, used to determine the components' absolute location.
-	 * @param pose the 2d pose of the robot
-	 */
-	public void setDrivePoseData(Pose2d pose) {
-		this.drivePose = new Pose3d(pose);
 	}
 }

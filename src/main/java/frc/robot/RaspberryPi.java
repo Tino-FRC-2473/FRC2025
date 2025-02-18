@@ -21,8 +21,6 @@ public class RaspberryPi {
 	private NetworkTable sourceTable;
 	private DoubleArraySubscriber reefCamSubscriber;
 	private DoubleArraySubscriber sourceCamSubscriber;
-	private final String reefCamName;
-	private final String sourceCamName;
 
 	/**
 	* Default constructor for the RaspberryPi class.
@@ -35,9 +33,6 @@ public class RaspberryPi {
 		sourceTable = NetworkTableInstance.getDefault().getTable("source_table");
 		DoubleArrayTopic sourceCamTopic = sourceTable.getDoubleArrayTopic("april_tag_data");
 		sourceCamSubscriber = sourceCamTopic.subscribe(new double[] {});
-
-		reefCamName = VisionConstants.REEF_CAM_NAME;
-		sourceCamName = VisionConstants.SOURCE_CAM_NAME;
 	}
 
 	/**
@@ -57,9 +52,9 @@ public class RaspberryPi {
 	*          A list of visible AprilTags
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
-		ArrayList<AprilTag> atList = new ArrayList<>();
-		atList.addAll(getAprilTagsSingleCam(reefCamSubscriber, reefCamName));
-		atList.addAll(getAprilTagsSingleCam(sourceCamSubscriber, sourceCamName));
+		var atList = new ArrayList<AprilTag>();
+		atList.addAll(getAprilTagsSingleCam(reefCamSubscriber, VisionConstants.REEF_CAM_NAME));
+		atList.addAll(getAprilTagsSingleCam(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME));
 		return atList;
 	}
 
@@ -109,9 +104,25 @@ public class RaspberryPi {
 	}
 
 	/**
+	 * Gets a list of all april tags seen by the reef camera.
+	 * @return list of all reef april tags
+	 */
+	public ArrayList<AprilTag> getReefAprilTags() {
+		return getAprilTagsSingleCam(reefCamSubscriber, VisionConstants.REEF_CAM_NAME);
+	}
+
+	/**
+	 * Gets a list of all april tags seen by the station camera.
+	 * @return list of all soruce april tags
+	 */
+	public ArrayList<AprilTag> getStationAprilTags() {
+		return getAprilTagsSingleCam(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME);
+	}
+
+	/**
 	 * Gets an April Tag from the list given a certain tag.
 	 * @param id id of the april tag
-	 * @return the april tag matching the id
+	 * @return the april tag matching the id, if there isnt then null.
 	 */
 	public AprilTag getAprilTagWithID(int id) {
 		return getAprilTags()

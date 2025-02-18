@@ -71,7 +71,6 @@ public class ElevatorFSMSystem {
 		motionRequest = new MotionMagicVoltage(0);
 
 		var talonFXConfigs = new TalonFXConfiguration();
-
 		var outputConfigs = talonFXConfigs.MotorOutput;
 		outputConfigs.NeutralMode = NeutralModeValue.Brake;
 
@@ -187,7 +186,6 @@ public class ElevatorFSMSystem {
 
 		// telemetry and logging
 		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition().getValue());
-
 	}
 
 	/**
@@ -305,7 +303,6 @@ public class ElevatorFSMSystem {
 	private Distance getElevatorpos() {
 		return Units.Inches.of(elevatorMotor.getPosition().getValueAsDouble());
 	}
-
 	/* ------------------------ FSM state handlers ------------------------ */
 
 	/**
@@ -400,7 +397,9 @@ public class ElevatorFSMSystem {
 		}
 
 		@Override
-		public void end(boolean interrupted) { }
+		public void end(boolean interrupted) {
+			elevatorMotor.stopMotor();
+		}
 
 		protected void setTarget(Distance newTarget) {
 			this.target = newTarget;

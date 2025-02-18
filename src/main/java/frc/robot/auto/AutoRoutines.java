@@ -55,10 +55,11 @@ public class AutoRoutines {
 	/**
 	 * Creates and returns a auto routine that start with a path.
 	 * @param autoStageSupply string of commands and trajectory names
+	 * @param resetOdometry whether to reset the odometry to the beginning of the first path
 	 * @return the auto routine
 	 */
-	public SequentialCommandGroup generateSequentialAutoWorkflow(Object[] autoStageSupply) {
-
+	public Command generateSequentialAutoWorkflow(
+		Object[] autoStageSupply, boolean resetOdometry) {
 		SequentialCommandGroup seqInstruction = new SequentialCommandGroup();
 
 		for (int i = 0; i < autoStageSupply.length; i++) {
@@ -68,7 +69,7 @@ public class AutoRoutines {
 				/* -- Processing drive trajs -- */
 				if (HardwareMap.isDriveHardwarePresent() && paths.containsKey(autoStage)) {
 					AutoTrajectory traj = paths.get(autoStage);
-					if (i == 0) {
+					if (i == 0 && resetOdometry) {
 						seqInstruction.addCommands(traj.resetOdometry());
 					}
 
@@ -104,7 +105,7 @@ public class AutoRoutines {
 						&& driveSystem != null) {
 						if (paths.containsKey(autoParallelStage)) {
 							AutoTrajectory traj = paths.get(autoParallelStage);
-							if (i == 0) {
+							if (i == 0 && resetOdometry) {
 								parallelQueue.addCommands(traj.resetOdometry());
 							}
 
@@ -140,9 +141,11 @@ public class AutoRoutines {
 			seqInstruction.addCommands(driveSystem.brakeCommand());
 		}
 
-		seqInstruction.schedule();
+		sysRoutine.active().onTrue(
+			seqInstruction
+		);
 
-		return seqInstruction;
+		return (HardwareMap.isDriveHardwarePresent()) ? sysRoutine.cmd() : seqInstruction;
 	}
 
 	private void generateSysRoutineMap(String deployFolder) {
@@ -194,49 +197,49 @@ public class AutoRoutines {
 		commands.put(AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF3_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF5_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF5_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_REEF6_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
@@ -256,49 +259,49 @@ public class AutoRoutines {
 		commands.put(AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF3_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF5_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF5_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_L_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_L_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_REEF6_R_TAG_CMD,
 			driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_R_TAG_OFFSET,
+					AutoConstants.REEF_X_TAG_OFFSET,
 					AutoConstants.REEF_Y_R_TAG_OFFSET)
 		);
 		commands.put(AutoCommands.B_ALIGN_STATION_L_TAG_CMD,

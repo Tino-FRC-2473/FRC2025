@@ -40,14 +40,14 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public double getDriveLeftJoystickX() {
-		return driveController.getLeftX();
+		return -driveController.getLeftX();
 	}
 	/**
 	 * Get Y axis of Drive Controller.
 	 * @return Axis value
 	 */
 	public double getDriveLeftJoystickY() {
-		return driveController.getLeftY();
+		return -driveController.getLeftY();
 	}
 	/**
 	 * Get X axis of Drive Controller right.
@@ -84,12 +84,29 @@ public class TeleopInput {
 	public boolean getDriveCircleButton() {
 		return driveController.getCircleButton();
 	}
-		/**
+
+	/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
 	public boolean getDriveBackButtonPressed() {
 		return driveController.getShareButton();
+	}
+
+	/**
+	 * Get the value of the L1 button.
+	 * @return L1 button value
+	 */
+	public boolean getDriveLeftBumperButton() {
+		return driveController.getL1Button();
+	}
+
+	/**
+	 * Get the value of the R1 button.
+	 * @return R1 button value
+	 */
+	public boolean getDriveRightBumperButton() {
+		return driveController.getR1Button();
 	}
 
 	/* ------------------------ Mech Controller ------------------------ */
@@ -132,7 +149,7 @@ public class TeleopInput {
 	 * @return If the options button was pressed this tick
 	 */
 	public boolean isClimbAdvanceStateButtonPressed() {
-		return mechController.getOptionsButtonPressed();
+		return mechController.getOptionsButton();
 	}
 
 	/**
