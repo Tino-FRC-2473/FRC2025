@@ -169,12 +169,13 @@ public class DriveFSMSystem extends SubsystemBase {
 	};
 
 	private AprilTagFieldLayout aprilTagFieldLayout;
-	private ArrayList<Pose2d> aprilTagRefPoses;
+	private ArrayList<Pose2d> aprilTagReefRefPoses;
+	private ArrayList<Pose2d> aprilTagStationRefPoses;
+	private ArrayList<Pose2d> aprilTagVisionPoses;
 
 	private boolean driveToPoseRunning = false;
 	private Timer driveToPoseTimer = new Timer();
 	private boolean driveToPoseFinished = false;
-	private Trajectory driveToPoseTrajectory;
 
 	private final PIDController autoXPid = new PIDController(0.3, 0, 0);
 	private final PIDController autoYPid = new PIDController(0.3, 0, 0);
@@ -414,7 +415,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Update vision measurements according to all seen tags.
 	 */
 	public void updateVisionEstimates() {
-		aprilTagRefPoses = new ArrayList<Pose2d>();
+		aprilTagReefRefPoses = new ArrayList<Pose2d>();
+		aprilTagStationRefPoses = new ArrayList<Pose2d>();
+		aprilTagVisionPoses = new ArrayList<Pose2d>();
 		ArrayList<AprilTag> reefTags = rpi.getReefAprilTags();
 		ArrayList<AprilTag> stationTags = rpi.getStationAprilTags();
 
@@ -436,6 +439,8 @@ public class DriveFSMSystem extends SubsystemBase {
 					tag.getX(),
 					new Rotation2d()));
 
+			aprilTagVisionPoses.add(alignmentPose2d);
+
 			Transform2d robotToCamera =
 				new Transform2d(
 					SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().toTranslation2d(),
@@ -445,8 +450,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			if (!aprilTagPose3d.isEmpty()) {
 				Pose2d imposedPose = new Pose2d(
 					new Pose3d(currPose)
-					.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
-					.toPose2d().getTranslation(),
+						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
+						.toPose2d().getTranslation(),
 					currPose.getRotation()
 				).transformBy(
 					robotToCamera.inverse()
@@ -457,11 +462,11 @@ public class DriveFSMSystem extends SubsystemBase {
 					&& (reefTags.size() + stationTags.size())
 						>= VisionConstants.LOCALIZATION_TAG_NUM) {
 
-					aprilTagRefPoses.add(
+					aprilTagReefRefPoses.add(
 						imposedPose
 					);
 
-					drivetrain.addVisionMeasurement(imposedPose, Timer.getFPGATimestamp());
+					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
@@ -476,17 +481,26 @@ public class DriveFSMSystem extends SubsystemBase {
 					tag.getX(),
 					new Rotation2d()));
 
+			aprilTagVisionPoses.add(alignmentPose2d);
+
 			Transform2d robotToCamera =
 				new Transform2d(
-					SimConstants.ROBOT_TO_STATION_CAMERA.getTranslation().toTranslation2d(),
-					SimConstants.ROBOT_TO_STATION_CAMERA.getRotation().toRotation2d()
+					new Translation2d(
+						SimConstants.ROBOT_TO_STATION_CAMERA.getX(),
+						SimConstants.ROBOT_TO_STATION_CAMERA.getY()
+					),
+					SimConstants.ROBOT_TO_STATION_CAMERA.getRotation()
+					.toRotation2d().rotateBy(Rotation2d.k180deg)
 				);
 
 			if (!aprilTagPose3d.isEmpty()) {
+				//aprilTagPose3d.get().getRotation()
+				//	.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
+
 				Pose2d imposedPose = new Pose2d(
 					new Pose3d(currPose)
-					.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
-					.toPose2d().getTranslation(),
+						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
+						.toPose2d().getTranslation(),
 					currPose.getRotation()
 				).transformBy(
 					robotToCamera.inverse()
@@ -497,17 +511,23 @@ public class DriveFSMSystem extends SubsystemBase {
 					&& (reefTags.size() + stationTags.size())
 						>= VisionConstants.LOCALIZATION_TAG_NUM) {
 
-					aprilTagRefPoses.add(
+					aprilTagStationRefPoses.add(
 						imposedPose
 					);
 
-					drivetrain.addVisionMeasurement(imposedPose, Timer.getFPGATimestamp());
+					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
 
 		Logger.recordOutput(
-			"Imposed Translation List", aprilTagRefPoses.toArray(new Pose2d[] {})
+			"VisionEstimate/ImposedReefList", aprilTagReefRefPoses.toArray(new Pose2d[] {})
+		);
+		Logger.recordOutput(
+			"VisionEstimate/ImposedStationList", aprilTagStationRefPoses.toArray(new Pose2d[] {})
+		);
+		Logger.recordOutput(
+			"VisionEstimate/AllVisionTargets", aprilTagVisionPoses.toArray(new Pose2d[] {})
 		);
 
 	}

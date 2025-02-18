@@ -97,7 +97,9 @@ public class RaspberryPiSim extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getX()
 					)
 				);
-				atList.add(at);
+				if (at.getPose().getTranslation().getNorm() < 2.5) {
+					atList.add(at);
+				}
 			}
 		}
 		return atList;
@@ -128,7 +130,9 @@ public class RaspberryPiSim extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getX()
 					)
 				);
-				atList.add(at);
+				if (at.getPose().getTranslation().getNorm() < 2.5) {
+					atList.add(at);
+				}
 			}
 		}
 		return atList;
