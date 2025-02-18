@@ -43,7 +43,7 @@ import frc.robot.logging.MechLogging;
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
-	public enum FSMState {
+	public enum DriveFSMState {
 		TELEOP_STATE,
 		ALIGN_TO_REEF_TAG_STATE,
 		ALIGN_TO_STATION_TAG_STATE
@@ -119,7 +119,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	};
 
 	/* ======================== Private variables ======================== */
-	private FSMState currentState;
+	private DriveFSMState currentState;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -168,7 +168,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	* Return current FSM state.
 	* @return Current FSM state
 	*/
-	public FSMState getCurrentState() {
+	public DriveFSMState getCurrentState() {
 		return currentState;
 	}
 	/**
@@ -180,7 +180,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	* Ex. if the robot is enabled, disabled, then reenabled.
 	*/
 	public void reset() {
-		currentState = FSMState.TELEOP_STATE;
+		currentState = DriveFSMState.TELEOP_STATE;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -262,32 +262,32 @@ public class DriveFSMSystem extends SubsystemBase {
 	*        the robot is in autonomous mode.
 	* @return FSM state for the next iteration
 	*/
-	private FSMState nextState(TeleopInput input) {
+	private DriveFSMState nextState(TeleopInput input) {
 
 		switch (currentState) {
 			case TELEOP_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				} else if (input.getDriveCircleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 			case ALIGN_TO_REEF_TAG_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				} else if (input.getDriveCircleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 			case ALIGN_TO_STATION_TAG_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				} else if (input.getDriveCircleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 
 			default:

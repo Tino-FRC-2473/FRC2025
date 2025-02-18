@@ -116,6 +116,31 @@ public class FunnelFSMSystem {
 		Logger.recordOutput("Holding Coral?", isHoldingCoral());
 	}
 
+	/**
+	 * Getter for the status of the funnel's break beam.
+	 * Public for access to elevator.
+	 * @return whether the limit is reached
+	 */
+	public boolean isHoldingCoral() {
+		if (Robot.isSimulation()) {
+			return true;
+		}
+		return !coralBreakBeam.get(); // true = beam intact
+		// return true; // temp always hold coral
+	}
+
+	/**
+	 * Getter for the status of the funnel's distance sensor.
+	 * Public for access to drive/cv.
+	 * @return distance to reef from distance sensor.
+	 */
+	public double getDistanceToReef() {
+		if (Robot.isSimulation()) {
+			return 0;
+		}
+		return reefDistanceSensor.getRange();
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -163,31 +188,6 @@ public class FunnelFSMSystem {
 	 */
 	private void handleClosedState(TeleopInput input) {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
-	}
-
-	/**
-	 * Getter for the status of the funnel's break beam.
-	 * Public for access to elevator.
-	 * @return whether the limit is reached
-	 */
-	public boolean isHoldingCoral() {
-		if (Robot.isSimulation()) {
-			return true;
-		}
-		return !coralBreakBeam.get(); // true = beam intact
-		// return true; // temp always hold coral
-	}
-
-	/**
-	 * Getter for the status of the funnel's distance sensor.
-	 * Public for access to drive/cv.
-	 * @return distance to reef from distance sensor.
-	 */
-	public double getDistanceToReef() {
-		if (Robot.isSimulation()) {
-			return 0;
-		}
-		return reefDistanceSensor.getRange();
 	}
 
 	/* ---- Funnel Commands ---- */
