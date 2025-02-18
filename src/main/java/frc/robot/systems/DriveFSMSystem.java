@@ -513,41 +513,67 @@ public class DriveFSMSystem extends SubsystemBase {
 				: alignmentPose2d.getY() - getMapleSimDrivetrain().getDriveSimulation()
 					.getSimulatedDriveTrainPose().getY();
 
-			double xSpeed = Math.abs(xDiff)
+		
+			// double xSpeed = Math.abs(xDiff)
+			// 	> VisionConstants.X_MARGIN_TO_REEF
+			// 	? SwerveUtils.clamp(
+			// 		xDiff
+			// 		/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
+			// 		-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
+			// 		VisionConstants.MAX_SPEED_METERS_PER_SECOND
+			// 	) : 0;
+
+			// double ySpeed = Math.abs(yDiff)
+			// 	> VisionConstants.Y_MARGIN_TO_REEF
+			// 	? yDiff / xDiff * xSpeed
+			// 	: 0;
+
+			double heading = drivetrain.getState().Pose.getRotation().getRadians(); 
+			// robot relative angle 
+			double rrAngle = Math.atan(yDiff/xDiff) - heading;
+			// hypotenuse of both triangles (they share the same one)
+			double hyp = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+
+			double xRelDiff = hyp * Math.cos(rrAngle);
+			double yRelDiff = hyp * Math.sin(rrAngle);
+			
+			// x robot relative speed 
+			double xRRSpeed = Math.abs(xRelDiff)
 				> VisionConstants.X_MARGIN_TO_REEF
 				? SwerveUtils.clamp(
-					xDiff
+					xRelDiff
 					/ VisionConstants.TRANSLATIONAL_ACCEL_CONSTANT,
 					-VisionConstants.MAX_SPEED_METERS_PER_SECOND,
 					VisionConstants.MAX_SPEED_METERS_PER_SECOND
 				) : 0;
+			
+			// y robot relative speed 
+			double yRRSpeed = xRRSpeed/xRelDiff * yRelDiff;
+			
 
-			double ySpeed = Math.abs(yDiff)
-				> VisionConstants.Y_MARGIN_TO_REEF
-				? yDiff / xDiff * xSpeed
-				: 0;
-
-			Logger.recordOutput("XSPEED", xSpeed);
-			Logger.recordOutput("YSPEED", ySpeed);
+			// Logger.recordOutput("XSPEED", xSpeed);
+			// Logger.recordOutput("YSPEED", ySpeed);
 			Logger.recordOutput("ASpeed", aSpeed);
 
 			if (
 				DriverStation.getAlliance() != null
 					&& DriverStation.getAlliance().get() == Alliance.Red
 			) {
-				xSpeed = -xSpeed;
-				ySpeed = -ySpeed;
+				xRRSpeed = -xRRSpeed;
+				yRRSpeed = -yRRSpeed;
+				// xSpeed = -xSpeed;
+				// ySpeed = -ySpeed;
 			}
 
 			drivetrain.setControl(
-				drive.withVelocityX(xSpeed * MAX_SPEED)
-				.withVelocityY(ySpeed * MAX_SPEED)
+				drive.withVelocityX(xRRSpeed * MAX_SPEED)
+				.withVelocityY(xRRSpeed * MAX_SPEED)
 				.withRotationalRate(-aSpeed * MAX_ANGULAR_RATE)
 			);
 
 			// natural mk4 deadband
 			tagPositionAligned =
-				xSpeed == 0 && ySpeed == 0 && aSpeed == 0;
+				xRRSpeed == 0 && yRRSpeed == 0 && aSpeed == 0;
 		} else {
 			drivetrain.setControl(brake);
 		}
