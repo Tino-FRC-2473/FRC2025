@@ -74,6 +74,7 @@ import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
+import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPi;
@@ -415,8 +416,8 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Update vision measurements according to all seen tags.
 	 */
 	public void updateVisionEstimates() {
-		aprilTagReefRefPoses = new ArrayList<Pose2d>();
-		aprilTagStationRefPoses = new ArrayList<Pose2d>();
+		// aprilTagReefRefPoses = new ArrayList<Pose2d>();
+		// aprilTagStationRefPoses = new ArrayList<Pose2d>();
 		aprilTagVisionPoses = new ArrayList<Pose2d>();
 		ArrayList<AprilTag> reefTags = rpi.getReefAprilTags();
 		ArrayList<AprilTag> stationTags = rpi.getStationAprilTags();
@@ -449,22 +450,22 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			if (!aprilTagPose3d.isEmpty()) {
 				Pose2d imposedPose = new Pose2d(
-					new Pose3d(currPose)
+					(new Pose3d(currPose)
 						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
-						.toPose2d().getTranslation(),
+						.toPose2d()
+						.transformBy(
+							robotToCamera.inverse()
+						)
+					).getTranslation(),
 					currPose.getRotation()
-				).transformBy(
-					robotToCamera.inverse()
 				);
 
 				if (imposedPose.getTranslation().getDistance(currPose.getTranslation())
-					< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD
-					&& (reefTags.size() + stationTags.size())
-						>= VisionConstants.LOCALIZATION_TAG_NUM) {
+					< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD) {
 
-					aprilTagReefRefPoses.add(
-						imposedPose
-					);
+					// aprilTagReefRefPoses.add(
+					// 	imposedPose
+					// );
 
 					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
@@ -498,34 +499,34 @@ public class DriveFSMSystem extends SubsystemBase {
 				//	.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
 
 				Pose2d imposedPose = new Pose2d(
-					new Pose3d(currPose)
+					(new Pose3d(currPose)
 						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
-						.toPose2d().getTranslation(),
+						.toPose2d()
+						.transformBy(
+							robotToCamera.inverse()
+						)
+					).getTranslation(),
 					currPose.getRotation()
-				).transformBy(
-					robotToCamera.inverse()
 				);
 
 				if (imposedPose.getTranslation().getDistance(currPose.getTranslation())
-					< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD
-					&& (reefTags.size() + stationTags.size())
-						>= VisionConstants.LOCALIZATION_TAG_NUM) {
+					< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD) {
 
-					aprilTagStationRefPoses.add(
-						imposedPose
-					);
+					// aprilTagStationRefPoses.add(
+					// 	imposedPose
+					// );
 
 					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
 
-		Logger.recordOutput(
-			"VisionEstimate/ImposedReefList", aprilTagReefRefPoses.toArray(new Pose2d[] {})
-		);
-		Logger.recordOutput(
-			"VisionEstimate/ImposedStationList", aprilTagStationRefPoses.toArray(new Pose2d[] {})
-		);
+		// Logger.recordOutput(
+		// 	"VisionEstimate/ImposedReefList", aprilTagReefRefPoses.toArray(new Pose2d[] {})
+		// );
+		// Logger.recordOutput(
+		// 	"VisionEstimate/ImposedStationList", aprilTagStationRefPoses.toArray(new Pose2d[] {})
+		// );
 		Logger.recordOutput(
 			"VisionEstimate/AllVisionTargets", aprilTagVisionPoses.toArray(new Pose2d[] {})
 		);
@@ -549,20 +550,28 @@ public class DriveFSMSystem extends SubsystemBase {
 			) < VisionConstants.ROT_MARGIN_TO_REEF;
 
 		double xSpeed =
-			-(target.getX() - currPose.getX())
-			* AutoConstants.ALIGN_DRIVE_P
-			* MAX_SPEED * allianceOriented.getAsInt();
+			-SwerveUtils.clamp(
+				(target.getX() - currPose.getX()) * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
+				-AutoConstants.ALIGN_MAX_T_SPEED,
+				AutoConstants.ALIGN_MAX_T_SPEED
+			)
+			* allianceOriented.getAsInt();
 
 		double ySpeed =
-			-(target.getY() - currPose.getY())
-			* AutoConstants.ALIGN_DRIVE_P
-			* MAX_SPEED * allianceOriented.getAsInt();
+			-SwerveUtils.clamp(
+				(target.getY() - currPose.getY()) * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
+				-AutoConstants.ALIGN_MAX_T_SPEED,
+				AutoConstants.ALIGN_MAX_T_SPEED
+			)
+			* allianceOriented.getAsInt();
 
 		double rotSpeed =
-			-(target.getRotation().getRadians()
-			- currPose.getRotation().getRadians())
-			* AutoConstants.ALIGN_THETA_P
-			* MAX_ANGULAR_RATE;
+			-SwerveUtils.clamp(
+				(target.getRotation().getRadians() - currPose.getRotation().getRadians())
+					* MAX_ANGULAR_RATE * AutoConstants.ALIGN_THETA_P,
+				-AutoConstants.ALIGN_MAX_R_SPEED,
+				AutoConstants.ALIGN_MAX_R_SPEED
+			);
 
 
 		Logger.recordOutput(

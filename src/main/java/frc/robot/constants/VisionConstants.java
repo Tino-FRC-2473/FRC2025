@@ -9,8 +9,6 @@ public class VisionConstants {
 	public static final double MAX_SPEED_METERS_PER_SECOND = 0.15;
 	public static final double MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = Math.PI * 0.1;
 
-	public static final double TRANSLATIONAL_ACCEL_CONSTANT = 0.5;
-	public static final double ROTATIONAL_ACCEL_CONSTANT = 3;
 	//TODO: equate the margin to the probabilistic equation from HW.
 	public static final double X_MARGIN_TO_REEF = 0.02;
 	public static final double Y_MARGIN_TO_REEF = 0.02;
@@ -32,5 +30,5 @@ public class VisionConstants {
 		"src/main/java/frc/robot/constants/apriltag/welded/apriltag.json";
 
 	public static final int LOCALIZATION_TAG_NUM = 2;
-	public static final double LOCALIZATION_TRANSLATIONAL_THRESHOLD = .1;
+	public static final double LOCALIZATION_TRANSLATIONAL_THRESHOLD = 1.0;
 }
