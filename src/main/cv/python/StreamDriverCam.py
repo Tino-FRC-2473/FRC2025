@@ -1,48 +1,36 @@
-from config import *
-import cv2
 import time
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import socket
-from visionInput import find_camera_index
+import cv2
+from cscore import CameraServer, VideoSource
+import ntcore
+import numpy
+from config import *
+from argparse import ArgumentParser
+from visionInput import VisionInput, find_camera_index
 
-if ON_RPI:
-    index = find_camera_index(DRIVER_CAM_USB_ID)
-else:
-    index = DRIVER_CAM_INDEX
-camera = cv2.VideoCapture(index)
-class MJPEGStreamHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/stream.mjpg':
-            self.send_response(200)
-            self.send_header('Content-type', 'multipart/x-mixed-replace; boundary=frame')
-            self.end_headers()
+if not ON_RPI:
+    print("This file can only be run on the raspberry pi")
+    exit()
 
-            while True:
-                ret, frame = camera.read()
-                if not ret:
-                    continue
+CameraServer.enableLogging()
 
-                ret, jpeg = cv2.imencode('.jpg', frame)
-                if not ret:
-                    continue
+usb1, name1 = DRIVER_CAM_1
+usb2, name2 = DRIVER_CAM_2
+index1 = find_camera_index(usb1)
+index2 = find_camera_index(usb2)
 
-                self.wfile.write(b'--frame\r\n')
-                self.send_header('Content-Type', 'image/jpeg')
-                self.send_header('Content-Length', str(len(jpeg)))
-                self.end_headers()
-                self.wfile.write(jpeg.tobytes())
-                self.wfile.write(b'\r\n\r\n')
-                time.sleep(0.03)
+NETWORK_IDENTITY = "python-drivercam"
+inst = ntcore.NetworkTableInstance.getDefault()
+inst.startClient4(NETWORK_IDENTITY)
+inst.setServerTeam(NETWORKTABLES_TEAM)
 
-        else:
-            self.send_response(404)
-            self.end_headers()
+camera1 = CameraServer.startAutomaticCapture(name1, index1)
+camera2 = CameraServer.startAutomaticCapture(name2, index2)
 
+camera1.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
+camera2.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
+camera1.setConnectionStrategy(VideoSource.ConnectionStrategy.kConnectionKeepOpen)
+camera2.setConnectionStrategy(VideoSource.ConnectionStrategy.kConnectionKeepOpen)
+camera1.setCompression(0)
+camera2.setCompression(0)
 
-def StreamDriverCam():
-    server_address = (DRIVER_CAM_LISTEN_IP, DRIVER_CAM_LISTEN_PORT) 
-    httpd = HTTPServer(server_address, MJPEGStreamHandler)
-    print(f'Streaming video at http://{DRIVER_CAM_LISTEN_IP}:{DRIVER_CAM_LISTEN_PORT}/stream.mjpg')
-    httpd.serve_forever()
-
-StreamDriverCam()
+CameraServer.waitForever()
