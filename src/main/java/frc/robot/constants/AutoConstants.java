@@ -40,9 +40,9 @@ public class AutoConstants {
 
 	public static final double ALIGN_MAX_T_SPEED = 2.4;
 	public static final double ALIGN_MAX_T_ACCEL = 2.0;
-	public static final double ALIGN_DRIVE_P = 0.72;
+	public static final double ALIGN_DRIVE_P = 0.48;
 	public static final double ALIGN_DRIVE_D = 0.0;
-	public static final double ALIGN_THETA_P = 0.88;
+	public static final double ALIGN_THETA_P = 0.56;
 	public static final double ALIGN_THETA_D = 0.00;
 	public static final double DRIVE_TOLERANCE = 0.01;
 	public static final double THETA_TOLERANCE = Units.degreesToRadians(1.0);

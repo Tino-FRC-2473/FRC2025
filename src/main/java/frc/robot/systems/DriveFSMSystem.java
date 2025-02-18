@@ -74,7 +74,6 @@ import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
-import frc.robot.utils.SwerveUtils;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPi;
@@ -550,28 +549,20 @@ public class DriveFSMSystem extends SubsystemBase {
 			) < VisionConstants.ROT_MARGIN_TO_REEF;
 
 		double xSpeed =
-			-SwerveUtils.clamp(
-				(target.getX() - currPose.getX()) * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
-				-AutoConstants.ALIGN_MAX_T_SPEED,
-				AutoConstants.ALIGN_MAX_T_SPEED
-			)
-			* allianceOriented.getAsInt();
+			-(target.getX() - currPose.getX())
+			* AutoConstants.ALIGN_DRIVE_P
+			* MAX_SPEED * allianceOriented.getAsInt();
 
 		double ySpeed =
-			-SwerveUtils.clamp(
-				(target.getY() - currPose.getY()) * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
-				-AutoConstants.ALIGN_MAX_T_SPEED,
-				AutoConstants.ALIGN_MAX_T_SPEED
-			)
-			* allianceOriented.getAsInt();
+			-(target.getY() - currPose.getY())
+			* AutoConstants.ALIGN_DRIVE_P
+			* MAX_SPEED * allianceOriented.getAsInt();
 
 		double rotSpeed =
-			-SwerveUtils.clamp(
-				(target.getRotation().getRadians() - currPose.getRotation().getRadians())
-					* MAX_ANGULAR_RATE * AutoConstants.ALIGN_THETA_P,
-				-AutoConstants.ALIGN_MAX_R_SPEED,
-				AutoConstants.ALIGN_MAX_R_SPEED
-			);
+			-(target.getRotation().getRadians()
+			- currPose.getRotation().getRadians())
+			* AutoConstants.ALIGN_THETA_P
+			* MAX_ANGULAR_RATE;
 
 
 		Logger.recordOutput(
