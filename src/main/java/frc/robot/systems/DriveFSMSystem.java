@@ -732,7 +732,32 @@ public class DriveFSMSystem extends SubsystemBase {
 				)
 			);
 
-			driveToPose(alignmentPose);
+			Pose2d currPose = (Utils.isSimulation())
+			? getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
+			: drivetrain.getState().Pose;
+
+			Translation2d fieldRelativeDiff = alignmentPose.getTranslation().minus(currPose.getTranslation());
+			Translation2d robotRelativeDiff = fieldRelativeDiff.rotateBy(currPose.getRotation().times(-1));
+			
+			// Calculate proportional speeds (negated because positive X is forward)
+			double xSpeed = -robotRelativeDiff.getX() 
+				* AutoConstants.ALIGN_DRIVE_P 
+				* MAX_SPEED 
+				/ DriveConstants.SPEED_DAMP_FACTOR;
+
+			double ySpeed = -robotRelativeDiff.getY() 
+				* AutoConstants.ALIGN_DRIVE_P 
+				* MAX_SPEED 
+				/ DriveConstants.SPEED_DAMP_FACTOR;
+
+			// Set robot-centric drive control
+			drivetrain.setControl(
+				driveRobotCentric
+					.withVelocityX(xSpeed)
+					.withVelocityY(ySpeed)
+					.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND)
+					.withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+			);
 
 			Logger.recordOutput("AprilTag ID", id);
 			Logger.recordOutput("Alignment Pose", alignmentPose);
