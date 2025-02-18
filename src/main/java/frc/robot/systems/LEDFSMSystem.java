@@ -148,8 +148,7 @@ public class LEDFSMSystem {
 
 		//climb
 		if (
-			climberFSMSystem.getCurrentState() == ClimberFSMSystem.ClimberFSMState.EXTENDED
-				|| climberFSMSystem.getCurrentState() == ClimberFSMSystem.ClimberFSMState.CLIMB
+			climberFSMSystem.getCurrentState() == ClimberFSMSystem.ClimberFSMState.AUTOMATIC
 		) {
 			return LEDFSMState.CLIMB;
 		}
