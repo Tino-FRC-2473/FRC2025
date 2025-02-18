@@ -3,6 +3,8 @@ package frc.robot.systems;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -11,20 +13,32 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.CurrentUnit;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
@@ -35,7 +49,19 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.Utils;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPoint;
+import com.pathplanner.lib.path.RotationTarget;
+import com.pathplanner.lib.path.Waypoint;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
+
 import choreo.auto.AutoFactory;
+import choreo.trajectory.SwerveSample;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -90,12 +116,13 @@ public class DriveFSMSystem extends SubsystemBase {
 	private final SwerveLogging logger = new SwerveLogging(MAX_SPEED);
 
 	private CommandSwerveDrivetrain drivetrain;
+	private Rotation2d rotationAlignmentPose;
 
 	/* -- cv constants -- */
 	private RaspberryPi rpi = new RaspberryPi();
-	private Rotation2d rotationAlignmentPose;
-
-	private double alignmentYOff = 0;
+	private int tagID = -1;
+	private double alignmentYOff;
+	private double alignmentXOff;
 
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,
@@ -144,21 +171,27 @@ public class DriveFSMSystem extends SubsystemBase {
 	private AprilTagFieldLayout aprilTagFieldLayout;
 	private ArrayList<Pose2d> aprilTagRefPoses;
 
-	/* ---- all drive to pose related constants ---- */
-	private final ProfiledPIDController driveController =
-		new ProfiledPIDController(
-			0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(0.0, 0.0));
-	private final ProfiledPIDController thetaController =
-		new ProfiledPIDController(
-			0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(0.0, 0.0));
-
-	private Translation2d lastSetpointTranslation = new Translation2d();
-	private double driveErrorAbs = 0.0;
-	private double thetaErrorAbs = 0.0;
 	private boolean driveToPoseRunning = false;
+	private Timer driveToPoseTimer = new Timer();
+	private boolean driveToPoseFinished = false;
+	private Trajectory driveToPoseTrajectory;
 
-	private Supplier<Translation2d> linearFF = () -> Translation2d.kZero;
-	private DoubleSupplier omegaFF = () -> 0.0;
+	private final PIDController autoXPid = new PIDController(0.3, 0, 0);
+	private final PIDController autoYPid = new PIDController(0.3, 0, 0);
+	private final ProfiledPIDController autoHeadingPid
+		= new ProfiledPIDController(0.75, 0, 0,
+			new Constraints(
+				AutoConstants.ALIGN_MAX_R_SPEED,
+				AutoConstants.ALIGN_MAX_R_ACCEL
+			));
+
+	private HolonomicDriveController driveController
+		= new HolonomicDriveController(autoXPid, autoYPid, autoHeadingPid);
+
+	private TrajectoryConfig trajConfig;
+
+	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
+		new SwerveRequest.ApplyFieldSpeeds();
 
 	/* ======================== Private variables ======================== */
 	private FSMState currentState;
@@ -178,26 +211,20 @@ public class DriveFSMSystem extends SubsystemBase {
 		slewRateY = new SlewRateLimiter(DriveConstants.SLEW_RATE);
 		slewRateA = new SlewRateLimiter(DriveConstants.SLEW_RATE);
 
-		driveController.setP(AutoConstants.ALIGN_DRIVE_P);
-		driveController.setD(AutoConstants.ALIGN_DRIVE_D);
-		driveController.setConstraints(
-			new TrapezoidProfile.Constraints(
-				AutoConstants.ALIGN_MAX_T_SPEED,
-				AutoConstants.ALIGN_MAX_T_ACCEL
-			));
-		driveController.setTolerance(AutoConstants.DRIVE_TOLERANCE);
-		thetaController.setP(AutoConstants.ALIGN_THETA_P);
-		thetaController.setD(AutoConstants.ALIGN_THETA_D);
-		thetaController.setConstraints(
-			new TrapezoidProfile.Constraints(
-				AutoConstants.ALIGN_MAX_R_SPEED,
-				AutoConstants.ALIGN_MAX_R_ACCEL
-			));
-		thetaController.setTolerance(
-			AutoConstants.THETA_TOLERANCE
-		);
+		trajConfig = new TrajectoryConfig(
+			AutoConstants.ALIGN_MAX_T_SPEED,
+			AutoConstants.ALIGN_MAX_T_ACCEL
+		)
+		.setKinematics(drivetrain.getKinematics())
+		.setEndVelocity(0);
 
-		thetaController.enableContinuousInput(-Math.PI, Math.PI);
+		driveController.setTolerance(new Pose2d(
+			VisionConstants.X_MARGIN_TO_REEF,
+			VisionConstants.Y_MARGIN_TO_REEF,
+			new Rotation2d(VisionConstants.ROT_MARGIN_TO_REEF)
+		));
+
+		autoHeadingPid.enableContinuousInput(-Math.PI, Math.PI);
 
 		try {
 			aprilTagFieldLayout
@@ -337,6 +364,13 @@ public class DriveFSMSystem extends SubsystemBase {
 	private void handleTeleOpState(TeleopInput input) {
 		logger.applyStateLogging(drivetrain.getState());
 
+		/* --- cv alignment reset --- */
+		tagID = -1;
+		alignmentXOff = 0;
+		alignmentYOff = 0;
+		driveToPoseRunning = false;
+		driveToPoseFinished = false;
+
 		double xSpeed = -MathUtil.applyDeadband(
 			slewRateX.calculate(input.getDriveLeftJoystickY()), DriveConstants.JOYSTICK_DEADBAND
 			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
@@ -359,8 +393,6 @@ public class DriveFSMSystem extends SubsystemBase {
 					.getSimulatedDriveTrainPose().getRotation()
 					: drivetrain.getState().Pose.getRotation();
 		}
-
-		// System.out.println("TELEOP X:" + drivetrain.getState().Pose.getX());
 
 		drivetrain.setControl(
 			driveFacingAngle.withVelocityX(xSpeed * allianceOriented.getAsInt())
@@ -385,7 +417,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		aprilTagRefPoses = new ArrayList<Pose2d>();
 		ArrayList<AprilTag> reefTags = rpi.getReefAprilTags();
 		ArrayList<AprilTag> stationTags = rpi.getStationAprilTags();
-		reefTags.sort(aComparator);
 
 		Pose2d currPose;
 
@@ -487,7 +518,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void driveToPose(Pose2d target) {
 
-		if (driveToPoseRunning && driveController.atGoal() && thetaController.atGoal()) {
+		if (driveToPoseFinished) {
 			drivetrain.setControl(brake);
 			return;
 		}
@@ -495,121 +526,82 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (!driveToPoseRunning) {
 			driveToPoseRunning = true;
 
-			Pose2d currentPose = drivetrain.getState().Pose;
-			ChassisSpeeds fieldVelocity = drivetrain.getState().Speeds;
-			Translation2d linearFieldVelocity =
-					new Translation2d(
-						fieldVelocity.vxMetersPerSecond,
-						fieldVelocity.vyMetersPerSecond
-					);
-			driveController.reset(
-					currentPose.getTranslation().getDistance(target.getTranslation()),
-					Math.min(
-						0.0,
-						-linearFieldVelocity
-							.rotateBy(
-								target
-									.getTranslation()
-									.minus(currentPose.getTranslation())
-									.getAngle()
-									.unaryMinus())
-							.getX()));
-
-			thetaController.reset(
-				currentPose.getRotation().getRadians(), fieldVelocity.omegaRadiansPerSecond);
-			lastSetpointTranslation = currentPose.getTranslation();
+			driveToPoseTimer.reset();
+			driveToPoseTimer.start();
 		}
 
-		Pose2d currentPose = drivetrain.getState().Pose;
+		Pose2d currPose = (Utils.isSimulation())
+			? getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
+			: drivetrain.getState().Pose;
 
-		// Calculate drive speed
-		double currentDistance =
-			currentPose.getTranslation().getDistance(target.getTranslation());
-		double ffScaler =
-			MathUtil.clamp(
-				(currentDistance - AutoConstants.FF_MIN_RADIUS)
-					/ (AutoConstants.FF_MAX_RADIUS - AutoConstants.FF_MIN_RADIUS),
-				0.0,
-				1.0);
-		driveErrorAbs = currentDistance;
-		driveController.reset(
-			lastSetpointTranslation.getDistance(target.getTranslation()),
-			driveController.getSetpoint().velocity);
+		driveToPoseFinished =
+			Math.abs(target.getX() - currPose.getX()) < VisionConstants.X_MARGIN_TO_REEF
+			&& Math.abs(target.getY() - currPose.getY()) < VisionConstants.Y_MARGIN_TO_REEF
+			&& Math.abs(
+				target.getRotation().getRadians() - currPose.getRotation().getRadians()
+			) < VisionConstants.ROT_MARGIN_TO_REEF;
 
-		double driveVelocityScalar =
-			driveController.getSetpoint().velocity * ffScaler
-				+ driveController.calculate(driveErrorAbs, 0.0);
+		double xSpeed =
+			-(target.getX() - currPose.getX())
+			* AutoConstants.ALIGN_DRIVE_P
+			* MAX_SPEED * allianceOriented.getAsInt();
 
-		if (currentDistance < driveController.getPositionTolerance()) {
-			driveVelocityScalar = 0.0;
-		}
+		double ySpeed =
+			-(target.getY() - currPose.getY())
+			* AutoConstants.ALIGN_DRIVE_P
+			* MAX_SPEED * allianceOriented.getAsInt();
 
-		lastSetpointTranslation =
-			new Pose2d(
-					target.getTranslation(),
-					currentPose.getTranslation().minus(target.getTranslation()).getAngle())
-				.transformBy(
-					new Transform2d(
-						driveController.getSetpoint().position, 0.0,
-						new Rotation2d()
-					)
-				)
-				.getTranslation();
+		double rotSpeed =
+			-(target.getRotation().getRadians()
+			- currPose.getRotation().getRadians())
+			* AutoConstants.ALIGN_THETA_P
+			* MAX_ANGULAR_RATE;
 
-		// Calculate theta speed
-		double thetaVelocity =
-			thetaController.getSetpoint().velocity * ffScaler
-				+ thetaController.calculate(
-					currentPose.getRotation().getRadians(), target.getRotation().getRadians());
 
-		thetaErrorAbs =
-			Math.abs(currentPose.getRotation().minus(target.getRotation()).getRadians());
-
-		if (thetaErrorAbs < thetaController.getPositionTolerance()) {
-			thetaVelocity = 0.0;
-		}
-
-		Translation2d driveVelocity =
-			new Pose2d(
-					new Translation2d(),
-					currentPose.getTranslation().minus(target.getTranslation()).getAngle())
-				.transformBy(
-					new Transform2d(
-						driveVelocityScalar, 0.0, new Rotation2d()
-					)
-				)
-				.getTranslation();
-
-		// Scale feedback velocities by input ff
-		final double linearS = linearFF.get().getNorm() * 3.0;
-		final double thetaS = Math.abs(omegaFF.getAsDouble()) * 3.0;
-		driveVelocity =
-			driveVelocity.interpolate(linearFF.get().times(MAX_SPEED), linearS);
-		thetaVelocity =
-			MathUtil.interpolate(
-				thetaVelocity, omegaFF.getAsDouble() * MAX_ANGULAR_RATE, thetaS);
-
-		drivetrain.setControl(
-			drive.withVelocityX(
-				-driveVelocity.getX()
-			).withVelocityY(
-				-driveVelocity.getY()
-			).withRotationalRate(
-				-thetaVelocity
-			)
+		Logger.recordOutput(
+			"DriveToPose/Pose", currPose
+		);
+		Logger.recordOutput(
+			"DriveToPose/Time", driveToPoseTimer.get()
+		);
+		Logger.recordOutput(
+			"DriveToPose/IsFinished", driveToPoseFinished
+		);
+		Logger.recordOutput(
+			"DriveToPose/IsRunning", driveToPoseRunning
 		);
 
-		Logger.recordOutput("DriveToPose/DistanceMeasured", currentDistance);
-		Logger.recordOutput("DriveToPose/DistanceSetpoint", driveController.getSetpoint().position);
-		Logger.recordOutput("DriveToPose/ThetaMeasured", currentPose.getRotation().getRadians());
-		Logger.recordOutput("DriveToPose/ThetaSetpoint", thetaController.getSetpoint().position);
 		Logger.recordOutput(
-			"DriveToPose/Setpoint",
-			new Pose2d(
-				lastSetpointTranslation,
-				Rotation2d.fromRadians(thetaController.getSetpoint().position)
-		));
-		Logger.recordOutput("DriveToPose/Goal", target);
+			"DriveToPose/XSpeed", xSpeed
+		);
+		Logger.recordOutput(
+			"DriveToPose/YSpeed", ySpeed
+		);
+		Logger.recordOutput(
+			"DriveToPose/RotSpeed", rotSpeed
+		);
+
+		Logger.recordOutput(
+			"DriveToPose/RotDiff",
+				(target.getRotation().getRadians() - currPose.getRotation().getRadians())
+		);
+		Logger.recordOutput(
+			"DriveToPose/XDiff",
+				(target.getX() - currPose.getX())
+		);
+		Logger.recordOutput(
+			"DriveToPose/YDiff",
+				(target.getY() - currPose.getY())
+		);
+
+
+		drivetrain.setControl(
+			driveFacingAngle
+			.withVelocityX(xSpeed)
+			.withVelocityY(ySpeed)
+			.withTargetRateFeedforward(-rotSpeed)
+			.withTargetDirection(target.getRotation())
+		);
 	}
 
 	/**
@@ -618,6 +610,56 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void handleReefTagAlignment(TeleopInput input) {
 
+		if (input != null) {
+			if (input.getDriveLeftBumperButton()) {
+				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
+			} else if (input.getDriveRightBumperButton()) {
+				alignmentYOff = AutoConstants.REEF_Y_R_TAG_OFFSET;
+			} else {
+				alignmentYOff = 0;
+			}
+		}
+
+		alignmentXOff = AutoConstants.REEF_X_TAG_OFFSET;
+
+		ArrayList<AprilTag> sortedTagList = rpi.getReefAprilTags();
+		Collections.sort(sortedTagList, aComparator);
+
+		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
+			for (AprilTag tag: sortedTagList) {
+				if (tagID == -1) {
+					for (int id: blueReefTagArray) {
+						if (tag.getTagID() == id) {
+							tagID = id;
+							break;
+						}
+					}
+				} else {
+					break;
+				}
+			}
+
+		} else if (DriverStation.getAlliance().get().equals(Alliance.Red) && tagID == -1) {
+			for (AprilTag tag: sortedTagList) {
+				if (tagID == -1) {
+					for (int id: redReefTagArray) {
+						if (tag.getTagID() == id) {
+							tagID = id;
+							break;
+						}
+					}
+				} else {
+					break;
+				}
+			}
+
+		}
+
+		if (tagID != -1) {
+			handleTagAlignment(input, tagID, true);
+		} else {
+			drivetrain.setControl(brake);
+		}
 	}
 
 	/**
@@ -626,6 +668,46 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void handleStationTagAlignment(TeleopInput input) {
 
+		if (input != null) {
+			if (input.getDriveLeftBumperButton()) {
+				alignmentYOff = AutoConstants.STATION_Y_L_TAG_OFFSET;
+			} else if (input.getDriveRightBumperButton()) {
+				alignmentYOff = AutoConstants.STATION_Y_R_TAG_OFFSET;
+			} else {
+				alignmentYOff = 0;
+			}
+		}
+
+		ArrayList<AprilTag> sortedTagList = rpi.getStationAprilTags();
+		Collections.sort(sortedTagList, aComparator);
+
+		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
+			for (AprilTag tag: sortedTagList) {
+				for (int id: blueStationTagArray) {
+					if (tag.getTagID() == id) {
+						tagID = id;
+						break;
+					}
+				}
+			}
+
+		} else if (DriverStation.getAlliance().get().equals(Alliance.Red) && tagID == -1) {
+			for (AprilTag tag: sortedTagList) {
+				for (int id: redStationTagArray) {
+					if (tag.getTagID() == id) {
+						tagID = id;
+						break;
+					}
+				}
+			}
+
+		}
+
+		if (tagID != -1) {
+			handleTagAlignment(input, tagID, true);
+		} else {
+			drivetrain.setControl(brake);
+		}
 	}
 
 	/**
@@ -637,6 +719,24 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	private void handleTagAlignment(TeleopInput input, int id, boolean allianceFlip) {
 		logger.applyStateLogging(drivetrain.getState());
+
+		Optional<Pose3d> tagAbsPose = aprilTagFieldLayout.getTagPose(id);
+		if (!tagAbsPose.isEmpty()) {
+			Pose2d alignmentPose = tagAbsPose
+				.get().toPose2d()
+				.transformBy(
+				new Transform2d(
+					alignmentXOff,
+					alignmentYOff,
+					Rotation2d.k180deg
+				)
+			);
+
+			driveToPose(alignmentPose);
+
+			Logger.recordOutput("AprilTag ID", id);
+			Logger.recordOutput("Alignment Pose", alignmentPose);
+		}
 
 	}
 

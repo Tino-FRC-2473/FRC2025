@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
 // Values provided by Maple-Sim to reduce commonly found bugs while simulating.
@@ -52,9 +53,34 @@ public class SimConstants {
 
 	// Estimated values for now, need to be calculated later
 	public static final double MASS_WITH_BUMPER_LBS = 115;
+	public static final double MOI = 6.99597;
 	public static final double WIDTH_IN = 35.5;
 	public static final double LENGTH_IN = 35.5;
 	public static final double WHEEL_COF = 1.2;
+
+	public static final Translation2d FL_TRANSLATION =
+		new Translation2d(
+			10.75,
+			-10.75
+		);
+
+	public static final Translation2d FR_TRANSLATION =
+		new Translation2d(
+			10.75,
+			10.75
+		);
+
+	public static final Translation2d BL_TRANSLATION =
+		new Translation2d(
+			-10.75,
+			-10.75
+		);
+
+	public static final Translation2d BR_TRANSLATION =
+		new Translation2d(
+			-10.75,
+			10.75
+		);
 
 	// mech pose logging constants
 	public static final double ELEVATOR_WINCH_DIAMETER_METERS = 0.0463296;

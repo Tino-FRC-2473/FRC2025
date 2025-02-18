@@ -1,9 +1,9 @@
 package frc.robot.constants;
 
 public class DriveConstants {
-	public static final double DRIVE_DEADBAND = 0.01;
-	public static final double ROTATION_DEADBAND = 0.02;
-	public static final double JOYSTICK_DEADBAND = 0.02;
+	public static final double DRIVE_DEADBAND = 0.005;
+	public static final double ROTATION_DEADBAND = 0.0025;
+	public static final double JOYSTICK_DEADBAND = 0.06;
 
 	public static final double MAX_ANGULAR_VELO_RPS = 0.5;
 
@@ -15,7 +15,8 @@ public class DriveConstants {
 	public static final double DRIVE_P = 0.1;
 	public static final double DRIVE_V = 0.124;
 
-	public static final double STEER_CURRENT_LIMIT = 60;
+	public static final double DRIVE_CURRENT_LIMIT = 40;
+	public static final double STEER_CURRENT_LIMIT = 40;
 
 	public static final double SPEED_DAMP_FACTOR = 2;
 
