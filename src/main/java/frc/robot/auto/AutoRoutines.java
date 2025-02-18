@@ -60,7 +60,6 @@ public class AutoRoutines {
 	 */
 	public Command generateSequentialAutoWorkflow(
 		Object[] autoStageSupply, boolean resetOdometry) {
-
 		SequentialCommandGroup seqInstruction = new SequentialCommandGroup();
 
 		for (int i = 0; i < autoStageSupply.length; i++) {
@@ -328,11 +327,17 @@ public class AutoRoutines {
 		commands.put(AutoCommands.ELEVATOR_GROUND_CMD,
 			elevatorSystem.elevatorGroundCommand()
 		);
-		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
-			elevatorSystem.elevatorStationCommand()
+		commands.put(AutoCommands.ELEVATOR_L2_CMD,
+			elevatorSystem.elevatorL2Command()
+		);
+		commands.put(AutoCommands.ELEVATOR_L3_CMD,
+			elevatorSystem.elevatorL3Command()
 		);
 		commands.put(AutoCommands.ELEVATOR_L4_CMD,
 			elevatorSystem.elevatorL4Command()
+		);
+		commands.put(AutoCommands.WAIT,
+			elevatorSystem.waitCommand()
 		);
 	}
 

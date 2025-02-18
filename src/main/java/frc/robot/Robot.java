@@ -4,6 +4,7 @@
 package frc.robot;
 
 // Third Party Imports
+import frc.robot.logging.SimLogging;
 import org.ironmaple.simulation.SimulatedArena;
 
 import org.littletonrobotics.junction.LogFileUtil;
@@ -53,10 +54,12 @@ public class Robot extends LoggedRobot {
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
 
+	private RaspberryPi rpi = new RaspberryPi();
+
 	private static final Object[] ELEVATOR_TESTING_PATH = new Object[] {
-		AutoCommands.ELEVATOR_STATION_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
-		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.ELEVATOR_L2_CMD,
+		AutoCommands.WAIT,
+		AutoCommands.ELEVATOR_GROUND_CMD
 	};
 
 	private static final Object[] FUNNEL_TESTING_PATH = new Object[] {
@@ -99,19 +102,20 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
 			driveSystem = new DriveFSMSystem();
 		}
 
-		if (HardwareMap.isFunnelHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
 
-		if (HardwareMap.isFunnelHardwarePresent() && HardwareMap.isElevatorHardwarePresent()) {
+		if (Robot.isSimulation() || (HardwareMap.isFunnelHardwarePresent()
+			&& HardwareMap.isElevatorHardwarePresent())) {
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
-		if (HardwareMap.isClimberHardwarePresent()) {
+		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
 		}
 
@@ -130,6 +134,10 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			autoChooser.addOption("Drive Test",
 				autoRoutines.generateSequentialAutoWorkflow(SAMPLE_AUTO_ALIGN, true));
+		}
+		if (HardwareMap.isFunnelHardwarePresent()) {
+			autoChooser.addOption("Funnel Test",
+				autoRoutines.generateSequentialAutoWorkflow(FUNNEL_TESTING_PATH, false));
 		}
 
 		// Log auto chooser
@@ -212,7 +220,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testPeriodic() {
-
+		System.out.println(rpi.getAprilTags().toString());
 	}
 
 	/* Simulation mode handlers, only used for simulation testing  */
@@ -221,6 +229,7 @@ public class Robot extends LoggedRobot {
 		System.out.println("-------- Simulation Init --------");
 		// don't preform simulated hardware init here, robotInit() still runs during sim
 		SimulatedArena.getInstance().resetFieldForAuto();
+		SimLogging.getInstance().loadSimCoral();
 	}
 
 	@Override
@@ -230,46 +239,44 @@ public class Robot extends LoggedRobot {
 			driveSystem.getMapleSimDrivetrain().update();
 		}
 
+		var simPose = SimLogging.getInstance().getSimRobotPose();
+
 		Logger.recordOutput(
-			"FieldSimulation/Robot/Primary Elevator Pose",
-			MechLogging.getInstance().getElevatorStage1()
+			"Field Simulation/Robot/Drivetrain Pose",
+			simPose
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/Robot/Secondary Elevator Pose",
-			MechLogging.getInstance().getElevatorStage2()
-		);
-
-		Logger.recordOutput(
-			"FieldSimulation/Robot/Climber Pose",
-			MechLogging.getInstance().getClimberPose()
-		);
-
-		Logger.recordOutput(
-			"FieldSimulation/Robot/DriveTrain Pose",
-			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
-		);
-
-		Logger.recordOutput(
-			"FieldSimulation/AlgaePoses",
+			"Field Simulation/Game Pieces/Algae Poses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/CoralPoses",
+			"Field Simulation/Game Pieces/Coral Poses",
 			SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/Poses",
+			"Field Simulation/Robot/Mech Poses",
 			MechLogging.getInstance().getRobotPoses()
 		);
 
+		Logger.recordOutput(
+			"Field Simulation/Robot/Front Of Robot", driveSystem.getFrontOfDrivetrain());
+
+		Logger.recordOutput(
+			"Field Simulation/Robot/Coral Loaded?", SimLogging.getInstance().simRobotHasCoral());
+
+		if (HardwareMap.isFunnelHardwarePresent() && SimLogging.getInstance().shouldGiveCoral()) {
+			SimLogging.getInstance().loadSimCoral();
+		}
 	}
 
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
 	public void robotPeriodic() {
+		elevatorSystem.updateLogging();
+		funnelSystem.updateLogging();
 	}
 
 	/**

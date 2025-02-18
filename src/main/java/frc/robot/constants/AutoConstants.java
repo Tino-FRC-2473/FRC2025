@@ -19,8 +19,8 @@ public class AutoConstants {
 	public static final int RED_R_STATION_ID = 2;
 
 	public static final double REEF_X_TAG_OFFSET = -0.1;
-	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13)/2;
-	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13)/2;
+	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13) / 2;
+	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13) / 2;
 
 	public static final int R_REEF_1_TAG_ID = 10;
 	public static final int R_REEF_2_TAG_ID = 11;
@@ -68,8 +68,10 @@ public class AutoConstants {
 		DRIVE_BRAKE_CMD,
 		/* Elevator Commands */
 		ELEVATOR_GROUND_CMD,
-		ELEVATOR_STATION_CMD,
+		ELEVATOR_L2_CMD,
+		ELEVATOR_L3_CMD,
 		ELEVATOR_L4_CMD,
+		WAIT,
 		/* Funnel Commands */
 		FUNNEL_OPEN_CMD,
 		FUNNEL_CLOSE_CMD,

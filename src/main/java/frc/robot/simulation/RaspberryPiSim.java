@@ -3,16 +3,13 @@ package frc.robot.simulation;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.AprilTag;
 import frc.robot.RaspberryPi;
 import frc.robot.constants.SimConstants;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
@@ -55,12 +52,14 @@ public class RaspberryPiSim extends RaspberryPi {
 		visionSim.addCamera(stationCameraSim, SimConstants.ROBOT_TO_STATION_CAMERA);
 	}
 
+	@Override
 	public void printRawData() {
 		for (AprilTag tag: getAprilTags()) {
 			System.out.println("AprilTag " + tag.getTagID() + " -> " + tag.getPose().toString());
 		}
 	}
 
+	@Override
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 		atList.addAll(getAprilTagsSingleCamera(reefCamera));
@@ -68,14 +67,21 @@ public class RaspberryPiSim extends RaspberryPi {
 		return atList;
 	}
 
+	@Override
 	public ArrayList<AprilTag> getReefAprilTags() {
 		return getAprilTagsSingleCamera(reefCamera);
 	}
 
+	@Override
 	public ArrayList<AprilTag> getStationAprilTags() {
 		return getAprilTagsSingleCamera(stationCamera);
 	}
 
+	/**
+	 * Gets all the april tags seen by the camera specified.
+	 * @param camera the simulated camera to use.
+	 * @return the list of all april tags seen by the camera.
+	 */
 	public ArrayList<AprilTag> getAprilTagsSingleCamera(PhotonCamera camera) {
 		ArrayList<AprilTag> atList = new ArrayList<>();
 
@@ -103,6 +109,10 @@ public class RaspberryPiSim extends RaspberryPi {
 		return atList;
 	}
 
+	/**
+	 * Update loop to update the vision simulation with the robot pose.
+	 * @param robotPoseMeters the robot pose
+	 */
 	public void update(Pose2d robotPoseMeters) {
 		visionSim.update(robotPoseMeters);
 	}
