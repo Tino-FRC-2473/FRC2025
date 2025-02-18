@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.AprilTag;
 import frc.robot.RaspberryPi;
 import frc.robot.constants.SimConstants;
+import frc.robot.constants.VisionConstants;
 
 import java.util.ArrayList;
 import org.photonvision.PhotonCamera;
@@ -35,7 +36,7 @@ public class RaspberryPiSim extends RaspberryPi {
 			visionSim = new VisionSystemSim("main");
 			try {
 				visionSim.addAprilTags(
-					new AprilTagFieldLayout(SimConstants.APRIL_TAG_FIELD_LAYOUT_JSON)
+					new AprilTagFieldLayout(VisionConstants.APRIL_TAG_FIELD_LAYOUT_JSON)
 				);
 			} catch (Exception e) {
 				e.printStackTrace();

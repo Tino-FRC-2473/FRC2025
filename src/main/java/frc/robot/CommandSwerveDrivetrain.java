@@ -64,7 +64,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		);
 
 		if (Robot.isSimulation()) {
-			setupSimulation(getState().Pose);
+			setupSimulation(
+				new Pose2d(8, 8, new Rotation2d())
+			);
 		}
 		// setupPathplanner();
 	}

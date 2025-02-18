@@ -27,13 +27,6 @@ public class RaspberryPi {
 	private final String reefCamName;
 	private final String sourceCamName;
 
-	private Comparator<AprilTag> aComparator = new Comparator<AprilTag>() {
-		@Override
-		public int compare(AprilTag o1, AprilTag o2) {
-			return o1.compareTo(o2);
-		}
-	};
-
 	/**
 	* Default constructor for the RaspberryPi class.
 	*/

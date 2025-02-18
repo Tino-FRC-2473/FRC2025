@@ -24,4 +24,10 @@ public class VisionConstants {
 
 	public static final String REEF_CAM_NAME = "Reef Cam";
 	public static final String SOURCE_CAM_NAME = "Source Cam";
+
+	public static final String APRIL_TAG_FIELD_LAYOUT_JSON =
+		"src/main/java/frc/robot/constants/apriltag/welded/apriltag.json";
+
+	public static final int LOCALIZATION_TAG_NUM = 2;
+	public static final double LOCALIZATION_TRANSLATIONAL_THRESHOLD = 0.1;
 }

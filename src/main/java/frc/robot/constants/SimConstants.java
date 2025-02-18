@@ -60,10 +60,6 @@ public class SimConstants {
 	public static final double ELEVATOR_WINCH_DIAMETER_METERS = 0.0463296;
 	public static final double ELEVATOR_GEAR_RATIO = 10; //25.0;
 
-	//vision related constants
-	public static final String APRIL_TAG_FIELD_LAYOUT_JSON =
-		"src/main/java/frc/robot/constants/tagAbsPos.json";
-
 	// Camera names, must match names configured on coprocessor
 	public static final String REEF_CAMERA_NAME = "Reef CV Camera";
 	public static final String STATION_CAMERA_NAME = "Station CV Camera";
