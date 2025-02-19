@@ -500,7 +500,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			Logger.recordOutput("rot speed", aSpeed);
 		}
 
-		if (alignmentPose2d != null) {
+		if (alignmentPose2d != null && aSpeed == 0) {
 			Logger.recordOutput("ALignment Pose 2d", alignmentPose2d);
 
 			double xDiff = (!Utils.isSimulation())
