@@ -3,13 +3,11 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleArrayTopic;
 import edu.wpi.first.networktables.DoubleArrayTopic;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -21,12 +19,6 @@ import frc.robot.constants.VisionConstants;
 * @author Jaseer Abdulla
 */
 public class RaspberryPi {
-	private NetworkTable reefTable;
-	private NetworkTable sourceTable;
-	private DoubleArraySubscriber reefCamSubscriber;
-	private DoubleArraySubscriber sourceCamSubscriber;
-	private final String reefCamName;
-	private final String sourceCamName;
 	private NetworkTable reefTable;
 	private NetworkTable sourceTable;
 	private DoubleArraySubscriber reefCamSubscriber;
@@ -48,16 +40,6 @@ public class RaspberryPi {
 
 		reefCamName = VisionConstants.REEF_CAM_NAME;
 		sourceCamName = VisionConstants.SOURCE_CAM_NAME;
-		reefTable = NetworkTableInstance.getDefault().getTable("reef_table");
-		DoubleArrayTopic reefCamTopic = reefTable.getDoubleArrayTopic("april_tag_data");
-		reefCamSubscriber = reefCamTopic.subscribe(new double[] {});
-
-		sourceTable = NetworkTableInstance.getDefault().getTable("source_table");
-		DoubleArrayTopic sourceCamTopic = sourceTable.getDoubleArrayTopic("april_tag_data");
-		sourceCamSubscriber = sourceCamTopic.subscribe(new double[] {});
-
-		reefCamName = VisionConstants.REEF_CAM_NAME;
-		sourceCamName = VisionConstants.SOURCE_CAM_NAME;
 	}
 
 	/**
@@ -68,38 +50,15 @@ public class RaspberryPi {
 		double[] sourceRawData = sourceCamSubscriber.get();
 		System.out.println("Reef Raw Data: " + Arrays.toString(reefRawData));
 		System.out.println("Source Raw Data: " + Arrays.toString(sourceRawData));
-		double[] reefRawData = reefCamSubscriber.get();
-		double[] sourceRawData = sourceCamSubscriber.get();
-		System.out.println("Reef Raw Data: " + Arrays.toString(reefRawData));
-		System.out.println("Source Raw Data: " + Arrays.toString(sourceRawData));
 	}
 
 	/**
 	* Returns a list of all AprilTags from all cameras.
-	* Returns a list of all AprilTags from all cameras.
-	*
-	* @return  ArrayList<AprilTag>
-	*          A list of visible AprilTags
 	* @return  ArrayList<AprilTag>
 	*          A list of visible AprilTags
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
-		atList.addAll(getAprilTagsSingleCam(reefCamSubscriber, reefCamName));
-		atList.addAll(getAprilTagsSingleCam(sourceCamSubscriber, sourceCamName));
-		return atList;
-	}
-
-	/**
-	* Returns a list of all AprilTags from one camera.
-	* @param camSub subscriber for the camera
-	* @param camName camera name
-	* @return  ArrayList<AprilTag>
-	*          A list of visible AprilTags
-	*/
-	public ArrayList<AprilTag> getAprilTagsSingleCam(DoubleArraySubscriber camSub, String camName) {
-		ArrayList<AprilTag> atList = new ArrayList<>();
-		double[] rawData = camSub.get();
 		atList.addAll(getAprilTagsSingleCam(reefCamSubscriber, reefCamName));
 		atList.addAll(getAprilTagsSingleCam(sourceCamSubscriber, sourceCamName));
 		return atList;
@@ -128,7 +87,6 @@ public class RaspberryPi {
 			atList.add(
 				new AprilTag(
 					(int) rawData[i],
-					camName,
 					camName,
 					new Translation3d(
 						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET],
