@@ -415,8 +415,8 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Update vision measurements according to all seen tags.
 	 */
 	public void updateVisionEstimates() {
-		// aprilTagReefRefPoses = new ArrayList<Pose2d>();
-		// aprilTagStationRefPoses = new ArrayList<Pose2d>();
+		aprilTagReefRefPoses = new ArrayList<Pose2d>();
+		aprilTagStationRefPoses = new ArrayList<Pose2d>();
 		aprilTagVisionPoses = new ArrayList<Pose2d>();
 		ArrayList<AprilTag> reefTags = rpi.getReefAprilTags();
 		ArrayList<AprilTag> stationTags = rpi.getStationAprilTags();
@@ -448,25 +448,26 @@ public class DriveFSMSystem extends SubsystemBase {
 				);
 
 			if (!aprilTagPose3d.isEmpty()) {
-				Pose2d imposedPose = new Pose2d(
-					(new Pose3d(currPose)
-						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
-						.toPose2d()
-						.transformBy(
-							robotToCamera.inverse()
-						)
-					).getTranslation(),
-					currPose.getRotation()
-				);
+				Pose2d imposedPose =
+					aprilTagPose3d.get().toPose2d()
+						.plus(
+							new Transform2d(
+								-tag.getZ(),
+								-tag.getX(),
+								new Rotation2d(-tag.getPitch())
+							)
+						).transformBy(
+							robotToCamera
+						);
 
 				if (imposedPose.getTranslation().getDistance(currPose.getTranslation())
 					< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD) {
 
-					// aprilTagReefRefPoses.add(
-					// 	imposedPose
-					// );
+					aprilTagReefRefPoses.add(
+						imposedPose
+					);
 
-					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+					//drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
@@ -494,38 +495,36 @@ public class DriveFSMSystem extends SubsystemBase {
 				);
 
 			if (!aprilTagPose3d.isEmpty()) {
-				//aprilTagPose3d.get().getRotation()
-				//	.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
-
-				Pose2d imposedPose = new Pose2d(
-					(new Pose3d(currPose)
-						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
-						.toPose2d()
-						.transformBy(
-							robotToCamera.inverse()
+				Pose2d imposedPose =
+					aprilTagPose3d.get().toPose2d()
+					.plus(
+						new Transform2d(
+							-tag.getZ(),
+							-tag.getX(),
+							new Rotation2d(-tag.getPitch())
 						)
-					).getTranslation(),
-					currPose.getRotation()
-				);
+					).transformBy(
+						robotToCamera
+					);
 
 				if (imposedPose.getTranslation().getDistance(currPose.getTranslation())
 					< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD) {
 
-					// aprilTagStationRefPoses.add(
-					// 	imposedPose
-					// );
+					aprilTagStationRefPoses.add(
+						imposedPose
+					);
 
-					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+					//drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
 
-		// Logger.recordOutput(
-		// 	"VisionEstimate/ImposedReefList", aprilTagReefRefPoses.toArray(new Pose2d[] {})
-		// );
-		// Logger.recordOutput(
-		// 	"VisionEstimate/ImposedStationList", aprilTagStationRefPoses.toArray(new Pose2d[] {})
-		// );
+		Logger.recordOutput(
+			"VisionEstimate/ImposedReefList", aprilTagReefRefPoses.toArray(new Pose2d[] {})
+		);
+		Logger.recordOutput(
+			"VisionEstimate/ImposedStationList", aprilTagStationRefPoses.toArray(new Pose2d[] {})
+		);
 		Logger.recordOutput(
 			"VisionEstimate/AllVisionTargets", aprilTagVisionPoses.toArray(new Pose2d[] {})
 		);
