@@ -146,7 +146,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	public DriveFSMSystem() {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
-		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPi();
+		rpi = (Robot.isSimulation()) ? new RaspberryPiSim() : new RaspberryPi();
 
 		// Reset state machine
 		reset();
@@ -172,7 +172,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		currentState = FSMState.TELEOP_STATE;
 
 
-		if (Utils.isSimulation()) {
+		if (Robot.isSimulation()) {
 			updateSimStartingPose = false;
 		}
 
@@ -318,7 +318,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (rotXComp != 0) {
 			rotationAlignmentPose =
-				(Utils.isSimulation())
+				(Robot.isSimulation())
 					? getMapleSimDrivetrain().getDriveSimulation()
 					.getSimulatedDriveTrainPose().getRotation()
 					: drivetrain.getState().Pose.getRotation();
@@ -481,7 +481,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				VisionConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND
 			) : 0;
 
-			if (Utils.isSimulation()) {
+			if (Robot.isSimulation()) {
 				alignmentPose2d = getMapleSimDrivetrain()
 					.getDriveSimulation().getSimulatedDriveTrainPose()
 					.plus(new Transform2d(
@@ -503,12 +503,12 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (alignmentPose2d != null) {
 			Logger.recordOutput("ALignment Pose 2d", alignmentPose2d);
 
-			double xDiff = (!Utils.isSimulation())
+			double xDiff = (!Robot.isSimulation())
 				? alignmentPose2d.getX() - drivetrain.getState().Pose.getX()
 				: alignmentPose2d.getX() - getMapleSimDrivetrain().getDriveSimulation()
 					.getSimulatedDriveTrainPose().getX();
 
-			double yDiff = (!Utils.isSimulation())
+			double yDiff = (!Robot.isSimulation())
 				? alignmentPose2d.getY() - drivetrain.getState().Pose.getY()
 				: alignmentPose2d.getY() - getMapleSimDrivetrain().getDriveSimulation()
 					.getSimulatedDriveTrainPose().getY();
