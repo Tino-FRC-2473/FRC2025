@@ -38,7 +38,7 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double TIME_DRIVING_OFFSET = 0.5;
+	public static final double TIME_DRIVING_OFFSET = 0.2;
 
 	// 13 inches is the distance between pipes, center to center
 	public static final double ABS_REEF_OFFSET_Y_DISTANCE_METERS = Units.inchesToMeters(13) / 2;

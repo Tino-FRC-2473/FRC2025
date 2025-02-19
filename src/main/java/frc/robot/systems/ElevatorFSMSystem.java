@@ -401,6 +401,11 @@ public class ElevatorFSMSystem {
 			elevatorMotor.setControl(
 				motionRequest.withPosition(target.in(Units.Inches))
 			);
+
+			if (Utils.isSimulation()) {
+				MechLogging.getInstance().updateElevatorPose3d(
+						elevatorMotor.getPosition().getValue());
+			}
 		}
 
 		@Override
