@@ -19,7 +19,7 @@ public final class HardwareMap {
 
 	// rio - pwm ports
 	public static final int FUNNEL_SERVO_PWM_PORT = 0; // FINAL
-	public static final int LED_STRIP_PWM_PORT = 9; // TBD
+	public static final int LED_STRIP_PWM_PORT = 1; // FINAL
 
 	/* ===== Hardware Availability ===== */
 	/**
