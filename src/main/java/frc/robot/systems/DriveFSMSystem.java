@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -42,7 +43,7 @@ import frc.robot.logging.MechLogging;
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
-	public enum FSMState {
+	public enum DriveFSMState {
 		TELEOP_STATE,
 		ALIGN_TO_REEF_TAG_STATE,
 		ALIGN_TO_STATION_TAG_STATE
@@ -118,7 +119,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	};
 
 	/* ======================== Private variables ======================== */
-	private FSMState currentState;
+	private DriveFSMState currentState;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -130,6 +131,34 @@ public class DriveFSMSystem extends SubsystemBase {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
 
+		SmartDashboard.putData("Swerve",
+			builder -> {
+				builder.setSmartDashboardType("SwerveDrive");
+
+				builder.addDoubleProperty("FL ANGLE", () -> drivetrain.getModule(0)
+					.getPosition(true).angle.getDegrees(), null);
+				builder.addDoubleProperty("FL SPEED", () -> drivetrain.getModule(0)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("FR ANGLE", () -> drivetrain.getModule(1)
+					.getPosition(true).angle.getDegrees(), null);
+				builder.addDoubleProperty("FR SPEED", () -> drivetrain.getModule(1)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("BL ANGLE", () -> drivetrain.getModule(2)
+					.getPosition(true).angle.getDegrees(), null);
+				builder.addDoubleProperty("BL SPEED", () -> drivetrain.getModule(2)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("BR ANGLE", () -> drivetrain.getModule(2 + 1)
+					.getPosition(true).angle.getDegrees(), null);
+				builder.addDoubleProperty("BR SPEED", () -> drivetrain.getModule(2 + 1)
+					.getCurrentState().speedMetersPerSecond, null);
+
+				builder.addDoubleProperty("ROBOT ROT", () -> drivetrain.getState()
+					.Pose.getRotation().getDegrees(), null);
+			});
+
 		// Reset state machine
 		reset();
 	}
@@ -139,7 +168,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	* Return current FSM state.
 	* @return Current FSM state
 	*/
-	public FSMState getCurrentState() {
+	public DriveFSMState getCurrentState() {
 		return currentState;
 	}
 	/**
@@ -151,7 +180,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	* Ex. if the robot is enabled, disabled, then reenabled.
 	*/
 	public void reset() {
-		currentState = FSMState.TELEOP_STATE;
+		currentState = DriveFSMState.TELEOP_STATE;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -223,6 +252,14 @@ public class DriveFSMSystem extends SubsystemBase {
 		);
 	}
 
+	/**
+	* Gets robot alignment status (for LEDs).
+	* @return Whether the robot is aligned to the target apriltag.
+	*/
+	public boolean isAlignedToTag() {
+		return tagPositionAligned;
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	* Decide the next state to transition to. This is a function of the inputs
@@ -233,32 +270,32 @@ public class DriveFSMSystem extends SubsystemBase {
 	*        the robot is in autonomous mode.
 	* @return FSM state for the next iteration
 	*/
-	private FSMState nextState(TeleopInput input) {
+	private DriveFSMState nextState(TeleopInput input) {
 
 		switch (currentState) {
 			case TELEOP_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				} else if (input.getDriveCircleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 			case ALIGN_TO_REEF_TAG_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				} else if (input.getDriveCircleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 			case ALIGN_TO_STATION_TAG_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				} else if (input.getDriveCircleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 
 			default:
@@ -490,8 +527,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	/**
 	 * A Drive Robot Relative Offset command used while extending the elevator in auto.
-	 * @param xSpeed x robot relative speed in m/s
-	 * @param ySpeed y robot relative speed in m/s
+	 * @param xSpeed x robot relative speed
+	 * @param ySpeed y robot relative speed
 	 * @param timeRunning the amount of time you should be at the x and y speed for
 	 * @return the command
 	 */
@@ -524,8 +561,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		public void execute() {
 			drivetrain.setControl(
 				driveRobotCentric
-					.withVelocityX(xS)
-					.withVelocityY(yS)
+					.withVelocityX(xS * MAX_SPEED)
+					.withVelocityY(yS * MAX_SPEED)
 			);
 		}
 
