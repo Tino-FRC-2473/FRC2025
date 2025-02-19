@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.units.Units.Amps;
@@ -49,8 +50,11 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.Utils;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -220,13 +224,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		.setKinematics(drivetrain.getKinematics())
 		.setEndVelocity(0);
 
-		driveController.setTolerance(new Pose2d(
-			VisionConstants.X_MARGIN_TO_REEF,
-			VisionConstants.Y_MARGIN_TO_REEF,
-			new Rotation2d(VisionConstants.ROT_MARGIN_TO_REEF)
-		));
-
-		autoHeadingPid.enableContinuousInput(-Math.PI, Math.PI);
+		drivetrain.configureAutoBuilder();
 
 		try {
 			aprilTagFieldLayout
@@ -262,6 +260,9 @@ public class DriveFSMSystem extends SubsystemBase {
 				? getMapleSimDrivetrain().getDriveSimulation()
 				.getSimulatedDriveTrainPose().getRotation()
 				: drivetrain.getState().Pose.getRotation();
+
+		// want to call when the robot is initially running to get a true positional value.
+		updateVisionEstimates(false);
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -300,14 +301,16 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Performs specific action based on the autoState passed in.
 	 */
 	public void updateAutonomous() {
-
+		if (Utils.isSimulation()) {
+			getMapleSimDrivetrain().resetSimulationPose();
+		}
 	}
 
 	/**
-	 * Follow the given trajectory sample.
+	 * Configures Auto Builder for pathfinding.
 	 * @return An AutoFactory instance for creating autonomous routines.
 	 */
-	public AutoFactory createAutoFactory() {
+	public AutoFactory configureAutoSettings() {
 		return new AutoFactory(
 			() -> drivetrain.getState().Pose,
 			drivetrain::resetPose,
@@ -419,8 +422,9 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	/**
 	 * Update vision measurements according to all seen tags.
+	 * @param filter whether or not to filter vision estimates.
 	 */
-	public void updateVisionEstimates() {
+	public void updateVisionEstimates(boolean filter) {
 		aprilTagReefRefPoses = new ArrayList<Pose2d>();
 		aprilTagStationRefPoses = new ArrayList<Pose2d>();
 		aprilTagVisionPoses = new ArrayList<Pose2d>();
@@ -510,8 +514,9 @@ public class DriveFSMSystem extends SubsystemBase {
 					robotToCamera.inverse()
 				);
 
-				if (visionEstimateFilter(imposedPose, currPose)
-					&& (reefTags.size() + stationTags.size())
+				if (
+					((filter) ? visionEstimateFilter(imposedPose, currPose)
+						: true) && (reefTags.size() + stationTags.size())
 						>= VisionConstants.LOCALIZATION_TAG_NUM) {
 
 					aprilTagStationRefPoses.add(
@@ -642,7 +647,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			} else if (input.getDriveRightBumperButton()) {
 				alignmentYOff = AutoConstants.REEF_Y_R_TAG_OFFSET;
 			} else {
-				alignmentYOff = 0;
+				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
 			}
 		}
 
@@ -792,10 +797,49 @@ public class DriveFSMSystem extends SubsystemBase {
 	* @return align to tag command.
 	*/
 	public Command alignToTagCommand(int id, double x, double y) {
-		class AlignToReefTagCommand extends Command {
+		Optional<Pose3d> tagAbsPose = aprilTagFieldLayout.getTagPose(id);
 
+		if (!tagAbsPose.isEmpty()) {
+			alignmentXOff = AutoConstants.REEF_X_TAG_OFFSET;
+			aligningToReef = true;
+
+			Pose2d reefAlignPose = tagAbsPose
+				.get().toPose2d()
+				.transformBy(
+				new Transform2d(
+					alignmentXOff,
+					alignmentYOff,
+					(aligningToReef) ? Rotation2d.k180deg : new Rotation2d()
+				)
+			);
+
+			// return AutoBuilder.pathfindToPose(
+			// 	reefAlignPose,
+			// 	new PathConstraints(
+			// 		AutoConstants.ALIGN_MAX_T_SPEED,
+			// 		AutoConstants.ALIGN_MAX_T_ACCEL,
+			// 		AutoConstants.ALIGN_MAX_R_SPEED,
+			// 		AutoConstants.ALIGN_MAX_R_ACCEL
+			// 	)
+			// );
+			class AlignToTagCommand extends Command {
+				public boolean isFinished() {
+					return driveToPose(reefAlignPose);
+				}
+
+				public void end(boolean interrupted) {
+					tagID = -1;
+					alignmentXOff = 0;
+					alignmentYOff = 0;
+					driveToPoseFinished = false;
+				}
+			}
+
+			return new AlignToTagCommand();
 		}
-		return new AlignToReefTagCommand();
+		System.out.println("As");
+		return Commands.none();
+
 	}
 
 	/**

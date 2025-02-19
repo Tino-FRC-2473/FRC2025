@@ -10,7 +10,8 @@ public class AutoConstants {
 	public static final double DEG_360 = 360;
 
 	/* -- ALL SOURCE SPECIFIC CONSTANTS -- */
-	public static final double SOURCE_X_OFFSET = Units.inchesToMeters(35.5 / 2 - 6) + 0.15;
+	public static final double SOURCE_X_OFFSET = Units.inchesToMeters(35.5 / 2)
+		+ SimConstants.ROBOT_TO_REEF_CAMERA.getY() + 0.15;
 	public static final double SOURCE_Y_OFFSET = 0;
 
 	public static final int BLUE_L_STATION_ID = 13;
@@ -18,9 +19,12 @@ public class AutoConstants {
 	public static final int RED_L_STATION_ID = 1;
 	public static final int RED_R_STATION_ID = 2;
 
-	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2 - 6) + 0.15;
-	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13.5) / 2;
-	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13.5) / 2;
+	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2)
+		- SimConstants.ROBOT_TO_REEF_CAMERA.getX() + 0.15;
+	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13.5) / 2
+		+ SimConstants.ROBOT_TO_REEF_CAMERA.getY();
+	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13.5) / 2
+		+ SimConstants.ROBOT_TO_REEF_CAMERA.getY();
 	public static final double STATION_Y_L_TAG_OFFSET = Units.inchesToMeters(24);
 	public static final double STATION_Y_R_TAG_OFFSET = -Units.inchesToMeters(24);
 
@@ -40,9 +44,9 @@ public class AutoConstants {
 
 	public static final double ALIGN_MAX_T_SPEED = 2.4;
 	public static final double ALIGN_MAX_T_ACCEL = 2.0;
-	public static final double ALIGN_DRIVE_P = 0.48;
+	public static final double ALIGN_DRIVE_P = 0.355;
 	public static final double ALIGN_DRIVE_D = 0.0;
-	public static final double ALIGN_THETA_P = 0.56;
+	public static final double ALIGN_THETA_P = 0.49;
 	public static final double ALIGN_THETA_D = 0.00;
 	public static final double DRIVE_TOLERANCE = 0.01;
 	public static final double THETA_TOLERANCE = Units.degreesToRadians(1.0);

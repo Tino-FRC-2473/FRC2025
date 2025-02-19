@@ -133,10 +133,10 @@ public class Robot extends LoggedRobot {
 				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
 			);
 
-			if (Utils.isSimulation()) {
-				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
-					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
-			}
+			// if (Utils.isSimulation()) {
+			// 	driveSystem.getMapleSimDrivetrain().getDriveSimulation()
+			// 		.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+			// }
 
 			scheduledCommand.schedule();
 		}
@@ -263,20 +263,22 @@ public class Robot extends LoggedRobot {
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
 	public void robotPeriodic() {
-		if (driveSystem != null) {
+		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem.updateLogging();
-			driveSystem.updateVisionEstimates();
+			if (HardwareMap.isCVHardwarePresent()) {
+				driveSystem.updateVisionEstimates(true);
+			}
 		}
 
-		if (funnelSystem != null) {
+		if (HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem.updateLogging();
 		}
 
-		if (elevatorSystem != null) {
+		if (HardwareMap.isElevatorHardwarePresent()) {
 			elevatorSystem.updateLogging();
 		}
 
-		if (climberSystem != null) {
+		if (HardwareMap.isClimberHardwarePresent()) {
 			climberSystem.updateLogging();
 		}
 	}

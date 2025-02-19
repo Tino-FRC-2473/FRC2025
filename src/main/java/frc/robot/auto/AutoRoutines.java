@@ -29,7 +29,7 @@ public class AutoRoutines {
 	private AutoPaths autoPaths;
 
 	// for sim purposes
-	private Pose2d initPose;
+	private Pose2d initPose = new Pose2d();
 
 	// Initialize all FSMs (with commands) here
 	private DriveFSMSystem driveSystem;
@@ -226,7 +226,7 @@ public class AutoRoutines {
 		funnelSystem = funnelFSMSystem;
 
 		if (HardwareMap.isDriveHardwarePresent()) {
-			sysRoutine = driveSystem.createAutoFactory().newRoutine("AutoRoutine");
+			sysRoutine = driveSystem.configureAutoSettings().newRoutine("AutoRoutine");
 			generateSysRoutineMap(Filesystem.getDeployDirectory().toString());
 		}
 

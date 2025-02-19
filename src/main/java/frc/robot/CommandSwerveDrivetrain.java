@@ -1,11 +1,17 @@
 package frc.robot;
 
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import choreo.trajectory.SwerveSample;
 
@@ -14,9 +20,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.constants.AutoConstants;
+import frc.robot.constants.DriveConstants;
+import frc.robot.constants.SimConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.SimSwerveDrivetrainConfig;
@@ -26,7 +37,8 @@ import frc.robot.simulation.SimSwerveDrivetrainConfig;
  * so it can be used in command-based projects easily.
  */
 
-public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
+public class CommandSwerveDrivetrain extends
+	SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements Subsystem {
 
 	/* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
 	private static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
@@ -148,5 +160,84 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	 */
 	public MapleSimSwerveDrivetrain getSimDrivetrain() {
 		return mapleSimSwerveDrivetrain;
+	}
+
+	/**
+	 * Return the pose of the drivetrain.
+	 * @return pose
+	 */
+	public Pose2d getPose() {
+		if (Utils.isSimulation()) {
+			return getSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose();
+		} else {
+			return getState().Pose;
+		}
+	}
+
+	/**
+	 * Return the chassis speeds of the drivetrain.
+	 * @return chassis speeds
+	 */
+	public ChassisSpeeds getRobotChassisSpeeds() {
+		if (Utils.isSimulation()) {
+			return getSimDrivetrain().getDriveSimulation()
+				.getDriveTrainSimulatedChassisSpeedsRobotRelative();
+		} else {
+			return getState().Speeds;
+		}
+	}
+
+	/**
+	 * Configure the auto builder.
+	 */
+	public void configureAutoBuilder() {
+		try {
+			AutoBuilder.configure(
+				this::getPose,   // Supplier of current robot pose
+				this::resetPose,         // Consumer for seeding pose against auto
+				this::getRobotChassisSpeeds, // Supplier of current robot speeds
+				// Consumer of ChassisSpeeds and feedforwards to drive the robot
+				(speeds, feedforwards) -> setControl(
+					pathApplyRobotSpeeds.withSpeeds(speeds)
+					.withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+					.withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+				),
+				new PPHolonomicDriveController(
+					// PID constants for translation
+					new PIDConstants(5, 0, 0),
+					// PID constants for rotation
+					new PIDConstants(5, 0, 0)
+				),
+				new RobotConfig(
+					SimConstants.MASS_WITH_BUMPER_LBS,
+					SimConstants.MOI,
+					new ModuleConfig(
+						TunerConstants.WHEEL_RADIUS.baseUnitMagnitude(),
+						AutoConstants.ALIGN_MAX_T_SPEED,
+						SimConstants.WHEEL_COF,
+						DCMotor.getKrakenX60Foc(1),
+						TunerConstants.DRIVE_RATIO,
+						DriveConstants.DRIVE_CURRENT_LIMIT,
+						1
+					),
+					SimConstants.FL_TRANSLATION,
+					SimConstants.FR_TRANSLATION,
+					SimConstants.BL_TRANSLATION,
+					SimConstants.BR_TRANSLATION
+				),
+				// Assume the path needs to be flipped for Red vs Blue, this is normally the case
+				() -> {
+					return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
+				},
+				this // Subsystem for requirements
+			);
+		} catch (Exception ex) {
+			System.out.println("error reached");
+			ex.printStackTrace();
+			DriverStation.reportError(
+				"Failed to load PathPlanner config and configure AutoBuilder",
+				ex.getStackTrace()
+			);
+		}
 	}
 }

@@ -54,7 +54,6 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_TEST_2 = new Object[] {
-		"S3_R6_H",
 		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD
 	};
 
