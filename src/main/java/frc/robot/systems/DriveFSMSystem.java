@@ -257,7 +257,12 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void reset() {
 		currentState = FSMState.TELEOP_STATE;
-		rotationAlignmentPose = drivetrain.getState().Pose.getRotation();
+		rotationAlignmentPose =
+			(Utils.isSimulation())
+				? getMapleSimDrivetrain().getDriveSimulation()
+				.getSimulatedDriveTrainPose().getRotation()
+				: drivetrain.getState().Pose.getRotation();
+
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
 	}
@@ -274,8 +279,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (input == null) {
 			return;
 		}
-
-		updateVisionEstimates();
 
 		switch (currentState) {
 			case TELEOP_STATE:
@@ -297,7 +300,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Performs specific action based on the autoState passed in.
 	 */
 	public void updateAutonomous() {
-		logger.applyStateLogging(drivetrain.getState());
+
 	}
 
 	/**
@@ -364,7 +367,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleTeleOpState(TeleopInput input) {
-		logger.applyStateLogging(drivetrain.getState());
 
 		/* --- cv alignment reset --- */
 		tagID = -1;
@@ -409,6 +411,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (input.getDriveBackButtonPressed()) {
 			drivetrain.seedFieldCentric();
 		}
+
+		Logger.recordOutput("TeleOp/XSpeed", xSpeed);
+		Logger.recordOutput("TeleOp/YSpeed", ySpeed);
+		Logger.recordOutput("TeleOp/RotSpeed", rotXComp);
 	}
 
 	/**
@@ -448,26 +454,24 @@ public class DriveFSMSystem extends SubsystemBase {
 				);
 
 			if (!aprilTagPose3d.isEmpty()) {
-				Pose2d imposedPose =
-					aprilTagPose3d.get().toPose2d()
-						.plus(
-							new Transform2d(
-								-tag.getZ(),
-								-tag.getX(),
-								new Rotation2d(-tag.getPitch())
-							)
-						).transformBy(
-							robotToCamera
-						);
+				Pose2d imposedPose = new Pose2d(
+					new Pose3d(currPose)
+						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
+						.toPose2d().getTranslation(),
+					currPose.getRotation()
+				).transformBy(
+					robotToCamera.inverse()
+				);
 
-				if (imposedPose.getTranslation().getDistance(currPose.getTranslation())
-					< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD) {
+				if (visionEstimateFilter(imposedPose, currPose)
+					&& (reefTags.size() + stationTags.size())
+						>= VisionConstants.LOCALIZATION_TAG_NUM) {
 
 					aprilTagReefRefPoses.add(
 						imposedPose
 					);
 
-					//drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
@@ -495,26 +499,26 @@ public class DriveFSMSystem extends SubsystemBase {
 				);
 
 			if (!aprilTagPose3d.isEmpty()) {
-				Pose2d imposedPose =
-					aprilTagPose3d.get().toPose2d()
-					.plus(
-						new Transform2d(
-							-tag.getZ(),
-							-tag.getX(),
-							new Rotation2d(-tag.getPitch())
-						)
-					).transformBy(
-						robotToCamera
-					);
 
-				if (imposedPose.getTranslation().getDistance(currPose.getTranslation())
-					< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD) {
+				Pose2d imposedPose = new Pose2d(
+					new Pose3d(currPose)
+						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
+						.toPose2d().getTranslation(),
+						aprilTagPose3d.get().getRotation()
+							.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
+				).transformBy(
+					robotToCamera.inverse()
+				);
+
+				if (visionEstimateFilter(imposedPose, currPose)
+					&& (reefTags.size() + stationTags.size())
+						>= VisionConstants.LOCALIZATION_TAG_NUM) {
 
 					aprilTagStationRefPoses.add(
 						imposedPose
 					);
 
-					//drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
@@ -531,9 +535,25 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	}
 
+	private boolean visionEstimateFilter(Pose2d imposed, Pose2d current) {
+		return
+			(imposed.getTranslation().getDistance(current.getTranslation())
+				< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD
+			&& Math.abs(imposed.getRotation().getRadians() - current.getRotation().getRadians())
+				< VisionConstants.LOCALIZATION_ANGLE_TOLERANCE);
+	}
+
+	/**
+	 * Updates drivetrain logging.
+	 */
+	public void updateLogging() {
+		logger.applyStateLogging(drivetrain.getState());
+	}
+
 	/**
 	 * Drive to pose function.
 	 * @param target target pose to align to.
+	 * @return whether or not driving is completed.
 	 */
 	public boolean driveToPose(Pose2d target) {
 		Pose2d currPose = (Utils.isSimulation())
@@ -728,8 +748,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * allianceFlip should be true in TeleOp.
 	 */
 	private void handleTagAlignment(TeleopInput input, int id, boolean allianceFlip) {
-		logger.applyStateLogging(drivetrain.getState());
-
 		Optional<Pose3d> tagAbsPose = aprilTagFieldLayout.getTagPose(id);
 		if (!tagAbsPose.isEmpty()) {
 			Pose2d alignmentPose = tagAbsPose

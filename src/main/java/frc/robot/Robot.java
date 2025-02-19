@@ -263,6 +263,11 @@ public class Robot extends LoggedRobot {
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
 	public void robotPeriodic() {
+		if (driveSystem != null) {
+			driveSystem.updateLogging();
+			driveSystem.updateVisionEstimates();
+		}
+
 		if (funnelSystem != null) {
 			funnelSystem.updateLogging();
 		}

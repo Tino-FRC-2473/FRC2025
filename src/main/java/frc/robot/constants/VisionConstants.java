@@ -29,6 +29,7 @@ public class VisionConstants {
 	public static final String APRIL_TAG_FIELD_LAYOUT_JSON =
 		"src/main/java/frc/robot/constants/apriltag/welded/apriltag.json";
 
-	public static final int LOCALIZATION_TAG_NUM = 2;
-	public static final double LOCALIZATION_TRANSLATIONAL_THRESHOLD = 1.0;
+	public static final int LOCALIZATION_TAG_NUM = 1;
+	public static final double LOCALIZATION_TRANSLATIONAL_THRESHOLD = 0.4;
+	public static final double LOCALIZATION_ANGLE_TOLERANCE = Math.toRadians(5);
 }
