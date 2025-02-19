@@ -139,14 +139,14 @@ C --> W: Wrappers extend Base Class
 		<li> Select the STEP format and then choose .glb. </li>
 		<li> Click the Settings button next to the file format selection.</li>
 		<li> Enable the option to Merge faces within the same part <b> (This is CRUCIAL!). </b> </li>
-	</ol>
+	</ol> <br>
 	<li> <b> Rename the Model File  </b> </li>
 	<b> IMPORTANT: It is CRUCIAL to rename the file to model (all lowercase). </b>
 	<ul>
 		<li> If the file is not named “model,” Advantage Scope will not detect it correctly! </li>
 		<li> Once renamed, click Save. (save all files as “model”!)</li>
 		<li> Robot models can contain articulated components for visualizing mechanism data. The base glTF model should include no components, then each component should be exported as a separate glTF model. Components models follow the naming convention "model_INDEX.glb", so the first articulated component would be "model_0.glb"</li>
-	</ul>
+	</ul> <br>
 	<li> <b> Create a JSON File Using the Python Script (cadutil.py) </b> </li>
 	Download or access the cadutil.py Python script. <br> 
 	To generate the necessary .json configuration file:
@@ -159,7 +159,7 @@ C --> W: Wrappers extend Base Class
 			<li> Length of the model (in meters). </li>
 		</ul>
 		<li> After running the script you will get text that you need to now paste into a file you will name config.json <b> (YOU MUST NAME IT THIS) </b> </li>
-	</ol>
+	</ol> <br>
 	<li> <b> Prepare the Advantage Scope Simulation </b> </li>
 	Now that the files are ready, you need to place them in the correct folder for Advantage Scope:
 	<ol> 
@@ -167,7 +167,7 @@ C --> W: Wrappers extend Base Class
 		<li> In the top left, click Help, then select Show Assets Folders.</li>
 		<li> In the Assets Folder, create a new folder with the same name you inputted in the Python script.</li>
 		<li> Add both the config.json and model.glb files to this folder.</li>
-	</ol>
+	</ol> <br>
 	<li> <b> Run the Simulation </b> </li>
 	Simulate Robot Code
 	<ul>
