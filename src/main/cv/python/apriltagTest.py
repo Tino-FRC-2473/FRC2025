@@ -21,6 +21,7 @@ while True:
     annotated_frame = frame.copy()
     tagData = tag_module.estimate_3d_pose(frame, annotated_frame, ARUCO_LENGTH_METERS)
 
+
     #print(tagData)
     
     #cv2.imshow('result', annotated_frame)

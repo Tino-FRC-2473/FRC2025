@@ -10,7 +10,7 @@ DRIVER_CAM_RES_Y = 240 # Vertical resolution of the driver cameras
 if not USE_CLI_ARGUMENTS:
     AT_CAM_USB_ID = 'usb-xhci-hcd.0-1' # for when on RPi
     AT_CAM_INDEX = 0 # for when not on RPi
-    AT_CAM_NAME = "bw_cam" # used for npy files
+    AT_CAM_NAME = "bw_cam_4v1" # used for npy files
 AT_NPY_DIR = "calibration_data" # relative to python files
 AT_FOV = (50.28, 29.16) # degrees
 AT_INPUT_RES = (1280, 720) # If this resolution is not supported by the camera, it will use the camera's default res

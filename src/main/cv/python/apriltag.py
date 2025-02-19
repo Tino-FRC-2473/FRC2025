@@ -5,6 +5,7 @@ import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
 from scipy.spatial.transform import Rotation
+import math
 
 
 
@@ -82,14 +83,20 @@ class AprilTag():
         # Extract Euler angles (assuming a standard rotation order like XYZ)
         euler_angles = Rotation.from_matrix(R).as_euler("xyz", degrees=False)
 
-        '''
         print("Euler x angle: ", euler_angles[0]) 
         print("Euler y angle: ", euler_angles[1])
         print("Euler z angle: ", euler_angles[2])
-        '''
+        
+        #print(self.fix_camera_tilt(euler_angles[0]))
+        print("Pitch in radians: ", rvec[1])
+        self.fix_camera_tilt(euler_angles[2], rvec[1])
         return euler_angles
 
-
+    def fix_camera_tilt(self, euler_yaw_angle, pitch_angle):
+        robot_yaw = math.atan(math.tan(euler_yaw_angle) * math.cos(pitch_angle))
+        print("Robot yaw value: ", robot_yaw)
+        return robot_yaw
+    
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
             gray = image[:, :, 0]
