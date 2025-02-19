@@ -5,7 +5,7 @@ from config import *
 
 RES = (1280, 720)
 
-tag_module = AprilTag("bw_cam_2v5")
+tag_module = AprilTag()
 input = VisionInput(AT_FOV, AT_INPUT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, 0)
 
 while True:
@@ -15,7 +15,7 @@ while True:
     annotated_frame = frame.copy()
     tagData = tag_module.estimate_3d_pose(frame, annotated_frame, ARUCO_LENGTH_METERS)
 
-    #print(tagData)
+    # print(tagData)
     
     #cv2.imshow('result', annotated_frame)
     key = cv2.waitKey(1) & 0xFF

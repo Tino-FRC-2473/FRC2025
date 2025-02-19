@@ -1,7 +1,6 @@
 venv/
 .env
 config.py
-!rpi/config.py 
 calibration_data/
 calibration_input/
 calibration_images/
