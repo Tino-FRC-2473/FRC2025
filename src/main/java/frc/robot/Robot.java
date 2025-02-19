@@ -14,7 +14,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import com.ctre.phoenix6.Utils;
 
 // WPILib Imports
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -136,7 +135,7 @@ public class Robot extends LoggedRobot {
 				autoRoutines.getAutoPathHandler().getAllAutos().get(autoCommand), throwException
 			);
 
-			if (Utils.isSimulation()) {
+			if (Robot.isSimulation()) {
 				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
 					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
 			}
