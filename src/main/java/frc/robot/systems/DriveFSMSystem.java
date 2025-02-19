@@ -573,20 +573,26 @@ public class DriveFSMSystem extends SubsystemBase {
 			) < VisionConstants.ROT_MARGIN_TO_REEF;
 
 		double xSpeed =
-			-(target.getX() - currPose.getX())
+			-MathUtil.clamp((target.getX() - currPose.getX())
 			* AutoConstants.ALIGN_DRIVE_P
-			* MAX_SPEED * allianceOriented.getAsInt();
+			* MAX_SPEED * allianceOriented.getAsInt(),
+			-AutoConstants.ALIGN_MAX_T_SPEED,
+			AutoConstants.ALIGN_MAX_T_SPEED);
 
 		double ySpeed =
-			-(target.getY() - currPose.getY())
+			-MathUtil.clamp((target.getY() - currPose.getY())
 			* AutoConstants.ALIGN_DRIVE_P
-			* MAX_SPEED * allianceOriented.getAsInt();
+			* MAX_SPEED * allianceOriented.getAsInt(),
+			-AutoConstants.ALIGN_MAX_T_SPEED,
+			AutoConstants.ALIGN_MAX_T_SPEED);
 
 		double rotSpeed =
-			-(target.getRotation().getRadians()
+			-MathUtil.clamp((target.getRotation().getRadians()
 			- currPose.getRotation().getRadians())
 			* AutoConstants.ALIGN_THETA_P
-			* MAX_ANGULAR_RATE;
+			* MAX_ANGULAR_RATE,
+			-AutoConstants.ALIGN_MAX_R_SPEED,
+			AutoConstants.ALIGN_MAX_R_SPEED);
 
 
 		Logger.recordOutput(

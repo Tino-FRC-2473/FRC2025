@@ -13,7 +13,7 @@ public class VisionConstants {
 	public static final double X_MARGIN_TO_REEF = 0.02;
 	public static final double Y_MARGIN_TO_REEF = 0.02;
 	public static final double ROT_MARGIN_TO_REEF
-		= Units.degreesToRadians(2); //TODO: change rot margin.
+		= Math.toRadians(2); //TODO: change rot margin.
 	public static final double TAG_TARGET_DISTANCE = 0.2;
 
 	public static final double N_180 = 180;
