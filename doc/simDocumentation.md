@@ -106,3 +106,115 @@ I --> W: Wrappers implement interface
 W --> F: FSMs use wrapper in place of base classes
 C --> W: Wrappers extend Base Class
 ```
+
+## How to import custom CAD into Advantage Kit 
+
+<i> Note: If you would like a full breakdown, complete instructions are located <a href="https://docs.advantagescope.org/more-features/custom-assets/"> here</a> </i>
+
+### Steps 
+
+<ol> 
+	<li> <b> Download CAD Assistant <a href="https://www.opencascade.com/products/cad-assistant/"> here</a>. </b> </li> <br>
+	<li>  <b> Get Your Onshape Model into CAD Assistant </b> </li>  
+	We must convert the Onshape model into a .glb format for Advantage Scope. Below is how you can do it: <br> <br>
+	<li> <b> Export the Onshape Model as a .STEP File </b> </li> 
+	In Onshape: 
+	<ol> 
+		<li> Right-click or double-click the model name at the bottom of the screen. </li>
+		<li> Select Export. </li>
+		<li> Choose the .STEP file format. </li> 
+	</ol> <br>
+	<li> <b> Open CAD Assistant </b> </li> 
+	After downloading CAD Assistant, follow these steps: 
+	<ol> 
+		<li> Open CAD Assistant. </li>
+		<li> Navigate to your Downloads folder. </li>
+		<li> Find and open the .STEP file** you just downloaded. </li>
+		<li> Depending on your model, it might take a minute to load. </li> 
+	</ol> <br>
+	<li> <b> Save the Model in .glb Format → .glb </b> </li>
+		Once the model is loaded: 
+	<ol> 
+		<li> Click the floppy disk icon to save the model as a new file. This is the second item on the left.</li>
+		<li> Select the STEP format and then choose .glb. </li>
+		<li> Click the Settings button next to the file format selection.</li>
+		<li> Enable the option to Merge faces within the same part <b> (This is CRUCIAL!). </b> </li>
+	</ol>
+	<li> <b> Rename the Model File  </b> </li>
+	<b> IMPORTANT: It is CRUCIAL to rename the file to model (all lowercase). </b>
+	<ul>
+		<li> If the file is not named “model,” Advantage Scope will not detect it correctly! </li>
+		<li> Once renamed, click Save. (save all files as “model”!)</li>
+		<li> Robot models can contain articulated components for visualizing mechanism data. The base glTF model should include no components, then each component should be exported as a separate glTF model. Components models follow the naming convention "model_INDEX.glb", so the first articulated component would be "model_0.glb"</li>
+	</ul>
+	<li> <b> Create a JSON File Using the Python Script (cadutil.py) </b> </li>
+	Download or access the cadutil.py Python script. <br> 
+	To generate the necessary .json configuration file:
+	<ol>
+		<li> Run the Python <a href="https://docs.google.com/document/d/10USemRleA6LUeJVjW4Y1HlmHW0156KO7vS_Pl_alAFc/edit?tab=t.0"> script</a> or use the online <a href="https://www.programiz.com/online-compiler/4K0EEiR0U1Tbe">compiler</a> and copy the output json </li>
+		<li> Input the following information:</li>
+		<ul> 
+			<li> Name of the model: What you want the model to be called in Advantage Scope. </li>
+			<li> Width of the model (in meters).</li>
+			<li> Length of the model (in meters). </li>
+		</ul>
+		<li> After running the script you will get text that you need to now paste into a file you will name config.json <b> (YOU MUST NAME IT THIS) </b> </li>
+	</ol>
+	<li> <b> Prepare the Advantage Scope Simulation </b> </li>
+	Now that the files are ready, you need to place them in the correct folder for Advantage Scope:
+	<ol> 
+		<li> Open Advantage Scope.</li>
+		<li> In the top left, click Help, then select Show Assets Folders.</li>
+		<li> In the Assets Folder, create a new folder with the same name you inputted in the Python script.</li>
+		<li> Add both the config.json and model.glb files to this folder.</li>
+	</ol>
+	<li> <b> Run the Simulation </b> </li>
+	Simulate Robot Code
+	<ul>
+		<li>In the top-right corner of your development environment, locate the WPILib logo. </li>
+		<li> Click on the logo and type Simulate Robot Code in the search bar.</li>
+		<li> Press Enter and wait for a prompt to appear at the top of the screen.</li>
+		<li> When prompted, select Use Sim GUI and click OK.</li>
+	</ul>
+	Open the Java Simulation (Window with blue background)
+	<ul>
+		<li> Once the Java Simulation opens, ensure a controller is plugged into your system.</li>
+		<li> Navigate to the System Joysticks tab and locate a controller labeled on Index 0.</li>
+		<li> Drag the controller label into the Joysticks tab.</li>
+	</ul>
+	Launch Advantage Scope
+	<ul> 
+		<li>Return to the WPILib interface, click the logo, and type Start Tool in the search bar. </li>
+		<li> Press Enter, then type AdvantageScope and press Enter again.</li>
+		<li> Once Advantage Scope opens, click File in the window's top-left corner and select Connect to Simulator. </li>
+	</ul>
+	Set Up the Pose
+	<ul>
+		<li> In Advantage Scope, locate the drop-down menu labeled Pose on the left-hand side.</li>
+		<li> Expand the menu to find two entries: .type and robotPose.</li>
+		<li> Drag robotPose into the Poses section in the middle of the window.</li>
+	</ul>
+	View the Simulation
+	<ul>
+		<li> You should now see Kit Bot displayed.</li>
+		<li> Click the arrow icon to expand the details on the left side of the name.</li>
+		<li> If all the previous steps were completed correctly, your custom model should appear in the simulation.</li>
+	</ul>
+	Once the files are correctly placed in the folder, you can run the simulation in Advantage Scope. If all steps were followed correctly, the model should now be available for use! 
+</ol>
+<br>
+
+### Final Notes: 
+
+<ul>
+	<li> Ensure the model file is named "model" to be detected by Advantage Scope. </li>
+	<ul>
+		<li> Ensure that any mech components are labeled as per their respective index. </li>
+	</ul>
+	<li> If you encounter any issues with file formats or exporting, revisit the export and save steps in CAD Assistant. </li>
+</ul>
+	
+
+
+
+
