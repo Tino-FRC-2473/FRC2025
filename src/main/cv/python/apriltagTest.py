@@ -5,7 +5,7 @@ from config import *
 import numpy as np
 RES = (1280, 720)
 
-tag_module = AprilTag()
+tag_module = AprilTag("bw_cam_4v1")
 input = VisionInput(AT_FOV, AT_INPUT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, 0)
 
 while True:

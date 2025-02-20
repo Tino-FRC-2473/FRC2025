@@ -16,9 +16,9 @@ basePath = Path(__file__).resolve().parent
 # max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
 # at 18 in -> max left/right was 4.5 in
 class AprilTag():
-    def __init__(self):
-        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}dist.npy')
+    def __init__(self, cam_name):
+        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}matrix.npy')
+        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
