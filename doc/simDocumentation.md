@@ -24,6 +24,7 @@ elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
 
 ### Technical documentation
 
+
 #### Startup guide for writing wrappers
 
 as a summary: motor wrappers are solutions for simulating motors at a per-motor level, and are non-generalized so that our FSMs don't have to be.
@@ -106,6 +107,113 @@ I --> W: Wrappers implement interface
 W --> F: FSMs use wrapper in place of base classes
 C --> W: Wrappers extend Base Class
 ```
+## Files Relevant to Simulation
+<ol> 
+  <li> Robot.java </li>
+  <li> CommandSwerveDrivetrain.java </li>
+  <li> FunnelFSMSystem.java </li>
+  <li> ElevatorFSMSystem.java </li>
+  <li> DriveFSMSystem.java </li>
+  <li> SimSwerveDrivetrainConfig.java </li>
+  <li> RaspberryPiSim.java </li>
+  <li> MapleSimSwerveDrivetrain.java </li>
+  <li> TalonFXWrapper.java </li>
+  <li> SparkMaxWrapper.java </li>
+  <li> SimLogging.java </li>
+  <li> MechLogging.java </li>
+  <li> SimConstants.java </li>
+  <li> TunerConstants.java </li>
+
+</ol>
+
+## SwerveDrive
+Swerve Drive is a field relative drivetrain. This is different from a robot relative drivetrain. Field relative drivetrains move in the same way regardless of orientation of the robot -- that is to say that no matter whether the front of the robot is facing field forward or not, the robot will always move field forward. 
+
+### Driver Controls
+All of this utilizes PS4 specific controls -- inputs can be changed to other controllers in the TeleopInput.java file.
+<ul>
+	<li> The <b> left joystick </b> is used for translational motion (moving the robot around the field). </li>
+	<li> The <b> right joystick </b> is used for rotational motion (turning the robot's orientation around). </li>
+	<li> The button to reset the field forward direction based on the current orientation of the robot is the <b> Share </b> button. </li>
+	<li> The button to use AprilTag detection and align the robot to the nearest detected April Tag position is the <b> Square </b> button </li>
+	<li> The button to specifically use AprilTag detection to specific AprilTag ids (for Reefscape 2025 it was used for the AprilTag values found on the reef) is the <b> Triangle </b> button. </li>
+
+</ul>
+
+
+### Running the simulation
+<ol> 
+	Simulate Robot Code
+	<ul>
+		<li>In the top-right corner of your development environment, locate the WPILib logo. </li>
+		<li> Click on the logo and type Simulate Robot Code in the search bar.</li>
+		<li> Press Enter and wait for a prompt to appear at the top of the screen.</li>
+		<li> When prompted, select Use Sim GUI and click OK.</li>
+	</ul>
+	Open the Java Simulation (Window with blue background)
+	<ul>
+		<li> Once the Java Simulation opens, ensure a controller is plugged into your system.</li>
+		<li> Navigate to the System Joysticks tab and locate a controller labeled on Index 0.</li>
+		<li> Drag the controller label into the Joysticks tab.</li>
+	</ul>
+	Launch Advantage Scope
+	<ul> 
+		<li>Return to the WPILib interface, click the logo, and type Start Tool in the search bar. </li>
+		<li> Press Enter, then type AdvantageScope and press Enter again.</li>
+		<li> Once Advantage Scope opens, click File in the window's top-left corner and select Connect to Simulator. </li>
+	</ul>
+	Set Up the Pose
+	<ul>
+		<li> In Advantage Scope, locate the drop-down menu labeled Pose on the left-hand side.</li>
+		<li> Expand the menu to find two entries: .type and robotPose.</li>
+		<li> Drag robotPose into the Poses section in the middle of the window.</li>
+	</ul>
+	View the Simulation
+	<ul>
+		<li> You should now see Kit Bot displayed.</li>
+		<li> Click the arrow icon to expand the details on the left side of the name.</li>
+		<li> If all the previous steps were completed correctly, your custom model should appear in the simulation.</li>
+	</ul>
+</ol>
+
+### How Swerve Drive Simulation Code Works
+We utilize <b> maple-sim</b>, created by Shenzhen Robotics Alliance (Team 5516 "Iron Maple" and Team 6706 "Golem") as an essential tool for our simulation. 
+
+<i> Note: If you would like a full breakdown of how maple-sim works, please check their <a href = "https://github.com/Shenzhen-Robotics-Alliance/maple-sim"> GitHub </a> page. </i>
+
+We also use <b> AdvantageScope</b>, created by Team 6328, "Mechanical-Advantage," a data visualization program that pairs with maple-sim to display our simulation, as well as other visualizations like graphs of values and the swerve state of the simulated robot.
+
+<i> Note: If you would like a full breakdown of AdvantageScope and its full documentation, please check their <a href="https://github.com/Mechanical-Advantage/AdvantageScope"> GitHub </a> page. </i>
+
+<ul>
+	<li> Initialization </li>
+	<ul> 
+		<li> The initialization of the drivetrain program is identical to the robot drivetrain system, and both are done through the same class, CommandSwerveDrivetrain. The only differences are that for simulation, the drivetrain is set to the maple-sim drivetrain class, and also set to specific positions in the simulation field (because the origin of the field is outside the actual confines of the stadium).
+	</ul>
+	<li> DriveFSM </li>
+	<ul> 
+		<li> The basic movement for simulation is nearly identical to the regular DriveFSM System. For details about how the DriveFSM System works, visit our DriveFSM.md page. The only difference is updating the maple-sim drivetrain instead of our robot drivetrain, and logging values to the sim. </li>
+		<ul> 
+			<li> To view this implementation, visit our DriveFSMSystem.java file. </li>
+		</ul>
+	</ul>
+	<li>  Maple-Sim Drivetrain </li>
+	<ul> 
+		<li> The MapleSimSwerveDrivetrain class creates the maple-sim drivetrain, using the SimSwerveDrivetrainConfig class as a data point for important values in the simulation. It then runs the maple-sim periodic, and updates the simulation state based on the pose and inputs provided. It also regulates the modules in order to prevent known maple-sim bugs from appearing in the program, and finally is where the controller for our TalonFX module is also created. </li>
+	</ul>
+
+
+</ul>
+
+## Computer Vision
+We use the <a href = "https://docs.photonvision.org/en/v2025.2.1-rc2/"> PhotonVision</a> simulation system to use AprilTag detection on our simulation. This can all be found on our RaspberryPiSim.java file.
+<ul> 
+	<li> This allows us to test AprilTag alignment drive code on our sim, without any delay from delays in our actual Computer Vision subteam. </li>
+	<li> Our implementation also allows us to displace the AprilTag alignment by a certain distance to the right or left (robot relative). This functionality is especially useful for the 2025 Reefscape game for moving to each reef and placing our coral on the reef. </li>
+</ul>
+
+## Mech
+<i> TBF -- should be details about the new coral system & pickup, how MechLogging works, etc </i>
 
 ## How to import custom CAD into Advantage Kit 
 
@@ -169,37 +277,6 @@ C --> W: Wrappers extend Base Class
 		<li> Add both the config.json and model.glb files to this folder.</li>
 	</ol> <br>
 	<li> <b> Run the Simulation </b> </li>
-	Simulate Robot Code
-	<ul>
-		<li>In the top-right corner of your development environment, locate the WPILib logo. </li>
-		<li> Click on the logo and type Simulate Robot Code in the search bar.</li>
-		<li> Press Enter and wait for a prompt to appear at the top of the screen.</li>
-		<li> When prompted, select Use Sim GUI and click OK.</li>
-	</ul>
-	Open the Java Simulation (Window with blue background)
-	<ul>
-		<li> Once the Java Simulation opens, ensure a controller is plugged into your system.</li>
-		<li> Navigate to the System Joysticks tab and locate a controller labeled on Index 0.</li>
-		<li> Drag the controller label into the Joysticks tab.</li>
-	</ul>
-	Launch Advantage Scope
-	<ul> 
-		<li>Return to the WPILib interface, click the logo, and type Start Tool in the search bar. </li>
-		<li> Press Enter, then type AdvantageScope and press Enter again.</li>
-		<li> Once Advantage Scope opens, click File in the window's top-left corner and select Connect to Simulator. </li>
-	</ul>
-	Set Up the Pose
-	<ul>
-		<li> In Advantage Scope, locate the drop-down menu labeled Pose on the left-hand side.</li>
-		<li> Expand the menu to find two entries: .type and robotPose.</li>
-		<li> Drag robotPose into the Poses section in the middle of the window.</li>
-	</ul>
-	View the Simulation
-	<ul>
-		<li> You should now see Kit Bot displayed.</li>
-		<li> Click the arrow icon to expand the details on the left side of the name.</li>
-		<li> If all the previous steps were completed correctly, your custom model should appear in the simulation.</li>
-	</ul>
 	Once the files are correctly placed in the folder, you can run the simulation in Advantage Scope. If all steps were followed correctly, the model should now be available for use! 
 </ol>
 <br>
@@ -213,8 +290,5 @@ C --> W: Wrappers extend Base Class
 	</ul>
 	<li> If you encounter any issues with file formats or exporting, revisit the export and save steps in CAD Assistant. </li>
 </ul>
-	
-
-
 
 
