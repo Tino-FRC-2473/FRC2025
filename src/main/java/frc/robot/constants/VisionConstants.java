@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
 
 public class VisionConstants {
 	public static final int UNABLE_TO_SEE_NOTE_CONSTANT = 5000;
@@ -27,7 +28,7 @@ public class VisionConstants {
 	public static final String SOURCE_CAM_NAME = "Source Cam";
 
 	public static final String APRIL_TAG_FIELD_LAYOUT_JSON =
-		"src/main/java/frc/robot/constants/apriltag/welded/apriltag.json";
+		Filesystem.getDeployDirectory() + "/apriltag/welded/apriltag.json";
 
 	public static final int LOCALIZATION_TAG_NUM = 1;
 	public static final double LOCALIZATION_TRANSLATIONAL_THRESHOLD = 0.4;

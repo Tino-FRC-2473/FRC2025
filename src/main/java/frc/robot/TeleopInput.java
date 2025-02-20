@@ -108,6 +108,14 @@ public class TeleopInput {
 		return driveController.getR1Button();
 	}
 
+	/**
+	 * Get the value of the drive share button.
+	 * @return ddrive share button
+	 */
+	public boolean getDriveShareButtonPressed() {
+		return driveController.getShareButton();
+	}
+
 	/* ------------------------ Mech Controller ------------------------ */
 
 	/**

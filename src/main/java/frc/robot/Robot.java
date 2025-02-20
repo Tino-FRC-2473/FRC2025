@@ -266,7 +266,7 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem.updateLogging();
 			if (HardwareMap.isCVHardwarePresent()) {
-				driveSystem.updateVisionEstimates(true);
+				driveSystem.updateVisionEstimates(input, driveSystem.hasLocalized());
 			}
 		}
 

@@ -121,6 +121,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private CommandSwerveDrivetrain drivetrain;
 	private Rotation2d rotationAlignmentPose;
+	private boolean driveLocalized = false;
 
 	/* -- cv constants -- */
 	private RaspberryPi rpi = new RaspberryPi();
@@ -158,7 +159,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (!DriverStation.getAlliance().isPresent()) {
 			return -1;
 		}
-		return DriverStation.getAlliance().get() == Alliance.Red ? 1 : -1;
+		return DriverStation.getAlliance().get() == Alliance.Red ? 1 : 1;
 	};
 
 	private SlewRateLimiter slewRateX;
@@ -262,7 +263,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				: drivetrain.getState().Pose.getRotation();
 
 		// want to call when the robot is initially running to get a true positional value.
-		updateVisionEstimates(false);
+		updateVisionEstimates(null, hasLocalized());
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -412,7 +413,13 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		if (input.getDriveBackButtonPressed()) {
-			drivetrain.seedFieldCentric();
+			//drivetrain.seedFieldCentric();
+			drivetrain.resetPose(
+				new Pose2d(
+					drivetrain.getPose().getTranslation(),
+					new Rotation2d()
+				)
+			);
 		}
 
 		Logger.recordOutput("TeleOp/XSpeed", xSpeed);
@@ -424,7 +431,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Update vision measurements according to all seen tags.
 	 * @param filter whether or not to filter vision estimates.
 	 */
-	public void updateVisionEstimates(boolean filter) {
+	public void updateVisionEstimates(TeleopInput input, boolean filter) {
 		aprilTagReefRefPoses = new ArrayList<Pose2d>();
 		aprilTagStationRefPoses = new ArrayList<Pose2d>();
 		aprilTagVisionPoses = new ArrayList<Pose2d>();
@@ -445,7 +452,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			Optional<Pose3d> aprilTagPose3d = aprilTagFieldLayout.getTagPose(tag.getTagID());
 			Pose2d alignmentPose2d = currPose
 				.plus(new Transform2d(
-					tag.getZ(),
+					-tag.getZ(),
 					tag.getX(),
 					new Rotation2d()));
 
@@ -462,20 +469,29 @@ public class DriveFSMSystem extends SubsystemBase {
 					new Pose3d(currPose)
 						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
 						.toPose2d().getTranslation(),
-					currPose.getRotation()
+					aprilTagPose3d.get().getRotation()
+						.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
 				).transformBy(
 					robotToCamera.inverse()
 				);
 
-				if (visionEstimateFilter(imposedPose, currPose)
-					&& (reefTags.size() + stationTags.size())
-						>= VisionConstants.LOCALIZATION_TAG_NUM) {
+				aprilTagReefRefPoses.add(
+					imposedPose
+				);
 
-					aprilTagReefRefPoses.add(
-						imposedPose
-					);
+				if (true) {
+						if (reefTags.size() + stationTags.size()
+							>= VisionConstants.LOCALIZATION_TAG_NUM) {
+							if (input != null && !input.getDriveShareButtonPressed()
+								&& visionEstimateFilter(imposedPose, currPose)) {
+								drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+							} else {
+								System.out.println("RES");
+								drivetrain.resetPose(imposedPose);
+								driveLocalized = true;
+							}
+					}
 
-					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
@@ -486,7 +502,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			Optional<Pose3d> aprilTagPose3d = aprilTagFieldLayout.getTagPose(tag.getTagID());
 			Pose2d alignmentPose2d = currPose
 				.plus(new Transform2d(
-					tag.getZ(),
+					-tag.getZ(),
 					tag.getX(),
 					new Rotation2d()));
 
@@ -508,22 +524,29 @@ public class DriveFSMSystem extends SubsystemBase {
 					new Pose3d(currPose)
 						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose2d)))
 						.toPose2d().getTranslation(),
-						aprilTagPose3d.get().getRotation()
-							.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
+					aprilTagPose3d.get().getRotation()
+						.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
 				).transformBy(
 					robotToCamera.inverse()
 				);
 
-				if (
-					((filter) ? visionEstimateFilter(imposedPose, currPose)
-						: true) && (reefTags.size() + stationTags.size())
-						>= VisionConstants.LOCALIZATION_TAG_NUM) {
+				aprilTagStationRefPoses.add(
+					imposedPose
+				);
 
-					aprilTagStationRefPoses.add(
-						imposedPose
-					);
+				if (((filter) ? visionEstimateFilter(imposedPose, currPose)
+					: true)) {
+						if (reefTags.size() + stationTags.size()
+							>= VisionConstants.LOCALIZATION_TAG_NUM) {
+							if (driveLocalized) {
+								drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+							} else {
+								System.out.println("RES");
+								drivetrain.resetPose(imposedPose);
+								driveLocalized = true;
+							}
+					}
 
-					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 				}
 			}
 		}
@@ -541,6 +564,8 @@ public class DriveFSMSystem extends SubsystemBase {
 	}
 
 	private boolean visionEstimateFilter(Pose2d imposed, Pose2d current) {
+		//System.out.println("Translation Filter: " + (imposed.getTranslation().getDistance(current.getTranslation()) < VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD));
+		//System.out.println("Rotation Filter:    " + (Math.abs(imposed.getRotation().getRadians() - current.getRotation().getRadians()) < VisionConstants.LOCALIZATION_ANGLE_TOLERANCE));
 		return
 			(imposed.getTranslation().getDistance(current.getTranslation())
 				< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD
@@ -549,7 +574,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	}
 
 	/**
-	 * Updates drivetrain logging.
+	 * updates drivetrain logging.
 	 */
 	public void updateLogging() {
 		logger.applyStateLogging(drivetrain.getState());
@@ -861,5 +886,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void updateRaspberryPi() {
 		rpi.update(getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose());
+	}
+
+	public boolean hasLocalized() {
+		return driveLocalized;
 	}
 }
