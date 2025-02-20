@@ -128,20 +128,30 @@ class AprilTag():
                     
                     # print("euler_rvec: ", euler_rvec)
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+            
+            pose_list = self.sort_tags_distance(pose_list)
 
             return pose_list
     
-    #returns the apriltag id of the apriltag closest to the center of the camera assuming that the camera is mounted at the center of the robot
-    def get_closest_tag(self, pose_list):
-        y_poses = {}
-        for i in range(len(pose_list)): 
-            translational_vector = pose_list[i][0]
-            y_poses[self.detectedIds[i]] = translational_vector
+    # sorts the tags in the list by their hypotenuse (sqrt of x^2 + z^2)
+    def sort_tags_distance(self, pose_list):
+        # pose list: [id, cvec, cvec, cvec, x, y, z, rvec, rvec, rvec, id, ...]
+        # x value = index of id + 4
+        # z value = index of id + 6
+        hyp_poses = {} # store dictionary in format of {id: hypotenuse}
+        for i in range(0, len(pose_list), 10): 
+            hyp = math.sqrt(pose_list[i + 4] ** 2 + pose_list[i + 6] ** 2) # hypotenuse = sqrt(x^2 + y^2)
+            hyp_poses[pose_list[i]] = hyp
         
-        #orders the pose distances from center from least to greatest
-        ordered_poses = sorted(y_poses.items(), key=abs)
-        first_key = next(iter(ordered_poses))
-        return ordered_poses.get(first_key)
+        # sort hypotenuse dictionary
+        sorted_hyp_dict = dict(sorted(hyp_poses.items(), key=lambda item: item[1]))
+
+        sorted_pose_list = [] # sort pose list
+        for id in sorted_hyp_dict:
+            id_index = pose_list.index(id)
+            sorted_pose_list.extend(pose_list[id_index:(id_index+10)])
+        
+        return sorted_pose_list
 
     def distance_to_tag(self, image, marker_size):
         gray = image[:, :, 0]
