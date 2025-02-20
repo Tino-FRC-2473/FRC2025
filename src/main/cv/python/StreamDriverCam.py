@@ -11,6 +11,7 @@ if not ON_RPI:
     print("This file can only be run on the raspberry pi")
     exit()
 
+print("Running CameraServer")
 CameraServer.enableLogging()
 
 usb1, name1 = DRIVER_CAM_1
@@ -28,9 +29,17 @@ camera2 = CameraServer.startAutomaticCapture(name2, index2)
 
 camera1.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
 camera2.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
-camera1.setConnectionStrategy(VideoSource.ConnectionStrategy.kConnectionKeepOpen)
-camera2.setConnectionStrategy(VideoSource.ConnectionStrategy.kConnectionKeepOpen)
-camera1.setCompression(0)
-camera2.setCompression(0)
 
-CameraServer.waitForever()
+camera1.setFPS(10)
+camera2.setFPS(10)
+
+table1 = inst.getTable(f"CameraPublisher/{name1}")
+table2 = inst.getTable(f"CameraPublisher/{name2}")
+
+cam1publisher = table1.getStringArrayTopic("streams").publish()
+cam2publisher = table2.getStringArrayTopic("streams").publish()
+
+print("Initialization complete")
+while True:
+    cam1publisher.set(["mjpg:http://10.24.73.105:1181?action=stream"])
+    cam2publisher.set(["mjpg:http://10.24.73.105:1182?action=stream"])
