@@ -11,7 +11,7 @@ public class AutoConstants {
 
 	/* -- ALL SOURCE SPECIFIC CONSTANTS -- */
 	public static final double SOURCE_X_OFFSET = Units.inchesToMeters(35.5 / 2)
-		+ SimConstants.ROBOT_TO_REEF_CAMERA.getY() + 0.15;
+		+ SimConstants.ROBOT_TO_REEF_CAMERA.getY();
 	public static final double SOURCE_Y_OFFSET = 0;
 
 	public static final int BLUE_L_STATION_ID = 13;
@@ -19,14 +19,11 @@ public class AutoConstants {
 	public static final int RED_L_STATION_ID = 1;
 	public static final int RED_R_STATION_ID = 2;
 
-	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2)
-		- SimConstants.ROBOT_TO_REEF_CAMERA.getX() + 0.15;
-	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13.5) / 2
-		+ SimConstants.ROBOT_TO_REEF_CAMERA.getY();
-	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13.5) / 2
-		+ SimConstants.ROBOT_TO_REEF_CAMERA.getY();
-	public static final double STATION_Y_L_TAG_OFFSET = Units.inchesToMeters(24);
-	public static final double STATION_Y_R_TAG_OFFSET = -Units.inchesToMeters(24);
+	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2 - 6);
+	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13.5) / 2;
+	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13.5) / 2;
+	public static final double STATION_Y_L_TAG_OFFSET = Units.inchesToMeters(20);
+	public static final double STATION_Y_R_TAG_OFFSET = -Units.inchesToMeters(20);
 
 	public static final int R_REEF_1_TAG_ID = 10;
 	public static final int R_REEF_2_TAG_ID = 11;
@@ -44,17 +41,20 @@ public class AutoConstants {
 
 	public static final double ALIGN_MAX_T_SPEED = 2.4;
 	public static final double ALIGN_MAX_T_ACCEL = 2.0;
-	public static final double ALIGN_DRIVE_P = 0.355;
+	public static final double ALIGN_DRIVE_P = 0.5;
 	public static final double ALIGN_DRIVE_D = 0.0;
-	public static final double ALIGN_THETA_P = 0.525;
+	public static final double ALIGN_THETA_P = 0.8;
 	public static final double ALIGN_THETA_D = 0.00;
 	public static final double DRIVE_TOLERANCE = 0.01;
-	public static final double THETA_TOLERANCE = Units.degreesToRadians(1.0);
+	public static final double THETA_TOLERANCE = Units.degreesToRadians(5.0);
 	public static final double ALIGN_TOLERANCE = 0.1;
-	public static final double ALIGN_MAX_R_SPEED = Units.degreesToRadians(360.0) * 0.1;
+	public static final double ALIGN_MAX_R_SPEED = Units.degreesToRadians(360.0) * 0.3;
 	public static final double ALIGN_MAX_R_ACCEL = 4.8;
 	public static final double FF_MIN_RADIUS = 0.1;
 	public static final double FF_MAX_RADIUS = 0.15;
+
+	public static final double CONSTANT_SPEED_THRESHOLD = 0.3; // in meters
+	public static final double CONSTANT_SPEED = 0.3;
 
 
 	/* -- ALL COMMAND NAME CONSTANTS -- */

@@ -1,6 +1,5 @@
 package frc.robot.constants;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 
 public class VisionConstants {
