@@ -22,6 +22,7 @@ class AprilTag():
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
+        self.cam_name = cam_name
 
 
     def draw_axis_on_image(self, image, camera_matrix, dist_coeffs, rvec, tvec,cvec, size=1):
@@ -89,7 +90,10 @@ class AprilTag():
         
         #print(self.fix_camera_tilt(euler_angles[0]))
         print("Pitch in radians: ", rvec[1])
-        self.fix_camera_tilt(euler_angles[2], rvec[1])
+
+        if(self.cam_name == "source"):
+            euler_angles[2] = self.fix_camera_tilt(euler_angles[2], rvec[1])
+        
         return euler_angles
 
     def fix_camera_tilt(self, euler_yaw_angle, pitch_angle):
