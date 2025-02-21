@@ -65,4 +65,12 @@ public final class HardwareMap {
 	public static boolean isCVHardwarePresent() {
 		return true;
 	}
+
+	/**
+	 * Check if LED hardware is available to the RoboRIO.
+	 * @return true if LED hardware is present
+	 */
+	public static boolean isLEDPresent() {
+		return true;
+	}
 }

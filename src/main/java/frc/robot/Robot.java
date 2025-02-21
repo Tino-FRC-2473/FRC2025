@@ -30,6 +30,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.LEDFSMSystem;
+import frc.robot.utils.Elastic;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
@@ -54,6 +56,7 @@ public class Robot extends LoggedRobot {
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
+	private LEDFSMSystem ledSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -105,6 +108,11 @@ public class Robot extends LoggedRobot {
 			climberSystem = new ClimberFSMSystem();
 		}
 
+		if (HardwareMap.isLEDPresent() && HardwareMap.isDriveHardwarePresent()
+			&& HardwareMap.isElevatorHardwarePresent() && HardwareMap.isFunnelHardwarePresent()) {
+			ledSystem = new LEDFSMSystem(driveSystem, funnelSystem, climberSystem);
+		}
+
 		autoRoutines = new AutoRoutines(
 			driveSystem, elevatorSystem, funnelSystem
 		);
@@ -120,6 +128,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
+		Elastic.selectTab("Autonomous");
 		autCommand = getAutonomousCommand();
 
 		/* If all available auto systems are true, then it will throw exception. */
@@ -150,12 +159,18 @@ public class Robot extends LoggedRobot {
 			driveSystem.updateAutonomous();
 		}
 
+		if (ledSystem != null) {
+			ledSystem.updateAutonomous();
+		}
+
+
 		MotorManager.update();
 	}
 
 	@Override
 	public void teleopInit() {
 		System.out.println("-------- Teleop Init --------");
+		Elastic.selectTab("Teleoperated");
 		if (driveSystem != null) {
 			driveSystem.reset();
 		}
@@ -167,6 +182,10 @@ public class Robot extends LoggedRobot {
 		}
 		if (elevatorSystem != null) {
 			elevatorSystem.reset();
+		}
+
+		if (ledSystem != null) {
+			ledSystem.reset();
 		}
 	}
 
@@ -183,6 +202,10 @@ public class Robot extends LoggedRobot {
 		}
 		if (elevatorSystem != null) {
 			elevatorSystem.update(input);
+		}
+
+		if (ledSystem != null) {
+			ledSystem.update(input);
 		}
 		MotorManager.update();
 		ntInstance.flush();
@@ -267,23 +290,27 @@ public class Robot extends LoggedRobot {
 	// Do not use robotPeriodic. Use mode specific periodic methods instead.
 	@Override
 	public void robotPeriodic() {
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (driveSystem != null) {
 			driveSystem.updateLogging();
 			if (HardwareMap.isCVHardwarePresent()) {
 				driveSystem.updateVisionEstimates();
 			}
 		}
 
-		if (HardwareMap.isFunnelHardwarePresent()) {
+		if (funnelSystem != null) {
 			funnelSystem.updateLogging();
 		}
 
-		if (HardwareMap.isElevatorHardwarePresent()) {
+		if (elevatorSystem != null) {
 			elevatorSystem.updateLogging();
 		}
 
-		if (HardwareMap.isClimberHardwarePresent()) {
+		if (climberSystem != null) {
 			climberSystem.updateLogging();
+		}
+
+		if (ledSystem != null) {
+			ledSystem.updateLogging();
 		}
 	}
 

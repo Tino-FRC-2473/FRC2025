@@ -62,7 +62,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
 
 	// FSM state definitions
-	public enum FSMState {
+	public enum DriveFSMState {
 		TELEOP_STATE,
 		ALIGN_TO_REEF_TAG_STATE,
 		ALIGN_TO_STATION_TAG_STATE
@@ -185,7 +185,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		new SwerveRequest.ApplyFieldSpeeds();
 
 	/* ======================== Private variables ======================== */
-	private FSMState currentState;
+	private DriveFSMState currentState;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -232,7 +232,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Return current FSM state.
 	 * @return Current FSM state
 	 */
-	public FSMState getCurrentState() {
+	public DriveFSMState getCurrentState() {
 		return currentState;
 	}
 	/**
@@ -244,7 +244,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FSMState.TELEOP_STATE;
+		currentState = DriveFSMState.TELEOP_STATE;
 		rotationAlignmentPose =
 			(Utils.isSimulation())
 				? getMapleSimDrivetrain().getDriveSimulation()
@@ -310,6 +310,14 @@ public class DriveFSMSystem extends SubsystemBase {
 		);
 	}
 
+	/**
+	* Gets robot alignment status (for LEDs).
+	* @return Whether the robot is aligned to the target apriltag.
+	*/
+	public boolean isAlignedToTag() {
+		return driveToPoseFinished;
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -320,32 +328,32 @@ public class DriveFSMSystem extends SubsystemBase {
 	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
 	 */
-	private FSMState nextState(TeleopInput input) {
+	private DriveFSMState nextState(TeleopInput input) {
 
 		switch (currentState) {
 			case TELEOP_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				}  else if (input.getDriveTriangleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 			case ALIGN_TO_REEF_TAG_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				}  else if (input.getDriveTriangleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 			case ALIGN_TO_STATION_TAG_STATE:
 				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				}  else if (input.getDriveTriangleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
+					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
-					return FSMState.TELEOP_STATE;
+					return DriveFSMState.TELEOP_STATE;
 				}
 
 			default:

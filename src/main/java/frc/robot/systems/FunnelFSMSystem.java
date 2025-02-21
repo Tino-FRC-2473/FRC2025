@@ -3,7 +3,6 @@ package frc.robot.systems;
 import org.littletonrobotics.junction.Logger;
 
 import com.playingwithfusion.TimeOfFlight;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
@@ -48,10 +47,9 @@ public class FunnelFSMSystem {
 		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PWM_PORT);
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 
-		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
-
 		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
 
+		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
 		// Reset state machine
 		reset();
 	}
@@ -114,12 +112,33 @@ public class FunnelFSMSystem {
 		// Telemetry and logging
 		Logger.recordOutput("Funnel Position", funnelServo.get());
 		Logger.recordOutput("Funnel State", currentState.toString());
-
 		Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
-		Logger.recordOutput("Reef in Range?",
-			reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
-
 		Logger.recordOutput("Holding Coral?", isHoldingCoral());
+	}
+
+	/**
+	 * Getter for the status of the funnel's break beam.
+	 * Public for access to elevator.
+	 * @return whether the limit is reached
+	 */
+	public boolean isHoldingCoral() {
+		if (Robot.isSimulation()) {
+			return true;
+		}
+		return !coralBreakBeam.get(); // true = beam intact
+		// return true; // temp always hold coral
+	}
+
+	/**
+	 * Getter for the status of the funnel's distance sensor.
+	 * Public for access to drive/cv.
+	 * @return distance to reef from distance sensor.
+	 */
+	public double getDistanceToReef() {
+		if (Robot.isSimulation()) {
+			return 0;
+		}
+		return reefDistanceSensor.getRange();
 	}
 
 	/* ======================== Private methods ======================== */
@@ -171,19 +190,6 @@ public class FunnelFSMSystem {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 	}
 
-	/**
-	 * Getter for the result of the funnel's break beam.
-	 * Public for access to elevator.
-	 * @return whether the limit is reached
-	 */
-	public boolean isHoldingCoral() {
-		if (Robot.isSimulation()) {
-			return true;
-		}
-		return !coralBreakBeam.get(); // true = beam intact
-		// return true; // temp always hold coral
-	}
-
 	/* ---- Funnel Commands ---- */
 
 	/** A command that opens the funnel servo. */
@@ -208,7 +214,8 @@ public class FunnelFSMSystem {
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() > Constants.FUNNEL_INOUT_TIME_SECS || isHoldingCoral();
+			return isHoldingCoral();
+			// return timer.get() > Constants.FUNNEL_INOUT_TIME_SECS || isHoldingCoral();
 		}
 
 		@Override
@@ -239,13 +246,15 @@ public class FunnelFSMSystem {
 		@Override
 		public boolean isFinished() {
 			//return true;
-			return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS || !isHoldingCoral();
+			return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS;
+			// return !isHoldingCoral();
 		}
 
 		@Override
 		public void end(boolean interrupted) {
 			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 			timer.stop();
+			timer.reset();
 		}
 	}
 

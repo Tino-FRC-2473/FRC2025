@@ -7,7 +7,6 @@ package frc.robot.systems;
 // Third party Hardware Imports
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -110,7 +109,9 @@ public class ElevatorFSMSystem {
 				elevatorMotor.getPosition(),
 				elevatorMotor.getVelocity(),
 				elevatorMotor.getAcceleration(),
-				elevatorMotor.getMotorVoltage()
+				elevatorMotor.getMotorVoltage(),
+				elevatorMotor.getRotorPosition(),
+				elevatorMotor.getRotorVelocity()
 		);
 
 		elevatorMotor.optimizeBusUtilization();
@@ -210,6 +211,9 @@ public class ElevatorFSMSystem {
 
 		Logger.recordOutput("Elev Inrage L4?", inRange(getElevatorpos(),
 			Constants.ELEVATOR_TARGET_L4));
+
+		Logger.recordOutput("ROOR POS", elevatorMotor.getRotorPosition().getValueAsDouble());
+		Logger.recordOutput("ROOR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
 	}
 
 	/* ======================== Private methods ======================== */
@@ -259,25 +263,26 @@ public class ElevatorFSMSystem {
 				return ElevatorFSMState.MANUAL;
 
 			case GROUND:
-				if (isBottomLimitReached() || !input.isGroundButtonPressed()) {
+				if (isBottomLimitReached() || inRange(getElevatorpos(),
+					Constants.ELEVATOR_TARGET_GROUND)) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.GROUND;
 
 			case LEVEL2:
-				if (!input.isL2ButtonPressed()) {
+				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2)) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL2;
 
 			case LEVEL3:
-				if (!input.isL3ButtonPressed()) {
+				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3)) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL3;
 
 			case LEVEL4:
-				if (!input.isL4ButtonPressed()) {
+				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4)) {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL4;
@@ -326,8 +331,11 @@ public class ElevatorFSMSystem {
 			}
 		}
 
-		if (signalInput == 0) {
-			elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
+		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
+			> Constants.KG_CHECK.in(Units.Inches)) {
+			if (!Robot.isSimulation()) {
+				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
+			}
 		} else {
 			elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
 		}
@@ -340,7 +348,6 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleGroundState(TeleopInput input) {
 		if (isBottomLimitReached()) {
-			elevatorMotor.set(0);
 			elevatorMotor.setPosition(0);
 		} else {
 			elevatorMotor.setControl(
@@ -394,7 +401,7 @@ public class ElevatorFSMSystem {
 				motionRequest.withPosition(target.in(Units.Inches))
 			);
 
-			if (Utils.isSimulation()) {
+			if (Robot.isSimulation()) {
 				MechLogging.getInstance().updateElevatorPose3d(
 						elevatorMotor.getPosition().getValue());
 			}
@@ -419,21 +426,22 @@ public class ElevatorFSMSystem {
 
 	class WaitCommand extends Command {
 		private Timer timer;
-		private double targTime;
-
-		WaitCommand(double countToSecs) {
-			targTime = countToSecs;
-		}
 
 		@Override
 		public void initialize() {
 			timer = new Timer();
+			timer.reset();
 			timer.start();
 		}
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() > targTime;
+			return timer.get() > 1;
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			timer.reset();
 		}
 	}
 
@@ -504,6 +512,6 @@ public class ElevatorFSMSystem {
 	 * @return A new wait command.
 	 */
 	public Command waitCommand() {
-		return new WaitCommand(0);
+		return new WaitCommand();
 	}
 }
