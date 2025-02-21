@@ -429,6 +429,9 @@ public class DriveFSMSystem extends SubsystemBase {
 		ArrayList<AprilTag> reefTags = rpi.getReefAprilTags();
 		ArrayList<AprilTag> stationTags = rpi.getStationAprilTags();
 
+		System.out.println("REEF: " + reefTags.toString());
+		System.out.println("STATION: " + stationTags.toString());
+
 		Pose2d currPose;
 
 		if (Utils.isSimulation()) {

@@ -71,6 +71,6 @@ public final class HardwareMap {
 	 * @return true if LED hardware is present
 	 */
 	public static boolean isLEDPresent() {
-		return true;
+		return false;
 	}
 }
