@@ -41,7 +41,7 @@ public class AutoPaths {
 		AutoCommands.ELEVATOR_L2_CMD
 	};
 
-	public static final Object[] B_AT_ALIGN_TEST_1 = new Object[] {
+	public static final Object[] B_AT_ALIGN_S1 = new Object[] {
 		"S1_R2_H",
 		new Object[] {AutoCommands.B_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -53,7 +53,14 @@ public class AutoPaths {
 		AutoCommands.OUTTAKE_CORAL_CMD
 	};
 
-	public static final Object[] B_AT_ALIGN_TEST_2 = new Object[] {
+	public static final Object[] B_S2 = new Object[] {
+		new Object[] {"S2_R2", AutoCommands.ELEVATOR_L3_CMD},
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_AT_ALIGN_S3 = new Object[] {
 		"S3_R6 (H)",
 		new Object[] {AutoCommands.B_ALIGN_REEF6_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -65,6 +72,11 @@ public class AutoPaths {
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD
+	};
+
+	public static final Object[] R_AT_ALIGN_S3 = new Object[] {
+		"S1_R2 (H)",
+		new Object[] {AutoCommands.R_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
 	};
 
 	/**

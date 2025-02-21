@@ -265,7 +265,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
-		drivetrain.applyOperatorPerspective();
+		//drivetrain.applyOperatorPerspective();
 
 		if (input == null) {
 			return;
@@ -392,10 +392,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		drivetrain.setControl(
-			driveFacingAngle.withVelocityX(xSpeed) //* allianceOriented.getAsInt())
-			.withVelocityY(ySpeed) ///* allianceOriented.getAsInt())
+			driveFacingAngle.withVelocityX(xSpeed * allianceOriented.getAsInt())
+			.withVelocityY(ySpeed * allianceOriented.getAsInt())
 			.withTargetDirection(rotationAlignmentPose)
-			.withTargetRateFeedforward(-rotXComp) //* allianceOriented.getAsInt())
+			.withTargetRateFeedforward(-rotXComp)
 		);
 
 		if (input.getDriveCircleButton()) {
@@ -550,7 +550,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * @param target target pose to align to.
 	 * @return whether or not driving is completed.
 	 */
-	public boolean driveToPose(Pose2d target) {
+	public boolean driveToPose(Pose2d target, boolean allianceFlip) {
 		Pose2d currPose = (Utils.isSimulation())
 			? getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
 			: drivetrain.getState().Pose;
@@ -604,10 +604,12 @@ public class DriveFSMSystem extends SubsystemBase {
 		rotSpeed = Math.abs(aDiff) > AutoConstants.THETA_TOLERANCE
 			? rotSpeed : 0;
 
+		int allianceMultiplier = (allianceFlip) ? allianceOriented.getAsInt() : 1;
+
 		drivetrain.setControl(
 			driveFacingAngle
-			.withVelocityX(xSpeed * allianceOriented.getAsInt()) //* allianceOriented.getAsInt())
-			.withVelocityY(ySpeed * allianceOriented.getAsInt()) //* allianceOriented.getAsInt())
+			.withVelocityX(xSpeed)
+			.withVelocityY(ySpeed) //* allianceOriented.getAsInt())
 			.withTargetDirection(target.getRotation())
 			.withTargetRateFeedforward(rotSpeed)
 		);
@@ -843,7 +845,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				drivetrain.setControl(brake);
 				return;
 			}
-			driveToPose(alignmentPose2d);
+			driveToPose(alignmentPose2d, allianceFlip);
 		}
 
 	}
