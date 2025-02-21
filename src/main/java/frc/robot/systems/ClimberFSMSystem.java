@@ -83,10 +83,10 @@ public class ClimberFSMSystem {
 	/**
 	 * Reset this system to its start state. This may be called from mode init
 	 * when the robot is enabled.
-	 *
+	 * <p>
 	 * Note this is distinct from the one-time initialization in the constructor
 	 * as it may be called multiple times in a boot cycle,
-	 * Ex. if the robot is enabled, disabled, then reenabled.
+	 * Ex. if the robot is enabled, disabled, then enabled.
 	 */
 	public void reset() {
 		currentState = ClimberFSMState.IDLE;

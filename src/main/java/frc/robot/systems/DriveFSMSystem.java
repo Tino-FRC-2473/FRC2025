@@ -131,7 +131,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	};
 
 	private IntSupplier allianceOriented = () -> {
-		if (!DriverStation.getAlliance().isPresent()) {
+		if (DriverStation.getAlliance().isEmpty()) {
 			return -1;
 		}
 		return DriverStation.getAlliance().get() == Alliance.Red ? -1 : 1;
