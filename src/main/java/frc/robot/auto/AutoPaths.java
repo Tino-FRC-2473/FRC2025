@@ -54,7 +54,17 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_TEST_2 = new Object[] {
-		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD
+		"S3_R6 (H)",
+		new Object[] {AutoCommands.B_ALIGN_REEF6_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		new Object[] {"R6_StationR", AutoCommands.ELEVATOR_GROUND_CMD},
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5 (H)",
+		new Object[] {AutoCommands.B_ALIGN_REEF5_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD
 	};
 
 	/**

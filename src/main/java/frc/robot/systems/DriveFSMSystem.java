@@ -28,6 +28,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
@@ -391,10 +392,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		drivetrain.setControl(
-			driveFacingAngle.withVelocityX(xSpeed * allianceOriented.getAsInt())
-			.withVelocityY(ySpeed * allianceOriented.getAsInt())
+			driveFacingAngle.withVelocityX(xSpeed) //* allianceOriented.getAsInt())
+			.withVelocityY(ySpeed) ///* allianceOriented.getAsInt())
 			.withTargetDirection(rotationAlignmentPose)
-			.withTargetRateFeedforward(rotXComp * allianceOriented.getAsInt())
+			.withTargetRateFeedforward(-rotXComp) //* allianceOriented.getAsInt())
 		);
 
 		if (input.getDriveCircleButton()) {
@@ -402,13 +403,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		if (input.getDriveBackButtonPressed()) {
-			//drivetrain.seedFieldCentric();
-			drivetrain.resetPose(
-				new Pose2d(
-					drivetrain.getPose().getTranslation(),
-					new Rotation2d()
-				)
-			);
+			drivetrain.seedFieldCentric();
 		}
 
 		Logger.recordOutput("TeleOp/XSpeed", xSpeed);
@@ -611,10 +606,10 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		drivetrain.setControl(
 			driveFacingAngle
-			.withVelocityX(xSpeed * allianceOriented.getAsInt())
-			.withVelocityY(ySpeed * allianceOriented.getAsInt())
+			.withVelocityX(xSpeed) //* allianceOriented.getAsInt())
+			.withVelocityY(ySpeed) //* allianceOriented.getAsInt())
 			.withTargetDirection(target.getRotation())
-			.withTargetRateFeedforward(-rotSpeed * allianceOriented.getAsInt())
+			.withTargetRateFeedforward(rotSpeed)
 		);
 
 		driveToPoseFinished = (xSpeed == 0 && ySpeed == 0 && rotSpeed == 0);
@@ -793,8 +788,10 @@ public class DriveFSMSystem extends SubsystemBase {
 			currPose = drivetrain.getState().Pose;
 		}
 
+		Transform2d robotToCamera;
+		if (aligningToReef) {
 		//TODO: make a reef and station alignment hepler function instead of just one.
-		Transform2d robotToCamera =
+			robotToCamera =
 			new Transform2d(
 				SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
 					// - if u use pose rotation.
@@ -802,6 +799,17 @@ public class DriveFSMSystem extends SubsystemBase {
 					// - if u use pose rotation.
 				SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
 			);
+		} else {
+			robotToCamera =
+			new Transform2d(
+				new Translation2d(
+					SimConstants.ROBOT_TO_STATION_CAMERA.getX(),
+					SimConstants.ROBOT_TO_STATION_CAMERA.getY()
+				),
+				SimConstants.ROBOT_TO_STATION_CAMERA.getRotation()
+				.toRotation2d().rotateBy(Rotation2d.k180deg)
+			);
+		}
 
 		if (tag != null) {
 			if (Utils.isSimulation()) {
@@ -864,50 +872,41 @@ public class DriveFSMSystem extends SubsystemBase {
 	* @return align to tag command.
 	*/
 	public Command alignToTagCommand(int id, double x, double y) {
-		Optional<Pose3d> tagAbsPose = aprilTagFieldLayout.getTagPose(id);
+		class AlignToTagCommand extends Command {
 
-		if (!tagAbsPose.isEmpty()) {
-			alignmentXOff = AutoConstants.REEF_X_TAG_OFFSET;
-			aligningToReef = true;
+			public void initialize() {
+				alignmentXOff = x;
+				alignmentYOff = y;
 
-			Pose2d reefAlignPose = tagAbsPose
-				.get().toPose2d()
-				.transformBy(
-				new Transform2d(
-					alignmentXOff,
-					alignmentYOff,
-					(aligningToReef) ? Rotation2d.k180deg : new Rotation2d()
-				)
-			);
-
-			// return AutoBuilder.pathfindToPose(
-			// 	reefAlignPose,
-			// 	new PathConstraints(
-			// 		AutoConstants.ALIGN_MAX_T_SPEED,
-			// 		AutoConstants.ALIGN_MAX_T_ACCEL,
-			// 		AutoConstants.ALIGN_MAX_R_SPEED,
-			// 		AutoConstants.ALIGN_MAX_R_ACCEL
-			// 	)
-			// );
-			class AlignToTagCommand extends Command {
-				public boolean isFinished() {
-					return driveToPose(reefAlignPose);
-				}
-
-				public void end(boolean interrupted) {
-					tagID = -1;
-					alignmentXOff = 0;
-					alignmentYOff = 0;
-					driveToPoseFinished = false;
-					driveToPoseRunning = false;
+				if (
+					Arrays.stream(redReefTagArray).anyMatch(val -> val == id)
+					|| Arrays.stream(blueReefTagArray).anyMatch(val -> val == id)
+				) {
+					aligningToReef = true;
+				} else {
+					aligningToReef = false;
 				}
 			}
 
-			return new AlignToTagCommand();
-		}
-		System.out.println("As");
-		return Commands.none();
+			@Override
+			public void execute() {
+				handleTagAlignment(null, id, false);
+			}
 
+			public boolean isFinished() {
+				return driveToPoseFinished;
+			}
+
+			public void end(boolean interrupted) {
+				tagID = -1;
+				alignmentXOff = 0;
+				alignmentYOff = 0;
+				driveToPoseFinished = false;
+				driveToPoseRunning = false;
+			}
+		}
+
+		return new AlignToTagCommand();
 	}
 
 	/**
