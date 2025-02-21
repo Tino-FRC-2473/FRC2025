@@ -45,8 +45,8 @@ public class AutoConstants {
 	public static final double ALIGN_DRIVE_D = 0.0;
 	public static final double ALIGN_THETA_P = 0.8;
 	public static final double ALIGN_THETA_D = 0.00;
-	public static final double DRIVE_TOLERANCE = 0.03; //meters
-	public static final double THETA_TOLERANCE = Units.degreesToRadians(4.0);
+	public static final double DRIVE_TOLERANCE = 0.02; //meters
+	public static final double THETA_TOLERANCE = Units.degreesToRadians(3.0);
 	public static final double ALIGN_TOLERANCE = 0.1;
 	public static final double ALIGN_MAX_R_SPEED = Units.degreesToRadians(360.0) * 0.3;
 	public static final double ALIGN_MAX_R_ACCEL = 4.8;
