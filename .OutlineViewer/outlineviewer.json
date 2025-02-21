@@ -1,0 +1,35 @@
+{
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "2473"
+  },
+  "python@2": {
+    "Publishers": {
+      "open": true
+    },
+    "open": true
+  },
+  "transitory": {
+    "CameraPublisher": {
+      "back": {
+        "open": true,
+        "string[]##v_/CameraPublisher/back/streams": {
+          "open": true
+        }
+      },
+      "dcam": {
+        "open": true,
+        "string[]##v_/CameraPublisher/dcam/streams": {
+          "open": true
+        }
+      },
+      "front": {
+        "open": true,
+        "string[]##v_/CameraPublisher/front/streams": {
+          "open": true
+        }
+      },
+      "open": true
+    }
+  }
+}

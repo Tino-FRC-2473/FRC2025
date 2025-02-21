@@ -14,7 +14,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import com.ctre.phoenix6.Utils;
 
 // WPILib Imports
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -29,6 +28,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.LEDFSMSystem;
+import frc.robot.utils.Elastic;
 import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
@@ -48,15 +49,17 @@ public class Robot extends LoggedRobot {
 	private AutoRoutines autoRoutines;
 
 	private SendableChooser<String> autoChooser = new SendableChooser<String>();
-	private String autCommand;
+	private String autoCommand;
 
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
+	private LEDFSMSystem ledSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
+	private RaspberryPi rpi = new RaspberryPi();
 	/**
 	 * This function is run when the robot is first started up and should be used for any
 	 * initialization code.
@@ -104,6 +107,12 @@ public class Robot extends LoggedRobot {
 			climberSystem = new ClimberFSMSystem();
 		}
 
+		if (Robot.isSimulation() || (HardwareMap.isLEDPresent()
+			&& HardwareMap.isDriveHardwarePresent() && HardwareMap.isElevatorHardwarePresent()
+			&& HardwareMap.isFunnelHardwarePresent())) {
+			ledSystem = new LEDFSMSystem(driveSystem, funnelSystem, climberSystem);
+		}
+
 		autoRoutines = new AutoRoutines(
 			driveSystem, elevatorSystem, funnelSystem
 		);
@@ -119,7 +128,8 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
-		autCommand = getAutonomousCommand();
+		Elastic.selectTab("Autonomous");
+		autoCommand = getAutonomousCommand();
 
 		/* If all available auto systems are true, then it will throw exception. */
 		boolean throwException =
@@ -128,12 +138,12 @@ public class Robot extends LoggedRobot {
 			&& HardwareMap.isElevatorHardwarePresent()
 			&& HardwareMap.isFunnelHardwarePresent();
 
-		if (autCommand != null) {
+		if (autoCommand != null) {
 			Command scheduledCommand = autoRoutines.generateSequentialAutoWorkflow(
-				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
+				autoRoutines.getAutoPathHandler().getAllAutos().get(autoCommand), throwException
 			);
 
-			if (Utils.isSimulation()) {
+			if (Robot.isSimulation()) {
 				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
 					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
 			}
@@ -148,12 +158,17 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem.updateAutonomous();
 		}
+
+		if (HardwareMap.isLEDPresent()) {
+			ledSystem.updateAutonomous();
+		}
 		MotorManager.update();
 	}
 
 	@Override
 	public void teleopInit() {
 		System.out.println("-------- Teleop Init --------");
+		Elastic.selectTab("Teleoperated");
 		if (driveSystem != null) {
 			driveSystem.reset();
 		}
@@ -165,6 +180,9 @@ public class Robot extends LoggedRobot {
 		}
 		if (elevatorSystem != null) {
 			elevatorSystem.reset();
+		}
+		if (ledSystem != null) {
+			ledSystem.reset();
 		}
 	}
 
@@ -181,6 +199,10 @@ public class Robot extends LoggedRobot {
 		}
 		if (elevatorSystem != null) {
 			elevatorSystem.update(input);
+		}
+
+		if (ledSystem != null) {
+			ledSystem.update(input);
 		}
 		MotorManager.update();
 		ntInstance.flush();
@@ -269,6 +291,14 @@ public class Robot extends LoggedRobot {
 
 		if (elevatorSystem != null) {
 			elevatorSystem.updateLogging();
+		}
+
+		if (climberSystem != null) {
+			climberSystem.updateLogging();
+		}
+
+		if (ledSystem != null) {
+			ledSystem.updateLogging();
 		}
 	}
 

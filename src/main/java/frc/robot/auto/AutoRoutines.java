@@ -130,6 +130,8 @@ public class AutoRoutines {
 				return elevatorSystem.elevatorL3Command();
 			case ELEVATOR_L4_CMD:
 				return elevatorSystem.elevatorL4Command();
+			case WAIT:
+				return elevatorSystem.waitCommand();
 			default:
 				return null;
 		}
@@ -163,13 +165,12 @@ public class AutoRoutines {
 		elevatorSystem = elevatorFSMSystem;
 		funnelSystem = funnelFSMSystem;
 
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (driveSystem != null) {
 			sysRoutine = driveSystem.createAutoFactory().newRoutine("AutoRoutine");
 			generateSysRoutineMap(Filesystem.getDeployDirectory().toString());
 		}
 
 		autoPaths = new AutoPaths();
-		SmartDashboard.putString("Auto State", "AUTO INIT");
 	}
 
 	/**
@@ -198,7 +199,7 @@ public class AutoRoutines {
 
 			if (autoStage.getClass().equals(String.class)) {
 				/* -- Processing drive trajs -- */
-				if (HardwareMap.isDriveHardwarePresent() && paths.containsKey(autoStage)) {
+				if (driveSystem != null && paths.containsKey(autoStage)) {
 					AutoTrajectory traj = paths.get(autoStage);
 					if (trajIdx++ == 0) {
 						seqInstruction.addCommands(traj.resetOdometry());
@@ -323,7 +324,7 @@ public class AutoRoutines {
 			}
 		}
 
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (driveSystem != null) {
 			sysRoutine.active().onTrue(
 				seqInstruction
 				.andThen(driveSystem.brakeCommand())
@@ -366,7 +367,7 @@ public class AutoRoutines {
 
 		Command returnInitCommand = null;
 
-		if (HardwareMap.isDriveHardwarePresent()) {
+		if (driveSystem != null) {
 			returnInitCommand = (returnInitCommand == null)
 				? checkDriveCommands(commandEntry) : returnInitCommand;
 

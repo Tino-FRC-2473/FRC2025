@@ -35,10 +35,17 @@ public class AutoPaths {
 		AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD
 	};
 
-	public static final Object[] B_PATH_3 = new Object[] {
-		"S1_R2",
+	public static final Object[] FUNNEL_TEST_PATH = new Object[] {
+		"No_Path",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_L4_CMD,
-		AutoCommands.ELEVATOR_L2_CMD
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_L3_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD
 	};
 
 	/**

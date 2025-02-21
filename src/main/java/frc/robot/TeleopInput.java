@@ -99,7 +99,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL2ButtonPressed() {
-		return mechController.getSquareButton();
+		return mechController.getSquareButtonPressed();
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL4ButtonPressed() {
-		return mechController.getTriangleButton();
+		return mechController.getTriangleButtonPressed();
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isGroundButtonPressed() {
-		return mechController.getCrossButton();
+		return mechController.getCrossButtonPressed();
 	}
 
 	/**
@@ -123,16 +123,25 @@ public class TeleopInput {
 	 * @return If the button is pressed
 	 */
 	public boolean isL3ButtonPressed() {
-		return mechController.getCircleButton();
+		return mechController.getCircleButtonPressed();
 	}
 
 	/**
 	 * Gets the value of the options button.
 	 * Intended to signify when the climber should go to the next state.
-	 * @return If the options button was pressed this tick
+	 * @return If the options button was pressed this tick and if it wasn't before
 	 */
 	public boolean isClimbAdvanceStateButtonPressed() {
 		return mechController.getOptionsButtonPressed();
+	}
+
+	/**
+	 * Gets the value of the options button.
+	 * Intended to signify when the climber should climb.
+	 * @return If the options button was pressed
+	 */
+	public boolean isClimbButtonHeld() {
+		return mechController.getOptionsButton();
 	}
 
 	/**
