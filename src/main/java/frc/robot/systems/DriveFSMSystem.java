@@ -55,10 +55,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		ALIGN_TO_STATION_TAG_STATE
 	}
 
-	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond);
+	private static final double MAX_SPEED = TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond) * 0.6;
 		// kSpeedAt12Volts desired top speed
 	private static final double MAX_ANGULAR_RATE =
-		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond);
+		RotationsPerSecond.of(DriveConstants.MAX_ANGULAR_VELO_RPS).in(RadiansPerSecond) * 0.6;
 		//3/4 rps angle velo
 
 	private final SwerveRequest.FieldCentric drive
@@ -246,29 +246,29 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		switch (currentState) {
 			case TELEOP_STATE:
-				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
-				} else {
+				// if (input.getDriveSquareButton()) {
+				// 	return FSMState.ALIGN_TO_REEF_TAG_STATE;
+				// }  else if (input.getDriveTriangleButton()) {
+					// return FSMState.ALIGN_TO_STATION_TAG_STATE;
+				// } else {
 					return FSMState.TELEOP_STATE;
-				}
-			case ALIGN_TO_REEF_TAG_STATE:
-				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
-				} else {
-					return FSMState.TELEOP_STATE;
-				}
-			case ALIGN_TO_STATION_TAG_STATE:
-				if (input.getDriveSquareButton()) {
-					return FSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
-					return FSMState.ALIGN_TO_STATION_TAG_STATE;
-				} else {
-					return FSMState.TELEOP_STATE;
-				}
+				// }
+			// case ALIGN_TO_REEF_TAG_STATE:
+			// 	if (input.getDriveSquareButton()) {
+			// 		return FSMState.ALIGN_TO_REEF_TAG_STATE;
+			// 	}  else if (input.getDriveTriangleButton()) {
+			// 		return FSMState.ALIGN_TO_STATION_TAG_STATE;
+			// 	} else {
+			// 		return FSMState.TELEOP_STATE;
+			// 	}
+			// case ALIGN_TO_STATION_TAG_STATE:
+			// 	if (input.getDriveSquareButton()) {
+			// 		return FSMState.ALIGN_TO_REEF_TAG_STATE;
+			// 	}  else if (input.getDriveTriangleButton()) {
+			// 		return FSMState.ALIGN_TO_STATION_TAG_STATE;
+			// 	} else {
+			// 		return FSMState.TELEOP_STATE;
+			// 	}
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
