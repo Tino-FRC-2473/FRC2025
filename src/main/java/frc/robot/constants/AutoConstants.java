@@ -39,16 +39,16 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double ALIGN_MAX_T_SPEED = 2.4;
+	public static final double ALIGN_MAX_T_SPEED = 1.8;
 	public static final double ALIGN_MAX_T_ACCEL = 2.0;
 	public static final double ALIGN_DRIVE_P = 0.85;
 	public static final double ALIGN_DRIVE_D = 0.0;
 	public static final double ALIGN_THETA_P = 0.8;
 	public static final double ALIGN_THETA_D = 0.00;
-	public static final double DRIVE_TOLERANCE = 0.02; //meters
-	public static final double THETA_TOLERANCE = Units.degreesToRadians(3.0);
+	public static final double DRIVE_TOLERANCE = 0.03; // 0.03 meters is 3 cm = ~1.2 in
+	public static final double THETA_TOLERANCE = Units.degreesToRadians(2.0);
 	public static final double ALIGN_TOLERANCE = 0.1;
-	public static final double ALIGN_MAX_R_SPEED = Units.degreesToRadians(360.0) * 0.3;
+	public static final double ALIGN_MAX_R_SPEED = Units.degreesToRadians(360.0) * 0.2;
 	public static final double ALIGN_MAX_R_ACCEL = 4.8;
 	public static final double FF_MIN_RADIUS = 0.1;
 	public static final double FF_MAX_RADIUS = 0.15;
