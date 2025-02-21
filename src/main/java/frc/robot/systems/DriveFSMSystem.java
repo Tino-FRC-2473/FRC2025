@@ -252,7 +252,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				: drivetrain.getState().Pose.getRotation();
 
 		// want to call when the robot is initially running to get a true positional value.
-		updateVisionEstimates();
+		// updateVisionEstimates();
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -451,13 +451,13 @@ public class DriveFSMSystem extends SubsystemBase {
 						// - if u use pose rotation.
 					SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
 						// - if u use pose rotation.
-					SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
+					SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d().rotateBy(Rotation2d.k180deg)
 				);
 
 			Pose2d alignmentPose = currPose
 				.transformBy(robotToCamera)
 				.plus(new Transform2d(
-					tag.getZ(),
+					-tag.getZ(),
 					(tag.getX()),
 					new Rotation2d(-tag.getPitch())))
 				.transformBy(robotToCamera.inverse());
@@ -470,11 +470,18 @@ public class DriveFSMSystem extends SubsystemBase {
 					new Pose3d(currPose)
 						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose)))
 						.toPose2d().getTranslation(),
-					currPose.getRotation()
+					aprilTagPose3d.get().getRotation()
+						.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
 					)
 					.transformBy(
 						robotToCamera.inverse()
 					);
+
+				imposedPose = new Pose2d(
+					imposedPose.getX(),
+					imposedPose.getY(),
+					imposedPose.getRotation()
+				);
 
 				aprilTagReefRefPoses.add(
 					imposedPose
@@ -503,9 +510,9 @@ public class DriveFSMSystem extends SubsystemBase {
 			Pose2d alignmentPose = currPose
 				.transformBy(robotToCamera)
 				.plus(new Transform2d(
-					tag.getZ(),
+					-tag.getZ(),
 					(tag.getX()),
-					new Rotation2d(-tag.getPitch())))
+					new Rotation2d(tag.getPitch())))
 				.transformBy(robotToCamera.inverse());
 
 			aprilTagVisionPoses.add(alignmentPose);
@@ -516,7 +523,8 @@ public class DriveFSMSystem extends SubsystemBase {
 					new Pose3d(currPose)
 						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose)))
 						.toPose2d().getTranslation(),
-					currPose.getRotation()
+					aprilTagPose3d.get().getRotation()
+						.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
 				).transformBy(
 					robotToCamera.inverse()
 				);
@@ -844,19 +852,34 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			} else {
 				alignmentPose2d = currPose
+					.transformBy(robotToCamera)
 					.plus(new Transform2d(
 						tag.getZ(),
 						-(tag.getX()),
-						new Rotation2d(-tag.getPitch()))
-					);
+						new Rotation2d(-tag.getPitch())))
+					.transformBy(robotToCamera.inverse());
+
+				alignmentPose2d = alignmentPose2d.transformBy(
+					new Transform2d(
+						-alignmentXOff,
+						-alignmentYOff,
+						new Rotation2d()
+					)
+				);
 			}
 
 			Logger.recordOutput("Alignment Pose", alignmentPose2d);
-			if (driveToPoseFinished) {
-				drivetrain.setControl(brake);
-				return;
-			}
-			driveToPose(alignmentPose2d, allianceFlip);
+
+		}
+		driveToPose(alignmentPose2d, allianceFlip);
+		if (driveToPoseFinished) {
+			drivetrain.setControl(
+				drive.withVelocityX(0)
+				.withVelocityY(0)
+				.withRotationalRate(0)
+			);
+			//drivetrain.setControl(brake);
+			return;
 		}
 
 	}
