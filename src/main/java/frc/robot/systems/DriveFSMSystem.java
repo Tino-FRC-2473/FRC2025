@@ -574,8 +574,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		System.out.println(aDiff);
 
-		double xSpeed;
-		double ySpeed;
+		// double xSpeed;
+		// double ySpeed;
 
 		// double xSpeed =
 		// 	xDiff
@@ -592,29 +592,13 @@ public class DriveFSMSystem extends SubsystemBase {
 		// 	* AutoConstants.ALIGN_THETA_P
 		// 	* MAX_ANGULAR_RATE;
 
-		if (Math.abs(xDiff) > Math.abs(yDiff)) {
-			xSpeed = MathUtil.clamp(xDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
-			-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED);
-			ySpeed = xSpeed * (yDiff / xDiff);
-			if (Math.abs(xDiff) < AutoConstants.CONSTANT_SPEED_THRESHOLD && Math.abs(yDiff)
-				< AutoConstants.CONSTANT_SPEED_THRESHOLD) {
-				xSpeed = (AutoConstants.CONSTANT_SPEED * Math.signum(xDiff))
-					* MAX_SPEED;
-				ySpeed = xSpeed * (yDiff / xDiff);
-			}
-		} else {
-			ySpeed = MathUtil.clamp(yDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
-			-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED);
-			xSpeed = ySpeed * (xDiff / yDiff);
-			if (Math.abs(xDiff) < AutoConstants.CONSTANT_SPEED_THRESHOLD && Math.abs(yDiff)
-				< AutoConstants.CONSTANT_SPEED_THRESHOLD) {
-				ySpeed = (AutoConstants.CONSTANT_SPEED * Math.signum(yDiff))
-					* MAX_SPEED;
-				xSpeed = ySpeed * (xDiff / yDiff);
-			}
-		}
-
-		double rotSpeed = -MathUtil.clamp(aDiff * AutoConstants.ALIGN_THETA_P * MAX_ANGULAR_RATE,
+		double xSpeed = MathUtil.clamp(xDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
+			-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED
+		);
+		double ySpeed = MathUtil.clamp(yDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
+			-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED
+		);
+		double rotSpeed = MathUtil.clamp(aDiff * AutoConstants.ALIGN_THETA_P * MAX_ANGULAR_RATE,
 			-AutoConstants.ALIGN_MAX_R_SPEED, AutoConstants.ALIGN_MAX_R_SPEED
 		);
 
@@ -630,7 +614,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			.withVelocityX(xSpeed * allianceOriented.getAsInt())
 			.withVelocityY(ySpeed * allianceOriented.getAsInt())
 			.withTargetDirection(target.getRotation())
-			.withTargetRateFeedforward(rotSpeed * allianceOriented.getAsInt())
+			.withTargetRateFeedforward(-rotSpeed * allianceOriented.getAsInt())
 		);
 
 		driveToPoseFinished = (xSpeed == 0 && ySpeed == 0 && rotSpeed == 0);
