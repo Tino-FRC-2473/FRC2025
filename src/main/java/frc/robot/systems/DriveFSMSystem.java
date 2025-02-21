@@ -576,48 +576,64 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double xSpeed;
 		double ySpeed;
-		// if (Math.abs(xDiff) > Math.abs(yDiff)) {
-		// 	xSpeed = MathUtil.clamp(xDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
-		// 	-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED);
-		// 	ySpeed = xSpeed * (yDiff / xDiff);
-		// 	if (Math.abs(xDiff) < AutoConstants.CONSTANT_SPEED_THRESHOLD && Math.abs(yDiff)
-		// 		< AutoConstants.CONSTANT_SPEED_THRESHOLD) {
-		// 		xSpeed = (AutoConstants.CONSTANT_SPEED * Math.signum(xDiff))
-		// 			* AutoConstants.ALIGN_DRIVE_P * MAX_SPEED;
-		// 		ySpeed = xSpeed * (yDiff / xDiff);
-		// 	}
-		// } else {
-		// 	ySpeed = MathUtil.clamp(yDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
-		// 	-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED);
-		// 	xSpeed = ySpeed * (xDiff / yDiff);
-		// 	if (Math.abs(xDiff) < AutoConstants.CONSTANT_SPEED_THRESHOLD && Math.abs(yDiff)
-		// 		< AutoConstants.CONSTANT_SPEED_THRESHOLD) {
-		// 		ySpeed = (AutoConstants.CONSTANT_SPEED * Math.signum(yDiff))
-		// 			* AutoConstants.ALIGN_DRIVE_P * MAX_SPEED;
-		// 		xSpeed = ySpeed * (xDiff / yDiff);
-		// 	}
-		// }
 
-		// double aSpeed = -MathUtil.clamp(aDiff * AutoConstants.ALIGN_THETA_P * MAX_ANGULAR_RATE,
-		// 	-AutoConstants.ALIGN_MAX_R_SPEED, AutoConstants.ALIGN_MAX_R_SPEED
-		// );
+		// double xSpeed =
+		// 	xDiff
+		// 	* AutoConstants.ALIGN_DRIVE_P
+		// 	* MAX_SPEED * allianceOriented.getAsInt();
+
+		// double ySpeed =
+		// 	yDiff
+		// 	* AutoConstants.ALIGN_DRIVE_P
+		// 	* MAX_SPEED * allianceOriented.getAsInt();
+
+		// double rotSpeed =
+		// 	aDiff
+		// 	* AutoConstants.ALIGN_THETA_P
+		// 	* MAX_ANGULAR_RATE;
+
+		if (Math.abs(xDiff) > Math.abs(yDiff)) {
+			xSpeed = MathUtil.clamp(xDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
+			-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED);
+			ySpeed = xSpeed * (yDiff / xDiff);
+			if (Math.abs(xDiff) < AutoConstants.CONSTANT_SPEED_THRESHOLD && Math.abs(yDiff)
+				< AutoConstants.CONSTANT_SPEED_THRESHOLD) {
+				xSpeed = (AutoConstants.CONSTANT_SPEED * Math.signum(xDiff))
+					* MAX_SPEED;
+				ySpeed = xSpeed * (yDiff / xDiff);
+			}
+		} else {
+			ySpeed = MathUtil.clamp(yDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
+			-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED);
+			xSpeed = ySpeed * (xDiff / yDiff);
+			if (Math.abs(xDiff) < AutoConstants.CONSTANT_SPEED_THRESHOLD && Math.abs(yDiff)
+				< AutoConstants.CONSTANT_SPEED_THRESHOLD) {
+				ySpeed = (AutoConstants.CONSTANT_SPEED * Math.signum(yDiff))
+					* MAX_SPEED;
+				xSpeed = ySpeed * (xDiff / yDiff);
+			}
+		}
+
+		double rotSpeed = -MathUtil.clamp(aDiff * AutoConstants.ALIGN_THETA_P * MAX_ANGULAR_RATE,
+			-AutoConstants.ALIGN_MAX_R_SPEED, AutoConstants.ALIGN_MAX_R_SPEED
+		);
 
 		xSpeed = Math.abs(xDiff) > AutoConstants.DRIVE_TOLERANCE
 			? xSpeed : 0;
 		ySpeed = Math.abs(yDiff) > AutoConstants.DRIVE_TOLERANCE
 			? ySpeed : 0;
-		aSpeed = Math.abs(aDiff) > AutoConstants.THETA_TOLERANCE
-			? aSpeed : 0;
+		rotSpeed = Math.abs(aDiff) > AutoConstants.THETA_TOLERANCE
+			? rotSpeed : 0;
 
 		drivetrain.setControl(
 			driveFacingAngle
 			.withVelocityX(xSpeed * allianceOriented.getAsInt())
 			.withVelocityY(ySpeed * allianceOriented.getAsInt())
 			.withTargetDirection(target.getRotation())
-			.withTargetRateFeedforward(aSpeed * allianceOriented.getAsInt())
+			.withTargetRateFeedforward(rotSpeed * allianceOriented.getAsInt())
 		);
 
-		driveToPoseFinished = (xSpeed == 0 && ySpeed == 0 && aSpeed == 0);
+		driveToPoseFinished = (xSpeed == 0 && ySpeed == 0 && rotSpeed == 0);
 
 		Logger.recordOutput(
 			"DriveToPose/Pose", currPose
@@ -635,7 +651,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			"DriveToPose/YSpeed", ySpeed
 		);
 		Logger.recordOutput(
-			"DriveToPose/RotSpeed", aSpeed
+			"DriveToPose/RotSpeed", rotSpeed
 		);
 
 		Logger.recordOutput(
@@ -831,11 +847,11 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 
 			Logger.recordOutput("Alignment Pose", alignmentPose2d);
-
-			if (driveToPose(alignmentPose2d)) {
+			if (driveToPoseFinished) {
 				drivetrain.setControl(brake);
 				return;
 			}
+			driveToPose(alignmentPose2d);
 		}
 
 	}
