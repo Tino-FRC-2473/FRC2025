@@ -7,7 +7,7 @@
 ## journalctl -fxu cv-driver-cam.service
 
 [Unit]
-Description=CV Driver Cam 2
+Description=CV Driver Cam
 
 [Service]
 Type=simple

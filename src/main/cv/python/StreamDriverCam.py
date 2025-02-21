@@ -7,6 +7,10 @@ from config import *
 from argparse import ArgumentParser
 from visionInput import VisionInput, find_camera_index
 
+print("Waiting 5 seconds... ", end="")
+time.sleep(5)
+print("done")
+
 if not ON_RPI:
     print("This file can only be run on the raspberry pi")
     exit()

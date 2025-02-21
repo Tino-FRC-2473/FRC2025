@@ -7,6 +7,10 @@ import time
 import cv2
 import traceback
 
+print("Waiting 5 seconds... ", end="")
+time.sleep(5)
+print("done")
+
 if USE_CLI_ARGUMENTS:
     parser = ArgumentParser("main.py", description="2473 CV Code")
     id_group = parser.add_mutually_exclusive_group(required=True)
