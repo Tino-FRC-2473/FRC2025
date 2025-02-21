@@ -606,8 +606,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		drivetrain.setControl(
 			driveFacingAngle
-			.withVelocityX(xSpeed) //* allianceOriented.getAsInt())
-			.withVelocityY(ySpeed) //* allianceOriented.getAsInt())
+			.withVelocityX(xSpeed * allianceOriented.getAsInt()) //* allianceOriented.getAsInt())
+			.withVelocityY(ySpeed * allianceOriented.getAsInt()) //* allianceOriented.getAsInt())
 			.withTargetDirection(target.getRotation())
 			.withTargetRateFeedforward(rotSpeed)
 		);
