@@ -28,6 +28,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.LEDFSMSystem;
 import frc.robot.utils.Elastic;
 import frc.robot.systems.DriveFSMSystem;
 
@@ -53,6 +54,7 @@ public class Robot extends LoggedRobot {
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
+	private LEDFSMSystem ledSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -105,6 +107,12 @@ public class Robot extends LoggedRobot {
 			climberSystem = new ClimberFSMSystem();
 		}
 
+		if (Robot.isSimulation() || (HardwareMap.isLEDPresent()
+			&& HardwareMap.isDriveHardwarePresent() && HardwareMap.isElevatorHardwarePresent()
+			&& HardwareMap.isFunnelHardwarePresent())) {
+			ledSystem = new LEDFSMSystem(driveSystem, funnelSystem, climberSystem);
+		}
+
 		autoRoutines = new AutoRoutines(
 			driveSystem, elevatorSystem, funnelSystem
 		);
@@ -150,6 +158,10 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem.updateAutonomous();
 		}
+
+		if (HardwareMap.isLEDPresent()) {
+			ledSystem.updateAutonomous();
+		}
 		MotorManager.update();
 	}
 
@@ -169,6 +181,9 @@ public class Robot extends LoggedRobot {
 		if (elevatorSystem != null) {
 			elevatorSystem.reset();
 		}
+		if (ledSystem != null) {
+			ledSystem.reset();
+		}
 	}
 
 	@Override
@@ -184,6 +199,10 @@ public class Robot extends LoggedRobot {
 		}
 		if (elevatorSystem != null) {
 			elevatorSystem.update(input);
+		}
+
+		if (ledSystem != null) {
+			ledSystem.update(input);
 		}
 		MotorManager.update();
 		ntInstance.flush();
@@ -276,6 +295,10 @@ public class Robot extends LoggedRobot {
 
 		if (climberSystem != null) {
 			climberSystem.updateLogging();
+		}
+
+		if (ledSystem != null) {
+			ledSystem.updateLogging();
 		}
 	}
 

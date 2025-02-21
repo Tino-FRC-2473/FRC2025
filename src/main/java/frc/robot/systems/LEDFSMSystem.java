@@ -1,5 +1,7 @@
 package frc.robot.systems;
 
+import org.littletonrobotics.junction.Logger;
+
 import frc.robot.BlinkinLED;
 
 // WPILib Imports
@@ -8,6 +10,8 @@ import frc.robot.BlinkinLED;
 
 // Robot Imports
 import frc.robot.TeleopInput;
+import frc.robot.systems.ClimberFSMSystem.ClimberFSMState;
+import frc.robot.systems.DriveFSMSystem.DriveFSMState;
 
 public class LEDFSMSystem {
 	/* ======================== Constants ======================== */
@@ -75,7 +79,7 @@ public class LEDFSMSystem {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = LEDFSMState.YES_CORAL;
+		currentState = LEDFSMState.NO_CORAL;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -94,22 +98,22 @@ public class LEDFSMSystem {
 		}
 		switch (currentState) {
 			case REEF_ALIGNED:
-				handleReefAlignedState(input);
+				handleReefAlignedState();
 				break;
 			case STATION_ALIGNED:
-				handleStationAlignedState(input);
+				handleStationAlignedState();
 				break;
 			case OFFSET_FROM_TAG:
-				handleOffsetState(input);
+				handleOffsetState();
 				break;
 			case YES_CORAL:
-				handleYesCoralState(input);
+				handleYesCoralState();
 				break;
 			case NO_CORAL:
-				handleNoCoralState(input);
+				handleNoCoralState();
 				break;
 			case CLIMB:
-				handleClimbState(input);
+				handleClimbState();
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -131,6 +135,7 @@ public class LEDFSMSystem {
 	 */
 	public void updateLogging() {
 		// Telemetry and logging
+		Logger.recordOutput("LED State", currentState);
 	}
 
 	/* ======================== Private methods ======================== */
@@ -144,88 +149,111 @@ public class LEDFSMSystem {
 	 * @return FSM state for the next iteration
 	 */
 	private LEDFSMState nextState(TeleopInput input) {
-		//auto --> never called here
-
-		//climb
-		if (
-			climberFSMSystem.getCurrentState() == ClimberFSMSystem.ClimberFSMState.AUTOMATIC
-		) {
-			return LEDFSMState.CLIMB;
+		if (input == null) {
+			return  LEDFSMState.NO_CORAL;
 		}
+		switch (currentState) {
+			case NO_CORAL:
+				if (climberFSMSystem.getCurrentState().equals(ClimberFSMState.AUTOMATIC)) {
+					return LEDFSMState.CLIMB;
+				}
 
-		//align states
-		if (driveFSMSystem.getCurrentState()
-			== DriveFSMSystem.DriveFSMState.ALIGN_TO_REEF_TAG_STATE
-			&& driveFSMSystem.isAlignedToTag()) {
-			return LEDFSMState.REEF_ALIGNED;
-		}
+				if (driveFSMSystem.getCurrentState()
+					.equals(DriveFSMState.ALIGN_TO_STATION_TAG_STATE)
+					|| driveFSMSystem.getCurrentState()
+					.equals(DriveFSMState.ALIGN_TO_STATION_TAG_STATE)) {
+					return LEDFSMState.OFFSET_FROM_TAG;
+				}
 
-		if (driveFSMSystem.getCurrentState()
-			== DriveFSMSystem.DriveFSMState.ALIGN_TO_STATION_TAG_STATE
-			&& driveFSMSystem.isAlignedToTag()) {
-			return LEDFSMState.STATION_ALIGNED;
-		}
+				if (funnelFSMSystem.isHoldingCoral()) {
+					return LEDFSMState.YES_CORAL;
+				}
+				return LEDFSMState.NO_CORAL;
 
-		if ((driveFSMSystem.getCurrentState()
-			== DriveFSMSystem.DriveFSMState.ALIGN_TO_REEF_TAG_STATE
-			|| driveFSMSystem.getCurrentState()
-			== DriveFSMSystem.DriveFSMState.ALIGN_TO_STATION_TAG_STATE)
-			&& !driveFSMSystem.isAlignedToTag()) {
-			return LEDFSMState.OFFSET_FROM_TAG;
-		}
+			case YES_CORAL:
+				if (funnelFSMSystem.isHoldingCoral()) {
+					return LEDFSMState.YES_CORAL;
+				}
+				return LEDFSMState.NO_CORAL;
 
-		//coral states
-		if (funnelFSMSystem.isHoldingCoral()) {
-			return LEDFSMState.YES_CORAL;
-		} else {
-			return LEDFSMState.NO_CORAL;
+			case CLIMB:
+				if (!climberFSMSystem.getCurrentState().equals(ClimberFSMState.AUTOMATIC)) {
+					return LEDFSMState.NO_CORAL;
+				}
+				return LEDFSMState.CLIMB;
+
+			case OFFSET_FROM_TAG:
+				if (driveFSMSystem.isAlignedToTag()) {
+					if (driveFSMSystem.getCurrentState()
+						.equals(DriveFSMState.ALIGN_TO_REEF_TAG_STATE)) {
+						return LEDFSMState.REEF_ALIGNED;
+					}
+
+					if (driveFSMSystem.getCurrentState()
+						.equals(DriveFSMState.ALIGN_TO_STATION_TAG_STATE)) {
+						return LEDFSMState.STATION_ALIGNED;
+					}
+				}
+
+				if (driveFSMSystem.getCurrentState().equals(DriveFSMState.ALIGN_TO_REEF_TAG_STATE)
+					|| driveFSMSystem.getCurrentState()
+					.equals(DriveFSMState.ALIGN_TO_STATION_TAG_STATE)) {
+					return LEDFSMState.OFFSET_FROM_TAG;
+				}
+				return LEDFSMState.NO_CORAL;
+
+			case REEF_ALIGNED:
+				if (driveFSMSystem.getCurrentState()
+					.equals(DriveFSMState.ALIGN_TO_REEF_TAG_STATE)) {
+					return LEDFSMState.REEF_ALIGNED;
+				}
+				return LEDFSMState.NO_CORAL;
+
+			case STATION_ALIGNED:
+				if (driveFSMSystem.getCurrentState()
+					.equals(DriveFSMState.ALIGN_TO_STATION_TAG_STATE)) {
+					return LEDFSMState.STATION_ALIGNED;
+				}
+				return LEDFSMState.NO_CORAL;
+
+			default:
+				throw new IllegalStateException("Invalid State: " + currentState.toString());
 		}
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
-	 * Handle behavior in REEF_ALIGNED
-.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
+	 * Handle behavior in REEF_ALIGNED.
 	 */
-	private void handleReefAlignedState(TeleopInput input) {
+	private void handleReefAlignedState() {
 		led.setReefAlignColor();
 	}
 
 	/**
 	 * Handle behavior in STATION_ALIGNED.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
 	 */
-	private void handleStationAlignedState(TeleopInput input) {
+	private void handleStationAlignedState() {
 		led.setStationAlignedColor();
 	}
 
 	/**
 	 * Handle behavior in OFFSET_FROM_TAG.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
 	 */
-	private void handleOffsetState(TeleopInput input) {
+	private void handleOffsetState() {
 		led.setOffsetColor();
 	}
 
 	/**
 	 * Handle behavior in YES_CORAL.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
 	 */
-	private void handleYesCoralState(TeleopInput input) {
+	private void handleYesCoralState() {
 		led.setYesCoralColor();
 	}
 
 	/**
 	 * Handle behavior in NO_CORAL.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
 	 */
-	private void handleNoCoralState(TeleopInput input) {
+	private void handleNoCoralState() {
 		led.setNoCoralColor();
 	}
 
@@ -238,10 +266,8 @@ public class LEDFSMSystem {
 
 	/**
 	 * Handle behavior in CLIMB.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
 	 */
-	private void handleClimbState(TeleopInput input) {
+	private void handleClimbState() {
 		led.setClimbColor();
 	}
 }
