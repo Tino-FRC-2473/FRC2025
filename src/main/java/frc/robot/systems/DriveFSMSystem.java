@@ -3,23 +3,16 @@ package frc.robot.systems;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -96,7 +89,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private CommandSwerveDrivetrain drivetrain;
 	private Rotation2d rotationAlignmentPose;
-	private boolean driveLocalized = false;
+	private	Pose2d alignmentPose2d;
+	private boolean driveToPoseRunning = false;
 
 	/* -- cv constants -- */
 	private RaspberryPi rpi = new RaspberryPi();
@@ -158,32 +152,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	private boolean aligningToReef = false;
 		// False => aligning to station, True => aligning to reef
 
-	private final ProfiledPIDController autoXPid =
-		new ProfiledPIDController(4, 0, 1,
-			new Constraints(
-				AutoConstants.ALIGN_MAX_T_SPEED,
-				AutoConstants.ALIGN_MAX_T_ACCEL
-			)
-		);
-	private final ProfiledPIDController autoYPid =
-	new ProfiledPIDController(4, 0, 1,
-		new Constraints(
-			AutoConstants.ALIGN_MAX_T_SPEED,
-			AutoConstants.ALIGN_MAX_T_ACCEL
-		)
-	);
-	private final ProfiledPIDController autoHeadingPid
-		= new ProfiledPIDController(1.0, 0, 0.1,
-			new Constraints(
-				AutoConstants.ALIGN_MAX_R_SPEED,
-				AutoConstants.ALIGN_MAX_R_ACCEL
-			));
-
-	private TrajectoryConfig trajConfig;
-
-	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
-		new SwerveRequest.ApplyFieldSpeeds();
-
 	/* ======================== Private variables ======================== */
 	private DriveFSMState currentState;
 
@@ -201,20 +169,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		slewRateX = new SlewRateLimiter(DriveConstants.SLEW_RATE);
 		slewRateY = new SlewRateLimiter(DriveConstants.SLEW_RATE);
 		slewRateA = new SlewRateLimiter(DriveConstants.SLEW_RATE);
-
-		trajConfig = new TrajectoryConfig(
-			AutoConstants.ALIGN_MAX_T_SPEED,
-			AutoConstants.ALIGN_MAX_T_ACCEL
-		)
-		.setKinematics(drivetrain.getKinematics())
-		.setEndVelocity(0);
-
-		autoXPid.setTolerance(AutoConstants.DRIVE_TOLERANCE);
-		autoYPid.setTolerance(AutoConstants.DRIVE_TOLERANCE);
-		autoHeadingPid.setTolerance(AutoConstants.THETA_TOLERANCE);
-		autoHeadingPid.enableContinuousInput(-Math.PI, Math.PI);
-
-		drivetrain.configureAutoBuilder();
 
 		try {
 			aprilTagFieldLayout
@@ -568,6 +522,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	/**
 	 * Drive to pose function.
 	 * @param target target pose to align to.
+	 * @param allianceFlip whether to incorporate an alliance multiplier in alignment directions.
 	 * @return whether or not driving is completed.
 	 */
 	public boolean driveToPose(Pose2d target, boolean allianceFlip) {
@@ -789,9 +744,6 @@ public class DriveFSMSystem extends SubsystemBase {
 			drivetrain.setControl(brake);
 		}
 	}
-
-	Pose2d alignmentPose2d;
-	boolean driveToPoseRunning = false;
 
 	/**
 	 * Handle tag alignment state.
