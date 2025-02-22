@@ -13,7 +13,7 @@ class DataCollector:
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         timestamp = time.ctime(time.time())
         self.mp4_raw = cv2.VideoWriter(f'{dir}/{cam_name} raw {timestamp}.mp4', fourcc, DATA_COLLECTION_FPS, (initial_frame_shape[1], initial_frame_shape[0]))
-        self.mp4_annotated = cv2.VideoWriter(f'{dir}/{cam_name} annotated {timestamp}.mp4', fourcc, DATA_COLLECTION_FPS, AT_RESIZED_RES)
+        self.mp4_annotated = cv2.VideoWriter(f'{dir}/{cam_name} annotated {timestamp}.mp4', fourcc, DATA_COLLECTION_FPS, AT_INPUT_RES)
         self.csv_file =  open(f"{dir}/{cam_name} tag data {timestamp}.csv", mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.frame_id = 0
