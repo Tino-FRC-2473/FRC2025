@@ -109,7 +109,8 @@ public class Robot extends LoggedRobot {
 		}
 
 		if (HardwareMap.isLEDPresent() && HardwareMap.isDriveHardwarePresent()
-			&& HardwareMap.isElevatorHardwarePresent() && HardwareMap.isFunnelHardwarePresent()) {
+			&& HardwareMap.isElevatorHardwarePresent() && HardwareMap.isFunnelHardwarePresent()
+			&& HardwareMap.isClimberHardwarePresent()) {
 			ledSystem = new LEDFSMSystem(driveSystem, funnelSystem, climberSystem);
 		}
 

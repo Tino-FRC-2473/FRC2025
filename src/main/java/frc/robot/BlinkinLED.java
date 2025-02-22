@@ -79,7 +79,7 @@ public class BlinkinLED {
 	 * Used when robot is holding a coral.
 	 */
 	public void setYesCoralColor() {
-		ledController.set(LEDConstants.LED_HEARTBEAT_BLUE);
+		ledController.set(LEDConstants.LED_GREEN_SOLID);
 	}
 
 	/**

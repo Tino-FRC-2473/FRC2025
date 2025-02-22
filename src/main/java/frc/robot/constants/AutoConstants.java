@@ -19,8 +19,8 @@ public class AutoConstants {
 	public static final int RED_L_STATION_ID = 1;
 	public static final int RED_R_STATION_ID = 2;
 
-	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2 - 6) + 0.1;
-	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13.5) / 2;
+	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2 - 6) + 0.3;
+	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13) / 2;
 	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13.5) / 2;
 	public static final double STATION_Y_L_TAG_OFFSET = Units.inchesToMeters(20);
 	public static final double STATION_Y_R_TAG_OFFSET = -Units.inchesToMeters(20);
@@ -39,11 +39,11 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double ALIGN_MAX_T_SPEED = 1.25;
+	public static final double ALIGN_MAX_T_SPEED = 1.1;
 	public static final double ALIGN_MAX_T_ACCEL = 2.0;
-	public static final double ALIGN_DRIVE_P = 0.85;
+	public static final double ALIGN_DRIVE_P = 0.35;
 	public static final double ALIGN_DRIVE_D = 0.0;
-	public static final double ALIGN_THETA_P = 0.85;
+	public static final double ALIGN_THETA_P = 0.7;
 	public static final double ALIGN_THETA_D = 0.00;
 	public static final double DRIVE_TOLERANCE = 0.03; // 0.03 meters is 3 cm = ~1.2 in
 	public static final double THETA_TOLERANCE = Units.degreesToRadians(2.0);

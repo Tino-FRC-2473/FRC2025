@@ -22,7 +22,7 @@ public final class HardwareMap {
 
 	// rio - pwm ports
 	public static final int FUNNEL_SERVO_PWM_PORT = 0; // FINAL
-	public static final int LED_STRIP_PWM_PORT = 9; // TBD
+	public static final int LED_STRIP_PWM_PORT = 1; // TBD
 
 	/* ===== Hardware Availability ===== */
 	/**
@@ -47,7 +47,7 @@ public final class HardwareMap {
 	 * @return true if climber hardware is present
 	 */
 	public static boolean isClimberHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -71,6 +71,6 @@ public final class HardwareMap {
 	 * @return true if LED hardware is present
 	 */
 	public static boolean isLEDPresent() {
-		return false;
+		return true;
 	}
 }

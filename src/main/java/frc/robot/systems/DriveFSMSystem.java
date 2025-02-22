@@ -451,7 +451,8 @@ public class DriveFSMSystem extends SubsystemBase {
 						// - if u use pose rotation.
 					SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
 						// - if u use pose rotation.
-					SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d().rotateBy(Rotation2d.k180deg)
+					SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
+					.rotateBy(Rotation2d.k180deg)
 				);
 
 			Pose2d alignmentPose = currPose
@@ -832,6 +833,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			);
 		}
 
+		System.out.println("TAG Reached here");
+
 		if (tag != null) {
 			if (Utils.isSimulation()) {
 				alignmentPose2d = currPose
@@ -859,6 +862,8 @@ public class DriveFSMSystem extends SubsystemBase {
 						new Rotation2d(-tag.getPitch())))
 					.transformBy(robotToCamera.inverse());
 
+				System.out.println("ALIGNMENT X OFF" + alignmentXOff);
+
 				alignmentPose2d = alignmentPose2d.transformBy(
 					new Transform2d(
 						-alignmentXOff,
@@ -866,8 +871,14 @@ public class DriveFSMSystem extends SubsystemBase {
 						new Rotation2d()
 					)
 				);
-			}
 
+			}
+			Logger.recordOutput(
+				"TAG Z", tag.getZ()
+			);
+			Logger.recordOutput(
+				"TAG X", tag.getX()
+			);
 			Logger.recordOutput("Alignment Pose", alignmentPose2d);
 
 		}
