@@ -149,6 +149,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private Timer driveToPoseTimer = new Timer();
 	private boolean driveToPoseFinished = false;
+	private boolean driveToPoseRotateFinished = false;
 	private boolean aligningToReef = false;
 		// False => aligning to station, True => aligning to reef
 
@@ -329,6 +330,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		alignmentYOff = 0;
 		driveToPoseFinished = false;
 		driveToPoseRunning = false;
+		driveToPoseRotateFinished = false;
 
 		double xSpeed = MathUtil.applyDeadband(
 			slewRateX.calculate(input.getDriveLeftJoystickY()), DriveConstants.JOYSTICK_DEADBAND
@@ -341,8 +343,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			// Drive left with negative X (left) ^
 
 		double rotXComp = MathUtil.applyDeadband(
-			slewRateA.calculate(input.getDriveRightJoystickX()), DriveConstants.JOYSTICK_DEADBAND
-			) * MAX_ANGULAR_RATE;
+			input.getDriveRightJoystickX(), DriveConstants.JOYSTICK_DEADBAND)
+			* MAX_ANGULAR_RATE;
 			// Drive left with negative X (left) ^
 
 		if (rotXComp != 0) {
@@ -581,21 +583,37 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		int allianceMultiplier = (allianceFlip) ? allianceOriented.getAsInt() : 1;
 
-		drivetrain.setControl(
-			driveFacingAngle
-			.withVelocityX(xSpeed)
-			.withVelocityY(ySpeed) //* allianceOriented.getAsInt())
-			.withTargetDirection(target.getRotation())
-			.withTargetRateFeedforward(rotSpeed)
-		);
+		if (rotSpeed == 0) {
+			driveToPoseRotateFinished = true;
+		}
 
-		driveToPoseFinished = (xSpeed == 0 && ySpeed == 0 && rotSpeed == 0);
+		if (driveToPoseRotateFinished) {
+			drivetrain.setControl(
+				driveFacingAngle
+				.withVelocityX(xSpeed)
+				.withVelocityY(ySpeed) //* allianceOriented.getAsInt())
+				.withTargetRateFeedforward(0)
+			);
+		} else {
+			drivetrain.setControl(
+				driveFacingAngle
+				.withVelocityX(0)
+				.withVelocityY(0)
+				.withTargetDirection(target.getRotation())
+				.withTargetRateFeedforward(rotSpeed)
+			);
+		}
+
+		driveToPoseFinished = (xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished);
 
 		Logger.recordOutput(
 			"DriveToPose/Pose", currPose
 		);
 		Logger.recordOutput(
 			"DriveToPose/Time", driveToPoseTimer.get()
+		);
+		Logger.recordOutput(
+			"DriveToPose/IsRotateFinished", driveToPoseRotateFinished
 		);
 		Logger.recordOutput(
 			"DriveToPose/IsFinished", driveToPoseFinished
@@ -902,6 +920,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				alignmentYOff = 0;
 				driveToPoseFinished = false;
 				driveToPoseRunning = false;
+				driveToPoseRotateFinished = false;
 			}
 		}
 

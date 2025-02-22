@@ -297,7 +297,7 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.updateLogging();
 			if (HardwareMap.isCVHardwarePresent()) {
-				driveSystem.updateVisionEstimates();
+				//driveSystem.updateVisionEstimates();
 			}
 		}
 
