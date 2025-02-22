@@ -84,15 +84,15 @@ class AprilTag():
         # Extract Euler angles (assuming a standard rotation order like XYZ)
         euler_angles = Rotation.from_matrix(R).as_euler("xyz", degrees=False)
 
-        print("Euler x angle: ", euler_angles[0]) 
-        print("Euler y angle: ", euler_angles[1])
-        print("Euler z angle: ", euler_angles[2])
+        #print("Euler x angle: ", euler_angles[0]) 
+        #print("Euler y angle: ", euler_angles[1])
+        #print("Euler z angle: ", euler_angles[2])
         
         #print(self.fix_camera_tilt(euler_angles[0]))
-        print("Pitch in radians: ", rvec[1])
+        #print("Pitch in radians: ", rvec[1])
 
         if(self.cam_name == "source"):
-            euler_angles[2] = self.fix_camera_tilt(euler_angles[2], rvec[1])
+            euler_angles[2] = self.fix_camera_tilt(euler_angles[2], -0.331613)
         
         return euler_angles
 
@@ -103,39 +103,37 @@ class AprilTag():
     
 
     def estimate_3d_pose(self, image, ARUCO_LENGTH_METERS):
-            gray = image[:, :, 0]
-            results = self.detector.detect(gray)
-            ids = [r.tag_id for r in results]
-            corners = [r.corners for r in results]
-            self.detectedIDs = ids
-            pose_list = []
-            num_tags = len(ids) if ids is not None else 0
-            #print(num_tags)
-            if num_tags != 0:
-                # Estimate the pose of each detected marker
-                for i in range(len(ids)):
-                    # Estimate the pose
-                    tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
-                    
-                    pose_list.append(ids[i])
-                    pose_list.extend(cvec)
-                    
-                    original_z = tvec[2]
-                    tvec[2] =  original_z + AT_Z_OFFSET
+        gray = image[:, :, 0]
+        results = self.detector.detect(gray)
 
-                    original_x = tvec[0]
-                    tvec[0] =  (original_x + AT_X_OFFSET)
+        ids = [r.tag_id for r in results]
+        corners = [r.corners for r in results]
 
-                    pose_list.extend(tvec)
-                    euler_rvec = self.rotation_vector_to_euler_angles(rvec)
-                    pose_list.extend(euler_rvec)
+        self.detectedIDs = ids
+        pose_list = []
+        num_tags = len(ids) if ids is not None else 0
+        #print(num_tags)
+        if num_tags != 0:
+            # Estimate the pose of each detected marker
+            for i in range(len(ids)):
+                # Estimate the pose
+                tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+                
+                pose_list.append(ids[i])
+                pose_list.extend(cvec)
+
+                print(tvec)
+
+                pose_list.extend(tvec)
+                euler_rvec = self.rotation_vector_to_euler_angles(rvec)
+                pose_list.extend(euler_rvec)
                     
-                    # print("euler_rvec: ", euler_rvec)
-                    #self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+                # print("euler_rvec: ", euler_rvec)
+                #self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
             
-            pose_list = self.sort_tags_distance(pose_list)
+        pose_list = self.sort_tags_distance(pose_list)
 
-            return pose_list
+        return pose_list
     
     # sorts the tags in the list by their hypotenuse (sqrt of x^2 + z^2)
     def sort_tags_distance(self, pose_list):
@@ -164,15 +162,17 @@ class AprilTag():
         corners = [r.corners for r in results]
         # Testing with coral station apriltag
         marker_points_3d = np.array([[-marker_size/2, -marker_size/2, 0], [marker_size/2, -marker_size/2, 0], [marker_size/2, marker_size/2, 0], [-marker_size/2, marker_size/2, 0]], dtype=np.float32)
-        print("length corners", len(corners))
+        #print("length corners", len(corners))
         image_points_2d = corners[0]
-        print(len(image_points_2d))
+        
+        #print(len(image_points_2d))
 
         _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, self.camera_matrix, self.dist_coeffs)
 
         R, _ = cv2.Rodrigues(rvec)
         # there's a negative for the x position b/c to the left is negative in the opencv2 systems
         list = [-0.130175, 0.903224, 0.0536]
+
         intake_pos = np.array(list)
         pose_list = R.T @ (tvec - intake_pos)
         # multiplying by negative one b/c of the way that vector adition works
