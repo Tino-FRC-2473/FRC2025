@@ -36,8 +36,8 @@ public final class MechLogging {
 	 * Generates the pose for the elevator based on encoder position.
 	 * @param encoderSimPosition the simulated location of the elevator motor encoder.
 	 */
-	public void updateElevatorPose3d(Angle encoderSimPosition) {
-		double height = encoderSimPosition.in(Radians) * Constants.WINCH_DIAMETER_METERS / 2;
+	public void updateElevatorPose3d(double encoderSimPosition) {
+		double height = encoderSimPosition * Constants.INCHES_TO_METERS;
 
 		var pose = new Pose3d(
 			new Translation3d(0, 0, height),

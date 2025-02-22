@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ctre.phoenix6.Utils;
-
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.HardwareMap;
+import frc.robot.Robot;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.systems.DriveFSMSystem;
@@ -192,6 +191,8 @@ public class AutoRoutines {
 				return elevatorSystem.elevatorL3Command();
 			case ELEVATOR_L4_CMD:
 				return elevatorSystem.elevatorL4Command();
+			case WAIT:
+				return elevatorSystem.waitCommand();
 			default:
 				return null;
 		}
@@ -264,7 +265,7 @@ public class AutoRoutines {
 					AutoTrajectory traj = paths.get(autoStage);
 					if (trajIdx++ == 0) {
 						seqInstruction.addCommands(traj.resetOdometry());
-						if (Utils.isSimulation()) {
+						if (Robot.isSimulation()) {
 							initPose = traj.getInitialPose().get();
 						}
 					}
@@ -324,7 +325,7 @@ public class AutoRoutines {
 									traj.resetOdometry().andThen(traj.cmd())
 								);
 
-								if (Utils.isSimulation()) {
+								if (Robot.isSimulation()) {
 									initPose = traj.getInitialPose().get();
 								}
 

@@ -144,7 +144,7 @@ public class Robot extends LoggedRobot {
 				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
 			);
 
-			// if (Utils.isSimulation()) {
+			// if (Robot.isSimulation()) {
 			// 	driveSystem.getMapleSimDrivetrain().getDriveSimulation()
 			// 		.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
 			// }

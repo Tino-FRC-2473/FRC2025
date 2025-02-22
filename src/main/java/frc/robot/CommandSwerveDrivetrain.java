@@ -1,6 +1,6 @@
 package frc.robot;
 
-import com.ctre.phoenix6.Utils;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
@@ -157,7 +157,7 @@ public class CommandSwerveDrivetrain extends
 	 * @return pose
 	 */
 	public Pose2d getPose() {
-		if (Utils.isSimulation()) {
+		if (Robot.isSimulation()) {
 			return getSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose();
 		} else {
 			return getState().Pose;
@@ -169,7 +169,7 @@ public class CommandSwerveDrivetrain extends
 	 * @return chassis speeds
 	 */
 	public ChassisSpeeds getRobotChassisSpeeds() {
-		if (Utils.isSimulation()) {
+		if (Robot.isSimulation()) {
 			return getSimDrivetrain().getDriveSimulation()
 				.getDriveTrainSimulatedChassisSpeedsRobotRelative();
 		} else {

@@ -188,7 +188,8 @@ public class ElevatorFSMSystem {
 		currentState = nextState(input);
 
 		// telemetry and logging
-		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition().getValue());
+		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition()
+			.getValueAsDouble());
 
 	}
 
@@ -403,7 +404,7 @@ public class ElevatorFSMSystem {
 
 			if (Robot.isSimulation()) {
 				MechLogging.getInstance().updateElevatorPose3d(
-						elevatorMotor.getPosition().getValue());
+						elevatorMotor.getPosition().getValueAsDouble());
 			}
 		}
 
