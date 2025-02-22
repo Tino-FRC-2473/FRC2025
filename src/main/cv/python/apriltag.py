@@ -102,7 +102,7 @@ class AprilTag():
         return robot_yaw
     
 
-    def estimate_3d_pose(self, image, , ARUCO_LENGTH_METERS):
+    def estimate_3d_pose(self, image, ARUCO_LENGTH_METERS):
             gray = image[:, :, 0]
             results = self.detector.detect(gray)
             ids = [r.tag_id for r in results]
