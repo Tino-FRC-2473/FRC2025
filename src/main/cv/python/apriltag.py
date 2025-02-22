@@ -102,7 +102,7 @@ class AprilTag():
         return robot_yaw
     
 
-    def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
+    def estimate_3d_pose(self, image, , ARUCO_LENGTH_METERS):
             gray = image[:, :, 0]
             results = self.detector.detect(gray)
             ids = [r.tag_id for r in results]
@@ -131,7 +131,7 @@ class AprilTag():
                     pose_list.extend(euler_rvec)
                     
                     # print("euler_rvec: ", euler_rvec)
-                    self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+                    #self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
             
             pose_list = self.sort_tags_distance(pose_list)
 
