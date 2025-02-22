@@ -1,16 +1,16 @@
+
 package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
 
-// import com.playingwithfusion.TimeOfFlight;
-
+import com.playingwithfusion.TimeOfFlight;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
-import frc.robot.logging.SimLogging;
 import frc.robot.HardwareMap;
+import frc.robot.Robot;
 
 // WPILib Imports
 
@@ -34,7 +34,7 @@ public class FunnelFSMSystem {
 	// be private to their owner system and may not be used elsewhere.
 
 	private Servo funnelServo;
-	// private TimeOfFlight reefDistanceSensor;
+	private TimeOfFlight reefDistanceSensor;
 	private DigitalInput coralBreakBeam;
 
 	/* ======================== Constructor ======================== */
@@ -48,10 +48,9 @@ public class FunnelFSMSystem {
 		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PWM_PORT);
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 
+		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
+
 		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
-
-		// reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
-
 		// Reset state machine
 		reset();
 	}
@@ -64,7 +63,6 @@ public class FunnelFSMSystem {
 	public FunnelFSMState getCurrentState() {
 		return currentState;
 	}
-
 	/**
 	 * Reset this system to its start state. This may be called from mode init
 	 * when the robot is enabled.
@@ -84,7 +82,7 @@ public class FunnelFSMSystem {
 	 * Update FSM based on new inputs. This function only calls the FSM state
 	 * specific handlers.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *              the robot is in autonomous mode.
+	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
 		// Handle states
@@ -106,14 +104,42 @@ public class FunnelFSMSystem {
 
 		// Switch state
 		currentState = nextState(input);
+	}
 
+	/**
+	 * Calls all logging and telemetry to be updated periodically.
+	 */
+	public void updateLogging() {
 		// Telemetry and logging
 		Logger.recordOutput("Funnel Position", funnelServo.get());
 		Logger.recordOutput("Funnel State", currentState.toString());
+		Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
+		Logger.recordOutput("Holding Coral?", isHoldingCoral());
+	}
 
-		// Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
-		// Logger.recordOutput("Reef in Range?",
-		// reefDistanceSensor.getRange() <= Constants.REEF_DISTANCE_THRESHOLD_MM);
+	/**
+	 * Getter for the status of the funnel's break beam.
+	 * Public for access to elevator.
+	 * @return whether the limit is reached
+	 */
+	public boolean isHoldingCoral() {
+		if (Robot.isSimulation()) {
+			return true;
+		}
+		return !coralBreakBeam.get(); // true = beam intact
+		// return true; // temp always hold coral
+	}
+
+	/**
+	 * Getter for the status of the funnel's distance sensor.
+	 * Public for access to drive/cv.
+	 * @return distance to reef from distance sensor.
+	 */
+	public double getDistanceToReef() {
+		if (Robot.isSimulation()) {
+			return 0;
+		}
+		return reefDistanceSensor.getRange();
 	}
 
 	/* ======================== Private methods ======================== */
@@ -123,7 +149,7 @@ public class FunnelFSMSystem {
 	 * effects on outputs. In other words, this method should only read or get
 	 * values to decide what state to go to.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *              the robot is in autonomous mode.
+	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
 	 */
 	private FunnelFSMState nextState(TeleopInput input) {
@@ -151,62 +177,34 @@ public class FunnelFSMSystem {
 	/**
 	 * Handle behavior in OUTTAKE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *              the robot is in autonomous mode.
+	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
 		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
-
-		SimLogging.getInstance().dropSimCoral();
 	}
-
 	/**
 	 * Handle behavior in CLOSED.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *              the robot is in autonomous mode.
+	 *        the robot is in autonomous mode.
 	 */
 	private void handleClosedState(TeleopInput input) {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 	}
 
-	/**
-	 * Getter for the result of the funnel's break beam.
-	 * Public for access to elevator.
-	 * @return whether the limit is reached
-	 */
-	public boolean isHoldingCoral() {
-		return !coralBreakBeam.get(); // true = beam intact
-		// return true; // temp always hold coral
-	}
-
 	/* ---- Funnel Commands ---- */
 
 	/** A command that opens the funnel servo. */
-	class OpenFunnelCommand extends Command {
-		OpenFunnelCommand() {
-		}
+	class IntakeCoralCommand extends Command {
 
-		@Override
-		public void execute() {
-			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
-
-		}
-
-		@Override
-		public boolean isFinished() {
-			return !isHoldingCoral(); // done when no coral
-		}
-
-		@Override
-		public void end(boolean interrupted) {
-		}
-	}
-
-	/** A command that closes the funnel servo. */
-	class CloseFunnelCommand extends Command {
 		private Timer timer;
 
-		CloseFunnelCommand() {
+		IntakeCoralCommand() {
 			timer = new Timer();
+		}
+
+		@Override
+		public void initialize() {
+			timer.reset();
 			timer.start();
 		}
 
@@ -217,12 +215,47 @@ public class FunnelFSMSystem {
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() >= Constants.FUNNEL_CLOSE_TIME_SECS;
+			return isHoldingCoral();
+			// return timer.get() > Constants.FUNNEL_INOUT_TIME_SECS || isHoldingCoral();
 		}
 
 		@Override
 		public void end(boolean interrupted) {
 			timer.stop();
+			timer.reset();
+		}
+	}
+
+	/** A command that closes the funnel servo. */
+	class OuttakeCoralCommand extends Command {
+		private Timer timer;
+
+		OuttakeCoralCommand() {
+			timer = new Timer();
+		}
+
+		public void initialize() {
+			timer.reset();
+			timer.start();
+		}
+
+		@Override
+		public void execute() {
+			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+		}
+
+		@Override
+		public boolean isFinished() {
+			//return true;
+			return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS;
+			// return !isHoldingCoral();
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+			timer.stop();
+			timer.reset();
 		}
 	}
 
@@ -230,16 +263,15 @@ public class FunnelFSMSystem {
 	 * Creates a Command to open the funnel.
 	 * @return A new funnel open command.
 	 */
-	public Command openFunnelCommand() {
-		return new OpenFunnelCommand();
+	public Command intakeCoralCommand() {
+		return new IntakeCoralCommand();
 	}
 
 	/**
 	 * Creates a Command to close the funnel.
 	 * @return A new funnel close command.
 	 */
-	public Command closeFunnelCommand() {
-		return new CloseFunnelCommand();
+	public Command outtakeCoralCommand() {
+		return new OuttakeCoralCommand();
 	}
-
 }

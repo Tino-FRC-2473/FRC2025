@@ -30,7 +30,6 @@ import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
-import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
@@ -53,17 +52,6 @@ public class Robot extends LoggedRobot {
 	// Logger
 	private PowerDistribution powerLogger;
 	private NetworkTableInstance ntInstance;
-
-	private static final Object[] ELEVATOR_TESTING_PATH = new Object[] {
-		AutoCommands.ELEVATOR_STATION_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
-		AutoCommands.ELEVATOR_L4_CMD,
-	};
-
-	private static final Object[] FUNNEL_TESTING_PATH = new Object[] {
-		AutoCommands.FUNNEL_OPEN_CMD,
-		AutoCommands.FUNNEL_CLOSE_CMD,
-	};
 
 	/**
 	 * This function is run when the robot is first started up and should be used for any

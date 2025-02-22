@@ -20,7 +20,6 @@ import frc.robot.constants.SimConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 
 public final class SimLogging {
-
 	private static final SimLogging INSTANCE = new SimLogging();
 
 	private Pose2d simRobotPose = new Pose2d();
