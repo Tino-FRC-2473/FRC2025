@@ -222,6 +222,9 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void disabledPeriodic() {
+		if (ledSystem != null) {
+			ledSystem.updateDisabled();
+		}
 
 	}
 
