@@ -57,6 +57,8 @@ public class AutoConstants {
 	public static final double CONSTANT_SPEED_THRESHOLD = 0.4; // in meters
 	public static final double CONSTANT_SPEED = 0.4;
 
+	public static final int DRIVE_CURRENT_LIMIT_FRAMES = 2;
+
 
 	/* -- ALL COMMAND NAME CONSTANTS -- */
 

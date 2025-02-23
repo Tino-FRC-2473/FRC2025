@@ -30,6 +30,7 @@ import java.util.function.IntSupplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveModule;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
@@ -332,6 +333,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		alignmentYOff = 0;
 		driveToPoseFinished = false;
 		driveToPoseRunning = false;
+		currentLimitFrameCount = 0;
 		driveToPoseRotateFinished = false;
 		oldAlignmentPose2d = new Pose2d();
 
@@ -612,9 +614,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		driveToPoseFinished = (
 			(xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished)
-			|| (currPose.getTranslation()
-			.getDistance(oldAlignmentPose2d.getTranslation()) < 1e-5)
-			);
+			|| driveMotorCurrentLimitReached());
 
 		Logger.recordOutput(
 			"DriveToPose/Pose", currPose
@@ -663,6 +663,24 @@ public class DriveFSMSystem extends SubsystemBase {
 		// double rotSpeed = autoHeadingPid.calculate(
 		// 	currPose.getRotation().getRadians(), target.getRotation().getRadians()
 		// );
+	}
+
+	private int currentLimitFrameCount = 0;
+
+	private boolean driveMotorCurrentLimitReached() {
+		boolean currLimitReached = false;
+		for (SwerveModule mod: drivetrain.getModules()) {
+			currLimitReached = currLimitReached
+				|| mod.getDriveMotor().getStickyFault_StatorCurrLimit().getValue().booleanValue();
+		}
+
+		if (currLimitReached) {
+			currentLimitFrameCount += 1;
+		} else {
+			currentLimitFrameCount = 0;
+		}
+
+		return currentLimitFrameCount >= AutoConstants.DRIVE_CURRENT_LIMIT_FRAMES;
 	}
 
 	/**
