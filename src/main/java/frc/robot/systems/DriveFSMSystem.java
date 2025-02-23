@@ -151,6 +151,8 @@ public class DriveFSMSystem extends SubsystemBase {
 	private boolean driveToPoseFinished = false;
 	private boolean driveToPoseRotateFinished = false;
 	private boolean aligningToReef = false;
+
+	private Pose2d oldAlignmentPose2d;
 		// False => aligning to station, True => aligning to reef
 
 	/* ======================== Private variables ======================== */
@@ -331,6 +333,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		driveToPoseFinished = false;
 		driveToPoseRunning = false;
 		driveToPoseRotateFinished = false;
+		oldAlignmentPose2d = new Pose2d();
 
 		double xSpeed = MathUtil.applyDeadband(
 			slewRateX.calculate(input.getDriveLeftJoystickY()), DriveConstants.JOYSTICK_DEADBAND
@@ -444,7 +447,7 @@ public class DriveFSMSystem extends SubsystemBase {
 					imposedPose
 				);
 
-				drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+				// drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 
 			}
 		}
@@ -469,7 +472,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				.plus(new Transform2d(
 					-tag.getZ(),
 					(tag.getX()),
-					new Rotation2d(tag.getPitch())))
+					new Rotation2d(-tag.getPitch())))
 				.transformBy(robotToCamera.inverse());
 
 			aprilTagVisionPoses.add(alignmentPose);
@@ -481,7 +484,7 @@ public class DriveFSMSystem extends SubsystemBase {
 						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose)))
 						.toPose2d().getTranslation(),
 					aprilTagPose3d.get().getRotation()
-						.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
+						.toRotation2d().rotateBy(new Rotation2d(tag.getPitch() / 2))
 				).transformBy(
 					robotToCamera.inverse()
 				);
@@ -490,7 +493,7 @@ public class DriveFSMSystem extends SubsystemBase {
 					imposedPose
 				);
 
-				drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+				// drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
 			}
 		}
 
@@ -581,7 +584,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		rotSpeed = Math.abs(aDiff) > AutoConstants.THETA_TOLERANCE
 			? rotSpeed : 0;
 
-		int allianceMultiplier = (allianceFlip) ? allianceOriented.getAsInt() : 1;
+		int allianceMultiplier = (aligningToReef) ? 1 : -1;
 
 		if (rotSpeed == 0) {
 			driveToPoseRotateFinished = true;
@@ -590,21 +593,28 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (driveToPoseRotateFinished) {
 			drivetrain.setControl(
 				driveFacingAngle
-				.withVelocityX(xSpeed)
-				.withVelocityY(ySpeed) //* allianceOriented.getAsInt())
+				.withVelocityX(xSpeed * allianceMultiplier)
+				.withVelocityY(ySpeed * allianceMultiplier)
 				.withTargetRateFeedforward(0)
 			);
 		} else {
 			drivetrain.setControl(
 				driveFacingAngle
-				.withVelocityX(0)
-				.withVelocityY(0)
+				.withVelocityX(xSpeed * allianceMultiplier)
+				.withVelocityY(ySpeed * allianceMultiplier)
 				.withTargetDirection(target.getRotation())
-				.withTargetRateFeedforward(rotSpeed)
+				.withTargetRateFeedforward(0)
 			);
 		}
 
-		driveToPoseFinished = (xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished);
+		Logger.recordOutput("CURR DISTANCE", currPose.getTranslation()
+			.getDistance(oldAlignmentPose2d.getTranslation()));
+
+		driveToPoseFinished = (
+			(xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished)
+			|| (currPose.getTranslation()
+			.getDistance(oldAlignmentPose2d.getTranslation()) < 1e-5)
+			);
 
 		Logger.recordOutput(
 			"DriveToPose/Pose", currPose
@@ -642,6 +652,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		);
 		Logger.recordOutput("DriveToPose/TagID", tagID);
 		Logger.recordOutput("DriveToPose/TargetPose", target);
+
+		oldAlignmentPose2d = currPose;
 
 
 		return driveToPoseFinished;
@@ -733,6 +745,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		ArrayList<AprilTag> sortedTagList = rpi.getStationAprilTags();
 		Collections.sort(sortedTagList, aComparator);
 
+		System.out.println("SORTED TAG LIST" + sortedTagList);
+
 		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
 				for (int id: blueStationTagArray) {
@@ -754,6 +768,9 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 
 		}
+
+		System.out.println("STATION TAG ALIGNMENT");
+		Logger.recordOutput("Tag ID", tagID);
 
 		if (tagID != -1) {
 			aligningToReef = false;
@@ -836,8 +853,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 				alignmentPose2d = alignmentPose2d.transformBy(
 					new Transform2d(
-						-alignmentXOff,
-						-alignmentYOff,
+						(aligningToReef) ? -alignmentXOff : alignmentXOff,
+						(aligningToReef) ? -alignmentYOff : alignmentYOff,
 						new Rotation2d()
 					)
 				);

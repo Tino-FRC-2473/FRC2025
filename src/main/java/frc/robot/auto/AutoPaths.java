@@ -61,17 +61,23 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S3 = new Object[] {
-		"S3_R6 (H)",
-		new Object[] {AutoCommands.B_ALIGN_REEF6_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+		new Object[] {"S3_R6_H", AutoCommands.ELEVATOR_L3_CMD},
+		AutoCommands.DRIVE_BRAKE_CMD,
+		// new Object[] {AutoCommands.B_ALIGN_REEF6_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
-		new Object[] {"R6_StationR", AutoCommands.ELEVATOR_GROUND_CMD},
-		AutoCommands.INTAKE_CORAL_CMD,
-		"StationR_R5 (H)",
-		new Object[] {AutoCommands.B_ALIGN_REEF5_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
-		AutoCommands.ELEVATOR_L4_CMD,
-		AutoCommands.OUTTAKE_CORAL_CMD,
+		// new Object[] {"R6_StationR", AutoCommands.ELEVATOR_GROUND_CMD},
+		// AutoCommands.INTAKE_CORAL_CMD,
+		// "StationR_R5 (H)",
+		// new Object[] {AutoCommands.B_ALIGN_REEF5_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+		// AutoCommands.ELEVATOR_L4_CMD,
+		// AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD
+	};
+
+	public static final Object[] SAMPLE_AT_ALIGN = new Object[] {
+		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
+		AutoCommands.DRIVE_BRAKE_CMD
 	};
 
 	public static final Object[] R_AT_ALIGN_S3 = new Object[] {

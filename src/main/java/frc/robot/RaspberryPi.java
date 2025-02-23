@@ -30,7 +30,7 @@ public class RaspberryPi {
 	* Default constructor for the RaspberryPi class.
 	*/
 	public RaspberryPi() {
-		reefTable = NetworkTableInstance.getDefault().getTable("reef_table");
+		reefTable = NetworkTableInstance.getDefault().getTable("bw_cam_1v3_table");
 		DoubleArrayTopic reefCamTopic = reefTable.getDoubleArrayTopic("april_tag_data");
 		reefCamSubscriber = reefCamTopic.subscribe(new double[] {});
 

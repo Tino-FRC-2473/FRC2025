@@ -36,7 +36,7 @@ public final class Constants {
 
 	public static final Distance ELEVATOR_UPPER_THRESHOLD = Units.Inches.of(37.3);
 	// DO NOT drive above this!
-	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(37.0);
+	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(36);
 	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(19.1);
 	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.3);
 	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
@@ -61,7 +61,7 @@ public final class Constants {
 	public static final double CLIMB_POWER = 0.8;
 	public static final double CLIMB_REDUCED_POWER = 0.4;
 
-	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 0.5; // seconds
+	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 5.0; // seconds
 	public static final double FUNNEL_INOUT_SIM_TIME_SECS
 		= FUNNEL_INOUT_REAL_TIME_SECS * 2; // seconds
 	public static final double FUNNEL_INOUT_TIME_SECS =

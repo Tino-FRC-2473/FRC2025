@@ -57,6 +57,7 @@ public class Robot extends LoggedRobot {
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private LEDFSMSystem ledSystem;
+	private BlinkinLED led;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -122,6 +123,8 @@ public class Robot extends LoggedRobot {
 			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
 			autoChooser.addOption(auto.getKey(), auto.getKey());
 		}
+
+		led = new BlinkinLED();
 
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 	}
@@ -297,7 +300,7 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.updateLogging();
 			if (HardwareMap.isCVHardwarePresent()) {
-				//driveSystem.updateVisionEstimates();
+				driveSystem.updateVisionEstimates();
 			}
 		}
 
@@ -316,6 +319,8 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.updateLogging();
 		}
+
+		led.setLEDOff();
 	}
 
 	/**

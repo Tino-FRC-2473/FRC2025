@@ -235,7 +235,6 @@ public class FunnelFSMSystem {
 
 		public void initialize() {
 			timer.reset();
-			timer.start();
 		}
 
 		@Override
@@ -246,7 +245,7 @@ public class FunnelFSMSystem {
 		@Override
 		public boolean isFinished() {
 			//return true;
-			return timer.get() >= Constants.FUNNEL_INOUT_TIME_SECS;
+			return timer.get() >= Constants.FUNNEL_INOUT_REAL_TIME_SECS;
 			// return !isHoldingCoral();
 		}
 
