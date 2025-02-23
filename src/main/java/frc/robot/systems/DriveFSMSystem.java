@@ -877,6 +877,13 @@ public class DriveFSMSystem extends SubsystemBase {
 					)
 				);
 
+				if (!aligningToReef) {
+					alignmentPose2d = new Pose2d(
+						alignmentPose2d.getTranslation(),
+						currPose.getRotation()
+					);
+				}
+
 			}
 			Logger.recordOutput(
 				"TAG Z", tag.getZ()
