@@ -30,6 +30,7 @@ import java.util.function.IntSupplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveModule;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
@@ -329,6 +330,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		alignmentYOff = 0;
 		driveToPoseFinished = false;
 		driveToPoseRunning = false;
+		currentLimitFrameCount = 0;
 
 		double xSpeed = MathUtil.applyDeadband(
 			slewRateX.calculate(input.getDriveLeftJoystickY()), DriveConstants.JOYSTICK_DEADBAND
@@ -633,6 +635,24 @@ public class DriveFSMSystem extends SubsystemBase {
 		// double rotSpeed = autoHeadingPid.calculate(
 		// 	currPose.getRotation().getRadians(), target.getRotation().getRadians()
 		// );
+	}
+
+	private int currentLimitFrameCount = 0;
+
+	private boolean driveMotorCurrentLimitReached() {
+		boolean currLimitReached = false;
+		for (SwerveModule mod: drivetrain.getModules()) {
+			currLimitReached = currLimitReached
+				|| mod.getDriveMotor().getStickyFault_StatorCurrLimit().getValue().booleanValue();
+		}
+
+		if (currLimitReached) {
+			currentLimitFrameCount += 1;
+		} else {
+			currentLimitFrameCount = 0;
+		}
+
+		return currentLimitFrameCount >= AutoConstants.DRIVE_CURRENT_LIMIT_FRAMES;
 	}
 
 	/**
