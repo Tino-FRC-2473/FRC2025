@@ -15,7 +15,16 @@ while True:
     # euler_angles = tag_module.rotation_vector_to_euler_angles(rvec)
     # print("Euler Angles (radians):", euler_angles)
     
-    frame = input.getFrame()
+    cap = cv2.VideoCapture(0)
+
+    #frame = input.getFrame()
+    # Turn off auto exposure
+    cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+    # set exposure time
+    cap.set(cv2.CAP_PROP_EXPOSURE, -12)
+
+    ret, frame = cap.read()
+
     cv2.imshow("frame", frame)
     #print("frame size", frame.shape)
     #annotated_frame = frame.copy()
