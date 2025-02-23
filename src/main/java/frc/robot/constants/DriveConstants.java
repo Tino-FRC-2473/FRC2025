@@ -15,7 +15,7 @@ public class DriveConstants {
 	public static final double DRIVE_P = 0.1;
 	public static final double DRIVE_V = 0.124;
 
-	public static final double DRIVE_CURRENT_LIMIT = 60;
+	public static final double DRIVE_CURRENT_LIMIT = 120;
 	public static final double STEER_CURRENT_LIMIT = 40;
 
 	public static final double SPEED_DAMP_FACTOR = 2;

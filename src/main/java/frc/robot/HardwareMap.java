@@ -63,7 +63,7 @@ public final class HardwareMap {
 	 * @return true if drive hardware is present
 	 */
 	public static boolean isCVHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -71,6 +71,6 @@ public final class HardwareMap {
 	 * @return true if LED hardware is present
 	 */
 	public static boolean isLEDPresent() {
-		return false;
+		return true;
 	}
 }

@@ -210,7 +210,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				: drivetrain.getState().Pose.getRotation();
 
 		// want to call when the robot is initially running to get a true positional value.
-		// updateVisionEstimates();
+		//updateVisionEstimates();
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -526,6 +526,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		logger.applyStateLogging(drivetrain.getState());
 	}
 
+	private Timer alignmentTimer = new Timer();
+
 	/**
 	 * Drive to pose function.
 	 * @param target target pose to align to.
@@ -537,7 +539,11 @@ public class DriveFSMSystem extends SubsystemBase {
 			? getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
 			: drivetrain.getState().Pose;
 
-		driveToPoseRunning = true;
+		if (!driveToPoseRunning) {
+			driveToPoseRunning = true;
+			alignmentTimer.reset();
+			alignmentTimer.start();
+		}
 
 		double xDiff = target.getX() - currPose.getX();
 		double yDiff = target.getY() - currPose.getY();
@@ -605,7 +611,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				.withVelocityX(xSpeed * allianceMultiplier)
 				.withVelocityY(ySpeed * allianceMultiplier)
 				.withTargetDirection(target.getRotation())
-				.withTargetRateFeedforward(0)
+				.withTargetRateFeedforward(rotSpeed * allianceMultiplier)
 			);
 		}
 
@@ -614,7 +620,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		driveToPoseFinished = (
 			(xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished)
-			|| driveMotorCurrentLimitReached());
+			|| (oldAlignmentPose2d.getTranslation().getDistance(currPose.getTranslation())) <= 1e-3
+			&& alignmentTimer.get() > 0.5);
 
 		Logger.recordOutput(
 			"DriveToPose/Pose", currPose
@@ -667,20 +674,20 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private int currentLimitFrameCount = 0;
 
-	private boolean driveMotorCurrentLimitReached() {
-		boolean currLimitReached = false;
-		for (SwerveModule mod: drivetrain.getModules()) {
-			currLimitReached = currLimitReached
-				|| mod.getDriveMotor().getStickyFault_StatorCurrLimit().getValue().booleanValue();
-		}
+	private void driveMotorCurrentLimitReached() {
+		// boolean currLimitReached = false;
+		// for (SwerveModule mod: drivetrain.getModules()) {
+		// 	currLimitReached = currLimitReached
+		// 		|| ()
+		// 	}
 
-		if (currLimitReached) {
-			currentLimitFrameCount += 1;
-		} else {
-			currentLimitFrameCount = 0;
-		}
+		// if (currLimitReached) {
+		// 	currentLimitFrameCount += 1;
+		// } else {
+		// 	currentLimitFrameCount = 0;
+		// }
 
-		return currentLimitFrameCount >= AutoConstants.DRIVE_CURRENT_LIMIT_FRAMES;
+		// return currentLimitFrameCount >= AutoConstants.DRIVE_CURRENT_LIMIT_FRAMES;
 	}
 
 	/**

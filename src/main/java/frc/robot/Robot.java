@@ -124,8 +124,6 @@ public class Robot extends LoggedRobot {
 			autoChooser.addOption(auto.getKey(), auto.getKey());
 		}
 
-		led = new BlinkinLED();
-
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 	}
 
@@ -300,7 +298,7 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.updateLogging();
 			if (HardwareMap.isCVHardwarePresent()) {
-				driveSystem.updateVisionEstimates();
+				//driveSystem.updateVisionEstimates();
 			}
 		}
 
@@ -319,8 +317,6 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.updateLogging();
 		}
-
-		led.setLEDOff();
 	}
 
 	/**

@@ -87,7 +87,7 @@ public class BlinkinLED {
 	 * Used when robot is not holding a coral.
 	 */
 	public void setNoCoralColor() {
-		ledController.set(LEDConstants.LED_LARSON_SCANNER_RED);
+		ledController.set(LEDConstants.LED_STROBE_RED);
 	}
 
 	/**
