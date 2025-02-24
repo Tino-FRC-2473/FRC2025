@@ -244,6 +244,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			return;
 		}
 
+		inOptimalReefAlignmentRange();
+
 		switch (currentState) {
 			case TELEOP_STATE:
 				handleTeleOpState(input);
@@ -576,7 +578,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			aDiff += 2 * Math.PI;
 		}
 
-		System.out.println(aDiff);
+		//System.out.println(aDiff);
 
 		// double xSpeed;
 		// double ySpeed;
@@ -641,9 +643,9 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		driveToPoseFinished = (
 			(xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished)
-			|| (oldAlignmentPose2d.getTranslation().getDistance(currPose.getTranslation()))
-			<= DriveConstants.DRIVE_POSE_CHECK_LP
-			&& alignmentTimer.get() > DriveConstants.DRIVE_POSE_CHECK_TIMER);
+			|| (oldAlignmentPose2d.getTranslation().getDistance(currPose.getTranslation())
+				<= DriveConstants.DRIVE_POSE_CHECK_LP
+				&& alignmentTimer.get() > DriveConstants.DRIVE_POSE_CHECK_TIMER));
 
 		Logger.recordOutput(
 			"DriveToPose/Pose", currPose
@@ -824,6 +826,48 @@ public class DriveFSMSystem extends SubsystemBase {
 			handleTagAlignment(input, tagID, true);
 		} else {
 			drivetrain.setControl(brake);
+		}
+	}
+
+	private boolean inOptimalReefAlignmentRange() {
+
+		AprilTag closestTag = rpi.getClosestTag();
+		if (closestTag != null) {
+
+			double relTagX = closestTag.getZ();
+			double relTagY = closestTag.getX();
+			double relTagTheta = closestTag.getPitch();
+
+			System.out.println(closestTag.getPitch());
+
+			boolean xBoundaryCheck =
+				Math.abs(relTagX)
+					>= (VisionConstants.MIN_TAG_TARGET_DISTANCE_X + AutoConstants.REEF_X_TAG_OFFSET)
+				&& Math.abs(relTagX)
+				<= (VisionConstants.MAX_TAG_TARGET_DISTANCE_X + AutoConstants.REEF_X_TAG_OFFSET);
+
+			boolean yBoundaryCheck =
+				Math.abs(relTagY)
+					< Math.abs(relTagX) * VisionConstants.TAG_Y_SCALING_COEF;
+
+			boolean rotBoundaryCheck =
+				Math.abs(relTagTheta) <= VisionConstants.TAG_TARGET_THETA_RAD;
+
+			boolean totalBoundaryCheck = (
+				xBoundaryCheck
+				&& yBoundaryCheck
+				//&& rotBoundaryCheck
+				);
+
+			Logger.recordOutput("AlignEstimate/ClosestReefID", closestTag.getTagID());
+			Logger.recordOutput("AlignEstimate/XValidToReef", xBoundaryCheck);
+			Logger.recordOutput("AlignEstimate/YalidToReef", yBoundaryCheck);
+			//Logger.recordOutput("AlignEstimate/RValidToReef", rotBoundaryCheck);
+			Logger.recordOutput("AlignEstimate/ValidToReef", totalBoundaryCheck);
+
+			return totalBoundaryCheck;
+		} else {
+			return false;
 		}
 	}
 

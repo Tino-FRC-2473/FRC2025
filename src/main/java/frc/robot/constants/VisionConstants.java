@@ -32,4 +32,14 @@ public class VisionConstants {
 	public static final int LOCALIZATION_TAG_NUM = 1;
 	public static final double LOCALIZATION_TRANSLATIONAL_THRESHOLD = 0.4;
 	public static final double LOCALIZATION_ANGLE_TOLERANCE = Math.toRadians(5);
+
+	// TODO: tune constants based on field testing.
+	public static final double MIN_TAG_TARGET_DISTANCE_X = 0.2;
+	public static final double MAX_TAG_TARGET_DISTANCE_X = 2.0;
+	public static final double TAG_Y_SCALING_COEF = 0.6;
+	public static final double TAG_TARGET_THETA_RAD = Math.PI / 5;
+	public static final double TAG_Y_L_OFFSET_BASE = AutoConstants.REEF_Y_L_TAG_OFFSET * 2;
+	public static final double TAG_Y_R_OFFSET_BASE = AutoConstants.REEF_Y_R_TAG_OFFSET * 2;
+
+
 }
