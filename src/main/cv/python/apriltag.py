@@ -154,6 +154,25 @@ class AprilTag():
             sorted_pose_list.extend(pose_list[id_index:(id_index+10)])
         
         return sorted_pose_list
+    
+    def correct_station_angle(self, rvec): 
+        #assuming that it is 32 degrees right now
+        cam_pitch =  -0.55950
+        #matrix representing rotated camera 
+        rotated_yaw = [0, 0, cam_pitch]
+
+        # I think we would change this to be the vector for you much you would have to rotate the coordinate axis
+        R, _ = cv2.Rodrigues(rotated_yaw)
+        # there's a negative for the x position b/c to the left is negative in the opencv2 systems
+        list = [0, 0, -0.3589]
+
+        cam_pos_to_tag = np.array(list)
+        station_rotation = R.T @ (rvec - cam_pos_to_tag)
+        # multiplying by negative one b/c of the way that vector adition works
+        station_rotation[2] = -1 * station_rotation[2]
+        station_rotation[0] = -1 * station_rotation[0]
+
+        return station_rotation
 
     def distance_to_tag(self, image, marker_size):
         gray = image[:, :, 0]
@@ -169,6 +188,7 @@ class AprilTag():
 
         _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, self.camera_matrix, self.dist_coeffs)
 
+        #converts the rvec to a rotation vector
         R, _ = cv2.Rodrigues(rvec)
         # there's a negative for the x position b/c to the left is negative in the opencv2 systems
         list = [-0.130175, 0.903224, 0.0536]
