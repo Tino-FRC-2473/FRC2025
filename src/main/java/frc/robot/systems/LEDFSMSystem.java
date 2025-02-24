@@ -114,6 +114,7 @@ public class LEDFSMSystem {
 				break;
 			case CLIMB:
 				handleClimbState();
+				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
