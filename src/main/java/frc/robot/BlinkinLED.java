@@ -55,7 +55,7 @@ public class BlinkinLED {
 	 * Used when aligned to the reef.
 	 */
 	public void setReefAlignColor() {
-		ledController.set(LEDConstants.LED_SINELON_FOREST_PALETTE);
+		ledController.set(LEDConstants.LED_GREEN_SOLID);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class BlinkinLED {
 	 * Used when robot is holding a coral.
 	 */
 	public void setYesCoralColor() {
-		ledController.set(LEDConstants.LED_GREEN_SOLID);
+		ledController.set(LEDConstants.LED_HEARTBEAT_BLUE);
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class BlinkinLED {
 	 * Used when robot is not holding a coral.
 	 */
 	public void setNoCoralColor() {
-		ledController.set(LEDConstants.LED_STROBE_RED);
+		ledController.set(LEDConstants.LED_LIGHT_CHASE_RED);
 	}
 
 	/**
@@ -103,14 +103,6 @@ public class BlinkinLED {
 	 * Used when robot is climbing.
 	 */
 	public void setClimbColor() {
-		ledController.set(LEDConstants.LED_RAINBOW_RAINBOW_PALETTE);
-	}
-
-	/**
-	 * Sets the LED color to rainbow.
-	 * Used when the robot is disabled.
-	 */
-	public void setDisabledColor() {
-		ledController.set(LEDConstants.LED_LARSON_SCANNER_RED);
+		ledController.set(LEDConstants.LED_COLOR_WAVES_RAINBOW_PALETTE);
 	}
 }

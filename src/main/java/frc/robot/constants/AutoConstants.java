@@ -59,7 +59,6 @@ public class AutoConstants {
 
 	public static final int DRIVE_CURRENT_LIMIT_FRAMES = 2;
 
-
 	/* -- ALL COMMAND NAME CONSTANTS -- */
 
 	public enum AutoCommands {

@@ -30,7 +30,6 @@ import java.util.function.IntSupplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.swerve.SwerveModule;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
@@ -49,7 +48,6 @@ import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
-import frc.robot.HardwareMap;
 import frc.robot.RaspberryPi;
 import frc.robot.AprilTag;
 
@@ -144,7 +142,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 	};
 
-	private ElevatorFSMSystem elevatorFSM;
+	private ElevatorFSMSystem elevatorSystem;
 
 	private AprilTagFieldLayout aprilTagFieldLayout;
 	private ArrayList<Pose2d> aprilTagReefRefPoses;
@@ -167,6 +165,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Create DriveFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
+	 * @param elevatorFSMSystem The ElevatorFSMSystem instance to be used by this system.
 	 */
 	public DriveFSMSystem(ElevatorFSMSystem elevatorFSMSystem) {
 		// Perform hardware init
@@ -184,12 +183,21 @@ public class DriveFSMSystem extends SubsystemBase {
 			e.printStackTrace();
 		}
 
-		if (HardwareMap.isElevatorHardwarePresent()) {
-			elevatorFSM = elevatorFSMSystem;
+		if (elevatorFSMSystem != null) {
+			elevatorSystem = elevatorFSMSystem;
+		} else {
+			elevatorSystem = null;
 		}
 
 		// Reset state machine
 		reset();
+	}
+
+	/**
+	 * Default constructor for DriveFSMSystem.
+	 */
+	public DriveFSMSystem() {
+		this(null);
 	}
 
 	/* ======================== Public methods ======================== */
@@ -235,6 +243,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (input == null) {
 			return;
 		}
+
+		inOptimalReefAlignmentRange();
 
 		switch (currentState) {
 			case TELEOP_STATE:
@@ -346,8 +356,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double constantDamp = 1;
 
-		if (HardwareMap.isElevatorHardwarePresent()) {
-			constantDamp = (elevatorFSM.isElevatorAtL4()) ? DriveConstants.SPEED_DAMP_FACTOR : 1;
+		if (elevatorSystem != null) {
+			constantDamp = (elevatorSystem.isElevatorAtL4()) ? DriveConstants.SPEED_DAMP_FACTOR : 1;
 		}
 
 		double xSpeed = MathUtil.applyDeadband(
@@ -568,7 +578,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			aDiff += 2 * Math.PI;
 		}
 
-		System.out.println(aDiff);
+		//System.out.println(aDiff);
 
 		// double xSpeed;
 		// double ySpeed;
@@ -633,8 +643,9 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		driveToPoseFinished = (
 			(xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished)
-			|| (oldAlignmentPose2d.getTranslation().getDistance(currPose.getTranslation())) <= 1e-3
-			&& alignmentTimer.get() > 0.5);
+			|| (oldAlignmentPose2d.getTranslation().getDistance(currPose.getTranslation())
+				<= DriveConstants.DRIVE_POSE_CHECK_LP
+				&& alignmentTimer.get() > DriveConstants.DRIVE_POSE_CHECK_TIMER));
 
 		Logger.recordOutput(
 			"DriveToPose/Pose", currPose
@@ -815,6 +826,48 @@ public class DriveFSMSystem extends SubsystemBase {
 			handleTagAlignment(input, tagID, true);
 		} else {
 			drivetrain.setControl(brake);
+		}
+	}
+
+	private boolean inOptimalReefAlignmentRange() {
+
+		if (rpi.getReefAprilTags().size() > 0) {
+			AprilTag closestTag = Collections.max(rpi.getReefAprilTags());
+
+			double relTagX = closestTag.getZ();
+			double relTagY = closestTag.getX();
+			double relTagTheta = closestTag.getPitch();
+
+			System.out.println(closestTag.getPitch());
+
+			boolean xBoundaryCheck =
+				Math.abs(relTagX)
+					>= (VisionConstants.MIN_TAG_TARGET_DISTANCE_X + AutoConstants.REEF_X_TAG_OFFSET)
+				&& Math.abs(relTagX)
+				<= (VisionConstants.MAX_TAG_TARGET_DISTANCE_X + AutoConstants.REEF_X_TAG_OFFSET);
+
+			// boolean yBoundaryCheck =
+			// 	Math.abs(relTagY)
+			// 		< Math.abs(relTagX) * VisionConstants.TAG_Y_SCALING_COEF;
+
+			boolean rotBoundaryCheck =
+				Math.abs(relTagTheta) <= VisionConstants.TAG_TARGET_THETA_RAD;
+
+			boolean totalBoundaryCheck = (
+				xBoundaryCheck
+				//&& yBoundaryCheck
+				//&& rotBoundaryCheck
+				);
+
+			Logger.recordOutput("AlignEstimate/ClosestReefID", closestTag.getTagID());
+			Logger.recordOutput("AlignEstimate/XValidToReef", xBoundaryCheck);
+			//Logger.recordOutput("AlignEstimate/YalidToReef", yBoundaryCheck);
+			//Logger.recordOutput("AlignEstimate/RValidToReef", rotBoundaryCheck);
+			Logger.recordOutput("AlignEstimate/ValidToReef", totalBoundaryCheck);
+
+			return totalBoundaryCheck;
+		} else {
+			return false;
 		}
 	}
 
