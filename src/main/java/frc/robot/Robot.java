@@ -57,6 +57,7 @@ public class Robot extends LoggedRobot {
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private LEDFSMSystem ledSystem;
+	private BlinkinLED led;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -297,7 +298,7 @@ public class Robot extends LoggedRobot {
 		if (driveSystem != null) {
 			driveSystem.updateLogging();
 			if (HardwareMap.isCVHardwarePresent()) {
-				driveSystem.updateVisionEstimates();
+				//driveSystem.updateVisionEstimates();
 			}
 		}
 

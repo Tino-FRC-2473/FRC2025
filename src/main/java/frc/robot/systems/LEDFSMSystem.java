@@ -114,6 +114,7 @@ public class LEDFSMSystem {
 				break;
 			case CLIMB:
 				handleClimbState();
+				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -167,7 +168,7 @@ public class LEDFSMSystem {
 				}
 
 				if (driveFSMSystem.getCurrentState()
-					.equals(DriveFSMState.ALIGN_TO_STATION_TAG_STATE)
+					.equals(DriveFSMState.ALIGN_TO_REEF_TAG_STATE)
 					|| driveFSMSystem.getCurrentState()
 					.equals(DriveFSMState.ALIGN_TO_STATION_TAG_STATE)) {
 					return LEDFSMState.OFFSET_FROM_TAG;
