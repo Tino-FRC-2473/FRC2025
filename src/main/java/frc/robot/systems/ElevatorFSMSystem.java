@@ -62,9 +62,10 @@ public class ElevatorFSMSystem {
 	 * Create ElevatorFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
+	 * @param driveFSMSystem the drive FSM.
 	 * @param funnelFSMSystem the funnel FSM.
 	 */
-	public ElevatorFSMSystem(FunnelFSMSystem funnelFSMSystem) {
+	public ElevatorFSMSystem(DriveFSMSystem driveFSMSystem, FunnelFSMSystem funnelFSMSystem) {
 		// Perform hardware init
 		elevatorMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ELEVATOR);
 
@@ -388,6 +389,14 @@ public class ElevatorFSMSystem {
 		elevatorMotor.setControl(
 				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
 		);
+	}
+
+	/**
+	 * Is elevator at L4 boolean accessor.
+	 * @return whether or not elevator is at L4.
+	 */
+	public boolean isElevatorAtL4() {
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
 	}
 
 	/* ---- Elevator Commands ---- */

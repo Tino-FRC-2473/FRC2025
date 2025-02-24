@@ -49,6 +49,7 @@ import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
+import frc.robot.HardwareMap;
 import frc.robot.RaspberryPi;
 import frc.robot.AprilTag;
 
@@ -143,6 +144,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 	};
 
+	private ElevatorFSMSystem elevatorFSM;
+
 	private AprilTagFieldLayout aprilTagFieldLayout;
 	private ArrayList<Pose2d> aprilTagReefRefPoses;
 	private ArrayList<Pose2d> aprilTagStationRefPoses;
@@ -165,7 +168,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
 	 */
-	public DriveFSMSystem() {
+	public DriveFSMSystem(ElevatorFSMSystem elevatorFSMSystem) {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
 		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPi();
@@ -179,6 +182,10 @@ public class DriveFSMSystem extends SubsystemBase {
 				= new AprilTagFieldLayout(VisionConstants.APRIL_TAG_FIELD_LAYOUT_JSON);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			elevatorFSM = elevatorFSMSystem;
 		}
 
 		// Reset state machine
@@ -337,19 +344,25 @@ public class DriveFSMSystem extends SubsystemBase {
 		driveToPoseRotateFinished = false;
 		oldAlignmentPose2d = new Pose2d();
 
+		double constantDamp = 1;
+
+		if (HardwareMap.isElevatorHardwarePresent()) {
+			constantDamp = (elevatorFSM.isElevatorAtL4()) ? DriveConstants.SPEED_DAMP_FACTOR : 1;
+		}
+
 		double xSpeed = MathUtil.applyDeadband(
 			slewRateX.calculate(input.getDriveLeftJoystickY()), DriveConstants.JOYSTICK_DEADBAND
-			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
+			) * MAX_SPEED / constantDamp;
 			// Drive forward with negative Y (forward) ^
 
 		double ySpeed = MathUtil.applyDeadband(
 			slewRateY.calculate(input.getDriveLeftJoystickX()), DriveConstants.JOYSTICK_DEADBAND
-			) * MAX_SPEED / DriveConstants.SPEED_DAMP_FACTOR;
+			) * MAX_SPEED / constantDamp;
 			// Drive left with negative X (left) ^
 
 		double rotXComp = MathUtil.applyDeadband(
 			input.getDriveRightJoystickX(), DriveConstants.JOYSTICK_DEADBAND)
-			* MAX_ANGULAR_RATE;
+			* MAX_ANGULAR_RATE / constantDamp;
 			// Drive left with negative X (left) ^
 
 		if (rotXComp != 0) {
