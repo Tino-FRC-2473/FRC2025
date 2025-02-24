@@ -831,8 +831,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private boolean inOptimalReefAlignmentRange() {
 
-		AprilTag closestTag = rpi.getClosestTag();
-		if (closestTag != null) {
+		if (rpi.getReefAprilTags().size() > 0) {
+			AprilTag closestTag = Collections.max(rpi.getReefAprilTags());
 
 			double relTagX = closestTag.getZ();
 			double relTagY = closestTag.getX();
@@ -846,22 +846,22 @@ public class DriveFSMSystem extends SubsystemBase {
 				&& Math.abs(relTagX)
 				<= (VisionConstants.MAX_TAG_TARGET_DISTANCE_X + AutoConstants.REEF_X_TAG_OFFSET);
 
-			boolean yBoundaryCheck =
-				Math.abs(relTagY)
-					< Math.abs(relTagX) * VisionConstants.TAG_Y_SCALING_COEF;
+			// boolean yBoundaryCheck =
+			// 	Math.abs(relTagY)
+			// 		< Math.abs(relTagX) * VisionConstants.TAG_Y_SCALING_COEF;
 
 			boolean rotBoundaryCheck =
 				Math.abs(relTagTheta) <= VisionConstants.TAG_TARGET_THETA_RAD;
 
 			boolean totalBoundaryCheck = (
 				xBoundaryCheck
-				&& yBoundaryCheck
+				//&& yBoundaryCheck
 				//&& rotBoundaryCheck
 				);
 
 			Logger.recordOutput("AlignEstimate/ClosestReefID", closestTag.getTagID());
 			Logger.recordOutput("AlignEstimate/XValidToReef", xBoundaryCheck);
-			Logger.recordOutput("AlignEstimate/YalidToReef", yBoundaryCheck);
+			//Logger.recordOutput("AlignEstimate/YalidToReef", yBoundaryCheck);
 			//Logger.recordOutput("AlignEstimate/RValidToReef", rotBoundaryCheck);
 			Logger.recordOutput("AlignEstimate/ValidToReef", totalBoundaryCheck);
 
