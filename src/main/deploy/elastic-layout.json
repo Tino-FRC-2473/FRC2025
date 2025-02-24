@@ -173,7 +173,13 @@
             "properties": {
               "topic": "/CameraPublisher/front",
               "period": 0.06,
-              "rotation_turns": 0
+              "rotation_turns": 0,
+              "compression": 11,
+              "fps": 10,
+              "resolution": [
+                640.0,
+                480.0
+              ]
             }
           }
         ]
