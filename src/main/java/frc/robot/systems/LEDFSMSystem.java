@@ -132,14 +132,6 @@ public class LEDFSMSystem {
 	}
 
 	/**
-	 * Run FSM in disabled mode. This function only calls the FSM state
-	 * specific handlers.
-	 */
-	public void updateDisabled() {
-		handleDisabledState();
-	}
-
-	/**
 	 * Calls all logging and telemetry to be updated periodically.
 	 */
 	public void updateLogging() {
@@ -278,12 +270,5 @@ public class LEDFSMSystem {
 	 */
 	private void handleClimbState() {
 		led.setClimbColor();
-	}
-
-	/**
-	 * Handle behavior when Disabled.
-	 */
-	private void handleDisabledState() {
-		led.setDisabledColor();
 	}
 }

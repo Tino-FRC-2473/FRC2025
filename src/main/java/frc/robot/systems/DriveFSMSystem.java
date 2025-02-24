@@ -30,7 +30,6 @@ import java.util.function.IntSupplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.swerve.SwerveModule;
 //CTRE Imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
@@ -49,7 +48,6 @@ import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
-import frc.robot.HardwareMap;
 import frc.robot.RaspberryPi;
 import frc.robot.AprilTag;
 
@@ -144,7 +142,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 	};
 
-	private ElevatorFSMSystem elevatorFSM;
+	private ElevatorFSMSystem elevatorSystem;
 
 	private AprilTagFieldLayout aprilTagFieldLayout;
 	private ArrayList<Pose2d> aprilTagReefRefPoses;
@@ -167,6 +165,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Create DriveFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
+	 * @param elevatorFSMSystem The ElevatorFSMSystem instance to be used by this system.
 	 */
 	public DriveFSMSystem(ElevatorFSMSystem elevatorFSMSystem) {
 		// Perform hardware init
@@ -184,12 +183,21 @@ public class DriveFSMSystem extends SubsystemBase {
 			e.printStackTrace();
 		}
 
-		if (HardwareMap.isElevatorHardwarePresent()) {
-			elevatorFSM = elevatorFSMSystem;
+		if (elevatorFSMSystem != null) {
+			elevatorSystem = elevatorFSMSystem;
+		} else {
+			elevatorSystem = null;
 		}
 
 		// Reset state machine
 		reset();
+	}
+
+	/**
+	 * Default constructor for DriveFSMSystem.
+	 */
+	public DriveFSMSystem() {
+		this(null);
 	}
 
 	/* ======================== Public methods ======================== */
@@ -346,8 +354,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double constantDamp = 1;
 
-		if (HardwareMap.isElevatorHardwarePresent()) {
-			constantDamp = (elevatorFSM.isElevatorAtL4()) ? DriveConstants.SPEED_DAMP_FACTOR : 1;
+		if (elevatorSystem != null) {
+			constantDamp = (elevatorSystem.isElevatorAtL4()) ? DriveConstants.SPEED_DAMP_FACTOR : 1;
 		}
 
 		double xSpeed = MathUtil.applyDeadband(
@@ -633,8 +641,9 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		driveToPoseFinished = (
 			(xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished)
-			|| (oldAlignmentPose2d.getTranslation().getDistance(currPose.getTranslation())) <= 1e-3
-			&& alignmentTimer.get() > 0.5);
+			|| (oldAlignmentPose2d.getTranslation().getDistance(currPose.getTranslation()))
+			<= DriveConstants.DRIVE_POSE_CHECK_LP
+			&& alignmentTimer.get() > DriveConstants.DRIVE_POSE_CHECK_TIMER);
 
 		Logger.recordOutput(
 			"DriveToPose/Pose", currPose

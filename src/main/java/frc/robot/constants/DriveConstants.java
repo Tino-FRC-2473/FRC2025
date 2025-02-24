@@ -22,4 +22,7 @@ public class DriveConstants {
 
 	public static final double PASSIVE_ROBOT_FWD_M_S = 0.1;
 	public static final double SLEW_RATE = 2.9;
+
+	public static final double DRIVE_POSE_CHECK_TIMER = 0.5;
+	public static final double DRIVE_POSE_CHECK_LP = 1e-3; // LP = LAST POSE
 }

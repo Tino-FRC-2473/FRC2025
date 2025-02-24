@@ -57,7 +57,6 @@ public class Robot extends LoggedRobot {
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private LEDFSMSystem ledSystem;
-	private BlinkinLED led;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -91,11 +90,6 @@ public class Robot extends LoggedRobot {
 
 		input = new TeleopInput();
 
-		// Instantiate all systems here
-		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
-			driveSystem = new DriveFSMSystem();
-		}
-
 		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
@@ -103,6 +97,15 @@ public class Robot extends LoggedRobot {
 		if (Robot.isSimulation() || (HardwareMap.isFunnelHardwarePresent()
 			&& HardwareMap.isElevatorHardwarePresent())) {
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
+		}
+
+		// Instantiate all systems here
+		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
+			if (elevatorSystem != null) {
+				driveSystem = new DriveFSMSystem(elevatorSystem);
+			} else {
+				driveSystem = new DriveFSMSystem();
+			}
 		}
 
 		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
@@ -222,12 +225,7 @@ public class Robot extends LoggedRobot {
 	}
 
 	@Override
-	public void disabledPeriodic() {
-		if (ledSystem != null) {
-			ledSystem.updateDisabled();
-		}
-
-	}
+	public void disabledPeriodic() { }
 
 	@Override
 	public void testInit() {
@@ -297,9 +295,9 @@ public class Robot extends LoggedRobot {
 	public void robotPeriodic() {
 		if (driveSystem != null) {
 			driveSystem.updateLogging();
-			if (HardwareMap.isCVHardwarePresent()) {
+			// if (HardwareMap.isCVHardwarePresent()) {
 				//driveSystem.updateVisionEstimates();
-			}
+			// }
 		}
 
 		if (funnelSystem != null) {
