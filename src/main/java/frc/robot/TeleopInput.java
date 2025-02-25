@@ -74,7 +74,7 @@ public class TeleopInput {
 	 * Get Square Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveSquareButton() {
+	public boolean getAlignReefButton() {
 		return driveController.getSquareButton();
 	}
 	/**
@@ -88,7 +88,7 @@ public class TeleopInput {
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveBackButtonPressed() {
+	public boolean getSeedGyroButtonPressed() {
 		return driveController.getOptionsButton();
 	}
 
@@ -96,7 +96,7 @@ public class TeleopInput {
 	 * Get the value of the L1 button.
 	 * @return L1 button value
 	 */
-	public boolean getDriveLeftBumperButton() {
+	public boolean getAlignLeftOffsetButton() {
 		return driveController.getL1Button();
 	}
 
@@ -104,7 +104,7 @@ public class TeleopInput {
 	 * Get the value of the R1 button.
 	 * @return R1 button value
 	 */
-	public boolean getDriveRightBumperButton() {
+	public boolean getAlignRightOffsetButton() {
 		return driveController.getR1Button();
 	}
 

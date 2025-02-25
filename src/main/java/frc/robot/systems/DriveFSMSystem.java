@@ -307,7 +307,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		switch (currentState) {
 			case TELEOP_STATE:
-				if (input.getDriveSquareButton()) {
+				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				}  else if (input.getDriveTriangleButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
@@ -315,7 +315,7 @@ public class DriveFSMSystem extends SubsystemBase {
 					return DriveFSMState.TELEOP_STATE;
 				}
 			case ALIGN_TO_REEF_TAG_STATE:
-				if (input.getDriveSquareButton()) {
+				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				}  else if (input.getDriveTriangleButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
@@ -323,7 +323,7 @@ public class DriveFSMSystem extends SubsystemBase {
 					return DriveFSMState.TELEOP_STATE;
 				}
 			case ALIGN_TO_STATION_TAG_STATE:
-				if (input.getDriveSquareButton()) {
+				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
 				}  else if (input.getDriveTriangleButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
@@ -396,7 +396,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			drivetrain.setControl(brake);
 		}
 
-		if (input.getDriveBackButtonPressed()) {
+		if (input.getSeedGyroButtonPressed()) {
 			drivetrain.seedFieldCentric();
 			rotationAlignmentPose = new Rotation2d();
 		}
@@ -726,9 +726,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	public void handleReefTagAlignment(TeleopInput input) {
 
 		if (input != null) {
-			if (input.getDriveLeftBumperButton()) {
+			if (input.getAlignLeftOffsetButton()) {
 				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
-			} else if (input.getDriveRightBumperButton()) {
+			} else if (input.getAlignRightOffsetButton()) {
 				alignmentYOff = AutoConstants.REEF_Y_R_TAG_OFFSET;
 			} else {
 				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
@@ -785,9 +785,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	public void handleStationTagAlignment(TeleopInput input) {
 
 		if (input != null) {
-			if (input.getDriveLeftBumperButton()) {
+			if (input.getAlignLeftOffsetButton()) {
 				alignmentYOff = AutoConstants.STATION_Y_L_TAG_OFFSET;
-			} else if (input.getDriveRightBumperButton()) {
+			} else if (input.getAlignRightOffsetButton()) {
 				alignmentYOff = AutoConstants.STATION_Y_R_TAG_OFFSET;
 			} else {
 				alignmentYOff = 0;
