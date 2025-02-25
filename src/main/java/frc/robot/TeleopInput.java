@@ -119,7 +119,7 @@ public class TeleopInput {
 	/* ------------------------ Mech Controller ------------------------ */
 
 	/**
-	 * Get the value of the source elevator target button (cross).
+	 * Get the value of the source L2 target button (square).
 	 * @return If the button is pressed
 	 */
 	public boolean isL2ButtonPressed() {
@@ -135,7 +135,7 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get the value of the ground elevator target button (circle).
+	 * Get the value of the ground elevator target button (cross).
 	 * @return If the button is pressed
 	 */
 	public boolean isGroundButtonPressed() {
@@ -143,7 +143,7 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get the value of the L3 elevator target button (square).
+	 * Get the value of the L3 elevator target button (circle).
 	 * @return If the button is pressed
 	 */
 	public boolean isL3ButtonPressed() {
@@ -159,10 +159,10 @@ public class TeleopInput {
 		return mechController.getOptionsButtonPressed();
 	}
 
-		/**
-	 * Gets the value of the options button.
-	 * Intended to signify when the climber should go to the next state.
-	 * @return If the options button was pressed this tick
+	/**
+	 * Gets the value of the L2 button.
+	 * Intended to signify when the climber should manually move.
+	 * @return If the L2 button was pressed this tick
 	 */
 	public boolean isClimbManualButtonPressed() {
 		return mechController.getL2Button();
@@ -178,7 +178,7 @@ public class TeleopInput {
 
 	/**
 	 * Gets the value of the L1 button.
-	 * Intended to signify when the climber should go to the next state.
+	 * Intended to signify when the funnel should open.
 	 * @return If the L1 button was pressed this tick
 	 */
 	public boolean isFunnelButtonPressed() {
