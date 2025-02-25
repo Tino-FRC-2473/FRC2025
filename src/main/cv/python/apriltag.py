@@ -5,6 +5,7 @@ import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
 from scipy.spatial.transform import Rotation
+from collections import OrderedDict
 import math
 
 
@@ -144,7 +145,7 @@ class AprilTag():
             hyp_poses[pose_list[i]] = hyp
         
         # sort hypotenuse dictionary
-        sorted_hyp_dict = dict(sorted(hyp_poses.items(), key=lambda item: item[1]))
+        sorted_hyp_dict = OrderedDict(sorted(hyp_poses.items(), key=lambda item: item[1]))
 
         sorted_pose_list = [] # sort pose list
         for id in sorted_hyp_dict:
