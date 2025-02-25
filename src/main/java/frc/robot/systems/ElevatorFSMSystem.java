@@ -7,6 +7,7 @@ package frc.robot.systems;
 // Third party Hardware Imports
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -392,6 +393,11 @@ public class ElevatorFSMSystem {
 			elevatorMotor.setControl(
 				motionRequest.withPosition(target.in(Units.Inches))
 			);
+
+			if (Utils.isSimulation()) {
+				MechLogging.getInstance().updateElevatorPose3d(
+						elevatorMotor.getPosition().getValue());
+			}
 		}
 
 		@Override
