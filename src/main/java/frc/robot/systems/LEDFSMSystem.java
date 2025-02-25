@@ -172,6 +172,17 @@ public class LEDFSMSystem {
 				return LEDFSMState.NO_CORAL;
 
 			case YES_CORAL:
+				if (climberFSMSystem.getCurrentState().equals(ClimberFSMState.AUTOMATIC)) {
+					return LEDFSMState.CLIMB;
+				}
+
+				if (driveFSMSystem.getCurrentState()
+					.equals(DriveFSMState.ALIGN_TO_REEF_TAG_STATE)
+					|| driveFSMSystem.getCurrentState()
+					.equals(DriveFSMState.ALIGN_TO_STATION_TAG_STATE)) {
+					return LEDFSMState.OFFSET_FROM_TAG;
+				}
+
 				if (funnelFSMSystem.isHoldingCoral()) {
 					return LEDFSMState.YES_CORAL;
 				}

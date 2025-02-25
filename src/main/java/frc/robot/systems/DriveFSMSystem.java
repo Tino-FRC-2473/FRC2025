@@ -357,7 +357,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		double constantDamp = 1;
 
 		if (elevatorSystem != null) {
-			constantDamp = (elevatorSystem.isElevatorAtL4()) ? DriveConstants.SPEED_DAMP_FACTOR : 1;
+			constantDamp = (elevatorSystem.isElevatorAtL4())
+				? DriveConstants.SPEED_DAMP_FACTOR : DriveConstants.NORMAL_DAMP;
 		}
 
 		double xSpeed = MathUtil.applyDeadband(
@@ -388,6 +389,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			.withVelocityY(ySpeed * allianceOriented.getAsInt())
 			.withTargetDirection(rotationAlignmentPose)
 			.withTargetRateFeedforward(-rotXComp)
+			.withHeadingPID(2.5, 0, 0)
 		);
 
 		if (input.getDriveCircleButton()) {
@@ -396,6 +398,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (input.getDriveBackButtonPressed()) {
 			drivetrain.seedFieldCentric();
+			rotationAlignmentPose = new Rotation2d();
 		}
 
 		Logger.recordOutput("TeleOp/XSpeed", xSpeed);
@@ -620,6 +623,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (rotSpeed == 0) {
 			driveToPoseRotateFinished = true;
 		}
+
+		rotationAlignmentPose = drivetrain.getState().Pose.getRotation();
 
 		if (driveToPoseRotateFinished) {
 			drivetrain.setControl(

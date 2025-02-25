@@ -19,6 +19,7 @@ public class DriveConstants {
 	public static final double STEER_CURRENT_LIMIT = 40;
 
 	public static final double SPEED_DAMP_FACTOR = 6;
+	public static final double NORMAL_DAMP = TunerConstants.SPEED_AT_12_VOLTS.magnitude() / 4;
 
 	public static final double PASSIVE_ROBOT_FWD_M_S = 0.1;
 	public static final double SLEW_RATE = 2.9;

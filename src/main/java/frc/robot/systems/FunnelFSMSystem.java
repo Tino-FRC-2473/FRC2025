@@ -181,15 +181,8 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		if (!timerRunning) {
-			timerRunning = true;
-			funnelClosedTimer.reset();
-			funnelClosedTimer.start();
-		}
-
-		if (funnelClosedTimer.get() >= 1) {
-			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
-		}
+		timerRunning = false;
+		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
 	}
 
 	/**
@@ -198,8 +191,15 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleClosedState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
-		timerRunning = false;
+		if (!timerRunning) {
+			timerRunning = true;
+			funnelClosedTimer.reset();
+			funnelClosedTimer.start();
+		}
+
+		if (funnelClosedTimer.get() >= 1) {
+			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+		}
 	}
 
 	/* ---- Funnel Commands ---- */
