@@ -39,7 +39,7 @@ public class LEDFSMSystem {
 
 	/* ======================== Constructor ======================== */
 	/**
-	 * Create a FunnelFSMSystem and initialize to starting state. Also perform any
+	 * Create a LEDFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
 	 * @param driveSystem the drive FSM.

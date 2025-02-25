@@ -44,7 +44,7 @@ public class ClimberFSMSystem {
 
 	/* ======================== Constructor ======================== */
 	/**
-	 * Create Mech1FSMSystem and initialize to starting state. Also perform any
+	 * Create ClimberFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
 	 */

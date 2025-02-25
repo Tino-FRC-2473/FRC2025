@@ -217,6 +217,14 @@ public class ElevatorFSMSystem {
 		Logger.recordOutput("ROOR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
 	}
 
+	/**
+	 * Is elevator at L4 boolean accessor.
+	 * @return whether or not elevator is at L4.
+	 */
+	public boolean isElevatorAtL4() {
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -388,14 +396,6 @@ public class ElevatorFSMSystem {
 		elevatorMotor.setControl(
 				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
 		);
-	}
-
-	/**
-	 * Is elevator at L4 boolean accessor.
-	 * @return whether or not elevator is at L4.
-	 */
-	public boolean isElevatorAtL4() {
-		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
 	}
 
 	/* ---- Elevator Commands ---- */
