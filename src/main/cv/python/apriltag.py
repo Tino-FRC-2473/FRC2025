@@ -3,7 +3,7 @@ import cv2
 import os
 import pupil_apriltags as apriltag
 from pathlib import Path
-from config.defualt import *
+from config import *
 from scipy.spatial.transform import Rotation
 import math
 

@@ -18,18 +18,15 @@ while True:
     cap = cv2.VideoCapture(0)
 
     #frame = input.getFrame()
-    # Turn off auto exposure
-    cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
-    # set exposure time
-    cap.set(cv2.CAP_PROP_EXPOSURE, -12)
+    
 
     ret, frame = cap.read()
 
     cv2.imshow("frame", frame)
     #print("frame size", frame.shape)
     #annotated_frame = frame.copy()
-    tagData = tag_module.estimate_3d_pose(frame, ARUCO_LENGTH_METERS)
-
+    tagData = tag_module.estimate_station_pose(frame, ARUCO_LENGTH_METERS)
+    tagData = tag_module.correct_station_angle()
 
     #print(tagData)
     
