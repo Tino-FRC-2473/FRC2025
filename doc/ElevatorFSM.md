@@ -13,14 +13,14 @@ state "MOVE to L3: target set to coral L3 height" as L3
 
 [*] --> MANUAL: start
 
-MANUAL --> L4: △ button && !X button && !O button && !□ button
-MANUAL --> GROUND: !△ button && !X button && O button && !□ button
-MANUAL --> L2: !△ button && X button && !O button && !□ button
-MANUAL --> L3: □ button && X button && !O button && !△ button
-L4 --> MANUAL: !△ button
-L2 --> MANUAL: !X button
-L3 --> MANUAL: !□ button
-GROUND --> MANUAL:  !O button
+MANUAL --> L4: △ button pressed && !X button pressed && !O button pressed && !□ button pressed
+MANUAL --> GROUND: !△ button pressed && !X button pressed && O button pressed && !□ button pressed
+MANUAL --> L2: !△ button pressed && X button pressed && !O button pressed && !□ button pressed
+MANUAL --> L3: □ button pressed && X button pressed && !O button pressed && !△ button pressed
+L4 --> MANUAL: !△ button pressed
+L2 --> MANUAL: !X button pressed
+L3 --> MANUAL: !□ button pressed
+GROUND --> MANUAL:  !O button pressed
 
 note: Limit switch at bottom zeroes encoder and stops downwards movement
 

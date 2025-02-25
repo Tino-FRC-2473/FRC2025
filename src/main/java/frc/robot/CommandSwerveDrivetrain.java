@@ -67,7 +67,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 
 		if (Robot.isSimulation()) {
 			// zero
-			setupSimulation(new Pose2d(0, 0, new Rotation2d()));
+			//setupSimulation(new Pose2d(0, 0, new Rotation2d()));
 
 			//start in field
 			setupSimulation(new Pose2d(

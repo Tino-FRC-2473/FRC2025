@@ -23,7 +23,7 @@ public class SimConstants {
 
 	// mech pose logging constants
 	public static final double ELEVATOR_WINCH_DIAMETER_METERS = 0.0463296;
-	public static final double ELEVATOR_GEAR_RATIO = 10; //25.0;
+	public static final double ELEVATOR_GEAR_RATIO = 3; //25.0;
 	public static final Translation3d CLIMBER_ZERO_POS = new Translation3d(
 		0.05,
 		0.305,
