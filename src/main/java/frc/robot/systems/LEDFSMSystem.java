@@ -2,7 +2,8 @@ package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
 
-import frc.robot.BlinkinLED;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import frc.robot.HardwareMap;
 
 // WPILib Imports
 
@@ -10,6 +11,7 @@ import frc.robot.BlinkinLED;
 
 // Robot Imports
 import frc.robot.TeleopInput;
+import frc.robot.constants.LEDConstants;
 import frc.robot.systems.ClimberFSMSystem.ClimberFSMState;
 import frc.robot.systems.DriveFSMSystem.DriveFSMState;
 
@@ -31,8 +33,8 @@ public class LEDFSMSystem {
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
+	private Spark ledController;
 
-	private BlinkinLED led;
 	private DriveFSMSystem driveFSMSystem;
 	private FunnelFSMSystem funnelFSMSystem;
 	private ClimberFSMSystem climberFSMSystem;
@@ -56,7 +58,7 @@ public class LEDFSMSystem {
 		this.climberFSMSystem = climberSystem;
 
 		// Perform hardware init
-		led = new BlinkinLED();
+		ledController = new Spark(HardwareMap.LED_STRIP_PWM_PORT);
 
 		// Reset state machine
 		reset();
@@ -238,48 +240,48 @@ public class LEDFSMSystem {
 	 * Handle behavior in REEF_ALIGNED.
 	 */
 	private void handleReefAlignedState() {
-		led.setReefAlignColor();
+		ledController.set(LEDConstants.LED_GREEN_SOLID);
 	}
 
 	/**
 	 * Handle behavior in STATION_ALIGNED.
 	 */
 	private void handleStationAlignedState() {
-		led.setStationAlignedColor();
+		ledController.set(LEDConstants.LED_SKY_BLUE_SOLID);
 	}
 
 	/**
 	 * Handle behavior in OFFSET_FROM_TAG.
 	 */
 	private void handleOffsetState() {
-		led.setOffsetColor();
+		ledController.set(LEDConstants.LED_HOT_PINK_SOLID);
 	}
 
 	/**
 	 * Handle behavior in YES_CORAL.
 	 */
 	private void handleYesCoralState() {
-		led.setYesCoralColor();
+		ledController.set(LEDConstants.LED_HEARTBEAT_BLUE);
 	}
 
 	/**
 	 * Handle behavior in NO_CORAL.
 	 */
 	private void handleNoCoralState() {
-		led.setNoCoralColor();
+		ledController.set(LEDConstants.LED_STROBE_RED);
 	}
 
 	/**
 	 * Handle behavior in AUTO.
 	 */
 	private void handleAutoState() {
-		led.setAutoColor();
+		ledController.set(LEDConstants.LED_BPM_OCEAN_PALETTE);
 	}
 
 	/**
 	 * Handle behavior in CLIMB.
 	 */
 	private void handleClimbState() {
-		led.setClimbColor();
+		ledController.set(LEDConstants.LED_COLOR_WAVES_RAINBOW_PALETTE);
 	}
 }

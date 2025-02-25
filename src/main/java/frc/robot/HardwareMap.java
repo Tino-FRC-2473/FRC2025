@@ -18,11 +18,13 @@ public final class HardwareMap {
 
 	public static final int FUNNEL_BREAK_BEAM_DIO_PORT = 2; // FINAL
 
-	public static final int CLIMBER_LIMIT_SWITCH_DIO_PORT = 3; // for testing only
+	public static final int CLIMBER_LIMIT_SWITCH_DIO_PORT = 3; // FINAL
 
 	// rio - pwm ports
 	public static final int FUNNEL_SERVO_PWM_PORT = 0; // FINAL
-	public static final int LED_STRIP_PWM_PORT = 1; // TBD
+	public static final int LED_STRIP_PWM_PORT = 1; // FINAL
+
+	public static final int ELASTIC_WEBSERVER_PORT = 5800;
 
 	/* ===== Hardware Availability ===== */
 	/**
