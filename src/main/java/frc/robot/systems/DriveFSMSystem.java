@@ -738,7 +738,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		alignmentXOff = AutoConstants.REEF_X_TAG_OFFSET;
 
 		ArrayList<AprilTag> sortedTagList = rpi.getReefAprilTags();
-		Collections.sort(sortedTagList, aComparator);
 
 		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
@@ -797,7 +796,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		alignmentXOff = AutoConstants.SOURCE_X_OFFSET;
 
 		ArrayList<AprilTag> sortedTagList = rpi.getStationAprilTags();
-		Collections.sort(sortedTagList, aComparator);
 
 		System.out.println("SORTED TAG LIST" + sortedTagList);
 
@@ -837,7 +835,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private boolean inOptimalReefAlignmentRange() {
 
 		if (rpi.getReefAprilTags().size() > 0) {
-			AprilTag closestTag = Collections.max(rpi.getReefAprilTags());
+			AprilTag closestTag = rpi.getReefAprilTags().get(0);
 
 			double relTagX = closestTag.getZ();
 			double relTagY = closestTag.getX();
