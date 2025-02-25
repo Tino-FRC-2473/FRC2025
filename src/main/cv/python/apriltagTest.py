@@ -26,7 +26,7 @@ while True:
     #print("frame size", frame.shape)
     #annotated_frame = frame.copy()
     tagData = tag_module.estimate_station_pose(frame, ARUCO_LENGTH_METERS)
-    tagData = tag_module.correct_station_angle()
+    #tagData = tag_module.correct_station_angle()
 
     #print(tagData)
     
