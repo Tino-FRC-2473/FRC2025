@@ -13,8 +13,7 @@ basePath = Path(__file__).resolve().parent
 
 # basically fixes the intrinsic parameters and is the class that returns the 3D stuff
 # printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
-# max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
-# at 18 in -> max left/right was 4.5 in
+
 class AprilTag():
     def __init__(self, cam_name):
         self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}matrix.npy')
@@ -122,13 +121,12 @@ class AprilTag():
                 pose_list.append(ids[i])
                 pose_list.extend(cvec)
 
-                print(tvec)
-
                 pose_list.extend(tvec)
+
                 euler_rvec = self.rotation_vector_to_euler_angles(rvec)
                 pose_list.extend(euler_rvec)
                     
-                # print("euler_rvec: ", euler_rvec)
+                #for debugging purposes
                 #self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
             
         pose_list = self.sort_tags_distance(pose_list)
@@ -203,8 +201,8 @@ class AprilTag():
         station_rotation = R.T @ (rvec - cam_pos_to_tag)
         # multiplying by negative one b/c of the way that vector adition works
         print(station_rotation)
-        station_rotation[2] = -1 * station_rotation[2]
-        station_rotation[0] = -1 * station_rotation[0]
+        #station_rotation[2] = -1 * station_rotation[2]
+        #station_rotation[0] = -1 * station_rotation[0]
 
         return station_rotation
 
