@@ -325,7 +325,7 @@ public class AutoRoutines {
 			elevatorSystem.elevatorGroundCommand()
 		);
 		commands.put(AutoCommands.ELEVATOR_STATION_CMD,
-			elevatorSystem.elevatorStationCommand()
+			elevatorSystem.elevatorGroundCommand()
 		);
 		commands.put(AutoCommands.ELEVATOR_L4_CMD,
 			elevatorSystem.elevatorL4Command()
@@ -334,10 +334,10 @@ public class AutoRoutines {
 
 	private void setUpFunnelCommands() {
 		commands.put(AutoCommands.FUNNEL_OPEN_CMD,
-			funnelSystem.openFunnelCommand()
+			funnelSystem.outtakeCoralCommand()
 		);
 		commands.put(AutoCommands.FUNNEL_CLOSE_CMD,
-			funnelSystem.closeFunnelCommand()
+			funnelSystem.intakeCoralCommand()
 		);
 	}
 }

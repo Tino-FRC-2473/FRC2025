@@ -7,6 +7,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 // Third party Hardware Imports
@@ -16,15 +17,16 @@ import frc.robot.constants.Constants;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.TalonFXWrapper;
 import frc.robot.HardwareMap;
+import frc.robot.Robot;
 import frc.robot.TeleopInput;
 
 public class ClimberFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum ClimberFSMState {
-		LOWERED,
-		EXTENDED,
-		CLIMB
+		MANUAL,
+		AUTOMATIC,
+		IDLE
 	}
 
 	/* ======================== Private variables ======================== */
@@ -34,6 +36,8 @@ public class ClimberFSMSystem {
 	private DigitalInput climbSwitch;
 
 	private BaseStatusSignal climberPosSignal;
+
+	private double targetPosition;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -62,6 +66,8 @@ public class ClimberFSMSystem {
 
 		climbSwitch = new DigitalInput(HardwareMap.CLIMBER_LIMIT_SWITCH_DIO_PORT);
 
+		climberMotor.setPosition(Constants.CLIMBER_PID_TARGET_LOW);
+
 		// Reset state machine
 		reset();
 	}
@@ -83,9 +89,8 @@ public class ClimberFSMSystem {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = ClimberFSMState.LOWERED;
-
-		climberMotor.setPosition(Constants.CLIMBER_PID_TARGET_LOW);
+		currentState = ClimberFSMState.IDLE;
+		targetPosition = Constants.CLIMBER_PID_TARGET_EXTEND;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -102,16 +107,16 @@ public class ClimberFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case LOWERED:
-				handleLoweredState(input);
+			case IDLE:
+				handleIdleState(input);
 				break;
 
-			case EXTENDED:
-				handleExtendedState(input);
+			case AUTOMATIC:
+				handleAutomaticState(input);
 				break;
 
-			case CLIMB:
-				handleClimbState(input);
+			case MANUAL:
+				handleManualState(input);
 				break;
 
 			default:
@@ -119,12 +124,38 @@ public class ClimberFSMSystem {
 		}
 		currentState = nextState(input);
 
-		Logger.recordOutput("Climber encoder", climberMotor.getPosition().getValueAsDouble());
+		if (isLimitSwitchPressed()) {
+			climberMotor.setPosition(Constants.CLIMBER_ENCODER_RESET_POSITION
+				- Constants.CLIMBER_COUNTS_PER_REV);
+			if (targetPosition == Constants.CLIMBER_PID_TARGET_LOW
+				+ Constants.CLIMBER_COUNTS_PER_REV) {
+				targetPosition = Constants.CLIMBER_PID_TARGET_LOW;
+			}
+		}
+
+		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
+	}
+
+	/**
+	 * Updates the logging for the climber system.
+	 */
+	public void updateLogging() {
+		Logger.recordOutput("Climber encoder absolute",
+			climberMotor.getPosition().getValueAsDouble());
+		Logger.recordOutput("Climber encoder relative",
+			climberMotor.getPosition().getValueAsDouble()
+			% Constants.CLIMBER_COUNTS_PER_REV);
+		Logger.recordOutput("Climber encoder degrees",
+			Units.rotationsToDegrees(climberMotor.getPosition().getValueAsDouble()
+			% Constants.CLIMBER_COUNTS_PER_REV
+			/ Constants.CLIMBER_COUNTS_PER_REV));
 		Logger.recordOutput("Climber velocity", climberMotor.getVelocity().getValueAsDouble());
+		Logger.recordOutput("Climber applied voltage",
+			climberMotor.getMotorVoltage().getValueAsDouble());
 		Logger.recordOutput("Climber state", currentState.toString());
 		Logger.recordOutput("Climber control request", climberMotor.getAppliedControl().toString());
-		Logger.recordOutput("Climber switch pressed?", climbSwitch.get());
-		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
+		Logger.recordOutput("Climber switch pressed?", isLimitSwitchPressed());
+		Logger.recordOutput("Climber target position", targetPosition);
 	}
 
 	/* ======================== Private methods ======================== */
@@ -139,26 +170,25 @@ public class ClimberFSMSystem {
 	 */
 	private ClimberFSMState nextState(TeleopInput input) {
 		switch (currentState) {
-			case LOWERED:
+			case IDLE:
+				// copies MANUAL's state transitions
+			case MANUAL:
 				if (input.isClimbAdvanceStateButtonPressed()) {
-					return ClimberFSMState.EXTENDED;
+					return ClimberFSMState.AUTOMATIC;
 				}
-				return ClimberFSMState.LOWERED;
-
-			case EXTENDED:
-				if (input.isClimbAdvanceStateButtonPressed()) {
-					return ClimberFSMState.CLIMB;
+				if (input.isClimbManualButtonPressed()) {
+					return ClimberFSMState.MANUAL;
 				}
-				return ClimberFSMState.EXTENDED;
-
-			case CLIMB:
-				if (input.isClimbAdvanceStateButtonPressed()) {
-					return ClimberFSMState.LOWERED;
+				return ClimberFSMState.IDLE;
+			case AUTOMATIC:
+				if (input.isClimbManualButtonPressed() || climberPosSignal.getValueAsDouble()
+					% Constants.CLIMBER_COUNTS_PER_REV > targetPosition
+					|| isLimitSwitchPressed()) {
+					return ClimberFSMState.IDLE;
 				}
-				return ClimberFSMState.CLIMB;
-
+				return ClimberFSMState.AUTOMATIC;
 			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+				throw new UnsupportedOperationException("Invalid State");
 		}
 	}
 
@@ -173,56 +203,64 @@ public class ClimberFSMSystem {
 		return Math.abs(target - value) <= margin;
 	}
 
+	private boolean isLimitSwitchPressed() {
+		if (Robot.isSimulation()) {
+			return climberPosSignal.getValueAsDouble()
+				> Constants.CLIMBER_ENCODER_RESET_POSITION;
+		} else {
+			return climbSwitch.get();
+		}
+	}
+
+	private double calculateTargetPosition() {
+		double pos = climberPosSignal.getValueAsDouble();
+		if (pos >= Constants.CLIMBER_PID_TARGET_LOW) {
+			if (pos >= Constants.CLIMBER_PID_TARGET_EXTEND) {
+				if (pos >= Constants.CLIMBER_PID_TARGET_CLIMB) {
+					return Constants.CLIMBER_PID_TARGET_LOW
+						+ Constants.CLIMBER_COUNTS_PER_REV;
+				} else {
+					return Constants.CLIMBER_PID_TARGET_CLIMB;
+				}
+			} else {
+				return Constants.CLIMBER_PID_TARGET_EXTEND;
+			}
+		} else {
+			return Constants.CLIMBER_PID_TARGET_LOW;
+		}
+	}
+
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
-	 * Handle behavior in LOWERED.
+	 * Handle behavior in IDLE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *	   the robot is in autonomous mode.
 	 */
-	private void handleLoweredState(TeleopInput input) {
-		if (!inRange(
-			climberPosSignal.getValueAsDouble() % Constants.CLIMBER_COUNTS_PER_REV,
-			Constants.CLIMBER_PID_TARGET_LOW,
-			Constants.CLIMBER_PID_MARGIN_OF_ERROR * Constants.CLIMBER_COUNTS_PER_REV)
-		) {
-			climberMotor.set(Constants.CLIMB_POWER);
-		} else {
-			climberMotor.set(0);
-		}
+	private void handleIdleState(TeleopInput input) {
+		climberMotor.set(0);
+		targetPosition = calculateTargetPosition();
 	}
 
 	/**
-	 * Handle behavior in EXTENDED.
+	 * Handle behavior in AUTOMATIC.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *	   the robot is in autonomous mode.
 	 */
-	private void handleExtendedState(TeleopInput input) {
-		if (!inRange(
-			climberPosSignal.getValueAsDouble() % Constants.CLIMBER_COUNTS_PER_REV,
-			Constants.CLIMBER_PID_TARGET_EXTEND,
-			Constants.CLIMBER_PID_MARGIN_OF_ERROR * Constants.CLIMBER_COUNTS_PER_REV)
-		) {
-			climberMotor.set(Constants.CLIMB_POWER);
-		} else {
-			climberMotor.set(0);
-		}
+	private void handleAutomaticState(TeleopInput input) {
+		climberMotor.set(
+			targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
+			? Constants.CLIMB_REDUCED_POWER
+			: Constants.CLIMB_POWER
+		);
 	}
 
 	/**
-	 * Handle behavior in CLIMB.
+	 * Handle behavior in MANUAL.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *	   the robot is in autonomous mode.
 	 */
-	private void handleClimbState(TeleopInput input) {
-		if (!inRange(
-			climberPosSignal.getValueAsDouble() % Constants.CLIMBER_COUNTS_PER_REV,
-			Constants.CLIMBER_PID_TARGET_CLIMB,
-			Constants.CLIMBER_PID_MARGIN_OF_ERROR * Constants.CLIMBER_COUNTS_PER_REV)
-			&& !climbSwitch.get() // stop climbing if limit switch pressed
-		) {
-			climberMotor.set(Constants.CLIMB_POWER);
-		} else {
-			climberMotor.set(0);
-		}
+	private void handleManualState(TeleopInput input) {
+		climberMotor.set(Constants.CLIMB_POWER);
+		targetPosition = calculateTargetPosition();
 	}
 }

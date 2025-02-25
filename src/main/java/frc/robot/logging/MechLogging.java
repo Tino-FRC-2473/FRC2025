@@ -72,8 +72,12 @@ public final class MechLogging {
 	 */
 	public void updatesClimberPose3d(Angle encoderSimPosition) {
 		climberPose = new Pose3d(
-			Translation3d.kZero,
-			new Rotation3d(0, encoderSimPosition.in(Radians), 0)
+			SimConstants.CLIMBER_ZERO_POS,
+			new Rotation3d(
+				encoderSimPosition.div(SimConstants.CLIMBER_GEAR_RATIO).in(Radians),
+				0,
+				0
+			)
 		);
 	}
 
@@ -118,6 +122,7 @@ public final class MechLogging {
 			getElevatorStage1(),
 			getElevatorStage2(),
 			getElevatorStage3(),
+			getClimberPose()
 		};
 	}
 }
