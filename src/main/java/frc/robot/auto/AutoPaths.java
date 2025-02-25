@@ -82,7 +82,10 @@ public class AutoPaths {
 
 	public static final Object[] R_AT_ALIGN_S3 = new Object[] {
 		"S1_R2_H",
-		new Object[] {AutoCommands.R_ALIGN_REEF2_L_TAG_CMD}/*, AutoCommands.ELEVATOR_L3_CMD},*/
+		new Object[] {AutoCommands.R_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD
 	};
 
 	/**

@@ -154,7 +154,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private boolean driveToPoseRotateFinished = false;
 	private boolean aligningToReef = false;
 
-	private Pose2d oldAlignmentPose2d;
+	private Pose2d oldAlignmentPose2d = new Pose2d();
 		// False => aligning to station, True => aligning to reef
 
 	/* ======================== Private variables ======================== */
@@ -389,7 +389,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			.withVelocityY(ySpeed * allianceOriented.getAsInt())
 			.withTargetDirection(rotationAlignmentPose)
 			.withTargetRateFeedforward(-rotXComp)
-			.withHeadingPID(2.5, 0, 0)
+			//.withHeadingPID(2.5, 0, 0)
 		);
 
 		if (input.getDriveCircleButton()) {
