@@ -47,3 +47,4 @@ print("Initialization complete")
 while True:
     cam1publisher.set(["mjpg:http://10.24.73.105:1181?action=stream"])
     cam2publisher.set(["mjpg:http://10.24.73.105:1182?action=stream"])
+    time.sleep(0.09)
