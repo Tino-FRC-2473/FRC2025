@@ -245,7 +245,6 @@ public class FunnelFSMSystem {
 		}
 
 		public void initialize() {
-			timer.reset();
 			timer.start();
 		}
 
