@@ -192,7 +192,7 @@ class AprilTag():
         #assuming that it is 19 degrees right now
         cam_pitch =  -0.3316
         #matrix representing rotated camera 
-        rotated_yaw = [0, 0, cam_pitch]
+        rotated_yaw = np.array([0, 0, cam_pitch])
 
         # I think we would change this to be the vector for you much you would have to rotate the coordinate axis
         R, _ = cv2.Rodrigues(rotated_yaw)
