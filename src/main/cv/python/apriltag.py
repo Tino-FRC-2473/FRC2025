@@ -91,7 +91,7 @@ class AprilTag():
         #print("Pitch in radians: ", rvec[1])
 
         if(self.cam_name == "source"):
-            euler_angles[2] = self.fix_camera_tilt(euler_angles[2], -0.331613)
+            euler_angles = self.fix_camera_tilt(euler_angles[2], -0.331613)
         
         return euler_angles
 
