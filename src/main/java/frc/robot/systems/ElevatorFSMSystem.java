@@ -55,7 +55,6 @@ public class ElevatorFSMSystem {
 	private DigitalInput groundLimitSwitch;
 
 	private FunnelFSMSystem funnelSystem; // only used for break beamo
-	private DriveFSMSystem driveSystem;
 
 	/* ======================== Constructor ======================== */
 

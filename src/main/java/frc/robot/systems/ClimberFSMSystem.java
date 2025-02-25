@@ -182,25 +182,15 @@ public class ClimberFSMSystem {
 				return ClimberFSMState.IDLE;
 			case AUTOMATIC:
 				if (input.isClimbManualButtonPressed() || climberPosSignal.getValueAsDouble()
-					% Constants.CLIMBER_COUNTS_PER_REV > targetPosition ||
-					targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB && isLimitSwitchPressed()) {
+					% Constants.CLIMBER_COUNTS_PER_REV > targetPosition
+					|| targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
+					&& isLimitSwitchPressed()) {
 					return ClimberFSMState.IDLE;
 				}
 				return ClimberFSMState.AUTOMATIC;
 			default:
 				throw new UnsupportedOperationException("Invalid State");
 		}
-	}
-
-	/**
-	 * returns if a value is within a margin of a target.
-	 * @param value the value.
-	 * @param target the target.
-	 * @param margin the margin.
-	 * @return whether the value is in range of the target.
-	 */
-	private boolean inRange(double value, double target, double margin) {
-		return Math.abs(target - value) <= margin;
 	}
 
 	private boolean isLimitSwitchPressed() {
