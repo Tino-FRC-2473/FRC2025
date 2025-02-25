@@ -54,7 +54,7 @@ public class ElevatorFSMSystem {
 	private TalonFX elevatorMotor;
 	private DigitalInput groundLimitSwitch;
 
-	private FunnelFSMSystem funnelSystem; // only used for break beamo
+	private FunnelFSMSystem funnelSystem; // only used for break beam
 
 	/* ======================== Constructor ======================== */
 
