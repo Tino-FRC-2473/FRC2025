@@ -35,6 +35,8 @@ public class FunnelFSMSystem {
 	private Servo funnelServo;
 	private TimeOfFlight reefDistanceSensor;
 	private DigitalInput coralBreakBeam;
+	private boolean timerRunning;
+	private Timer funnelClosedTimer = new Timer();
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -179,8 +181,17 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+		if (!timerRunning) {
+			timerRunning = true;
+			funnelClosedTimer.reset();
+			funnelClosedTimer.start();
+		}
+
+		if (funnelClosedTimer.get() >= 1) {
+			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+		}
 	}
+
 	/**
 	 * Handle behavior in CLOSED.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
@@ -188,6 +199,7 @@ public class FunnelFSMSystem {
 	 */
 	private void handleClosedState(TeleopInput input) {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+		timerRunning = false;
 	}
 
 	/* ---- Funnel Commands ---- */

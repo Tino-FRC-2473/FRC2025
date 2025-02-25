@@ -114,6 +114,7 @@ public class LEDFSMSystem {
 				break;
 			case CLIMB:
 				handleClimbState();
+				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -128,14 +129,6 @@ public class LEDFSMSystem {
 	 */
 	public void updateAutonomous() {
 		handleAutoState();
-	}
-
-	/**
-	 * Run FSM in disabled mode. This function only calls the FSM state
-	 * specific handlers.
-	 */
-	public void updateDisabled() {
-		handleDisabledState();
 	}
 
 	/**
@@ -277,12 +270,5 @@ public class LEDFSMSystem {
 	 */
 	private void handleClimbState() {
 		led.setClimbColor();
-	}
-
-	/**
-	 * Handle behavior when Disabled.
-	 */
-	private void handleDisabledState() {
-		led.setDisabledColor();
 	}
 }

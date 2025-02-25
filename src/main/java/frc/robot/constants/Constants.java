@@ -51,7 +51,7 @@ public final class Constants {
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
 	public static final double CLIMBER_PID_TARGET_EXTEND = 130;
-	public static final double CLIMBER_PID_TARGET_CLIMB = 288;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 295;
 	public static final double CLIMBER_ENCODER_RESET_POSITION = 320;
 
 	public static final double CLIMBER_COUNTS_PER_REV = 427;

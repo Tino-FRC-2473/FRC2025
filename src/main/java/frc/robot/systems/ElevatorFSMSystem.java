@@ -54,7 +54,8 @@ public class ElevatorFSMSystem {
 	private TalonFX elevatorMotor;
 	private DigitalInput groundLimitSwitch;
 
-	private FunnelFSMSystem funnelSystem; // only used for break beam
+	private FunnelFSMSystem funnelSystem; // only used for break beamo
+	private DriveFSMSystem driveSystem;
 
 	/* ======================== Constructor ======================== */
 
@@ -388,6 +389,14 @@ public class ElevatorFSMSystem {
 		elevatorMotor.setControl(
 				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
 		);
+	}
+
+	/**
+	 * Is elevator at L4 boolean accessor.
+	 * @return whether or not elevator is at L4.
+	 */
+	public boolean isElevatorAtL4() {
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
 	}
 
 	/* ---- Elevator Commands ---- */
