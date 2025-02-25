@@ -135,6 +135,39 @@ class AprilTag():
 
         return pose_list
     
+    def estimate_station_pose(self, image, ARUCO_LENGTH_METERS):
+        gray = image[:, :, 0]
+        results = self.detector.detect(gray)
+
+        ids = [r.tag_id for r in results]
+        corners = [r.corners for r in results]
+
+        self.detectedIDs = ids
+        pose_list = []
+        num_tags = len(ids) if ids is not None else 0
+        #print(num_tags)
+        if num_tags != 0:
+            # Estimate the pose of each detected marker
+            for i in range(len(ids)):
+                # Estimate the pose
+                tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+                
+                pose_list.append(ids[i])
+                pose_list.extend(cvec)
+
+                print(tvec)
+
+                pose_list.extend(tvec)
+                euler_rvec = self.correct_station_angle(rvec)
+                pose_list.extend(euler_rvec)
+                    
+                # print("euler_rvec: ", euler_rvec)
+                #self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
+            
+        pose_list = self.sort_tags_distance(pose_list)
+
+        return pose_list
+    
     # sorts the tags in the list by their hypotenuse (sqrt of x^2 + z^2)
     def sort_tags_distance(self, pose_list):
         # pose list: [id, cvec, cvec, cvec, x, y, z, rvec, rvec, rvec, id, ...]
@@ -156,19 +189,20 @@ class AprilTag():
         return sorted_pose_list
     
     def correct_station_angle(self, rvec): 
-        #assuming that it is 32 degrees right now
-        cam_pitch =  -0.55950
+        #assuming that it is 19 degrees right now
+        cam_pitch =  -0.3316
         #matrix representing rotated camera 
         rotated_yaw = [0, 0, cam_pitch]
 
         # I think we would change this to be the vector for you much you would have to rotate the coordinate axis
         R, _ = cv2.Rodrigues(rotated_yaw)
-        # there's a negative for the x position b/c to the left is negative in the opencv2 systems
-        list = [0, 0, -0.3589]
+        # positive because of the way the opencv2 system works and the direction of the vector in the diagram
+        list = [0, 0, 0.3589]
 
         cam_pos_to_tag = np.array(list)
         station_rotation = R.T @ (rvec - cam_pos_to_tag)
         # multiplying by negative one b/c of the way that vector adition works
+        print(station_rotation)
         station_rotation[2] = -1 * station_rotation[2]
         station_rotation[0] = -1 * station_rotation[0]
 
