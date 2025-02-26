@@ -152,10 +152,10 @@ public class Robot extends LoggedRobot {
 				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
 			);
 
-			// if (Robot.isSimulation()) {
-			// 	driveSystem.getMapleSimDrivetrain().getDriveSimulation()
-			// 		.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
-			// }
+			if (Robot.isSimulation()) {
+				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
+					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+			}
 
 			scheduledCommand.schedule();
 		}
