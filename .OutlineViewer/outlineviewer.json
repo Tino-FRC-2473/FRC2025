@@ -1,0 +1,54 @@
+{
+  "Connections": {
+    "open": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "2473"
+  },
+  "Server": {
+    "open": true
+  },
+  "retained": {
+    "CameraPublisher": {
+      "open": true
+    },
+    "SmartDashboard": {
+      "open": true
+    }
+  },
+  "transitory": {
+    "CameraPublisher": {
+      "back": {
+        "string[]##v_/CameraPublisher/back/streams": {
+          "open": true
+        }
+      },
+      "cam1": {
+        "open": true,
+        "string[]##v_/CameraPublisher/cam1/streams": {
+          "open": true
+        }
+      },
+      "cam2": {
+        "open": true,
+        "string[]##v_/CameraPublisher/cam2/streams": {
+          "open": true
+        }
+      },
+      "dcam": {
+        "open": true,
+        "string[]##v_/CameraPublisher/dcam/streams": {
+          "open": true
+        }
+      },
+      "front": {
+        "open": true,
+        "string[]##v_/CameraPublisher/front/streams": {
+          "open": true
+        }
+      },
+      "open": true
+    }
+  }
+}

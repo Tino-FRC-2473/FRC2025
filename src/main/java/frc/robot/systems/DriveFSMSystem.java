@@ -969,7 +969,14 @@ public class DriveFSMSystem extends SubsystemBase {
 			Logger.recordOutput("Alignment Pose", alignmentPose2d);
 
 		}
-		driveToPose(alignmentPose2d, allianceFlip);
+
+		if (alignmentPose2d != null) {
+			driveToPose(alignmentPose2d, allianceFlip);
+		} else {
+			drivetrain.setControl(brake);
+			return;
+		}
+
 		if (driveToPoseFinished) {
 			drivetrain.setControl(
 				drive.withVelocityX(0)
