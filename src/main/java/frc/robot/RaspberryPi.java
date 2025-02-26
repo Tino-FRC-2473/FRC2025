@@ -54,8 +54,7 @@ public class RaspberryPi {
 
 	/**
 	* Returns a list of all AprilTags from all cameras.
-	* @return  ArrayList<AprilTag>
-	*          A list of visible AprilTags
+	* @return A list of visible AprilTags
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
@@ -68,8 +67,7 @@ public class RaspberryPi {
 	* Returns a list of all AprilTags from one camera.
 	* @param camSub subscriber for the camera
 	* @param camName camera name
-	* @return  ArrayList<AprilTag>
-	*          A list of visible AprilTags
+	* @return A list of visible AprilTags
 	*/
 	public ArrayList<AprilTag> getAprilTagsSingleCam(DoubleArraySubscriber camSub, String camName) {
 		ArrayList<AprilTag> atList = new ArrayList<>();
