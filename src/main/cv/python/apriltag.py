@@ -4,7 +4,10 @@ import os
 import pupil_apriltags as apriltag
 from pathlib import Path
 from config import *
+from scipy.spatial.transform import Rotation
+from collections import OrderedDict
 import math
+
 
 
 basePath = Path(__file__).resolve().parent
@@ -14,11 +17,9 @@ basePath = Path(__file__).resolve().parent
 # max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
 # at 18 in -> max left/right was 4.5 in
 class AprilTag():
-
-    def __init__(self):
-        print("cam", AT_CAM_NAME)
-        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}matrix.npy')
-        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{AT_CAM_NAME}dist.npy')
+    def __init__(self, cam_name):
+        self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}matrix.npy')
+        self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}dist.npy')
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
@@ -76,6 +77,27 @@ class AprilTag():
             print(f"An error occurred: {e}")
             return None, None
     
+    def rotation_vector_to_euler_angles(self, rvec):
+        # Convert rotation vector to rotation matrix
+        R, _ = cv2.Rodrigues(rvec)
+        
+        # Extract Euler angles (assuming a standard rotation order like XYZ)
+        euler_angles = Rotation.from_matrix(R).as_euler("xyz", degrees=False)
+
+        print("Euler x angle: ", euler_angles[0]) 
+        print("Euler y angle: ", euler_angles[1])
+        print("Euler z angle: ", euler_angles[2])
+        
+        #print(self.fix_camera_tilt(euler_angles[0]))
+        print("Pitch in radians: ", rvec[1])
+        self.fix_camera_tilt(euler_angles[2], rvec[1])
+        return euler_angles
+
+    def fix_camera_tilt(self, euler_yaw_angle, pitch_angle):
+        robot_yaw = math.atan(math.tan(euler_yaw_angle) * math.cos(pitch_angle))
+        print("Robot yaw value: ", robot_yaw)
+        return robot_yaw
+    
 
     def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
             gray = image[:, :, 0]
@@ -99,14 +121,15 @@ class AprilTag():
                     tvec[2] =  original_z + AT_Z_OFFSET
 
                     original_x = tvec[0]
-                    tvec[0] =  original_x + AT_X_OFFSET
+                    tvec[0] =  (original_x + AT_X_OFFSET)
 
                     pose_list.extend(tvec)
-                    pose_list.extend(rvec)
+                    euler_rvec = self.rotation_vector_to_euler_angles(rvec)
+                    pose_list.extend(euler_rvec)
                     
-                    #print("tvec: ", tvec)
+                    # print("euler_rvec: ", euler_rvec)
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
-
+            
             pose_list = self.sort_tags_distance(pose_list)
 
             return pose_list
@@ -122,7 +145,7 @@ class AprilTag():
             hyp_poses[pose_list[i]] = hyp
         
         # sort hypotenuse dictionary
-        sorted_hyp_dict = dict(sorted(hyp_poses.items(), key=lambda item: item[1]))
+        sorted_hyp_dict = OrderedDict(sorted(hyp_poses.items(), key=lambda item: item[1]))
 
         sorted_pose_list = [] # sort pose list
         for id in sorted_hyp_dict:
@@ -134,7 +157,7 @@ class AprilTag():
     def distance_to_tag(self, image, marker_size):
         gray = image[:, :, 0]
         results = self.detector.detect(gray)
-        #print("results from distance to tag", results)
+        # print("results from distance to tag", results)
         corners = [r.corners for r in results]
         # Testing with coral station apriltag
         marker_points_3d = np.array([[-marker_size/2, -marker_size/2, 0], [marker_size/2, -marker_size/2, 0], [marker_size/2, marker_size/2, 0], [-marker_size/2, marker_size/2, 0]], dtype=np.float32)
@@ -145,12 +168,13 @@ class AprilTag():
         _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, self.camera_matrix, self.dist_coeffs)
 
         R, _ = cv2.Rodrigues(rvec)
-        #there's a negative for the x position b/c to the left is negative in the opencv2 systems
+        # there's a negative for the x position b/c to the left is negative in the opencv2 systems
         list = [-0.130175, 0.903224, 0.0536]
         intake_pos = np.array(list)
         pose_list = R.T @ (tvec - intake_pos)
-        #multuplying by negative one b/c of the way that vector adition works
+        # multiplying by negative one b/c of the way that vector adition works
         pose_list[2] = -1 * pose_list[2]
+        pose_list[0] = -1 * pose_list[0]
 
         return pose_list
     
