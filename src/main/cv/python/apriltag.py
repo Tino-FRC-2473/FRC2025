@@ -84,18 +84,18 @@ class AprilTag():
         # Extract Euler angles (assuming a standard rotation order like XYZ)
         euler_angles = Rotation.from_matrix(R).as_euler("xyz", degrees=False)
 
-        print("Euler x angle: ", euler_angles[0]) 
-        print("Euler y angle: ", euler_angles[1])
-        print("Euler z angle: ", euler_angles[2])
+        # print("Euler x angle: ", euler_angles[0]) 
+        # print("Euler y angle: ", euler_angles[1])
+        # print("Euler z angle: ", euler_angles[2])
         
-        #print(self.fix_camera_tilt(euler_angles[0]))
-        print("Pitch in radians: ", rvec[1])
+        # #print(self.fix_camera_tilt(euler_angles[0]))
+        # print("Pitch in radians: ", rvec[1])
         self.fix_camera_tilt(euler_angles[2], rvec[1])
         return euler_angles
 
     def fix_camera_tilt(self, euler_yaw_angle, pitch_angle):
         robot_yaw = math.atan(math.tan(euler_yaw_angle) * math.cos(pitch_angle))
-        print("Robot yaw value: ", robot_yaw)
+        #print("Robot yaw value: ", robot_yaw)
         return robot_yaw
     
 
@@ -161,9 +161,9 @@ class AprilTag():
         corners = [r.corners for r in results]
         # Testing with coral station apriltag
         marker_points_3d = np.array([[-marker_size/2, -marker_size/2, 0], [marker_size/2, -marker_size/2, 0], [marker_size/2, marker_size/2, 0], [-marker_size/2, marker_size/2, 0]], dtype=np.float32)
-        print("length corners", len(corners))
+        #print("length corners", len(corners))
         image_points_2d = corners[0]
-        print(len(image_points_2d))
+        #print(len(image_points_2d))
 
         _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, self.camera_matrix, self.dist_coeffs)
 
