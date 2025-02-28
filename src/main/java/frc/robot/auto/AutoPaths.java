@@ -46,7 +46,8 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_R13 = new Object[] {
-		"S2_R1",
+		"S2_R1_H",
+		AutoCommands.R_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD,
@@ -93,7 +94,8 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S2_R13 = new Object[] {
-		"S2_R1",
+		"S2_R1_H",
+		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD,
