@@ -45,7 +45,7 @@ public class CommandSwerveDrivetrain extends
 
 	private final PIDController autoXPid = new PIDController(5, 0, 0);
 	private final PIDController autoYPid = new PIDController(5, 0, 0);
-	private final PIDController autoHeadingPid = new PIDController(0.9, 0, 0);
+	private final PIDController autoHeadingPid = new PIDController(0.6, 0, 0);
 
 	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
 	private Notifier simNotifier;

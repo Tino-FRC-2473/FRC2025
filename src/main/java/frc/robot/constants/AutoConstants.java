@@ -63,6 +63,8 @@ public class AutoConstants {
 
 	public enum AutoCommands {
 		/* Red Align Reef Tag Commands */
+		R_ALIGN_REEF1_L_TAG_CMD,
+		R_ALIGN_REEF1_R_TAG_CMD,
 		R_ALIGN_REEF2_L_TAG_CMD,
 		R_ALIGN_REEF2_R_TAG_CMD,
 		R_ALIGN_REEF3_L_TAG_CMD,
@@ -72,6 +74,8 @@ public class AutoConstants {
 		R_ALIGN_REEF6_L_TAG_CMD,
 		R_ALIGN_REEF6_R_TAG_CMD,
 		/* Blue Align Reef Tag Commands */
+		B_ALIGN_REEF1_L_TAG_CMD,
+		B_ALIGN_REEF1_R_TAG_CMD,
 		B_ALIGN_REEF2_L_TAG_CMD,
 		B_ALIGN_REEF2_R_TAG_CMD,
 		B_ALIGN_REEF3_L_TAG_CMD,
@@ -89,12 +93,13 @@ public class AutoConstants {
 		DRIVE_BRAKE_CMD,
 		DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
 		DRIVE_ROBOT_RIGHT_RELATIVE_OFFSET_TIMED_CMD,
+		DRIVE_WAIT,
 		/* Elevator Commands */
 		ELEVATOR_GROUND_CMD,
 		ELEVATOR_L2_CMD,
 		ELEVATOR_L3_CMD,
 		ELEVATOR_L4_CMD,
-		WAIT,
+		ELEVATOR_WAIT,
 		/* Funnel Commands */
 		INTAKE_CORAL_CMD,
 		OUTTAKE_CORAL_CMD

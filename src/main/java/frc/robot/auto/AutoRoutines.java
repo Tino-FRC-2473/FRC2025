@@ -116,6 +116,18 @@ public class AutoRoutines {
 				);
 
 			/* ---- All Blue AprilTag Alignment Commands ---- */
+			case B_ALIGN_REEF1_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_1_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case B_ALIGN_REEF1_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_1_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
 			case B_ALIGN_REEF2_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
@@ -191,7 +203,7 @@ public class AutoRoutines {
 				return elevatorSystem.elevatorL3Command();
 			case ELEVATOR_L4_CMD:
 				return elevatorSystem.elevatorL4Command();
-			case WAIT:
+			case ELEVATOR_WAIT:
 				return elevatorSystem.waitCommand();
 			default:
 				return null;
