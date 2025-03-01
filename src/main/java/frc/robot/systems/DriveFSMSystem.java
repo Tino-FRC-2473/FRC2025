@@ -85,7 +85,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private CommandSwerveDrivetrain drivetrain;
 	private Rotation2d rotationAlignmentPose;
-	private	Pose2d alignmentPose2d;
+	private	Pose2d alignmentPose2d = null;
 	private boolean driveToPoseRunning = false;
 
 	/* -- cv constants -- */
@@ -1046,6 +1046,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				driveToPoseFinished = false;
 				driveToPoseRunning = false;
 				driveToPoseRotateFinished = false;
+				alignmentPose2d = null;
 			}
 		}
 

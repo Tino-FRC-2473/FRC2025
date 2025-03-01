@@ -256,9 +256,10 @@ public class ElevatorFSMSystem {
 					return ElevatorFSMState.LEVEL4;
 				}
 				if ((input.isL2ButtonPressed()
-					|| (funnelSystem.isHoldingCoral()
-						&& MathUtil.applyDeadband(input.getManualElevatorMovementInput(),
-							Constants.ELEVATOR_JOYSTICK_INPUT_DEADBAND) == 0))
+					|| (
+						funnelSystem.isHoldingCoral()
+						&& inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_GROUND)
+					))
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL3ButtonPressed()) {
