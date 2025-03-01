@@ -54,6 +54,18 @@ public class AutoRoutines {
 	private Command checkAlignmentCommands(AutoCommands commandEntry) {
 		/* ---- All Red AprilTag Alignment Commands ---- */
 		switch (commandEntry) {
+			case R_ALIGN_REEF1_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_1_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case R_ALIGN_REEF1_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_1_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET,
+					AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
 			case R_ALIGN_REEF2_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
