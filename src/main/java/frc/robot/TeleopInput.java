@@ -84,6 +84,14 @@ public class TeleopInput {
 	public boolean getDriveCircleButton() {
 		return driveController.getCircleButton();
 	}
+
+	/**
+	 * Get drive cross button.
+	 * @return value
+	 */
+	public boolean getDriveCrossButton() {
+		return driveController.getCrossButton();
+	}
 		/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value

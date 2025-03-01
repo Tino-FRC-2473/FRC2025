@@ -354,7 +354,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		double constantDamp = 1;
 
 		if (elevatorSystem != null) {
-			constantDamp = (elevatorSystem.isElevatorAtL4())
+			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveCrossButton())
 				? DriveConstants.SPEED_DAMP_FACTOR : DriveConstants.NORMAL_DAMP;
 		}
 
@@ -381,16 +381,20 @@ public class DriveFSMSystem extends SubsystemBase {
 					: drivetrain.getState().Pose.getRotation();
 		}
 
-		drivetrain.setControl(
-			driveFacingAngle.withVelocityX(xSpeed * allianceOriented.getAsInt())
-			.withVelocityY(ySpeed * allianceOriented.getAsInt())
-			.withTargetDirection(rotationAlignmentPose)
-			.withTargetRateFeedforward(-rotXComp)
-			//.withHeadingPID(2.5, 0, 0)
-		);
-
-		if (input.getDriveCircleButton()) {
-			drivetrain.setControl(brake);
+		if (!input.getDriveCircleButton()) {
+			drivetrain.setControl(
+				driveFacingAngle.withVelocityX(xSpeed * allianceOriented.getAsInt())
+				.withVelocityY(ySpeed * allianceOriented.getAsInt())
+				.withTargetDirection(rotationAlignmentPose)
+				.withTargetRateFeedforward(-rotXComp)
+				//.withHeadingPID(2.5, 0, 0)
+			);
+		} else {
+			drivetrain.setControl(
+				driveRobotCentric.withVelocityX(xSpeed * allianceOriented.getAsInt())
+				.withVelocityY(ySpeed * allianceOriented.getAsInt())
+				.withRotationalRate(-rotXComp)
+			);
 		}
 
 		if (input.getSeedGyroButtonPressed()) {

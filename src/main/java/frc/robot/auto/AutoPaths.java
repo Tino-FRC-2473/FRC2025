@@ -125,6 +125,36 @@ public class AutoPaths {
 		AutoCommands.ELEVATOR_GROUND_CMD,
 	};
 
+	public static final Object[] B_AT_ALIGN_MATCH2 = new Object[] {
+		"S2_R1_H",
+		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R1_StationR",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5_H",
+		AutoCommands.B_ALIGN_REEF5_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_MATCH2_NO_AT = new Object[] {
+		"S2_R1",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R1_StationR",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
 	/**
 	 * Get all autos declared in the file.
 	 * @return hashmap of auto name and autos.
