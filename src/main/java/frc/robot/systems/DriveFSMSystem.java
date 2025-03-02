@@ -977,6 +977,12 @@ public class DriveFSMSystem extends SubsystemBase {
 	public Command alignToTagCommand(int id, double x, double y) {
 		class AlignToTagCommand extends Command {
 
+			private Timer alignmentTimerAutoCommand;
+
+			AlignToTagCommand() {
+				alignmentTimerAutoCommand = new Timer();
+			}
+
 			public void initialize() {
 				alignmentXOff = x;
 				alignmentYOff = y;
@@ -989,6 +995,10 @@ public class DriveFSMSystem extends SubsystemBase {
 				} else {
 					aligningToReef = false;
 				}
+
+				alignmentTimerAutoCommand.reset();
+				alignmentTimerAutoCommand.start();
+
 			}
 
 			@Override
@@ -997,7 +1007,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 
 			public boolean isFinished() {
-				return driveToPoseFinished;
+				return driveToPoseFinished || alignmentTimerAutoCommand.get() > 2;
 			}
 
 			public void end(boolean interrupted) {
@@ -1008,6 +1018,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				driveToPoseRunning = false;
 				driveToPoseRotateFinished = false;
 				alignmentPose2d = null;
+				alignmentTimerAutoCommand.stop();
 			}
 		}
 
