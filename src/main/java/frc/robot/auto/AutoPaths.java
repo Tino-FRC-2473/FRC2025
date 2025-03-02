@@ -170,6 +170,7 @@ public class AutoPaths {
 	public static final Object[] B_NO_AT_S2_R13 = new Object[] {
 		"S2_R1",
 		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD,
 		"R1_StationL",

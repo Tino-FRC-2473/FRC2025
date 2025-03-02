@@ -694,8 +694,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		oldAlignmentPose2d = currPose;
 
 		if (driveToPoseFinished) {
-				alignmentTimer.stop();
-				alignmentTimer.reset();
+			alignmentTimer.stop();
+			alignmentTimer.reset();
 		}
 
 
