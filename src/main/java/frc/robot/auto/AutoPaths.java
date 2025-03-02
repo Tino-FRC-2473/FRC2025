@@ -47,6 +47,7 @@ public class AutoPaths {
 
 	public static final Object[] R_NO_AT_S1_R23 = new Object[] {
 		"S1_R2",
+		AutoCommands.DRIVE_BRAKE_CMD,
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD,
@@ -54,6 +55,7 @@ public class AutoPaths {
 		AutoCommands.DRIVE_BRAKE_CMD,
 		AutoCommands.INTAKE_CORAL_CMD,
 		"StationL_R3",
+		AutoCommands.DRIVE_BRAKE_CMD,
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD,
@@ -197,6 +199,7 @@ public class AutoPaths {
 
 	public static final Object[] B_NO_AT_S3_R65 = new Object[] {
 		"S3_R6",
+		AutoCommands.DRIVE_BRAKE_CMD,
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD,
@@ -204,6 +207,7 @@ public class AutoPaths {
 		AutoCommands.DRIVE_BRAKE_CMD,
 		AutoCommands.INTAKE_CORAL_CMD,
 		"StationR_R5",
+		AutoCommands.DRIVE_BRAKE_CMD,
 		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		AutoCommands.ELEVATOR_GROUND_CMD,
