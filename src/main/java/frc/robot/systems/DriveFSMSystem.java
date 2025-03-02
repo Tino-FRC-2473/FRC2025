@@ -570,7 +570,6 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (!driveToPoseRunning) {
 			driveToPoseRunning = true;
-			alignmentTimer.reset();
 			alignmentTimer.start();
 		}
 
@@ -693,6 +692,11 @@ public class DriveFSMSystem extends SubsystemBase {
 		Logger.recordOutput("DriveToPose/TargetPose", target);
 
 		oldAlignmentPose2d = currPose;
+
+		if (driveToPoseFinished) {
+				alignmentTimer.stop();
+				alignmentTimer.reset();
+		}
 
 
 		return driveToPoseFinished;
@@ -996,7 +1000,6 @@ public class DriveFSMSystem extends SubsystemBase {
 					aligningToReef = false;
 				}
 
-				alignmentTimerAutoCommand.reset();
 				alignmentTimerAutoCommand.start();
 
 			}
@@ -1019,6 +1022,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				driveToPoseRotateFinished = false;
 				alignmentPose2d = null;
 				alignmentTimerAutoCommand.stop();
+				alignmentTimerAutoCommand.reset();
 			}
 		}
 
