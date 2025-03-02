@@ -5,3 +5,4 @@ linuxpy
 pyntcore
 robotpy
 scipy
+robotpy-cscore

@@ -3,3 +3,4 @@ pupil_apriltags
 linuxpy
 robotpy-cscore
 scipy
+robotpy-cscore
