@@ -6,34 +6,57 @@ title: Superstructure State Diagram
 ---
 
 stateDiagram-v2
-state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed" as IDLE
-state "Ready Coral: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed" as CORAL_READY
-state "Abort: <p> Elevator Stop <p> Drive Teleop <p> Funnel Open" as ABORT
-state "Reset: <p> Elevatoe Ground <p> Drive Teleop <p> Funnel Closed" as RESET
+state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as IDLE
+state "Ready Coral: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as CORAL_READY
+state "Abort: <p> Elevator Stop <p> Drive Teleop <p> Funnel Open <p> Climber Stop" as ABORT
+state "Reset: <p> Elevatoe Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Stowed" as RESET
 
-state "Pre Score: <p> Elevator L2 <p> Drive Align to Reef <p> Funnel Closed" as PRE_SCORE
+state "Pre Score: <p> Elevator L2 <p> Drive Align to Reef <p> Funnel Closed <p> Climber Idle" as PRE_SCORE
 
-state "Score L2: <p> Elevator L2 <p> Drive Brake <p> Funnel Open" as SCORE_L2
-state "Score L3: <p> Elevator L3 <p> Drive Brake <p> Funnel Open" as SCORE_L3
-state "Score L4: <p> Elevator L4 <p> Drive Brake <p> Funnel Open" as SCORE_L4
+state "Score L2: <p> Elevator L2 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE_L2
+state "Score L3: <p> Elevator L3 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE_L3
+state "Score L4: <p> Elevator L4 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE_L4
 
-state "Post Score: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed" as POST_SCORE
+state "Post Score: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as POST_SCORE
+
+state "Pre Climb: <p> Elevator Ground <p> Drive Manual <p> Funnel Closed <p> Climber Extend" as PRE_CLIMB
+state "Climbing: <p> Elevator Ground <p> Drive Creep Forward <p> Funnel Closed <p> Climber Retract" as CLIMBING
+state "Reset Climb: <p> Elevator Ground <p> Drive Manual <p> Funnel Closed <p> Climber Stowed" as RESET_CLIMB
 
 
 [*] --> IDLE: start 
 
 %% From Idle
 IDLE --> CORAL_READY : hasCoral
+IDLE --> PRE_CLIMB : climbButtonPressed && isClimberStowed
+IDLE --> CLIMBING : climbButtonPressed && isClimberExtended
+IDLE --> RESET_CLIMB : climbButtonPressed && isAtClimbPos
 
 %% From Ready Coral
 CORAL_READY --> IDLE: !hasCoral
 CORAL_READY --> PRE_SCORE: hasCoral && (L2ButtonPressed || L3ButtonPressed || L4ButtonPressed)
+CORAL_READY --> PRE_CLIMB : climbButtonPressed && isClimberStowed
+CORAL_READY --> CLIMBING : climbButtonPressed && isClimberExtended
+CORAL_READY --> RESET_CLIMB : climbButtonPressed && isAtClimbPos
 
 %% From Abort
 ABORT --> RESET: resetButtonPressed
 
 %% From Reset
-RESET --> IDLE: isElevatorAtGround
+RESET --> IDLE: isElevatorAtGround && isClimberStowed
+
+%% From Pre Climb
+PRE_CLIMB --> IDLE : isClimberExtended
+PRE_CLIMB --> ABORT: abortButtonPressed
+
+%% From Climbing
+CLIMBING --> IDLE : isAtClimbPos
+CLIMBING --> ABORT: abortButtonPressed
+
+%% From  Reset Climb
+RESET_CLIMB --> IDLE : isClimberStowed
+RESET_CLIMB --> ABORT: abortButtonPressed
+
 
 %% From Pre Score
 PRE_SCORE --> SCORE_L2: L2ButtonPressed && hasCoral && isDriveAligned

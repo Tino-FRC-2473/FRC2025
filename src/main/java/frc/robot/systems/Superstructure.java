@@ -18,6 +18,9 @@ public class Superstructure {
 		SCORE_L3,
 		SCORE_L4,
 		POST_SCORE,
+		PRE_CLIMB,
+		CLIMB,
+		RESET_CLIMB,
 		ABORT,
 		RESET
 	}
@@ -44,9 +47,9 @@ public class Superstructure {
 	public Superstructure(DriveFSMSystem driveFSMSystem, FunnelFSMSystem funnelFSMSystem,
 		ElevatorFSMSystem elevatorFSMSystem) {
 		// Perform hardware init
-		this.elevatorSystem = elevatorFSMSystem;
-		this.funnelSystem = funnelFSMSystem;
-		this.driveSystem = driveFSMSystem;
+		elevatorSystem = elevatorFSMSystem;
+		funnelSystem = funnelFSMSystem;
+		driveSystem = driveFSMSystem;
 
 		// Reset state machine
 		reset();
