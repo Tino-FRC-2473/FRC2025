@@ -293,6 +293,14 @@ public class DriveFSMSystem extends SubsystemBase {
 		return driveToPoseFinished;
 	}
 
+	/**
+	 * Sets the drivetrain state.
+	 * @param state The drivetrain state.
+	 */
+	public void setState(DriveFSMState state) {
+		currentState = state;
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -302,6 +310,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
+	 * @deprecated Will be removed after superstructure impl.
 	 */
 	private DriveFSMState nextState(TeleopInput input) {
 

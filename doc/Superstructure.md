@@ -19,9 +19,9 @@ state "Score L4: <p> Elevator L4 <p> Drive Brake <p> Funnel Open <p> Climber Idl
 
 state "Post Score: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as POST_SCORE
 
-state "Pre Climb: <p> Elevator Ground <p> Drive Manual <p> Funnel Closed <p> Climber Extend" as PRE_CLIMB
+state "Pre Climb: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Extend" as PRE_CLIMB
 state "Climbing: <p> Elevator Ground <p> Drive Creep Forward <p> Funnel Closed <p> Climber Retract" as CLIMBING
-state "Reset Climb: <p> Elevator Ground <p> Drive Manual <p> Funnel Closed <p> Climber Stowed" as RESET_CLIMB
+state "Reset Climb: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Stowed" as RESET_CLIMB
 
 
 [*] --> IDLE: start 

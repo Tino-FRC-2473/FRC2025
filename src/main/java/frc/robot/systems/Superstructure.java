@@ -6,11 +6,15 @@ package frc.robot.systems;
 
 // Robot Imports
 import frc.robot.TeleopInput;
+import frc.robot.systems.ClimberFSMSystem.ClimberFSMState;
+import frc.robot.systems.DriveFSMSystem.DriveFSMState;
+import frc.robot.systems.ElevatorFSMSystem.ElevatorFSMState;
+import frc.robot.systems.FunnelFSMSystem.FunnelFSMState;
 
 public class Superstructure {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
-	public enum FSMState {
+	public enum SuperFSMState {
 		IDLE,
 		READY_CORAL,
 		PRE_SCORE,
@@ -26,11 +30,12 @@ public class Superstructure {
 	}
 
 	/* ======================== Private variables ======================== */
-	private FSMState currentState;
+	private SuperFSMState currentState;
 
 	private FunnelFSMSystem funnelSystem;
 	private ElevatorFSMSystem elevatorSystem;
 	private DriveFSMSystem driveSystem;
+	private ClimberFSMSystem climberSystem;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -43,13 +48,15 @@ public class Superstructure {
 	 * @param driveFSMSystem
 	 * @param funnelFSMSystem
 	 * @param elevatorFSMSystem
+	 * @param climberFSMSystem
 	 */
 	public Superstructure(DriveFSMSystem driveFSMSystem, FunnelFSMSystem funnelFSMSystem,
-		ElevatorFSMSystem elevatorFSMSystem) {
+		ElevatorFSMSystem elevatorFSMSystem, ClimberFSMSystem climberFSMSystem) {
 		// Perform hardware init
 		elevatorSystem = elevatorFSMSystem;
 		funnelSystem = funnelFSMSystem;
 		driveSystem = driveFSMSystem;
+		climberSystem = climberFSMSystem;
 
 		// Reset state machine
 		reset();
@@ -60,7 +67,7 @@ public class Superstructure {
 	 * Return current FSM state.
 	 * @return Current FSM state
 	 */
-	public FSMState getCurrentState() {
+	public SuperFSMState getCurrentState() {
 		return currentState;
 	}
 	/**
@@ -72,7 +79,7 @@ public class Superstructure {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FSMState.IDLE;
+		currentState = SuperFSMState.IDLE;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -87,11 +94,11 @@ public class Superstructure {
 	public void update(TeleopInput input) {
 		switch (currentState) {
 			case IDLE:
-				handleStartState(input);
+				handleIdleState(input);
 				break;
 
 			case READY_CORAL:
-				handleOtherState(input);
+				handleReadyCoralState(input);
 				break;
 
 			default:
@@ -110,17 +117,26 @@ public class Superstructure {
 	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
 	 */
-	private FSMState nextState(TeleopInput input) {
+	private SuperFSMState nextState(TeleopInput input) {
 		switch (currentState) {
 			case IDLE:
-				if (input != null) {
-					return FSMState.READY_CORAL;
-				} else {
-					return FSMState.IDLE;
+				if (input == null) {
+					return SuperFSMState.IDLE;
 				}
 
+				if (funnelSystem.isHoldingCoral()) {
+					return SuperFSMState.READY_CORAL;
+				}
+
+				return SuperFSMState.IDLE;
+
 			case READY_CORAL:
-				return FSMState.READY_CORAL;
+
+				if (!funnelSystem.isHoldingCoral()) {
+					return SuperFSMState.IDLE;
+				}
+
+				return SuperFSMState.READY_CORAL;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -129,17 +145,25 @@ public class Superstructure {
 
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
-	 * Handle behavior in START_STATE.
+	 * Handle behavior in IDLE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleStartState(TeleopInput input) {
+	private void handleIdleState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 	/**
-	 * Handle behavior in OTHER_STATE.
+	 * Handle behavior in READY_CORAL.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleOtherState(TeleopInput input) {
+	private void handleReadyCoralState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 }

@@ -218,6 +218,14 @@ public class ElevatorFSMSystem {
 		Logger.recordOutput("ROOR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
 	}
 
+	/**
+	 * Set the state of the ElevatorFSM.
+	 * @param state The state to set the ElevatorFSM to.
+	 */
+	public void setState(ElevatorFSMState state) {
+		currentState = state;
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -227,6 +235,7 @@ public class ElevatorFSMSystem {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
+	 * @deprecated Will be removed after superstructure impl.
 	 */
 	private ElevatorFSMState nextState(TeleopInput input) {
 		if (input == null) {

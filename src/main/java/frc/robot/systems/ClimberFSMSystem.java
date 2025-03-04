@@ -158,6 +158,14 @@ public class ClimberFSMSystem {
 		Logger.recordOutput("Climber target position", targetPosition);
 	}
 
+	/**
+	 * Set the state of the FSM.
+	 * @param state The state to set the FSM to.
+	 */
+	public void setState(ClimberFSMState state) {
+		currentState = state;
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -167,6 +175,7 @@ public class ClimberFSMSystem {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *	   the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
+	 * @deprecated Will be removed after superstructure impl.
 	 */
 	private ClimberFSMState nextState(TeleopInput input) {
 		switch (currentState) {

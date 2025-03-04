@@ -143,6 +143,14 @@ public class FunnelFSMSystem {
 		return reefDistanceSensor.getRange();
 	}
 
+	/**
+	 * Set the state of the FSM.
+	 * @param state The state to set the FSM to.
+	 */
+	public void setState(FunnelFSMState state) {
+		currentState = state;
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -152,6 +160,7 @@ public class FunnelFSMSystem {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
+	 * @deprecated Will be removed after superstructure impl.
 	 */
 	private FunnelFSMState nextState(TeleopInput input) {
 		switch (currentState) {
