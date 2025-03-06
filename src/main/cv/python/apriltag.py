@@ -24,7 +24,47 @@ class AprilTag():
         self.NUM_TAGS = 22
         self.detectedIDs = []
 
+    def estimate_3d_pose(self, image, ARUCO_LENGTH_METERS):
+        #getting the last channel of the image (cv2 populates an image w/ 3 channels of the same info)
+        gray = image[:, :, 0]
 
+        results = self.detector.detect(gray)
+
+        ids = [r.tag_id for r in results]
+        corners = [r.corners for r in results]
+
+        self.detectedIDs = ids
+
+        pose_list = []
+
+        num_tags = len(ids) if ids is not None else 0
+        #print(num_tags)
+        if num_tags != 0:
+            # Estimate the pose of each detected marker
+            for i in range(len(ids)):
+                # Estimate the pose
+                tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+                
+                pose_list.append(ids[i])
+                pose_list.extend(cvec)
+                
+                #offsets for the z and x positions are currently being accounted for by drive
+                # original_z = tvec[2]
+                # tvec[2] =  original_z + AT_Z_OFFSET
+
+                # original_x = tvec[0]
+                # tvec[0] =  (original_x + AT_X_OFFSET)
+
+                pose_list.extend(tvec)
+                euler_rvec = self.rotation_vector_to_euler_angles(rvec)
+                pose_list.extend(euler_rvec)
+                
+                # print("euler_rvec: ", euler_rvec)
+        
+        pose_list = self.sort_tags_distance(pose_list)
+
+        return pose_list
+    
     def estimate_pose_single_marker(self, corners, marker_size, camera_matrix, dist_coeffs):
         try:
             # Define the 3D coordinates of the marker corners in the marker coordinate system
@@ -40,6 +80,7 @@ class AprilTag():
             rvec = rvec.flatten()
             tvec = tvec.flatten()
             return tvec, rvec, cvec
+        
         except Exception as e:
             print(f"An error occurred: {e}")
             return None, None
@@ -64,42 +105,7 @@ class AprilTag():
         robot_yaw = math.atan(math.tan(euler_yaw_angle) * math.cos(pitch_angle))
         #print("Robot yaw value: ", robot_yaw)
         return robot_yaw
-    
 
-    def estimate_3d_pose(self, image, frame_ann, ARUCO_LENGTH_METERS):
-            gray = image[:, :, 0]
-            results = self.detector.detect(gray)
-            ids = [r.tag_id for r in results]
-            corners = [r.corners for r in results]
-            self.detectedIDs = ids
-            pose_list = []
-            num_tags = len(ids) if ids is not None else 0
-            #print(num_tags)
-            if num_tags != 0:
-                # Estimate the pose of each detected marker
-                for i in range(len(ids)):
-                    # Estimate the pose
-                    tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
-                    
-                    pose_list.append(ids[i])
-                    pose_list.extend(cvec)
-                    
-                    original_z = tvec[2]
-                    tvec[2] =  original_z + AT_Z_OFFSET
-
-                    original_x = tvec[0]
-                    tvec[0] =  (original_x + AT_X_OFFSET)
-
-                    pose_list.extend(tvec)
-                    euler_rvec = self.rotation_vector_to_euler_angles(rvec)
-                    pose_list.extend(euler_rvec)
-                    
-                    # print("euler_rvec: ", euler_rvec)
-                    self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, cvec, 0.1)
-            
-            pose_list = self.sort_tags_distance(pose_list)
-
-            return pose_list
     
     # sorts the tags in the list by their hypotenuse (sqrt of x^2 + z^2)
     def sort_tags_distance(self, pose_list):
