@@ -186,7 +186,6 @@ public class ElevatorFSMSystem {
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
-		currentState = nextState(input);
 
 		// telemetry and logging
 		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition()
@@ -227,81 +226,6 @@ public class ElevatorFSMSystem {
 	}
 
 	/* ======================== Private methods ======================== */
-	/**
-	 * Decide the next state to transition to. This is a function of the inputs
-	 * and the current state of this FSM. This method should not have any side
-	 * effects on outputs. In other words, this method should only read or get
-	 * values to decide what state to go to.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 * @return FSM state for the next iteration
-	 * @deprecated Will be removed after superstructure impl.
-	 */
-	private ElevatorFSMState nextState(TeleopInput input) {
-		if (input == null) {
-			return ElevatorFSMState.MANUAL;
-		}
-		switch (currentState) {
-			case MANUAL:
-				if (input.isGroundButtonPressed()
-					&& !isBottomLimitReached()
-					&& !input.isL4ButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()) {
-					return ElevatorFSMState.GROUND;
-				}
-				if (input.isL4ButtonPressed()
-					&& funnelSystem.isHoldingCoral()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()) {
-					return ElevatorFSMState.LEVEL4;
-				}
-				if (input.isL2ButtonPressed()
-					&& funnelSystem.isHoldingCoral()
-					&& !input.isL4ButtonPressed()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL3ButtonPressed()) {
-					return ElevatorFSMState.LEVEL2;
-				}
-				if (input.isL3ButtonPressed()
-					&& funnelSystem.isHoldingCoral()
-					&& !input.isL4ButtonPressed()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()) {
-					return ElevatorFSMState.LEVEL3;
-				}
-				return ElevatorFSMState.MANUAL;
-
-			case GROUND:
-				if (isBottomLimitReached() || inRange(getElevatorpos(),
-					Constants.ELEVATOR_TARGET_GROUND)) {
-					return ElevatorFSMState.MANUAL;
-				}
-				return ElevatorFSMState.GROUND;
-
-			case LEVEL2:
-				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2)) {
-					return ElevatorFSMState.MANUAL;
-				}
-				return ElevatorFSMState.LEVEL2;
-
-			case LEVEL3:
-				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3)) {
-					return ElevatorFSMState.MANUAL;
-				}
-				return ElevatorFSMState.LEVEL3;
-
-			case LEVEL4:
-				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4)) {
-					return ElevatorFSMState.MANUAL;
-				}
-				return ElevatorFSMState.LEVEL4;
-
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
-		}
-	}
 
 	/**
 	 * Getter for the result of the elevator's bottom limit switch.
@@ -406,6 +330,22 @@ public class ElevatorFSMSystem {
 	 */
 	public boolean isElevatorAtL4() {
 		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
+	}
+
+	/**
+	 * Is elevator at L2 boolean accessor.
+	 * @return whether or not elevator is at L2.
+	 */
+	public boolean isElevatorAtL2() {
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2);
+	}
+
+	/**
+	 * Is elevator at L3 boolean accessor.
+	 * @return whether or not elevator is at L3.
+	 */
+	public boolean isElevatorAtL3() {
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3);
 	}
 
 	/* ---- Elevator Commands ---- */
