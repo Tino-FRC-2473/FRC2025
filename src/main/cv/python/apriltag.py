@@ -25,39 +25,6 @@ class AprilTag():
         self.detectedIDs = []
 
 
-    def draw_axis_on_image(self, image, camera_matrix, dist_coeffs, rvec, tvec,cvec, size=1):
-        try:
-            # Define axis length
-            length = size
-
-            # 3D axis points in the marker coordinate system
-            axis_points_3d = np.float32([[0, 0, 0], [length, 0, 0], [0, length, 0], [0, 0, -length]])
-
-            # Project 3D points to image plane
-            axis_points_2d, _ = cv2.projectPoints(axis_points_3d, rvec, tvec, camera_matrix, dist_coeffs)
-
-            # Convert to integer
-            axis_points_2d = np.int32(axis_points_2d).reshape(-1, 2)
-
-            # Draw axis lines directly on the image
-            cv2.line(image, tuple(axis_points_2d[0]), tuple(axis_points_2d[1]), (0, 0, 255), 2)  # X-axis (red)
-            cv2.line(image, tuple(axis_points_2d[0]), tuple(axis_points_2d[2]), (0, 255, 0), 2)  # Y-axis (green)
-            cv2.line(image, tuple(axis_points_2d[0]), tuple(axis_points_2d[3]), (255, 0, 0), 2)  # Z-axis (blue)
-
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            font_scale = 0.4
-            font_thickness = 1
-            text_color = (255, 0, 255)  # White color
-            text_position = (10, 30)  # Top-left corner coordinates
-            # Add text to the image
-
-            text = str(cvec * 39.37) + ' ' + str(tvec)
-            cv2.putText(image, text, text_position, font, font_scale, text_color, font_thickness)
-            return image
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return None
-
     def estimate_pose_single_marker(self, corners, marker_size, camera_matrix, dist_coeffs):
         try:
             # Define the 3D coordinates of the marker corners in the marker coordinate system
