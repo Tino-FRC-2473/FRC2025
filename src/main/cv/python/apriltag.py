@@ -106,6 +106,7 @@ class AprilTag():
         # pose list: [id, cvec, cvec, cvec, x, y, z, rvec, rvec, rvec, id, ...]
         # x value = index of id + 4
         # z value = index of id + 6
+
         hyp_poses = {} # store dictionary in format of {id: hypotenuse}
         for i in range(0, len(pose_list), 10): 
             hyp = math.sqrt(pose_list[i + 4] ** 2 + pose_list[i + 6] ** 2) # hypotenuse = sqrt(x^2 + y^2)
@@ -121,7 +122,7 @@ class AprilTag():
         
         return sorted_pose_list
 
-    def distance_to_tag(self, image, marker_size):
+    def distance_to_station_tag(self, image, marker_size):
         gray = image[:, :, 0]
         results = self.detector.detect(gray)
         # print("results from distance to tag", results)
