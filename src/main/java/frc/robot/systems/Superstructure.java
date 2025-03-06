@@ -101,6 +101,22 @@ public class Superstructure {
 				handleReadyCoralState(input);
 				break;
 
+			case PRE_SCORE:
+				handlePreScoreState(input);
+				break;
+
+			case SCORE_L2:
+				handleScoreL2State(input);
+				break;
+
+			case SCORE_L3:
+				handleScoreL3State(input);
+				break;
+
+			case SCORE_L4:
+				handleScoreL4State(input);
+				break;
+
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -136,7 +152,30 @@ public class Superstructure {
 					return SuperFSMState.IDLE;
 				}
 
+				if (funnelSystem.isHoldingCoral() && (input.isL2ButtonPressed()
+					|| input.isL3ButtonPressed() || input.isL4ButtonPressed())) {
+					return SuperFSMState.PRE_SCORE;
+				}
+
 				return SuperFSMState.READY_CORAL;
+
+			case PRE_SCORE:
+
+				if (input.isL2ButtonPressed() && funnelSystem.isHoldingCoral()
+					&& driveSystem.isAlignedToTag()) {
+					return SuperFSMState.SCORE_L2;
+				}
+
+				if (input.isL3ButtonPressed() && funnelSystem.isHoldingCoral()
+					&& driveSystem.isAlignedToTag()) {
+					return SuperFSMState.SCORE_L3;
+				}
+
+				if (input.isL4ButtonPressed() && funnelSystem.isHoldingCoral()
+					&& driveSystem.isAlignedToTag()) {
+					return SuperFSMState.SCORE_L4;
+				}
+				return SuperFSMState.PRE_SCORE;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -165,5 +204,45 @@ public class Superstructure {
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	private void handlePreScoreState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.ALIGN_TO_REEF_TAG_STATE);
+		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	private void handleScoreL2State(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
+		climberSystem.setState(ClimberFSMState.IDLE);
+		if (elevatorSystem.isElevatorAtL2()) {
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		} else {
+			funnelSystem.setState(FunnelFSMState.CLOSED);
+		}
+	}
+
+	private void handleScoreL3State(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
+		climberSystem.setState(ClimberFSMState.IDLE);
+		if (elevatorSystem.isElevatorAtL3()) {
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		} else {
+			funnelSystem.setState(FunnelFSMState.CLOSED);
+		}
+	}
+
+	private void handleScoreL4State(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL4);
+		climberSystem.setState(ClimberFSMState.IDLE);
+		if (elevatorSystem.isElevatorAtL4()) {
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		} else {
+			funnelSystem.setState(FunnelFSMState.CLOSED);
+		}
 	}
 }
