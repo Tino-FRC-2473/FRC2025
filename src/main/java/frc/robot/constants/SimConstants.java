@@ -94,10 +94,10 @@ public class SimConstants {
 	// (Not used by Limelight, configure in web UI instead)
 	public static final Transform3d ROBOT_TO_REEF_CAMERA =
 		new Transform3d(Units.inchesToMeters(6), -Units.inchesToMeters(8.5),
-		0.4, new Rotation3d(0.0, 0.0, 0));
+		0.4, new Rotation3d(0.0, 0.0, 0.0));
 	public static final Transform3d ROBOT_TO_STATION_CAMERA =
 		new Transform3d(-Units.inchesToMeters(6), -Units.inchesToMeters(8.5),
-		1.016, new Rotation3d(0.0, -0.0, Math.PI));
+		1.016, new Rotation3d(0.0, 0.0, 0.0));
 
 	// Basic filtering thresholds
 	public static final double MAX_AMBIGUITY = 0.3;
