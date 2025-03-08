@@ -189,11 +189,21 @@ public class Superstructure {
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
+	/**
+	 * Handle behavior in SCORE_L3.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
 	private void handleScoreL3State(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
-		funnelSystem.setState(FunnelFSMState.OUTTAKE);
 		climberSystem.setState(ClimberFSMState.IDLE);
+
+		if (elevatorSystem.isElevatorAtL3()) {
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		} else {
+			funnelSystem.setState(FunnelFSMState.CLOSED);
+		}
 	}
 
 	/**
