@@ -104,7 +104,7 @@ class AprilTag():
 
     def fix_camera_tilt(self, euler_yaw_angle, pitch_angle):
         robot_yaw = math.atan(math.tan(euler_yaw_angle) * math.cos(pitch_angle))
-        #print("Robot yaw value: ", robot_yaw)
+        print("Robot yaw value: ", robot_yaw)
         return robot_yaw
 
     
