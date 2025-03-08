@@ -17,7 +17,6 @@ public class Superstructure {
 	// FSM state definitions
 	public enum SuperFSMState {
 		IDLE,
-		READY_CORAL,
 		PRE_SCORE,
 		SCORE_L2,
 		SCORE_L3,
@@ -103,23 +102,15 @@ public class Superstructure {
 			case SCORE_L4:
 				handleScoreL4State(input);
 				break;
-			
-			case PRE_CLIMB: 
+			case PRE_CLIMB:
 				handlePreClimbState(input);
 				break;
-			
 			case CLIMB:
 				handleClimbState(input);
 				break;
-
 			case RESET_CLIMB:
 				handleResetClimbState(input);
 				break;
-
-			// case PRE_SCORE:
-			// 	handlePreScoreState(input);
-			// 	break;
-
 			case ABORT:
 				handleAbortState(input);
 				break;
@@ -164,33 +155,6 @@ public class Superstructure {
 				}
 				return SuperFSMState.IDLE;
 
-			case PRE_CLIMB:
-				if (climberSystem.isClimberExtended()) {
-					return SuperFSMState.IDLE;
-				}
-				if (input.isAbortButtonPressed()) {
-					return SuperFSMState.ABORT;
-				}
-				return SuperFSMState.PRE_CLIMB;
-
-			case CLIMB:
-				if (climberSystem.isClimberClimbed()) {
-					return SuperFSMState.IDLE;
-				}
-				if (input.isAbortButtonPressed()) {
-					return SuperFSMState.ABORT;
-				}
-				return SuperFSMState.CLIMB;
-
-			case RESET_CLIMB:
-				if (climberSystem.isClimberStowed()) {
-					return SuperFSMState.IDLE;
-				}
-				if (input.isAbortButtonPressed()) {
-					return SuperFSMState.ABORT;
-				}
-				return SuperFSMState.RESET_CLIMB;
-
 			case PRE_SCORE:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -226,6 +190,33 @@ public class Superstructure {
 				}
 				return SuperFSMState.SCORE_L4;
 
+			case PRE_CLIMB:
+				if (climberSystem.isClimberExtended()) {
+					return SuperFSMState.IDLE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				return SuperFSMState.PRE_CLIMB;
+
+			case CLIMB:
+				if (climberSystem.isClimberClimbed()) {
+					return SuperFSMState.IDLE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				return SuperFSMState.CLIMB;
+
+			case RESET_CLIMB:
+				if (climberSystem.isClimberStowed()) {
+					return SuperFSMState.IDLE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				return SuperFSMState.RESET_CLIMB;
+
 			case ABORT:
 				if (input.isResetButtonPressed()) {
 					return SuperFSMState.RESET;
@@ -249,6 +240,40 @@ public class Superstructure {
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	/**
+	 * Handle behavior in SCORE_L3.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleScoreL3State(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
+		climberSystem.setState(ClimberFSMState.IDLE);
+
+		if (elevatorSystem.isElevatorAtL3()) {
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		} else {
+			funnelSystem.setState(FunnelFSMState.CLOSED);
+		}
+	}
+
+	/**
+	 * Handle behavior in SCORE_L4.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleScoreL4State(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL4);
+		climberSystem.setState(ClimberFSMState.IDLE);
+
+		if (elevatorSystem.isElevatorAtL4()) {
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		} else {
+			funnelSystem.setState(FunnelFSMState.CLOSED);
+		}
 	}
 
 	/**
@@ -285,40 +310,6 @@ public class Superstructure {
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.STOWED);
-	}
-
-	/**
-	 * Handle behavior in SCORE_L3.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handleScoreL3State(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
-		climberSystem.setState(ClimberFSMState.IDLE);
-
-		if (elevatorSystem.isElevatorAtL3()) {
-			funnelSystem.setState(FunnelFSMState.OUTTAKE);
-		} else {
-			funnelSystem.setState(FunnelFSMState.CLOSED);
-		}
-	}
-
-	/**
-	 * Handle behavior in SCORE_L4.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handleScoreL4State(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.LEVEL4);
-		climberSystem.setState(ClimberFSMState.IDLE);
-
-		if (elevatorSystem.isElevatorAtL4()) {
-			funnelSystem.setState(FunnelFSMState.OUTTAKE);
-		} else {
-			funnelSystem.setState(FunnelFSMState.CLOSED);
-		}
 	}
 
 	/**
