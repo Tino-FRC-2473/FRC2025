@@ -12,6 +12,8 @@ public final class Constants {
 	public static final double FUNNEL_CLOSED_POS_ROTS = 0.4;
 	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0.8;
 
+	public static final double CORAL_SCORE_TIME_SECS = 1.0;
+
 	// PID Constants
 	public static final double CLIMBER_INRANGE_VALUE = 0.5;
 

@@ -1,13 +1,12 @@
 package frc.robot.systems;
 
-import edu.wpi.first.wpilibj.Timer;
-
 // WPILib Imports
 
 // Third party Hardware Imports
 
 // Robot Imports
 import frc.robot.TeleopInput;
+import frc.robot.constants.Constants;
 import frc.robot.systems.ClimberFSMSystem.ClimberFSMState;
 import frc.robot.systems.DriveFSMSystem.DriveFSMState;
 import frc.robot.systems.ElevatorFSMSystem.ElevatorFSMState;
@@ -21,7 +20,6 @@ public class Superstructure {
 		READY_CORAL,
 		PRE_SCORE,
 		SCORE_L2,
-		//score l3, pre climb
 		SCORE_L3,
 		SCORE_L4,
 		POST_SCORE,
@@ -39,9 +37,6 @@ public class Superstructure {
 	private ElevatorFSMSystem elevatorSystem;
 	private DriveFSMSystem driveSystem;
 	private ClimberFSMSystem climberSystem;
-
-	private Timer coralTimer;
-	private boolean hasDroppedCoral;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -63,9 +58,6 @@ public class Superstructure {
 		funnelSystem = funnelFSMSystem;
 		driveSystem = driveFSMSystem;
 		climberSystem = climberFSMSystem;
-
-		coralTimer = new Timer();
-		coralTimer.stop();
 
 		// Reset state machine
 		reset();
@@ -105,11 +97,11 @@ public class Superstructure {
 			case IDLE:
 				handleIdleState(input);
 				break;
+			case SCORE_L3:
+				handleScoreL3State(input);
+				break;
 			case SCORE_L4:
 				handleScoreL4State(input);
-				break;
-			case SCORE_L3:
-				handleL3State(input);
 				break;
 			case PRE_CLIMB:
 				handlePreClimbState(input);
@@ -167,7 +159,8 @@ public class Superstructure {
 				}
 
 			case SCORE_L3:
-				if (!funnelSystem.isHoldingCoral() && funnelSystem.getTime() > 1.0) {
+				if (!funnelSystem.isHoldingCoral()
+					&& (funnelSystem.getTime() > Constants.CORAL_SCORE_TIME_SECS)) {
 					return SuperFSMState.POST_SCORE;
 				}
 
@@ -195,14 +188,12 @@ public class Superstructure {
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
-	private void handleL3State(TeleopInput input) {
+
+	private void handleScoreL3State(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
 		funnelSystem.setState(FunnelFSMState.OUTTAKE);
 		climberSystem.setState(ClimberFSMState.IDLE);
-	}
-	private void handlePreClimbState(TeleopInput input) {
-
 	}
 
 	/**
@@ -220,6 +211,10 @@ public class Superstructure {
 		} else {
 			funnelSystem.setState(FunnelFSMState.CLOSED);
 		}
+	}
+
+	private void handlePreClimbState(TeleopInput input) {
+
 	}
 
 	/**
