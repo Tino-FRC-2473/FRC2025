@@ -101,6 +101,9 @@ public class Superstructure {
 				break;
 			case RAISE_TO_L3:
 				handleRaiseL3State(input);
+			case PRE_SCORE:
+				handlePreScoreState(input);
+				break;
 			case SCORE_L3:
 				handleScoreL3State(input);
 				break;
@@ -116,11 +119,11 @@ public class Superstructure {
 			case RESET_CLIMB:
 				handleResetClimbState(input);
 				break;
-			case PRE_SCORE:
-				handlePreScoreState(input);
-				break;
 			case ABORT:
 				handleAbortState(input);
+				break;
+			case RESET:
+				handleResetState(input);
 				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -234,22 +237,17 @@ public class Superstructure {
 
 				return SuperFSMState.ABORT;
 
+			case RESET:
+				if (climberSystem.isClimberStowed() && elevatorSystem.isElevatorAtGround()) {
+					return SuperFSMState.IDLE;
+				}
+				return SuperFSMState.RESET;
+
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 	}
-	/**
-	 * Handle behavior in PRE_SCORE.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handlePreScoreState(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.ALIGN_TO_REEF_TAG_STATE);
-		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
-		climberSystem.setState(ClimberFSMState.IDLE);
 
-	}
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
 	 * Handle behavior in IDLE.
@@ -259,6 +257,18 @@ public class Superstructure {
 	private void handleIdleState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	/**
+	 * Handle behavior in PRE_SCORE.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handlePreScoreState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
@@ -354,5 +364,17 @@ public class Superstructure {
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	/**
+	 * Handle behavior in RESET.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleResetState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.GROUND);
+		funnelSystem.setState(FunnelFSMState.CLOSED); // TODO: confirm funnel reset pos
+		climberSystem.setState(ClimberFSMState.STOWED);
 	}
 }
