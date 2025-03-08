@@ -96,7 +96,8 @@ public class Superstructure {
 			case IDLE:
 				handleIdleState(input);
 				break;
-
+			case ABORT:
+				handleAbortState(input);
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -125,7 +126,13 @@ public class Superstructure {
 				}
 
 				return SuperFSMState.IDLE;
+			
+			case ABORT:
+				if (input.isResetButtonPressed()) {
+					return SuperFSMState.RESET;
+				}
 
+				return SuperFSMState.ABORT;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -138,6 +145,18 @@ public class Superstructure {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleIdleState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	/**
+	 * Handle behavior in ABORT.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleAbortState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
 		funnelSystem.setState(FunnelFSMState.CLOSED);

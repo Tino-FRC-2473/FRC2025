@@ -185,6 +185,24 @@ public class TeleopInput {
 		return mechController.getL1Button();
 	}
 
+	/**
+	 * Gets the value of the L2 (right bumper) button.
+	 * Intended to signify if the mechanisms should stop moving.
+	 * @return If the L2 button was pressed this tick.
+	 */
+	public boolean isAbortButtonPressed() {
+		return mechController.getL2ButtonPressed();
+	}
+
+	/**
+	 * Gets the value of the L1 (left bumper) button.
+	 * Intended to signify if the mechanisms should reset after an abort.
+	 * @return If the L1 button was pressed this tick.
+	 */
+	public boolean isResetButtonPressed() {
+		return mechController.getL1ButtonPressed();
+	}
+
 	/* ======================== Private methods ======================== */
 
 }
