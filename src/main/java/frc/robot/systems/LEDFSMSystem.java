@@ -155,7 +155,7 @@ public class LEDFSMSystem {
 		}
 		switch (currentState) {
 			case NO_CORAL:
-				if (climberFSMSystem.getCurrentState().equals(ClimberFSMState.AUTOMATIC)) {
+				if (climberFSMSystem.getCurrentState().equals(ClimberFSMState.CLIMB)) {
 					return LEDFSMState.CLIMB;
 				}
 
@@ -178,7 +178,7 @@ public class LEDFSMSystem {
 				return LEDFSMState.NO_CORAL;
 
 			case CLIMB:
-				if (!climberFSMSystem.getCurrentState().equals(ClimberFSMState.AUTOMATIC)) {
+				if (!climberFSMSystem.getCurrentState().equals(ClimberFSMState.CLIMB)) {
 					return LEDFSMState.NO_CORAL;
 				}
 				return LEDFSMState.CLIMB;
