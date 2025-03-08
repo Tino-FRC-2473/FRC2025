@@ -329,38 +329,18 @@ public class DriveFSMSystem extends SubsystemBase {
 					//.rotateBy(Rotation2d.k180deg)
 				);
 
-			Pose2d alignmentPose;
-			if (!Utils.isSimulation()) {
-				alignmentPose = currPose
-					.transformBy(robotToCamera)
-					.plus(new Transform2d(
-						-tag.getZ(),
-						(tag.getX()),
-						new Rotation2d(-tag.getPitch())))
-					.transformBy(robotToCamera.inverse());
-			} else {
-				alignmentPose = currPose
-					.transformBy(robotToCamera)
-					.plus(new Transform2d(
-						tag.getZ(),
-						(tag.getX()),
-						new Rotation2d(-tag.getPitch())))
-					.transformBy(robotToCamera.inverse());
-			}
-
-			aprilTagVisionPoses.add(alignmentPose);
-
-
 			if (!aprilTagPose3d.isEmpty()) {
 				Pose2d imposedPose =
 					aprilTagPose3d.get().toPose2d()
 					.transformBy(
 						new Transform2d(
-							tag.getZ(),
+							-tag.getZ(),
 							tag.getX(),
-							new Rotation2d(tag.getPitch())
+							new Rotation2d()
 						)
-					).transformBy(robotToCamera.inverse());
+					).rotateAround(aprilTagPose3d.get().toPose2d().getTranslation(),
+						new Rotation2d(-tag.getPitch()))
+					.transformBy(robotToCamera.inverse());
 
 				aprilTagReefRefPoses.add(
 					imposedPose
