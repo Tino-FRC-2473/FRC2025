@@ -103,7 +103,12 @@ public class FunnelFSMSystem {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 	}
-	public double getTime(){
+
+	/**
+	 * Returns the funnel timer.
+	 * @return time the funnel has been opened.
+	 */
+	public double getTime() {
 		return funnelClosedTimer.get();
 	}
 
@@ -164,7 +169,6 @@ public class FunnelFSMSystem {
 			timerRunning = true;
 			funnelClosedTimer.reset();
 			funnelClosedTimer.start();
-			
 		}
 
 		if (funnelClosedTimer.get() >= 1) {
@@ -181,7 +185,6 @@ public class FunnelFSMSystem {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 		timerRunning = false;
 	}
-	
 
 	/* ---- Funnel Commands ---- */
 

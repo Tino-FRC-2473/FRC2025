@@ -1,5 +1,7 @@
 package frc.robot.systems;
 
+import edu.wpi.first.wpilibj.Timer;
+
 // WPILib Imports
 
 // Third party Hardware Imports
@@ -38,6 +40,9 @@ public class Superstructure {
 	private DriveFSMSystem driveSystem;
 	private ClimberFSMSystem climberSystem;
 
+	private Timer coralTimer;
+	private boolean hasDroppedCoral;
+
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
 
@@ -58,6 +63,9 @@ public class Superstructure {
 		funnelSystem = funnelFSMSystem;
 		driveSystem = driveFSMSystem;
 		climberSystem = climberFSMSystem;
+
+		coralTimer = new Timer();
+		coralTimer.stop();
 
 		// Reset state machine
 		reset();
@@ -97,13 +105,18 @@ public class Superstructure {
 			case IDLE:
 				handleIdleState(input);
 				break;
+			case SCORE_L4:
+				handleScoreL4State(input);
+				break;
 			case SCORE_L3:
 				handleL3State(input);
+				break;
 			case PRE_CLIMB:
 				handlePreClimbState(input);
 				break;
 			case ABORT:
 				handleAbortState(input);
+				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -126,37 +139,45 @@ public class Superstructure {
 				if (input == null) {
 					return SuperFSMState.IDLE;
 				}
-				if(funnelSystem.isHoldingCoral() && (input.isL2ButtonPressed() || input.isL3ButtonPressed() || input.isL4ButtonPressed())){
+				if (funnelSystem.isHoldingCoral()
+					&& (input.isL2ButtonPressed()
+					|| input.isL3ButtonPressed()
+					|| input.isL4ButtonPressed())) {
 					return SuperFSMState.PRE_SCORE;
 				}
 				return SuperFSMState.IDLE;
 			case PRE_SCORE:
-				if(input == null){
+				if (input == null) {
 					return SuperFSMState.IDLE;
 				}
-				if(funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL2() && driveSystem.isAlignedToTag()){
+				if (funnelSystem.isHoldingCoral()
+					&& elevatorSystem.isElevatorAtL2()
+					&& driveSystem.isAlignedToTag()) {
 					return SuperFSMState.SCORE_L2;
 				}
-				if(funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL3() && driveSystem.isAlignedToTag()){
+				if (funnelSystem.isHoldingCoral()
+					&& elevatorSystem.isElevatorAtL3()
+					&& driveSystem.isAlignedToTag()) {
 					return SuperFSMState.SCORE_L3;
 				}
-				if(funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL4() && driveSystem.isAlignedToTag()){
+				if (funnelSystem.isHoldingCoral()
+					&& elevatorSystem.isElevatorAtL4()
+					&& driveSystem.isAlignedToTag()) {
 					return SuperFSMState.SCORE_L4;
 				}
 
 			case SCORE_L3:
-				if(!funnelSystem.isHoldingCoral() && funnelSystem.getTime() > 1.0){
+				if (!funnelSystem.isHoldingCoral() && funnelSystem.getTime() > 1.0) {
 					return SuperFSMState.POST_SCORE;
 				}
-				
 
-			
 			case ABORT:
 				if (input.isResetButtonPressed()) {
 					return SuperFSMState.RESET;
 				}
 
 				return SuperFSMState.ABORT;
+
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -174,14 +195,31 @@ public class Superstructure {
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
-	private void handleL3State(TeleopInput input){
-			driveSystem.setState(DriveFSMState.TELEOP_STATE);
-			elevatorSystem.setState(ElevatorFSMState.LEVEL3);
-			funnelSystem.setState(FunnelFSMState.OUTTAKE);
-			climberSystem.setState(ClimberFSMState.IDLE);	
+	private void handleL3State(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
+		funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		climberSystem.setState(ClimberFSMState.IDLE);
 	}
-	private void handlePreClimbState(TeleopInput input){
+	private void handlePreClimbState(TeleopInput input) {
 
+	}
+
+	/**
+	 * Handle behavior in SCORE_L4.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleScoreL4State(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL4);
+		climberSystem.setState(ClimberFSMState.IDLE);
+
+		if (elevatorSystem.isElevatorAtL4()) {
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		} else {
+			funnelSystem.setState(FunnelFSMState.CLOSED);
+		}
 	}
 
 	/**
