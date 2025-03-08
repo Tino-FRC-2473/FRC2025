@@ -348,6 +348,14 @@ public class ElevatorFSMSystem {
 		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3);
 	}
 
+	/**
+	 * Is elevator at ground boolean accessor.
+	 * @return whether or not elevator is at L2.
+	 */
+	public boolean isElevatorAtGround() {
+		return isBottomLimitReached();
+	}
+
 	/* ---- Elevator Commands ---- */
 
 	/** Superclass for elevator commands. */
