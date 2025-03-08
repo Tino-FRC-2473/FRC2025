@@ -138,6 +138,7 @@ public class Superstructure {
 					return SuperFSMState.PRE_SCORE;
 				}
 				return SuperFSMState.IDLE;
+			
 			case PRE_SCORE:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -157,12 +158,21 @@ public class Superstructure {
 					&& driveSystem.isAlignedToTag()) {
 					return SuperFSMState.SCORE_L4;
 				}
+				return SuperFSMState.PRE_SCORE;
 
 			case SCORE_L3:
 				if (!funnelSystem.isHoldingCoral()
 					&& (funnelSystem.getTime() > Constants.CORAL_SCORE_TIME_SECS)) {
 					return SuperFSMState.POST_SCORE;
 				}
+				return SuperFSMState.SCORE_L3;
+
+			case SCORE_L4:
+				if (!funnelSystem.isHoldingCoral()
+					&& (funnelSystem.getTime() > Constants.CORAL_SCORE_TIME_SECS)) {
+					return SuperFSMState.POST_SCORE;
+				}
+				return SuperFSMState.SCORE_L4;
 
 			case ABORT:
 				if (input.isResetButtonPressed()) {
@@ -185,6 +195,18 @@ public class Superstructure {
 	private void handleIdleState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	/**
+	 * Handle behavior in PRE_SCORE.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handlePreScoreState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
@@ -225,18 +247,6 @@ public class Superstructure {
 
 	private void handlePreClimbState(TeleopInput input){
 
-	}
-
-	/**
-	 * Handle behavior in PRE_SCORE.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handlePreScoreState(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
-		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
 	/**
