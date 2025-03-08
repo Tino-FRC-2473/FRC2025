@@ -1,5 +1,9 @@
 package frc.robot.systems;
 
+import javax.xml.catalog.GroupEntry.PreferType;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 // WPILib Imports
 
 // Third party Hardware Imports
@@ -131,6 +135,17 @@ public class Superstructure {
 				if (input == null) {
 					return SuperFSMState.IDLE;
 				}
+				if (input.isClimbAdvanceStateButtonPressed()) {
+					if (climberSystem.isClimberStowed()) {
+						return SuperFSMState.PRE_CLIMB;
+					}
+					if (climberSystem.isClimberExtended()) {
+						return SuperFSMState.CLIMB;
+					}
+					if (climberSystem.isClimberClimbed()) {
+						return SuperFSMState.RESET_CLIMB;
+					}
+				}
 				if (funnelSystem.isHoldingCoral()
 					&& (input.isL2ButtonPressed()
 					|| input.isL3ButtonPressed()
@@ -138,6 +153,34 @@ public class Superstructure {
 					return SuperFSMState.PRE_SCORE;
 				}
 				return SuperFSMState.IDLE;
+
+			case PRE_CLIMB:
+				if (climberSystem.isClimberExtended()) {
+					return SuperFSMState.IDLE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				return SuperFSMState.PRE_CLIMB;
+
+			case CLIMB:
+				if (climberSystem.isClimberClimbed()) {
+					return SuperFSMState.IDLE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				return SuperFSMState.CLIMB;
+
+			case RESET_CLIMB:
+				if (climberSystem.isClimberStowed()) {
+					return SuperFSMState.IDLE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				return SuperFSMState.RESET_CLIMB;
+
 			case PRE_SCORE:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -189,6 +232,47 @@ public class Superstructure {
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
+	/**
+	 * Handle behavior in PRE_CLIMB.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handlePreClimbState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.GROUND);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.EXTEND);
+	}
+
+	/**
+	 * Handle behavior in CLIMB.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleClimbState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE); // TODO: change to drive creep forwards
+		elevatorSystem.setState(ElevatorFSMState.GROUND);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.CLIMB);
+	}
+
+	/**
+	 * Handle behavior in RESET_CLIMB.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleResetClimbState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE); // TODO: change to drive creep forwards
+		elevatorSystem.setState(ElevatorFSMState.GROUND);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.STOWED);
+	}
+
+	/**
+	 * Handle behavior in SCORE_L3.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
 	private void handleScoreL3State(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
@@ -211,10 +295,6 @@ public class Superstructure {
 		} else {
 			funnelSystem.setState(FunnelFSMState.CLOSED);
 		}
-	}
-
-	private void handlePreClimbState(TeleopInput input) {
-
 	}
 
 	/**

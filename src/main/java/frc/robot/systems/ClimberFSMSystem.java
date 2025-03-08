@@ -25,7 +25,9 @@ public class ClimberFSMSystem {
 	// FSM state definitions
 	public enum ClimberFSMState {
 		MANUAL,
-		AUTOMATIC,
+		STOWED,
+		EXTEND,
+		CLIMB,
 		IDLE
 	}
 
@@ -111,7 +113,9 @@ public class ClimberFSMSystem {
 				handleIdleState(input);
 				break;
 
-			case AUTOMATIC:
+			case STOWED:
+			case EXTEND:
+			case CLIMB:
 				handleAutomaticState(input);
 				break;
 
@@ -162,7 +166,61 @@ public class ClimberFSMSystem {
 	 * @param state The state to set the FSM to.
 	 */
 	public void setState(ClimberFSMState state) {
+		switch (state) {
+			case STOWED:
+				if (climberMotor.getPosition().getValueAsDouble() < 0) {
+					targetPosition = Constants.CLIMBER_PID_TARGET_LOW;
+				} else {
+					targetPosition = Constants.CLIMBER_PID_TARGET_LOW
+						+ Constants.CLIMBER_COUNTS_PER_REV;
+				}
+				break;
+
+			case EXTEND:
+				targetPosition = Constants.CLIMBER_PID_TARGET_EXTEND;
+				break;
+
+			case CLIMB:
+				targetPosition = Constants.CLIMBER_PID_TARGET_CLIMB;
+				break;
+
+			default:
+				targetPosition = Constants.CLIMBER_PID_TARGET_LOW;
+		}
 		currentState = state;
+	}
+
+	/**
+	 * Indicates whether the climber position is in the range for being STOWED.
+	 * @return if the climber is STOWED
+	 */
+	public boolean isClimberStowed() {
+		return inRange(
+			climberMotor.getPosition().getValueAsDouble(),
+			Constants.CLIMBER_PID_TARGET_LOW,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR);
+	}
+
+	/**
+	 * Indicates whether the climber position is in the range for being EXTENDED.
+	 * @return if the climber is EXTENDED
+	 */
+	public boolean isClimberExtended() {
+		return inRange(
+			climberMotor.getPosition().getValueAsDouble(),
+			Constants.CLIMBER_PID_TARGET_EXTEND,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR);
+	}
+
+	/**
+	 * Indicates whether the climber position is in the range for being CLIMBED.
+	 * @return if the climber is CLIMBED
+	 */
+	public boolean isClimberClimbed() {
+		return inRange(
+			climberMotor.getPosition().getValueAsDouble(),
+			Constants.CLIMBER_PID_TARGET_CLIMB,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR);
 	}
 
 	/* ======================== Private methods ======================== */
