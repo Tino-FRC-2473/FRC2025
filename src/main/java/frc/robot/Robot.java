@@ -299,7 +299,7 @@ public class Robot extends LoggedRobot {
 	public void robotPeriodic() {
 		if (driveSystem != null) {
 			driveSystem.updateLogging();
-			driveSystem.updateVisionEstimates();
+			//driveSystem.updateVisionEstimates();
 		}
 
 		if (funnelSystem != null) {

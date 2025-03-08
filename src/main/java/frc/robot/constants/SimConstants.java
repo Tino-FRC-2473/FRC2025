@@ -93,7 +93,7 @@ public class SimConstants {
 	// Robot to camera transforms - not entirely accurate, but close enough for simulation
 	// (Not used by Limelight, configure in web UI instead)
 	public static final Transform3d ROBOT_TO_REEF_CAMERA =
-		new Transform3d(Units.inchesToMeters(6), -Units.inchesToMeters(8.5),
+		new Transform3d(Units.inchesToMeters(6), -Units.inchesToMeters(6.5),
 		0.4, new Rotation3d(0.0, 0.0, 0.0));
 	public static final Transform3d ROBOT_TO_STATION_CAMERA =
 		new Transform3d(-Units.inchesToMeters(6), -Units.inchesToMeters(8.5),
