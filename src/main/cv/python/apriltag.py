@@ -98,14 +98,10 @@ class AprilTag():
         
         # #print(self.fix_camera_tilt(euler_angles[0]))
         # print("Pitch in radians: ", rvec[1])
-        
-        self.fix_camera_tilt(euler_angles[2], rvec[1])
+        # print("rvec[1]", rvec[1])
+       
         return euler_angles
 
-    def fix_camera_tilt(self, euler_yaw_angle, pitch_angle):
-        robot_yaw = math.atan(math.tan(euler_yaw_angle) * math.cos(pitch_angle))
-        print("Robot yaw value: ", robot_yaw)
-        return robot_yaw
 
     
     # sorts the tags in the list by their hypotenuse (sqrt of x^2 + z^2)
