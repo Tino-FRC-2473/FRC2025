@@ -98,13 +98,10 @@ public class Superstructure {
 				handleIdleState(input);
 				break;
 			case SCORE_L3:
-				handleScoreL3State(input);
+				handleL3State(input);
 				break;
-			case SCORE_L4:
-				handleScoreL4State(input);
-				break;
-			case PRE_CLIMB:
-				handlePreClimbState(input);
+			case PRE_SCORE:
+				handlePreScoreState(input);
 				break;
 			case ABORT:
 				handleAbortState(input);
@@ -188,33 +185,25 @@ public class Superstructure {
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
-
-	private void handleScoreL3State(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
-		funnelSystem.setState(FunnelFSMState.OUTTAKE);
-		climberSystem.setState(ClimberFSMState.IDLE);
+	private void handleL3State(TeleopInput input){
+			driveSystem.setState(DriveFSMState.TELEOP_STATE);
+			elevatorSystem.setState(ElevatorFSMState.LEVEL3);
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+			climberSystem.setState(ClimberFSMState.IDLE);	
 	}
+	private void handlePreClimbState(TeleopInput input){
 
+	}
 	/**
-	 * Handle behavior in SCORE_L4.
+	 * Handle behavior PRE_SCORE state
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleScoreL4State(TeleopInput input) {
+	private void handlePreScoreState(TeleopInput input){
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.LEVEL4);
-		climberSystem.setState(ClimberFSMState.IDLE);
-
-		if (elevatorSystem.isElevatorAtL4()) {
-			funnelSystem.setState(FunnelFSMState.OUTTAKE);
-		} else {
-			funnelSystem.setState(FunnelFSMState.CLOSED);
-		}
-	}
-
-	private void handlePreClimbState(TeleopInput input) {
-
+		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);	
 	}
 
 	/**
