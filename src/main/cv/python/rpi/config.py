@@ -31,7 +31,7 @@ CALIB_WIDTH = 6
 CALIB_HEIGHT = 4
 SQUARE_LENGTH_METERS = 0.017
 
-DATA_COLLECTION_ENABLED = True
+DATA_COLLECTION_ENABLED = False
 DATA_COLLECTION_DIR = 'data_collection' # relative to python files
 DATA_COLLECTION_FPS = 10.0 # since frame rate is not constant, the data collection video is not in real time
 
