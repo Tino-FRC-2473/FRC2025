@@ -10,7 +10,11 @@ state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed <p> Climber 
 state "Abort: <p> Elevator Stop <p> Drive Teleop <p> Funnel Closed <p> Climber Stop" as ABORT
 state "Reset: <p> Elevatoe Ground <p> Drive Teleop <p> Funnel Open <p> Climber Stowed" as RESET
 
-state "Pre Score: <p> Elevator L2 <p> Drive Align to Reef <p> Funnel Closed <p> Climber Idle" as PRE_SCORE
+state "Pre Score: <p> Elevator GROUND <p> Drive Align to Reef <p> Funnel Closed <p> Climber Idle" as PRE_SCORE
+
+state "Raise to L2: <p> Elevator L2 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L2
+state "Raise to L3: <p> Elevator L3 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L3
+state "Raise to L4: <p> Elevator L4 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L4
 
 state "Score L2: <p> Elevator L2 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE_L2
 state "Score L3: <p> Elevator L3 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE_L3
@@ -21,18 +25,6 @@ state "Post Score: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Cl
 state "Pre Climb: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Extend" as PRE_CLIMB
 state "Climbing: <p> Elevator Ground <p> Drive Creep Forward <p> Funnel Closed <p> Climber to CLIMB Pos " as CLIMBING
 state "Reset Climb: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Stowed" as RESET_CLIMB
-
-note left of SCORE_L2
-Will release coral upon reaching target height
-end note
-
-note left of SCORE_L3
-Will release coral upon reaching target height
-end note
-
-note left of SCORE_L4
-Will release coral upon reaching target height
-end note
 
 [*] --> IDLE: start 
 
@@ -62,10 +54,22 @@ RESET_CLIMB --> ABORT: abortButtonPressed
 
 
 %% From Pre Score
-PRE_SCORE --> SCORE_L2: L2ButtonPressed && hasCoral && isDriveAligned
-PRE_SCORE --> SCORE_L3: L3ButtonPressed && hasCoral && isDriveAligned
-PRE_SCORE --> SCORE_L4: L4ButtonPressed && hasCoral && isDriveAligned
+PRE_SCORE --> RAISE_L2: L2ButtonPressed && hasCoral && isDriveAligned
+PRE_SCORE --> RAISE_L3: L3ButtonPressed && hasCoral && isDriveAligned
+PRE_SCORE --> RAISE_L4: L4ButtonPressed && hasCoral && isDriveAligned
 PRE_SCORE --> ABORT: abortButtonPressed
+
+%% From Raise L2
+RAISE_L2 --> SCORE_L2: hasCoral && isElevatorAtL2
+RAISE_L2 --> ABORT: abortButtonPressed
+
+%% From Raise L3
+RAISE_L3 --> SCORE_L3: hasCoral  && isElevatorAtL3
+RAISE_L3 --> ABORT: abortButtonPressed
+
+%% From Raise L4
+RAISE_L4 --> SCORE_L4: hasCoral  && isElevatorAtL4
+RAISE_L4 --> ABORT: abortButtonPressed
 
 %% From Score L2
 SCORE_L2 --> POST_SCORE: !hasCoral && timer > outtakeTimeSecs
