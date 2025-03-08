@@ -100,6 +100,9 @@ public class Superstructure {
 			case SCORE_L3:
 				handleScoreL3State(input);
 				break;
+			case SCORE_L4:
+				handleScoreL4State(input);
+				break;
 			case PRE_SCORE:
 				handlePreScoreState(input);
 				break;
@@ -202,11 +205,30 @@ public class Superstructure {
 			funnelSystem.setState(FunnelFSMState.CLOSED);
 		}
 	}
+
+	/**
+	 * Handle behavior in SCORE_L4.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleScoreL4State(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL4);
+		climberSystem.setState(ClimberFSMState.IDLE);
+
+		if (elevatorSystem.isElevatorAtL4()) {
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+		} else {
+			funnelSystem.setState(FunnelFSMState.CLOSED);
+		}
+	}
+
 	private void handlePreClimbState(TeleopInput input){
 
 	}
+
 	/**
-	 * Handle behavior PRE_SCORE state
+	 * Handle behavior in PRE_SCORE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
@@ -214,7 +236,7 @@ public class Superstructure {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
 		funnelSystem.setState(FunnelFSMState.CLOSED);
-		climberSystem.setState(ClimberFSMState.IDLE);	
+		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
 	/**
