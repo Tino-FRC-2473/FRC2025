@@ -19,6 +19,7 @@ public class Superstructure {
 		READY_CORAL,
 		PRE_SCORE,
 		SCORE_L2,
+		//score l3, pre climb
 		SCORE_L3,
 		SCORE_L4,
 		POST_SCORE,
@@ -96,6 +97,11 @@ public class Superstructure {
 			case IDLE:
 				handleIdleState(input);
 				break;
+			case SCORE_L3:
+				handleL3State(input);
+			case PRE_CLIMB:
+				handlePreClimbState(input);
+				break;
 			case ABORT:
 				handleAbortState(input);
 			default:
@@ -120,12 +126,30 @@ public class Superstructure {
 				if (input == null) {
 					return SuperFSMState.IDLE;
 				}
-
-				if (funnelSystem.isHoldingCoral()) {
-					return SuperFSMState.READY_CORAL;
+				if(funnelSystem.isHoldingCoral() && (input.isL2ButtonPressed() || input.isL3ButtonPressed() || input.isL4ButtonPressed())){
+					return SuperFSMState.PRE_SCORE;
+				}
+				return SuperFSMState.IDLE;
+			case PRE_SCORE:
+				if(input == null){
+					return SuperFSMState.IDLE;
+				}
+				if(funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL2() && driveSystem.isAlignedToTag()){
+					return SuperFSMState.SCORE_L2;
+				}
+				if(funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL3() && driveSystem.isAlignedToTag()){
+					return SuperFSMState.SCORE_L3;
+				}
+				if(funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL4() && driveSystem.isAlignedToTag()){
+					return SuperFSMState.SCORE_L4;
 				}
 
-				return SuperFSMState.IDLE;
+			case SCORE_L3:
+				if(!funnelSystem.isHoldingCoral() && funnelSystem.getTime() > 1.0){
+					return SuperFSMState.POST_SCORE;
+				}
+				
+
 			
 			case ABORT:
 				if (input.isResetButtonPressed()) {
@@ -149,6 +173,15 @@ public class Superstructure {
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
 		funnelSystem.setState(FunnelFSMState.CLOSED);
 		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+	private void handleL3State(TeleopInput input){
+			driveSystem.setState(DriveFSMState.TELEOP_STATE);
+			elevatorSystem.setState(ElevatorFSMState.LEVEL3);
+			funnelSystem.setState(FunnelFSMState.OUTTAKE);
+			climberSystem.setState(ClimberFSMState.IDLE);	
+	}
+	private void handlePreClimbState(TeleopInput input){
+
 	}
 
 	/**

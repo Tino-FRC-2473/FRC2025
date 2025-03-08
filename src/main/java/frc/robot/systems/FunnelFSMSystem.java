@@ -103,6 +103,9 @@ public class FunnelFSMSystem {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 	}
+	public double getTime(){
+		return funnelClosedTimer.get();
+	}
 
 	/**
 	 * Calls all logging and telemetry to be updated periodically.
@@ -161,6 +164,7 @@ public class FunnelFSMSystem {
 			timerRunning = true;
 			funnelClosedTimer.reset();
 			funnelClosedTimer.start();
+			
 		}
 
 		if (funnelClosedTimer.get() >= 1) {
@@ -177,6 +181,7 @@ public class FunnelFSMSystem {
 		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
 		timerRunning = false;
 	}
+	
 
 	/* ---- Funnel Commands ---- */
 
