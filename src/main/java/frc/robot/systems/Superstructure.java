@@ -111,6 +111,8 @@ public class Superstructure {
 			case RESET_CLIMB:
 				handleResetClimbState(input);
 				break;
+			case PRE_SCORE:
+				handlePreScoreState(input);
 			case ABORT:
 				handleAbortState(input);
 				break;
@@ -228,7 +230,17 @@ public class Superstructure {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 	}
-
+	/**
+	 * Handle behavior in PRE_SCORE.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handlePreScoreState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
+	}
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
 	 * Handle behavior in IDLE.
