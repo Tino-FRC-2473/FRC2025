@@ -82,7 +82,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private Translation2d alignmentTranslation2d = null;
 	private double rotationCache2d = 0;
 
-	private Rotation2d rotationAlignmentPose;
+	private Rotation2d rotationAlignmentPose = new Rotation2d();
 
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,

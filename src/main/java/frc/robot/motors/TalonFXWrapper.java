@@ -3,8 +3,12 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
+import org.ironmaple.simulation.motorsims.SimulatedBattery;
+
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.jni.CANBusJNI;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -13,6 +17,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Robot;
 
 public class TalonFXWrapper extends TalonFX implements LoggedMotor {
+
 	private static final double INERTIA_CONSTANT = 0.001;
 
 	// Components
@@ -40,7 +45,7 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 	 * @param motorType the motor type
 	 */
 	public TalonFXWrapper(int deviceId, DCMotor motorType) {
-		this(deviceId, "", motorType);
+		this(deviceId, "rio", motorType);
 	}
 
 	/**
@@ -97,14 +102,6 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 			talonFXSim.setRawRotorPosition(motorSimModel.getAngularPosition());
 			talonFXSim.setRotorVelocity(motorSimModel.getAngularVelocity());
 		}
-	}
-
-	@Override
-	public StatusCode setPosition(double pos) {
-		StatusCode s = super.setPosition(pos);
-		motorSimModel.setAngle(Units.rotationsToRadians(pos));
-		getSimState().setRawRotorPosition(Units.rotationsToRadians(pos));
-		return s;
 	}
 
 	@Override
