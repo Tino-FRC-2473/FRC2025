@@ -138,7 +138,7 @@ public class Superstructure {
 					return SuperFSMState.PRE_SCORE;
 				}
 				return SuperFSMState.IDLE;
-			
+
 			case PRE_SCORE:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -245,7 +245,7 @@ public class Superstructure {
 		}
 	}
 
-	private void handlePreClimbState(TeleopInput input){
+	private void handlePreClimbState(TeleopInput input) {
 
 	}
 
