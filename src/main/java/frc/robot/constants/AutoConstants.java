@@ -42,7 +42,10 @@ public class AutoConstants {
 
 	public static final double ALIGN_DRIVE_P = 1.5;
 	public static final double ALIGN_THETA_P = 0.8;
-	public static final double ALIGN_MAX_R_ACCEL = 4.8;
+	public static final double ALIGN_MAX_T_SPEED = 3.0;
+	public static final double ALIGN_MAX_T_ACCEL = 1.5;
+	public static final double ALIGN_MAX_R_SPEED = Math.PI * 0.6;
+	public static final double ALIGN_MAX_R_ACCEL = Math.PI * 0.3;
 	public static final double FF_MIN_RADIUS = 0.2;
 	public static final double FF_MAX_RADIUS = 0.8;
 
