@@ -10,13 +10,13 @@ state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed <p> Climber 
 state "Abort: <p> Elevator Stop <p> Drive Teleop <p> Funnel Closed <p> Climber Stop" as ABORT
 state "Reset: <p> Elevatoe Ground <p> Drive Teleop <p> Funnel Open <p> Climber Stowed" as RESET
 
-state "Pre Score: <p> Elevator GROUND <p> Drive Align to Reef <p> Funnel Closed <p> Climber Idle" as PRE_SCORE
+state "Pre Score: <p> Elevator Ground <p> Drive Align to Reef <p> Funnel Closed <p> Climber Idle" as PRE_SCORE
 
 state "Raise to L2: <p> Elevator L2 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L2
 state "Raise to L3: <p> Elevator L3 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L3
 state "Raise to L4: <p> Elevator L4 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L4
 
-state "Score Coral: <p> Elevator L2 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE
+state "Score Coral: <p> Elevator Manual <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE
 
 state "Post Score: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as POST_SCORE
 
