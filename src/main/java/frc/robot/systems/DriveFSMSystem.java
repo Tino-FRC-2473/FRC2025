@@ -321,12 +321,12 @@ public class DriveFSMSystem extends SubsystemBase {
 
 			Transform2d robotToCamera =
 				new Transform2d(
-					SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
+					-SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
 						// - if u use pose rotation.
 					-SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
 						// - if u use pose rotation.
 					SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
-					.rotateBy(Rotation2d.k180deg)
+					//.rotateBy(Rotation2d.k180deg)
 				);
 
 			if (!aprilTagPose3d.isEmpty()) {
