@@ -1,7 +1,5 @@
 package frc.robot.systems;
 
-
-
 // WPILib Imports
 
 // Third party Hardware Imports
@@ -53,9 +51,6 @@ public class ElevatorFSMSystem {
 	// be private to their owner system and may not be used elsewhere.
 	private TalonFX elevatorMotor;
 	private DigitalInput groundLimitSwitch;
-
-	private FunnelFSMSystem funnelSystem; // only used for break beamo
-	private DriveFSMSystem driveSystem;
 
 	/* ======================== Constructor ======================== */
 
@@ -125,8 +120,6 @@ public class ElevatorFSMSystem {
 		// Reset state machine
 
 		elevatorMotor.setPosition(0);
-
-		this.funnelSystem = funnelFSMSystem;
 
 		reset();
 	}
