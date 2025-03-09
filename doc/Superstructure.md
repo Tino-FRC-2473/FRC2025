@@ -16,9 +16,7 @@ state "Raise to L2: <p> Elevator L2 <p> Drive Brake <p> Funnel Closed <p> Climbe
 state "Raise to L3: <p> Elevator L3 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L3
 state "Raise to L4: <p> Elevator L4 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L4
 
-state "Score L2: <p> Elevator L2 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE_L2
-state "Score L3: <p> Elevator L3 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE_L3
-state "Score L4: <p> Elevator L4 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE_L4
+state "Score Coral: <p> Elevator L2 <p> Drive Brake <p> Funnel Open <p> Climber Idle" as SCORE
 
 state "Post Score: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as POST_SCORE
 
@@ -60,28 +58,20 @@ PRE_SCORE --> RAISE_L4: L4ButtonPressed && hasCoral && isDriveAligned
 PRE_SCORE --> ABORT: abortButtonPressed
 
 %% From Raise L2
-RAISE_L2 --> SCORE_L2: hasCoral && isElevatorAtL2
+RAISE_L2 --> SCORE: hasCoral && isElevatorAtL2
 RAISE_L2 --> ABORT: abortButtonPressed
 
 %% From Raise L3
-RAISE_L3 --> SCORE_L3: hasCoral  && isElevatorAtL3
+RAISE_L3 --> SCORE: hasCoral  && isElevatorAtL3
 RAISE_L3 --> ABORT: abortButtonPressed
 
 %% From Raise L4
-RAISE_L4 --> SCORE_L4: hasCoral  && isElevatorAtL4
+RAISE_L4 --> SCORE: hasCoral  && isElevatorAtL4
 RAISE_L4 --> ABORT: abortButtonPressed
 
-%% From Score L2
-SCORE_L2 --> POST_SCORE: !hasCoral && timer > outtakeTimeSecs
-SCORE_L2 --> ABORT: abortButtonPressed
-
-%% From Score L3
-SCORE_L3 --> POST_SCORE: !hasCoral && timer > outtakeTimeSecs
-SCORE_L3 --> ABORT: abortButtonPressed
-
-%% From Score L4
-SCORE_L4 --> POST_SCORE: !hasCoral && timer > outtakeTimeSecs
-SCORE_L4 --> ABORT: abortButtonPressed
+%% From Score
+SCORE --> POST_SCORE: !hasCoral && timer > outtakeTimeSecs
+SCORE --> ABORT: abortButtonPressed
 
 %% From Post Score
 POST_SCORE --> IDLE: isElevatorAtGround
