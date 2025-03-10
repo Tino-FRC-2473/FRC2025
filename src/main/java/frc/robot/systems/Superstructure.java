@@ -166,6 +166,9 @@ public class Superstructure {
 				return SuperFSMState.IDLE;
 
 			case PRE_SCORE:
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
 				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
 					if (input.isL2ButtonPressed()) {
 						return SuperFSMState.RAISE_TO_L2;
@@ -188,6 +191,9 @@ public class Superstructure {
 				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL3()) {
 					return SuperFSMState.SCORE;
 				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
 				return SuperFSMState.RAISE_TO_L3;
 
 			case RAISE_TO_L4:
@@ -197,12 +203,18 @@ public class Superstructure {
 				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL3()) {
 					return SuperFSMState.SCORE;
 				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
 				return SuperFSMState.RAISE_TO_L4;
 
 			case SCORE:
 				if (!funnelSystem.isHoldingCoral()
 					&& (funnelSystem.getTime() > Constants.CORAL_SCORE_TIME_SECS)) {
 					return SuperFSMState.POST_SCORE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.SCORE;
 
