@@ -34,8 +34,8 @@ camera2 = CameraServer.startAutomaticCapture(name2, index2)
 camera1.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
 camera2.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
 
-camera1.setFPS(10)
-camera2.setFPS(10)
+camera1.setFPS(DRIVER_CAM_FPS)
+camera2.setFPS(DRIVER_CAM_FPS)
 
 table1 = inst.getTable(f"CameraPublisher/{name1}")
 table2 = inst.getTable(f"CameraPublisher/{name2}")
