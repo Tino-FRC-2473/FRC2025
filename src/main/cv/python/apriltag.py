@@ -57,6 +57,7 @@ class AprilTag():
 
                 pose_list.extend(tvec)
                 euler_rvec = self.rotation_vector_to_euler_angles(rvec)
+                print("robot yaw", tvec)
                 pose_list.extend(euler_rvec)
                 
                 # print("euler_rvec: ", euler_rvec)
@@ -64,6 +65,7 @@ class AprilTag():
         pose_list = self.sort_tags_distance(pose_list)
 
         return pose_list
+    
     
     def estimate_pose_single_marker(self, corners, marker_size, camera_matrix, dist_coeffs):
         try:
@@ -99,9 +101,8 @@ class AprilTag():
         # #print(self.fix_camera_tilt(euler_angles[0]))
         # print("Pitch in radians: ", rvec[1])
         # print("rvec[1]", rvec[1])
-       
-        return euler_angles
 
+        return euler_angles
 
     
     # sorts the tags in the list by their hypotenuse (sqrt of x^2 + z^2)
