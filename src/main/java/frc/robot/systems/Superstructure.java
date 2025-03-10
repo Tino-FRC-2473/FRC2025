@@ -100,11 +100,17 @@ public class Superstructure {
 			case PRE_SCORE:
 				handlePreScoreState(input);
 				break;
+			case RAISE_TO_L2:
+				handleRaiseL2State(input);
+				break;
 			case RAISE_TO_L3:
 				handleRaiseL3State(input);
 				break;
 			case RAISE_TO_L4:
 				handleRaiseL4State(input);
+				break;
+			case POST_SCORE:
+				handlePostScoreState(input);
 				break;
 			case SCORE:
 				handleScoreCoralState(input);
@@ -183,7 +189,19 @@ public class Superstructure {
 					}
 				}
 				return SuperFSMState.PRE_SCORE;
-
+			
+			case RAISE_TO_L2:
+				if (input == null) {
+					return SuperFSMState.IDLE;
+				}
+				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL2()) {
+					return SuperFSMState.SCORE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				return SuperFSMState.RAISE_TO_L2;
+			
 			case RAISE_TO_L3:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -217,6 +235,15 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.SCORE;
+			
+			case POST_SCORE:
+				if (!funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtGround()) {
+					return SuperFSMState.IDLE;
+				}
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				return SuperFSMState.POST_SCORE;
 
 			case PRE_CLIMB:
 				if (climberSystem.isClimberExtended()) {
@@ -289,6 +316,18 @@ public class Superstructure {
 	}
 
 	/**
+	 * Handle behavior in RAISE_L2.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleRaiseL2State(TeleopInput input) {
+		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	/**
 	 * Handle behavior in RAISE_L3.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
@@ -327,6 +366,18 @@ public class Superstructure {
 		} else {
 			funnelSystem.setState(FunnelFSMState.CLOSED);
 		}
+	}
+
+	/**
+	 * Handle behavior in POST_SCORE.
+	 * @param input Global TeleopInput if robot is in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handlePostScoreState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE); 
+		elevatorSystem.setState(ElevatorFSMState.GROUND);  
+		funnelSystem.setState(FunnelFSMState.CLOSED);  
+		climberSystem.setState(ClimberFSMState.IDLE);  
 	}
 
 	/**
