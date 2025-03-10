@@ -98,9 +98,7 @@ class AprilTag():
         # print("Euler y angle: ", euler_angles[1])
         # print("Euler z angle: ", euler_angles[2])
         
-        # #print(self.fix_camera_tilt(euler_angles[0]))
-        # print("Pitch in radians: ", rvec[1])
-        # print("rvec[1]", rvec[1])
+
 
         return euler_angles
 
