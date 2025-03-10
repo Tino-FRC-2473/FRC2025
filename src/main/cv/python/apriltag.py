@@ -99,7 +99,6 @@ class AprilTag():
         # print("Euler z angle: ", euler_angles[2])
         
 
-
         return euler_angles
 
     
