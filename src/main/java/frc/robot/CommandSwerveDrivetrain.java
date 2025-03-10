@@ -165,10 +165,10 @@ public class CommandSwerveDrivetrain extends
 	}
 
 	/**
-	 * Return the chassis speeds of the drivetrain.
-	 * @return chassis speeds
+	 * Return the chassis speeds of the drivetrain relative to the robot.
+	 * @return chassis speeds relative to robot
 	 */
-	public ChassisSpeeds getRobotChassisSpeeds() {
+	public ChassisSpeeds getRobotRelativeChassisSpeeds() {
 		if (Robot.isSimulation()) {
 			return getSimDrivetrain().getDriveSimulation()
 				.getDriveTrainSimulatedChassisSpeedsRobotRelative();
@@ -176,4 +176,23 @@ public class CommandSwerveDrivetrain extends
 			return getState().Speeds;
 		}
 	}
+
+	/**
+	 * Get the chassis speeds of the drivetrain relative to the field.
+	 * @return chassis speeds relative to field
+	 */
+	public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+		if (Robot.isSimulation()) {
+			return getSimDrivetrain().getDriveSimulation()
+				.getDriveTrainSimulatedChassisSpeedsFieldRelative();
+		} else {
+			// Converts robot relative speeds to field relative
+			// TODO: Determine if getState().Speeds is robot relative or field relative
+			return ChassisSpeeds.fromRobotRelativeSpeeds(
+				getState().Speeds,
+				getPigeon2().getRotation2d()
+			);
+		}
+	}
+
 }
