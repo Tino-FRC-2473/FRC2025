@@ -227,6 +227,39 @@ public class ClimberFSMSystem {
 	}
 
 	/* ======================== Private methods ======================== */
+	/**
+ 	 * Decide the next state to transition to. This is a function of the inputs
+ 	 * and the current state of this FSM. This method should not have any side
+ 	 * effects on outputs. In other words, this method should only read or get
+ 	 * values to decide what state to go to.
+ 	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *	   the robot is in autonomous mode.
+ 	 * @return FSM state for the next iteration
+ 	 * @deprecated Will be removed after superstructure impl.
+ 	 */
+	private ClimberFSMState nextState(TeleopInput input) {
+		switch (currentState) {
+			case IDLE:
+				// copies MANUAL's state transitions
+			case MANUAL:
+				if (input.isClimbAdvanceStateButtonPressed()) {
+					return ClimberFSMState.CLIMB;
+				}
+				if (input.isClimbManualButtonPressed()) {
+					return ClimberFSMState.MANUAL;
+				}
+				return ClimberFSMState.IDLE;
+			case CLIMB:
+				if (input.isClimbManualButtonPressed() || climberPosSignal.getValueAsDouble()
+					% Constants.CLIMBER_COUNTS_PER_REV > targetPosition
+					|| isLimitSwitchPressed()) {
+					return ClimberFSMState.IDLE;
+				}
+				return ClimberFSMState.CLIMB;
+			default:
+				throw new UnsupportedOperationException("Invalid State");
+		}
+	}
 
 	/**
 	 * returns if a value is within a margin of a target.
