@@ -59,6 +59,9 @@ class AprilTag():
                 euler_rvec = self.rotation_vector_to_euler_angles(rvec)
                 print("robot yaw", tvec)
                 pose_list.extend(euler_rvec)
+
+                if(self.cam_name == "source"):
+                    self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
                 
                 # print("euler_rvec: ", euler_rvec)
         
