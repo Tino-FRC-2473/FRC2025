@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 // WPILib Imports
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -55,7 +56,13 @@ public class ClimberFSMSystem {
 		climberMotor = new TalonFXWrapper(
 			HardwareMap.CAN_ID_CLIMBER
 		);
-		climberMotor.setNeutralMode(NeutralModeValue.Brake);
+
+		var talonFXConfigs = new TalonFXConfiguration();
+
+		var outputConfigs = talonFXConfigs.MotorOutput;
+		outputConfigs.NeutralMode = NeutralModeValue.Brake;
+
+		climberMotor.getConfigurator().apply(talonFXConfigs);
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
 			Constants.UPDATE_FREQUENCY_HZ,
