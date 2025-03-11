@@ -116,6 +116,39 @@ public class TeleopInput {
 		return driveController.getShareButton();
 	}
 
+	/* ------------------------ Superstructure Drive Controller ------------------------ */
+	/**
+	 * Get the value of the source elevator target button (square).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL2ButtonPressed() {
+		return driveController.getSquareButton();
+	}
+
+	/**
+	 * Get the value of the L4 elevator target button (triangle).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL4ButtonPressed() {
+		return driveController.getTriangleButton();
+	}
+
+	/**
+	 * Get the value of the ground elevator target button (cross).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperGroundButtonPressed() {
+		return driveController.getCrossButton();
+	}
+
+	/**
+	 * Get the value of the L3 elevator target button (circle).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL3ButtonPressed() {
+		return driveController.getCircleButton();
+	}
+
 	/* ------------------------ Mech Controller ------------------------ */
 
 	/**

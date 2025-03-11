@@ -180,9 +180,9 @@ public class Superstructure {
 					}
 				}
 				if (input != null && funnelSystem.isHoldingCoral()
-					&& (input.isL2ButtonPressed()
-					|| input.isL3ButtonPressed()
-					|| input.isL4ButtonPressed())) {
+					&& (input.isSuperL2ButtonPressed()
+					|| input.isSuperL3ButtonPressed()
+					|| input.isSuperL4ButtonPressed())) {
 					return SuperFSMState.PRE_SCORE;
 				}
 				return SuperFSMState.IDLE;
@@ -191,15 +191,15 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
-					if (input.isL2ButtonPressed()) {
+					if (input.isSuperL2ButtonPressed()) {
 						return SuperFSMState.RAISE_TO_L2;
 					}
 
-					if (input.isL3ButtonPressed()) {
+					if (input.isSuperL3ButtonPressed()) {
 						return SuperFSMState.RAISE_TO_L3;
 					}
 
-					if (input.isL4ButtonPressed()) {
+					if (input.isSuperL4ButtonPressed()) {
 						return SuperFSMState.RAISE_TO_L4;
 					}
 				}
@@ -252,8 +252,8 @@ public class Superstructure {
 				return SuperFSMState.SCORE;
 			case HAS_CORAL:
 				if (funnelSystem.isHoldingCoral() && (
-					input.isL2ButtonPressed()
-					|| input.isL3ButtonPressed() || input.isL4ButtonPressed())) {
+					input.isSuperL2ButtonPressed()
+					|| input.isSuperL3ButtonPressed() || input.isSuperL4ButtonPressed())) {
 					return SuperFSMState.PRE_SCORE;
 				}
 				if (!funnelSystem.isHoldingCoral()) {
