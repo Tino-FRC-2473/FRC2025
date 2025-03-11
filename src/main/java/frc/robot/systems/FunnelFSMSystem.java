@@ -42,7 +42,7 @@ public class FunnelFSMSystem {
 
 	private DigitalInput coralBreakBeam;
 	private boolean timerRunning;
-	private Timer funnelClosedTimer = new Timer();
+	private Timer outtakeTimer = new Timer();
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -131,11 +131,11 @@ public class FunnelFSMSystem {
 	}
 
 	/**
-	 * Returns the funnel timer.
-	 * @return time the funnel has been opened.
+	 * Returns the funnel outtake timer value.
+	 * @return amount of time the funnel has been opened.
 	 */
-	public double getTime() {
-		return funnelClosedTimer.get();
+	public double getOuttakeTimeElapsed() {
+		return outtakeTimer.get();
 	}
 
 	/**
@@ -235,11 +235,11 @@ public class FunnelFSMSystem {
 
 		if (!timerRunning) {
 			timerRunning = true;
-			funnelClosedTimer.reset();
-			funnelClosedTimer.start();
+			outtakeTimer.reset();
+			outtakeTimer.start();
 		}
 
-		if (funnelClosedTimer.get() >= 1) {
+		if (outtakeTimer.get() >= 1) {
 			outtakeServo.set(Constants.OUTTAKE_OPEN_POS_ROTS);
 		}
 	}
@@ -259,66 +259,52 @@ public class FunnelFSMSystem {
 
 	/** A command that opens the funnel servo. */
 	class IntakeCoralCommand extends Command {
-
-		private Timer timer;
-
-		IntakeCoralCommand() {
-			timer = new Timer();
-		}
-
-		@Override
-		public void initialize() {
-			timer.reset();
-			timer.start();
-		}
-
 		@Override
 		public void execute() {
+			intakeMotor.setVoltage(Constants.INTAKE_VOLTAGE);
 			outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 		}
 
 		@Override
 		public boolean isFinished() {
 			return isHoldingCoral();
-			// return timer.get() > Constants.FUNNEL_INOUT_TIME_SECS || isHoldingCoral();
 		}
 
 		@Override
 		public void end(boolean interrupted) {
-			timer.stop();
-			timer.reset();
+			intakeMotor.setVoltage(0);
 		}
 	}
 
 	/** A command that closes the funnel servo. */
 	class OuttakeCoralCommand extends Command {
-		private Timer timer;
+		private Timer autoOuttakeTimer;
 
 		OuttakeCoralCommand() {
-			timer = new Timer();
+			autoOuttakeTimer = new Timer();
 		}
 
 		public void initialize() {
-			timer.reset();
+			autoOuttakeTimer.reset();
 		}
 
 		@Override
 		public void execute() {
+			intakeMotor.setVoltage(0);
 			outtakeServo.set(Constants.OUTTAKE_OPEN_POS_ROTS);
 		}
 
 		@Override
 		public boolean isFinished() {
-			//return true;
-			return timer.get() >= Constants.FUNNEL_INOUT_REAL_TIME_SECS;
-			// return !isHoldingCoral();
+			return autoOuttakeTimer.get() >= Constants.FUNNEL_INOUT_REAL_TIME_SECS;
 		}
 
 		@Override
 		public void end(boolean interrupted) {
+			intakeMotor.setVoltage(0);
 			outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
-			timer.stop();
-			timer.reset();
+			autoOuttakeTimer.stop();
+			autoOuttakeTimer.reset();
 		}
 	}
 

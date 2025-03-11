@@ -238,7 +238,7 @@ public class Superstructure {
 				return SuperFSMState.RAISE_TO_L4;
 			case SCORE:
 				if (!funnelSystem.isHoldingCoral()
-					&& (funnelSystem.getTime() > Constants.CORAL_SCORE_TIME_SECS)) {
+					&& (funnelSystem.getOuttakeTimeElapsed() > Constants.CORAL_SCORE_TIME_SECS)) {
 					return SuperFSMState.POST_SCORE;
 				}
 				if (input.isAbortButtonPressed()) {
