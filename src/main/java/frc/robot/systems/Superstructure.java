@@ -189,7 +189,7 @@ public class Superstructure {
 					}
 				}
 				return SuperFSMState.PRE_SCORE;
-			
+
 			case RAISE_TO_L2:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -201,7 +201,7 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.RAISE_TO_L2;
-			
+
 			case RAISE_TO_L3:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -235,7 +235,7 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.SCORE;
-			
+
 			case POST_SCORE:
 				if (!funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtGround()) {
 					return SuperFSMState.IDLE;
@@ -374,10 +374,10 @@ public class Superstructure {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handlePostScoreState(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE); 
-		elevatorSystem.setState(ElevatorFSMState.GROUND);  
-		funnelSystem.setState(FunnelFSMState.CLOSED);  
-		climberSystem.setState(ClimberFSMState.IDLE);  
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.GROUND);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
 	/**
