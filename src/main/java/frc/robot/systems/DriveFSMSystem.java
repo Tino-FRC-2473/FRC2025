@@ -310,7 +310,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 * @return FSM state for the next iteration
-	 * @deprecated Will be removed after superstructure impl.
 	 */
 	private DriveFSMState nextState(TeleopInput input) {
 

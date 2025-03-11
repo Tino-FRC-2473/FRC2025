@@ -46,13 +46,15 @@ public class ClimberFSMSystem {
 
 	/* ======================== Constructor ======================== */
 	/**
-	 * Create Mech1FSMSystem and initialize to starting state. Also perform any
+	 * Create ClimberFSMSystem and initialize to starting state. Also perform any
 	 * one-time initialization or configuration of hardware required. Note
 	 * the constructor is called only once when the robot boots.
 	 */
 	public ClimberFSMSystem() {
 		// Perform hardware init
-		climberMotor = new TalonFXWrapper(HardwareMap.CAN_ID_CLIMBER);
+		climberMotor = new TalonFXWrapper(
+			HardwareMap.CAN_ID_CLIMBER
+		);
 		climberMotor.setNeutralMode(NeutralModeValue.Brake);
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
@@ -186,6 +188,7 @@ public class ClimberFSMSystem {
 
 			default:
 				targetPosition = Constants.CLIMBER_PID_TARGET_LOW;
+				break;
 		}
 		currentState = state;
 	}
@@ -224,6 +227,39 @@ public class ClimberFSMSystem {
 	}
 
 	/* ======================== Private methods ======================== */
+	/**
+ 	 * Decide the next state to transition to. This is a function of the inputs
+ 	 * and the current state of this FSM. This method should not have any side
+ 	 * effects on outputs. In other words, this method should only read or get
+ 	 * values to decide what state to go to.
+ 	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *	   the robot is in autonomous mode.
+ 	 * @return FSM state for the next iteration
+ 	 * @deprecated Will be removed after superstructure impl.
+ 	 */
+	private ClimberFSMState nextState(TeleopInput input) {
+		switch (currentState) {
+			case IDLE:
+				// copies MANUAL's state transitions
+			case MANUAL:
+				if (input.isClimbAdvanceStateButtonPressed()) {
+					return ClimberFSMState.CLIMB;
+				}
+				if (input.isClimbManualButtonPressed()) {
+					return ClimberFSMState.MANUAL;
+				}
+				return ClimberFSMState.IDLE;
+			case CLIMB:
+				if (input.isClimbManualButtonPressed() || climberPosSignal.getValueAsDouble()
+					% Constants.CLIMBER_COUNTS_PER_REV > targetPosition
+					|| isLimitSwitchPressed()) {
+					return ClimberFSMState.IDLE;
+				}
+				return ClimberFSMState.CLIMB;
+			default:
+				throw new UnsupportedOperationException("Invalid State");
+		}
+	}
 
 	/**
 	 * returns if a value is within a margin of a target.
@@ -280,11 +316,19 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleAutomaticState(TeleopInput input) {
-		climberMotor.set(
-			targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
-			? Constants.CLIMB_REDUCED_POWER
-			: Constants.CLIMB_POWER
-		);
+		if (
+			!inRange(
+					climberMotor.getPosition().getValueAsDouble(),
+					targetPosition,
+					Constants.CLIMBER_PID_MARGIN_OF_ERROR)) {
+			climberMotor.set(
+				targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
+				? Constants.CLIMB_REDUCED_POWER
+				: Constants.CLIMB_POWER
+			);
+		} else {
+			climberMotor.set(0);
+		}
 	}
 
 	/**

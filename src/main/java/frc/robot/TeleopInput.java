@@ -181,7 +181,7 @@ public class TeleopInput {
 	 * Intended to signify when the climber should go to the next state.
 	 * @return If the L1 button was pressed this tick
 	 */
-	public boolean isFunnelButtonPressed() {
+	public boolean isOuttakeButtonPressed() {
 		return mechController.getL1Button();
 	}
 
