@@ -8,7 +8,7 @@ title: Superstructure State Diagram
 stateDiagram-v2
 state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as IDLE
 state "Abort: <p> Elevator Stop <p> Drive Teleop <p> Funnel Closed <p> Climber Stop" as ABORT
-state "Reset: <p> Elevatoe Ground <p> Drive Teleop <p> Funnel Open <p> Climber Stowed" as RESET
+state "Reset: <p> Elevator Ground <p> Drive Teleop <p> Funnel Open <p> Climber Stowed" as RESET
 
 state "Pre Score: <p> Elevator Ground <p> Drive Align to Reef <p> Funnel Closed <p> Climber Idle" as PRE_SCORE
 
@@ -22,6 +22,7 @@ state "Post Score: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Cl
 
 state "Pre Climb: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Extend" as PRE_CLIMB
 state "Climbing: <p> Elevator Ground <p> Drive Creep Forward <p> Funnel Closed <p> Climber to CLIMB Pos " as CLIMBING
+state "Has Coral: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as HAS_CORAL
 state "Reset Climb: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Stowed" as RESET_CLIMB
 
 [*] --> IDLE: start 
@@ -30,7 +31,7 @@ state "Reset Climb: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> C
 IDLE --> PRE_CLIMB : climbButtonPressed && isClimberStowed
 IDLE --> CLIMBING : climbButtonPressed && isClimberExtended
 IDLE --> RESET_CLIMB : climbButtonPressed && isAtClimbPos
-IDLE --> PRE_SCORE: hasCoral && (L2ButtonPressed || L3ButtonPressed || L4ButtonPressed)
+IDLE --> HAS_CORAL: hasCoral
 
 %% From Abort
 ABORT --> RESET: resetButtonPressed
@@ -50,7 +51,9 @@ CLIMBING --> ABORT: abortButtonPressed
 RESET_CLIMB --> IDLE : isClimberStowed
 RESET_CLIMB --> ABORT: abortButtonPressed
 
-
+%% From Has Coral
+HAS_CORAL --> PRE_SCORE: hasCoral && (L2ButtonPressed || L3ButtonPressed || L4ButtonPressed)
+HAS_CORAL --> IDLE: !hasCoral
 %% From Pre Score
 PRE_SCORE --> RAISE_L2: L2ButtonPressed && hasCoral && isDriveAligned
 PRE_SCORE --> RAISE_L3: L3ButtonPressed && hasCoral && isDriveAligned
@@ -70,10 +73,9 @@ RAISE_L4 --> SCORE: hasCoral  && isElevatorAtL4
 RAISE_L4 --> ABORT: abortButtonPressed
 
 %% From Score
-SCORE --> POST_SCORE: !hasCoral && timer > outtakeTimeSecs
+SCORE --> POST_SCORE:timer > outtakeTimeSecs
 SCORE --> ABORT: abortButtonPressed
 
 %% From Post Score
 POST_SCORE --> IDLE: isElevatorAtGround
 POST_SCORE --> ABORT: abortButtonPressed
-```

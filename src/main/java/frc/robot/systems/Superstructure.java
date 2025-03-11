@@ -22,6 +22,7 @@ public class Superstructure {
 		RAISE_TO_L2,
 		RAISE_TO_L3,
 		RAISE_TO_L4,
+		HAS_CORAL,
 		POST_SCORE,
 		PRE_CLIMB,
 		CLIMB,
@@ -124,6 +125,9 @@ public class Superstructure {
 			case RESET_CLIMB:
 				handleResetClimbState(input);
 				break;
+			case HAS_CORAL:
+				handleHasCoralState(input);
+				break;
 			case ABORT:
 				handleAbortState(input);
 				break;
@@ -163,14 +167,10 @@ public class Superstructure {
 						return SuperFSMState.RESET_CLIMB;
 					}
 				}
-				if (funnelSystem.isHoldingCoral()
-					&& (input.isL2ButtonPressed()
-					|| input.isL3ButtonPressed()
-					|| input.isL4ButtonPressed())) {
-					return SuperFSMState.PRE_SCORE;
+				if (funnelSystem.isHoldingCoral()){
+					return SuperFSMState.HAS_CORAL;
 				}
 				return SuperFSMState.IDLE;
-
 			case PRE_SCORE:
 				if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
@@ -235,6 +235,15 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.SCORE;
+			case HAS_CORAL:
+				if (funnelSystem.isHoldingCoral() && (
+					input.isL2ButtonPressed()
+					|| input.isL3ButtonPressed() || input.isL4ButtonPressed())) {
+					return SuperFSMState.PRE_SCORE;
+				}
+				if (!funnelSystem.isHoldingCoral()) {
+					return SuperFSMState.IDLE;
+				}
 
 			case POST_SCORE:
 				if (!funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtGround()) {
@@ -438,5 +447,16 @@ public class Superstructure {
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
 		funnelSystem.setState(FunnelFSMState.CLOSED); // TODO: confirm funnel reset pos
 		climberSystem.setState(ClimberFSMState.STOWED);
+	}
+	/**.
+	 * Handle behavior in HAS_CORAL
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleHasCoralState(TeleopInput input){
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.GROUND);
+		funnelSystem.setState(FunnelFSMState.CLOSED);
+		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 }
