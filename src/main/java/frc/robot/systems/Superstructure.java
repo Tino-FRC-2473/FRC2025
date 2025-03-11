@@ -161,8 +161,8 @@ public class Superstructure {
 	 * @return FSM state for the next iteration
 	 */
 	private SuperFSMState nextState(TeleopInput input) {
-		if (input != null && input.isManualButtonPressed()
-				&& currentState != SuperFSMState.MANUAL) {
+		if (currentState != SuperFSMState.MANUAL && input != null
+				&& input.isManualButtonPressed()) {
 			return SuperFSMState.MANUAL;
 		}
 		switch (currentState) {

@@ -8,6 +8,7 @@ title: Superstructure State Diagram
 stateDiagram-v2
 state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as IDLE
 state "Abort: <p> Elevator Stop <p> Drive Teleop <p> Funnel Closed <p> Climber Stop" as ABORT
+state "Manual: <p> Elevator Manual <p> Drive Teleop <p> Funnel Manual <p> Climber Manual" as MANUAL
 state "Reset: <p> Elevator Ground <p> Drive Teleop <p> Funnel Open <p> Climber Stowed" as RESET
 
 state "Pre Score: <p> Elevator Ground <p> Drive Align to Reef <p> Funnel Closed <p> Climber Idle" as PRE_SCORE
@@ -32,9 +33,13 @@ IDLE --> PRE_CLIMB : climbButtonPressed && isClimberStowed
 IDLE --> CLIMBING : climbButtonPressed && isClimberExtended
 IDLE --> RESET_CLIMB : climbButtonPressed && isAtClimbPos
 IDLE --> HAS_CORAL: hasCoral
+IDLE --> MANUAL: manualButtonPressed
 
 %% From Abort
 ABORT --> RESET: resetButtonPressed
+
+%% From Manual
+MANUAL --> IDLE: manualButtonPressed
 
 %% From Reset
 RESET --> IDLE: isElevatorAtGround && isClimberStowed
@@ -42,40 +47,51 @@ RESET --> IDLE: isElevatorAtGround && isClimberStowed
 %% From Pre Climb
 PRE_CLIMB --> IDLE : isClimberExtended
 PRE_CLIMB --> ABORT: abortButtonPressed
+PRE_CLIMB --> MANUAL: manualButtonPressed
 
 %% From Climbing
 CLIMBING --> IDLE : isAtClimbPos
 CLIMBING --> ABORT: abortButtonPressed
+CLIMBING --> MANUAL: manualButtonPressed
 
 %% From  Reset Climb
 RESET_CLIMB --> IDLE : isClimberStowed
 RESET_CLIMB --> ABORT: abortButtonPressed
+RESET_CLIMB --> MANUAL: manualButtonPressed
 
 %% From Has Coral
 HAS_CORAL --> PRE_SCORE: hasCoral && (L2ButtonPressed || L3ButtonPressed || L4ButtonPressed)
 HAS_CORAL --> IDLE: !hasCoral
+HAS_CORAL --> MANUAL: manualButtonPressed
+
 %% From Pre Score
 PRE_SCORE --> RAISE_L2: L2ButtonPressed && hasCoral && isDriveAligned
 PRE_SCORE --> RAISE_L3: L3ButtonPressed && hasCoral && isDriveAligned
 PRE_SCORE --> RAISE_L4: L4ButtonPressed && hasCoral && isDriveAligned
 PRE_SCORE --> ABORT: abortButtonPressed
+PRE_SCORE --> MANUAL: manualButtonPressed
 
 %% From Raise L2
 RAISE_L2 --> SCORE: hasCoral && isElevatorAtL2
 RAISE_L2 --> ABORT: abortButtonPressed
+RAISE_L2 --> MANUAL: manualButtonPressed
 
 %% From Raise L3
 RAISE_L3 --> SCORE: hasCoral  && isElevatorAtL3
 RAISE_L3 --> ABORT: abortButtonPressed
+RAISE_L3 --> MANUAL: manualButtonPressed
 
 %% From Raise L4
 RAISE_L4 --> SCORE: hasCoral  && isElevatorAtL4
 RAISE_L4 --> ABORT: abortButtonPressed
+RAISE_L4 --> MANUAL: manualButtonPressed
 
 %% From Score
 SCORE --> POST_SCORE:timer > outtakeTimeSecs
 SCORE --> ABORT: abortButtonPressed
+SCORE --> MANUAL: manualButtonPressed
 
 %% From Post Score
 POST_SCORE --> IDLE: isElevatorAtGround
 POST_SCORE --> ABORT: abortButtonPressed
+POST_SCORE --> MANUAL: manualButtonPressed
