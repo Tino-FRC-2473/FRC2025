@@ -302,7 +302,7 @@ public class Superstructure {
 	private void handleIdleState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -314,7 +314,7 @@ public class Superstructure {
 	private void handlePreScoreState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -326,7 +326,7 @@ public class Superstructure {
 	private void handleRaiseL2State(TeleopInput input) {
 		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -338,7 +338,7 @@ public class Superstructure {
 	private void handleRaiseL3State(TeleopInput input) {
 		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -350,7 +350,7 @@ public class Superstructure {
 	private void handleRaiseL4State(TeleopInput input) {
 		elevatorSystem.setState(ElevatorFSMState.LEVEL4);
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -361,14 +361,9 @@ public class Superstructure {
 	 */
 	private void handleScoreCoralState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.LEVEL3);
+		elevatorSystem.setState(ElevatorFSMState.MANUAL);
 		climberSystem.setState(ClimberFSMState.IDLE);
-
-		if (elevatorSystem.isElevatorAtL3()) {
-			funnelSystem.setState(FunnelFSMState.OUTTAKE);
-		} else {
-			funnelSystem.setState(FunnelFSMState.CLOSED);
-		}
+		funnelSystem.setState(FunnelFSMState.OUTTAKE);
 	}
 
 	/**
@@ -379,7 +374,7 @@ public class Superstructure {
 	private void handlePostScoreState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -391,7 +386,7 @@ public class Superstructure {
 	private void handlePreClimbState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.EXTEND);
 	}
 
@@ -403,7 +398,7 @@ public class Superstructure {
 	private void handleClimbState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE); // TODO: change to drive creep forwards
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.CLIMB);
 	}
 
@@ -415,7 +410,7 @@ public class Superstructure {
 	private void handleResetClimbState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.STOWED);
 	}
 
@@ -427,7 +422,7 @@ public class Superstructure {
 	private void handleAbortState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
-		funnelSystem.setState(FunnelFSMState.CLOSED);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -439,7 +434,7 @@ public class Superstructure {
 	private void handleResetState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.CLOSED); // TODO: confirm funnel reset pos
+		funnelSystem.setState(FunnelFSMState.IDLE); // TODO: confirm funnel reset pos
 		climberSystem.setState(ClimberFSMState.STOWED);
 	}
 

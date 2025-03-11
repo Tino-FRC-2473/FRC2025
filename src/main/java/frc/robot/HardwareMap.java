@@ -9,8 +9,7 @@ public final class HardwareMap {
 	public static final int CAN_ID_ELEVATOR = 14; // FINAL
 	public static final int CAN_ID_CLIMBER = 8; // FINAL
 
-	// playing with fusion CAN chain
-	public static final int FUNNEL_TOF_ID = 13; // TBD
+	public static final int CAN_ID_INTAKE = -1; // TBD
 
 	// rio - dio ports
 	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT = 0; // FINAL
@@ -21,7 +20,7 @@ public final class HardwareMap {
 	public static final int CLIMBER_LIMIT_SWITCH_DIO_PORT = 3; // for testing only
 
 	// rio - pwm ports
-	public static final int FUNNEL_SERVO_PWM_PORT = 0; // FINAL
+	public static final int OUTTAKE_SERVO_PWM_PORT = 0; // FINAL
 	public static final int LED_STRIP_PWM_PORT = 1; // TBD
 
 	/* ===== Hardware Availability ===== */
