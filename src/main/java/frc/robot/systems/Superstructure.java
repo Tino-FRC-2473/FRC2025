@@ -13,6 +13,7 @@ import frc.robot.systems.ElevatorFSMSystem.ElevatorFSMState;
 import frc.robot.systems.FunnelFSMSystem.FunnelFSMState;
 
 public class Superstructure {
+
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum SuperFSMState {
@@ -31,6 +32,7 @@ public class Superstructure {
 	}
 
 	/* ======================== Private variables ======================== */
+
 	private SuperFSMState currentState;
 
 	private FunnelFSMSystem funnelSystem;
@@ -71,6 +73,7 @@ public class Superstructure {
 	public SuperFSMState getCurrentState() {
 		return currentState;
 	}
+
 	/**
 	 * Reset this system to its start state. This may be called from mode init
 	 * when the robot is enabled.
@@ -439,4 +442,5 @@ public class Superstructure {
 		funnelSystem.setState(FunnelFSMState.CLOSED); // TODO: confirm funnel reset pos
 		climberSystem.setState(ClimberFSMState.STOWED);
 	}
+
 }

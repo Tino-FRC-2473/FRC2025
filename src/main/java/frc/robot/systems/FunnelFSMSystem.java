@@ -157,6 +157,36 @@ public class FunnelFSMSystem {
 	}
 
 	/* ======================== Private methods ======================== */
+	/**
+ 	 * Decide the next state to transition to. This is a function of the inputs
+ 	 * and the current state of this FSM. This method should not have any side
+ 	 * effects on outputs. In other words, this method should only read or get
+ 	 * values to decide what state to go to.
+ 	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *        the robot is in autonomous mode.
+ 	 * @return FSM state for the next iteration
+ 	 * @deprecated Will be removed after superstructure impl.
+ 	 */
+	private FunnelFSMState nextState(TeleopInput input) {
+		switch (currentState) {
+			case OUTTAKE:
+				if (!input.isFunnelButtonPressed()) {
+					return FunnelFSMState.CLOSED;
+				} else {
+					return FunnelFSMState.OUTTAKE;
+				}
+
+			case CLOSED:
+				if (input.isFunnelButtonPressed()) {
+					return FunnelFSMState.OUTTAKE;
+				} else {
+					return FunnelFSMState.CLOSED;
+				}
+
+			default:
+				throw new IllegalStateException("Invalid state: " + currentState.toString());
+		}
+	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
