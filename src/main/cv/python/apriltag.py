@@ -23,6 +23,7 @@ class AprilTag():
         self.detector = apriltag.Detector(families="tag36h11", nthreads=4) 
         self.NUM_TAGS = 22
         self.detectedIDs = []
+        self.INDEXES_PER_TAG = 10
 
     def estimate_3d_pose(self, image, ARUCO_LENGTH_METERS):
         #getting the last channel of the image (cv2 populates an image w/ 3 channels of the same info)
@@ -39,31 +40,30 @@ class AprilTag():
 
         num_tags = len(ids) if ids is not None else 0
         #print(num_tags)
-        if num_tags != 0:
             # Estimate the pose of each detected marker
-            for i in range(len(ids)):
-                # Estimate the pose
-                tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
-                
-                pose_list.append(ids[i])
-                pose_list.extend(cvec)
-                
-                #offsets for the z and x positions are currently being accounted for by drive
-                # original_z = tvec[2]
-                # tvec[2] =  original_z + AT_Z_OFFSET
+        for i in range(num_tags):
+            # Estimate the pose
+            tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+            
+            pose_list.append(ids[i])
+            pose_list.extend(cvec)
+            
+            #offsets for the z and x positions are currently being accounted for by drive
+            # original_z = tvec[2]
+            # tvec[2] =  original_z + AT_Z_OFFSET
 
-                # original_x = tvec[0]
-                # tvec[0] =  (original_x + AT_X_OFFSET)
+            # original_x = tvec[0]
+            # tvec[0] =  (original_x + AT_X_OFFSET)
 
-                pose_list.extend(tvec)
-                euler_rvec = self.rotation_vector_to_euler_angles(rvec)
-                #print("robot yaw", tvec)
-                pose_list.extend(euler_rvec)
+            pose_list.extend(tvec)
+            euler_rvec = self.rotation_vector_to_euler_angles(rvec)
+            # print("robot yaw", tvec)
+            pose_list.extend(euler_rvec)
 
-                if(self.cam_name == "source"):
-                    pose_list = self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
-                
-                # print("euler_rvec: ", euler_rvec)
+            if(self.cam_name == "source"):
+                pose_list = self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
+            
+            # print("euler_rvec: ", euler_rvec)
         
         pose_list = self.sort_tags_distance(pose_list)
 
@@ -111,7 +111,7 @@ class AprilTag():
         # z value = index of id + 6
 
         hyp_poses = {} # store dictionary in format of {id: hypotenuse}
-        for i in range(0, len(pose_list), 10): 
+        for i in range(0, len(pose_list), self.INDEXES_PER_TAG): 
             hyp = math.sqrt(pose_list[i + 4] ** 2 + pose_list[i + 6] ** 2) # hypotenuse = sqrt(x^2 + y^2)
             hyp_poses[pose_list[i]] = hyp
         
