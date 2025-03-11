@@ -1,8 +1,10 @@
 package frc.robot;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
@@ -52,9 +54,7 @@ public class RaspberryPi {
 
 	/**
 	* Returns a list of all AprilTags from all cameras.
-	*
-	* @return  ArrayList<AprilTag>
-	*          A list of visible AprilTags
+	* @return A list of visible AprilTags
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
@@ -67,8 +67,7 @@ public class RaspberryPi {
 	* Returns a list of all AprilTags from one camera.
 	* @param camSub subscriber for the camera
 	* @param camName camera name
-	* @return  ArrayList<AprilTag>
-	*          A list of visible AprilTags
+	* @return A list of visible AprilTags
 	*/
 	public ArrayList<AprilTag> getAprilTagsSingleCam(DoubleArraySubscriber camSub, String camName) {
 		ArrayList<AprilTag> atList = new ArrayList<>();
@@ -122,6 +121,22 @@ public class RaspberryPi {
 	}
 
 	/**
+	 * Get all april tags reported from the station camera.
+	 * @return list of all apriltags
+	 */
+	public ArrayList<AprilTag> getStationAprilTags() {
+		return getAprilTagsSingleCam(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME);
+	}
+
+	/**
+	 * Get all april tags reported from the reef camera.
+	 * @return list of all april tags
+	 */
+	public ArrayList<AprilTag> getReefAprilTags() {
+		return getAprilTagsSingleCam(reefCamSubscriber, VisionConstants.REEF_CAM_NAME);
+	}
+
+	/**
 	 * Checks if any AprilTags are in view.
 	 * @return A boolean representing if any tags are in view
 	 */
@@ -139,5 +154,14 @@ public class RaspberryPi {
 			return null;
 		}
 		return Collections.max(atlist);
+	}
+
+	/**
+	 * Updates the raspberry pi's values given the current robot pose.
+	 * Not used for teleop functionality.
+	 * @param pose
+	 */
+	public void update(Pose2d pose) {
+		// pass
 	}
 }

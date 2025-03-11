@@ -7,7 +7,7 @@ import time
 import cv2
 import traceback
 
-print("Waiting 5 seconds... ", end="")
+print("Waiting 5 seconds... ", end="", flush=True)
 time.sleep(5)
 print("done")
 
@@ -42,6 +42,7 @@ if ON_RPI:
     table = inst.getTable(f"{cam_name}_table")
     framePub = table.getDoubleTopic("fps_incremented_value").publish(options=ps_opt)
     tagDataPub = table.getDoubleArrayTopic("april_tag_data").publish(options=ps_opt)
+    canSeeTagPub = table.getStringTopic("can_see_tag").publish(options=ps_opt)
     #outputStreamPub = table.getDoubleArrayTopic("output_stream").publish()
 
 input = VisionInput(AT_FOV, AT_INPUT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, index)
@@ -75,6 +76,10 @@ while True:
             #when tagData is none a empty frame will be sent over
             framePub.set(initial_frame.sum())
             tagDataPub.set(tagData)
+            if len(tagData) == 0:
+                canSeeTagPub.set("no")
+            else:
+                canSeeTagPub.set("yes")
             #outputStreamPub.set(annotated_frame.flatten().tolist())
         else:
             cv2.imshow('result', annotated_frame)

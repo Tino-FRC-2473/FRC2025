@@ -40,14 +40,14 @@ public class TeleopInput {
 	 * @return Axis value
 	 */
 	public double getDriveLeftJoystickX() {
-		return driveController.getLeftX();
+		return -driveController.getLeftX();
 	}
 	/**
 	 * Get Y axis of Drive Controller.
 	 * @return Axis value
 	 */
 	public double getDriveLeftJoystickY() {
-		return driveController.getLeftY();
+		return -driveController.getLeftY();
 	}
 	/**
 	 * Get X axis of Drive Controller right.
@@ -74,7 +74,7 @@ public class TeleopInput {
 	 * Get Square Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveSquareButton() {
+	public boolean getAlignReefButton() {
 		return driveController.getSquareButton();
 	}
 	/**
@@ -84,18 +84,50 @@ public class TeleopInput {
 	public boolean getDriveCircleButton() {
 		return driveController.getCircleButton();
 	}
+
+	/**
+	 * Get drive cross button.
+	 * @return value
+	 */
+	public boolean getDriveCrossButton() {
+		return driveController.getCrossButton();
+	}
 		/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveBackButtonPressed() {
+	public boolean getSeedGyroButtonPressed() {
+		return driveController.getOptionsButton();
+	}
+
+	/**
+	 * Get the value of the L1 button.
+	 * @return L1 button value
+	 */
+	public boolean getAlignLeftOffsetButton() {
+		return driveController.getL1Button();
+	}
+
+	/**
+	 * Get the value of the R1 button.
+	 * @return R1 button value
+	 */
+	public boolean getAlignRightOffsetButton() {
+		return driveController.getR1Button();
+	}
+
+	/**
+	 * Get the value of the drive share button.
+	 * @return ddrive share button
+	 */
+	public boolean getDriveShareButtonPressed() {
 		return driveController.getShareButton();
 	}
 
 	/* ------------------------ Mech Controller ------------------------ */
 
 	/**
-	 * Get the value of the L2 elevator target button (square).
+	 * Get the value of the source L2 target button (square).
 	 * @return If the button is pressed
 	 */
 	public boolean isL2ButtonPressed() {
@@ -136,12 +168,12 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Gets the value of the share button.
-	 * Intended to signify when the climber should advance at constant power
-	 * @return If the share button was pressed this tick
+	 * Gets the value of the L2 button.
+	 * Intended to signify when the climber should manually move.
+	 * @return If the L2 button was pressed this tick
 	 */
 	public boolean isClimbManualButtonPressed() {
-		return mechController.getShareButton();
+		return mechController.getL2Button();
 	}
 
 	/**
@@ -154,7 +186,7 @@ public class TeleopInput {
 
 	/**
 	 * Gets the value of the L1 button.
-	 * Intended to signify when the climber should go to the next state.
+	 * Intended to signify when the funnel should open.
 	 * @return If the L1 button was pressed this tick
 	 */
 	public boolean isFunnelButtonPressed() {

@@ -15,6 +15,8 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 // Units
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
@@ -50,6 +52,7 @@ public class MapleSimSwerveDrivetrain {
 	private final Pigeon2SimState pigeonSim;
 	private final SimSwerveModule[] simModules;
 	private final SwerveDriveSimulation mapleSimDrive;
+	private boolean resetAlliancePosition = false;
 
 	/**
 	 * Constructs a MapleSimSwerveDrivetrain with specified config.
@@ -96,6 +99,55 @@ public class MapleSimSwerveDrivetrain {
 	 */
 	public SwerveDriveSimulation getDriveSimulation() {
 		return mapleSimDrive;
+	}
+
+	/**
+	 * Resets simulation pose.
+	 */
+	public void resetSimulationPose() {
+		if (!DriverStation.getAlliance().isEmpty() && !resetAlliancePosition) {
+			if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
+				resetAlliancePosition = true;
+				switch (DriverStation.getLocation().getAsInt()) {
+					case 1:
+						getDriveSimulation().setSimulationWorldPose(
+							SimConstants.RED_1_STARTING_POS_M
+						);
+					case 2:
+						getDriveSimulation().setSimulationWorldPose(
+							SimConstants.RED_2_STARTING_POS_M
+						);
+					case (2 + 1):
+						getDriveSimulation().setSimulationWorldPose(
+							SimConstants.RED_3_STARTING_POS_M
+						);
+					default:
+						getDriveSimulation().setSimulationWorldPose(
+							SimConstants.RED_1_STARTING_POS_M
+						);
+				}
+			} else {
+				resetAlliancePosition = true;
+				switch (DriverStation.getLocation().getAsInt()) {
+					case 1:
+						getDriveSimulation().setSimulationWorldPose(
+							SimConstants.BLUE_1_STARTING_POS_M
+						);
+					case 2:
+						getDriveSimulation().setSimulationWorldPose(
+							SimConstants.BLUE_2_STARTING_POS_M
+						);
+					case (2 + 1):
+						getDriveSimulation().setSimulationWorldPose(
+							SimConstants.BLUE_3_STARTING_POS_M
+						);
+					default:
+						getDriveSimulation().setSimulationWorldPose(
+							SimConstants.BLUE_3_STARTING_POS_M
+						);
+				}
+			}
+		}
 	}
 
 	/**

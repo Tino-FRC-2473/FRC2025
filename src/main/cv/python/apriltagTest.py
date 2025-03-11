@@ -9,6 +9,12 @@ tag_module = AprilTag("bw_cam_4v1")
 input = VisionInput(AT_FOV, AT_INPUT_RES, AT_CAM_HEIGHT, AT_CAM_ANGLE, 0)
 
 while True:
+    
+    # Example rvec from solvePnP
+    # rvec = np.array([[0.1], [0.2], [0.3]])  # Example rotation vector
+    # euler_angles = tag_module.rotation_vector_to_euler_angles(rvec)
+    # print("Euler Angles (radians):", euler_angles)
+    
     frame = input.getFrame()
     cv2.imshow("frame", frame)
     # print("frame size", frame.shape)
@@ -18,6 +24,7 @@ while True:
     #code to debug distance to tag function
     #tags = [10, 0, 0, 0, 3, 3, 3, 9, 9, 9, 11, 0, 0, 0, 2, 2, 2, 9, 9, 9, 12, 0, 0, 0, 1, 1, 1, 9, 9, 9]
     #print(tag_module.sort_tags_distance(tags))
+
 
     #print(tagData)
     

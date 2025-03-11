@@ -5,8 +5,8 @@
 title: Funnel State Diagram
 ---
 stateDiagram-v2
-  state "Outtake: motor on" as OUTTAKE
-  state "Idle: motor off" as IDLE
+  state "Outtake: servo open" as OUTTAKE
+  state "Idle: servo closed" as IDLE
 
   [*] --> IDLE
   IDLE --> OUTTAKE: Outtake button pressed

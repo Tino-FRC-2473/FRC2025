@@ -1,12 +1,12 @@
 package frc.robot;
 
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import choreo.trajectory.SwerveSample;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.constants.TunerConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.SimSwerveDrivetrainConfig;
@@ -26,7 +27,8 @@ import frc.robot.simulation.SimSwerveDrivetrainConfig;
  * so it can be used in command-based projects easily.
  */
 
-public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
+public class CommandSwerveDrivetrain extends
+	SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements Subsystem {
 
 	/* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
 	private static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
@@ -41,9 +43,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
 		new SwerveRequest.ApplyFieldSpeeds();
 
-	private final PIDController autoXPid = new PIDController(5, 0, 0);
-	private final PIDController autoYPid = new PIDController(5, 0, 0);
-	private final PIDController autoHeadingPid = new PIDController(0.75, 0, 0);
+	private final PIDController autoXPid = new PIDController(4.8, 0, 0);
+	private final PIDController autoYPid = new PIDController(4.8, 0, 0);
+	private final PIDController autoHeadingPid = new PIDController(0.7, 0, 0);
 
 	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
 	private Notifier simNotifier;
@@ -64,7 +66,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 		);
 
 		if (Robot.isSimulation()) {
-			setupSimulation(getState().Pose);
+			setupSimulation(
+				new Pose2d(0, 0, new Rotation2d())
+			);
 		}
 		// setupPathplanner();
 	}
@@ -146,5 +150,30 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 	 */
 	public MapleSimSwerveDrivetrain getSimDrivetrain() {
 		return mapleSimSwerveDrivetrain;
+	}
+
+	/**
+	 * Return the pose of the drivetrain.
+	 * @return pose
+	 */
+	public Pose2d getPose() {
+		if (Robot.isSimulation()) {
+			return getSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose();
+		} else {
+			return getState().Pose;
+		}
+	}
+
+	/**
+	 * Return the chassis speeds of the drivetrain.
+	 * @return chassis speeds
+	 */
+	public ChassisSpeeds getRobotChassisSpeeds() {
+		if (Robot.isSimulation()) {
+			return getSimDrivetrain().getDriveSimulation()
+				.getDriveTrainSimulatedChassisSpeedsRobotRelative();
+		} else {
+			return getState().Speeds;
+		}
 	}
 }

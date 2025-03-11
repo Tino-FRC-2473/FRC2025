@@ -6,39 +6,242 @@ import java.util.HashMap;
 import frc.robot.constants.AutoConstants.AutoCommands;
 
 public class AutoPaths {
-	public static final Object[] B_PATH_1 = new Object[] {
-		new Object[] {
-			AutoCommands.ELEVATOR_L2_CMD, "S2_R1"
-		},
-		new Object[] {
-			AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
-			AutoCommands.ELEVATOR_L4_CMD
-		},
+	// public static final Object[] B_AT_ALIGN_TEST = new Object[] {
+	// 	new Object[] {"S3_R6_H", AutoCommands.ELEVATOR_L3_CMD},
+	// 	AutoCommands.DRIVE_BRAKE_CMD,
+	// 	new Object[] {AutoCommands.B_ALIGN_REEF6_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+	// 	AutoCommands.ELEVATOR_L4_CMD,
+	// 	AutoCommands.OUTTAKE_CORAL_CMD,
+	// 	new Object[] {"R6_StationR", AutoCommands.ELEVATOR_GROUND_CMD},
+	// 	AutoCommands.INTAKE_CORAL_CMD,
+	// 	"StationR_R5 (H)",
+	// 	new Object[] {AutoCommands.B_ALIGN_REEF5_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
+	// 	AutoCommands.ELEVATOR_L4_CMD,
+	// 	AutoCommands.OUTTAKE_CORAL_CMD,
+	// 	AutoCommands.ELEVATOR_GROUND_CMD
+	// };
+
+	// public static final Object[] R_AT_ALIGN_TEST = new Object[] {
+	// 	"S1_R2_H",
+	// 	new Object[] {AutoCommands.R_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
+	// 	AutoCommands.ELEVATOR_L4_CMD,
+	// 	AutoCommands.OUTTAKE_CORAL_CMD,
+	// 	AutoCommands.ELEVATOR_GROUND_CMD
+	// };
+
+	public static final Object[] R_AT_ALIGN_S1_R23 = new Object[] {
+		"S1_R2_H",
+		AutoCommands.R_ALIGN_REEF2_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
-		new Object[] {
-			AutoCommands.ELEVATOR_L2_CMD,
-			"R1_StationL" //should check if it will return to the center before running w/ choreo
-		},
-		AutoCommands.INTAKE_CORAL_CMD,
-		AutoCommands.B_ALIGN_REEF3_TAG_CMD,
-		new Object[] {
-			AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
-			AutoCommands.ELEVATOR_L4_CMD
-		},
-		AutoCommands.OUTTAKE_CORAL_CMD
-	};
-
-	public static final Object[] B_PATH_2 = new Object[] {
-		"S1_R2",
+		AutoCommands.ELEVATOR_GROUND_CMD,
 		"R2_StationL",
-		"StationL_R4",
-		AutoCommands.DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3_H",
+		AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
 	};
 
-	public static final Object[] B_PATH_3 = new Object[] {
+	public static final Object[] R_NO_AT_S1_R23 = new Object[] {
+		"S1_R2",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R2_StationL",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] R_AT_ALIGN_S2_R13 = new Object[] {
+		"S2_R1_H",
+		AutoCommands.R_ALIGN_REEF1_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R1_StationL",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3_H",
+		AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] R_NO_AT_S2_R13 = new Object[] {
+		"S2_R1",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R1_StationL",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] R_AT_ALIGN_S3_R65 = new Object[] {
+		"S3_R6_H",
+		AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R6_StationR",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5_H",
+		AutoCommands.R_ALIGN_REEF5_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] R_NO_AT_S3_R65 = new Object[] {
+		"S3_R6",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R6_StationR",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_AT_ALIGN_S1_R23 = new Object[] {
+		"S1_R2_H",
+		AutoCommands.B_ALIGN_REEF2_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R2_StationL",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3_H",
+		AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_NO_AT_S1_R23 = new Object[] {
 		"S1_R2",
 		AutoCommands.ELEVATOR_L4_CMD,
-		AutoCommands.ELEVATOR_L2_CMD
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R2_StationL",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_AT_ALIGN_S2_R13 = new Object[] {
+		"S2_R1_H",
+		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R1_StationL",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3_H",
+		AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_NO_AT_S2_R13 = new Object[] {
+		"S2_R1",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.ELEVATOR_WAIT,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R1_StationL",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_AT_ALIGN_S3_R65 = new Object[] {
+		"S3_R6_H",
+		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R6_StationR",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5_H",
+		AutoCommands.B_ALIGN_REEF5_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_NO_AT_S3_R65 = new Object[] {
+		"S3_R6",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R6_StationR",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_AT_ALIGN_MATCH2 = new Object[] {
+		"S2_R1_H",
+		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R1_StationR",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5_H",
+		AutoCommands.B_ALIGN_REEF5_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+	};
+
+	public static final Object[] B_MATCH2_NO_AT = new Object[] {
+		"S2_R1",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R1_StationR",
+		AutoCommands.DRIVE_BRAKE_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationR_R5",
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
 	};
 
 	/**

@@ -4,3 +4,5 @@ linuxpy
 --extra-index-url https://wpilib.jfrog.io/artifactory/api/pypi/wpilib-python-release-2024/simple
 pyntcore
 robotpy
+scipy
+robotpy-cscore
