@@ -7,7 +7,7 @@ from config import *
 from argparse import ArgumentParser
 from visionInput import VisionInput, find_camera_index
 
-print("Waiting 5 seconds... ", end="")
+print("Waiting 5 seconds... ", flush=True)
 time.sleep(5)
 print("done")
 

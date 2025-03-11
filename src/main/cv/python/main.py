@@ -7,7 +7,7 @@ import time
 import cv2
 import traceback
 
-print("Waiting 5 seconds... ", end="", flush=True)
+print("Waiting 5 seconds... ", flush=True)
 time.sleep(5)
 print("done")
 
