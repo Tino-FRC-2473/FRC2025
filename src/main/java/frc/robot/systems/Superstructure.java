@@ -165,7 +165,6 @@ public class Superstructure {
 				&& currentState != SuperFSMState.MANUAL) {
 			return SuperFSMState.MANUAL;
 		}
-
 		switch (currentState) {
 			case IDLE:
 				if (input != null && input.isClimbAdvanceStateButtonPressed()) {
@@ -204,7 +203,6 @@ public class Superstructure {
 					}
 				}
 				return SuperFSMState.PRE_SCORE;
-
 			case RAISE_TO_L2:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -216,7 +214,6 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.RAISE_TO_L2;
-
 			case RAISE_TO_L3:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -228,7 +225,6 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.RAISE_TO_L3;
-
 			case RAISE_TO_L4:
 				if (input == null) {
 					return SuperFSMState.IDLE;
@@ -240,7 +236,6 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.RAISE_TO_L4;
-
 			case SCORE:
 				if (!funnelSystem.isHoldingCoral()
 					&& (funnelSystem.getTime() > Constants.CORAL_SCORE_TIME_SECS)) {
@@ -259,7 +254,6 @@ public class Superstructure {
 				if (!funnelSystem.isHoldingCoral()) {
 					return SuperFSMState.IDLE;
 				}
-
 			case POST_SCORE:
 				if (!funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtGround()) {
 					return SuperFSMState.IDLE;
@@ -268,7 +262,6 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.POST_SCORE;
-
 			case PRE_CLIMB:
 				if (climberSystem.isClimberExtended()) {
 					return SuperFSMState.IDLE;
@@ -277,7 +270,6 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.PRE_CLIMB;
-
 			case CLIMB:
 				if (climberSystem.isClimberClimbed()) {
 					return SuperFSMState.IDLE;
@@ -286,7 +278,6 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.CLIMB;
-
 			case RESET_CLIMB:
 				if (climberSystem.isClimberStowed()) {
 					return SuperFSMState.IDLE;
@@ -295,25 +286,21 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.RESET_CLIMB;
-
 			case ABORT:
 				if (input.isResetButtonPressed()) {
 					return SuperFSMState.RESET;
 				}
 				return SuperFSMState.ABORT;
-
 			case RESET:
 				if (climberSystem.isClimberStowed() && elevatorSystem.isElevatorAtGround()) {
 					return SuperFSMState.IDLE;
 				}
 				return SuperFSMState.RESET;
-
 			case MANUAL:
 				if (input.isManualButtonPressed()) {
 					return SuperFSMState.IDLE;
 				}
 				return SuperFSMState.MANUAL;
-
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
