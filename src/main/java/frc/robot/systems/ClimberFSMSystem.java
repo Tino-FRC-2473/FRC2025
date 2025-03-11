@@ -194,6 +194,14 @@ public class ClimberFSMSystem {
 	}
 
 	/**
+	 * Handle the elevator states in manual mode.
+	 * @param input The input to the elevator.
+	 */
+	public void handleStates(TeleopInput input) {
+		currentState = nextState(input);
+	}
+
+	/**
 	 * Indicates whether the climber position is in the range for being STOWED.
 	 * @return if the climber is STOWED
 	 */

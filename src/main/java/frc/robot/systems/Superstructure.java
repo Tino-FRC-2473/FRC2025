@@ -30,7 +30,8 @@ public class Superstructure {
 		CLIMB,
 		RESET_CLIMB,
 		ABORT,
-		RESET
+		RESET,
+		MANUAL
 	}
 
 	/* ======================== Private variables ======================== */
@@ -138,6 +139,9 @@ public class Superstructure {
 			case RESET:
 				handleResetState(input);
 				break;
+			case MANUAL:
+				handleManualState(input);
+				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -157,12 +161,14 @@ public class Superstructure {
 	 * @return FSM state for the next iteration
 	 */
 	private SuperFSMState nextState(TeleopInput input) {
+		if (input != null && input.isManualButtonPressed()
+				&& currentState != SuperFSMState.MANUAL) {
+			return SuperFSMState.MANUAL;
+		}
+
 		switch (currentState) {
 			case IDLE:
-				if (input == null) {
-					return SuperFSMState.IDLE;
-				}
-				if (input.isClimbAdvanceStateButtonPressed()) {
+				if (input != null && input.isClimbAdvanceStateButtonPressed()) {
 					if (climberSystem.isClimberStowed()) {
 						return SuperFSMState.PRE_CLIMB;
 					}
@@ -173,8 +179,11 @@ public class Superstructure {
 						return SuperFSMState.RESET_CLIMB;
 					}
 				}
-				if (funnelSystem.isHoldingCoral()){
-					return SuperFSMState.HAS_CORAL;
+				if (input != null && funnelSystem.isHoldingCoral()
+					&& (input.isL2ButtonPressed()
+					|| input.isL3ButtonPressed()
+					|| input.isL4ButtonPressed())) {
+					return SuperFSMState.PRE_SCORE;
 				}
 				return SuperFSMState.IDLE;
 			case PRE_SCORE:
@@ -291,7 +300,6 @@ public class Superstructure {
 				if (input.isResetButtonPressed()) {
 					return SuperFSMState.RESET;
 				}
-
 				return SuperFSMState.ABORT;
 
 			case RESET:
@@ -299,6 +307,12 @@ public class Superstructure {
 					return SuperFSMState.IDLE;
 				}
 				return SuperFSMState.RESET;
+
+			case MANUAL:
+				if (input.isManualButtonPressed()) {
+					return SuperFSMState.IDLE;
+				}
+				return SuperFSMState.MANUAL;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -460,4 +474,17 @@ public class Superstructure {
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
+
+	/**
+	 * Handle behavior in MANUAL.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleManualState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.handleStates(input);
+		funnelSystem.handleStates(input);
+		climberSystem.handleStates(input);
+	}
+
 }

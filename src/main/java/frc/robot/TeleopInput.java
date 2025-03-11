@@ -127,6 +127,14 @@ public class TeleopInput {
 	}
 
 	/**
+	 * Get the value of the L3 elevator target button (square).
+	 * @return If the button is pressed
+	 */
+	public boolean isL3ButtonPressed() {
+		return mechController.getCircleButton();
+	}
+
+	/**
 	 * Get the value of the L4 elevator target button (triangle).
 	 * @return If the button is pressed
 	 */
@@ -140,14 +148,6 @@ public class TeleopInput {
 	 */
 	public boolean isGroundButtonPressed() {
 		return mechController.getCrossButton();
-	}
-
-	/**
-	 * Get the value of the L3 elevator target button (square).
-	 * @return If the button is pressed
-	 */
-	public boolean isL3ButtonPressed() {
-		return mechController.getCircleButton();
 	}
 
 	/**
@@ -201,6 +201,14 @@ public class TeleopInput {
 	 */
 	public boolean isResetButtonPressed() {
 		return mechController.getL1ButtonPressed();
+	}
+
+	/**
+	 * Gets the value of the touchpad (manual) button.
+	 * @return If the touchpad button was pressed this tick.
+	 */
+	public boolean isManualButtonPressed() {
+		return mechController.getTouchpadButtonPressed();
 	}
 
 	/* ======================== Private methods ======================== */

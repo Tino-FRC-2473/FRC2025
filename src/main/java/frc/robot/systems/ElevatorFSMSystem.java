@@ -222,6 +222,14 @@ public class ElevatorFSMSystem {
 		currentState = state;
 	}
 
+	/**
+	 * Handle the elevator states in manual mode.
+	 * @param input The input to the elevator.
+	 */
+	public void handleStates(TeleopInput input) {
+		currentState = nextState(input);
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
  	 * Decide the next state to transition to. This is a function of the inputs
