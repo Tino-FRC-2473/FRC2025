@@ -231,7 +231,6 @@ public class ElevatorFSMSystem {
  	 * @param input Global TeleopInput if robot in teleop mode or null if
  	 *        the robot is in autonomous mode.
  	 * @return FSM state for the next iteration
- 	 * @deprecated Will be removed after superstructure impl.
  	 */
 	private ElevatorFSMState nextState(TeleopInput input) {
 		if (input == null) {
