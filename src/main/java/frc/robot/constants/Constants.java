@@ -9,8 +9,10 @@ public final class Constants {
 	public static final int LED_STRIP_BUFFER = 3; // TBD
 
 	// funnel constants
-	public static final double FUNNEL_CLOSED_POS_ROTS = 0.4;
-	public static final double FUNNEL_OUTTAKE_POS_ROTS = 0.8;
+	public static final double OUTTAKE_CLOSED_POS_ROTS = 0.4;
+	public static final double OUTTAKE_OPEN_POS_ROTS = 0.8;
+
+	public static final double INTAKE_VOLTAGE = 1; // volts
 
 	public static final double CORAL_SCORE_TIME_SECS = 1.0;
 

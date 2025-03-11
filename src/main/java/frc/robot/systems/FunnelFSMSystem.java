@@ -2,7 +2,11 @@ package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.playingwithfusion.TimeOfFlight;
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,8 +26,9 @@ public class FunnelFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum FunnelFSMState {
+		INTAKE,
 		OUTTAKE,
-		CLOSED
+		IDLE
 	}
 
 	/* ======================== Private variables ======================== */
@@ -32,8 +37,9 @@ public class FunnelFSMSystem {
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
 
-	private Servo funnelServo;
-	private TimeOfFlight reefDistanceSensor;
+	private Servo outtakeServo;
+	private TalonFX intakeMotor;
+
 	private DigitalInput coralBreakBeam;
 	private boolean timerRunning;
 	private Timer funnelClosedTimer = new Timer();
@@ -46,12 +52,28 @@ public class FunnelFSMSystem {
 	 */
 	public FunnelFSMSystem() {
 		// Perform hardware init
-		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PWM_PORT);
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+		outtakeServo = new Servo(HardwareMap.OUTTAKE_SERVO_PWM_PORT);
+		outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 
-		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
+		// a lotta code to config a motor, thanks ctre
+		intakeMotor = new TalonFX(HardwareMap.CAN_ID_INTAKE);
+		var talonFXConfigs = new TalonFXConfiguration();
+		var outputConfigs = talonFXConfigs.MotorOutput;
+
+		outputConfigs.NeutralMode = NeutralModeValue.Coast;
+		intakeMotor.getConfigurator().apply(talonFXConfigs);
+
+		BaseStatusSignal.setUpdateFrequencyForAll(
+				Constants.UPDATE_FREQUENCY_HZ,
+				intakeMotor.getVelocity(),
+				intakeMotor.getAcceleration(),
+				intakeMotor.getMotorVoltage()
+		);
+
+		intakeMotor.optimizeBusUtilization();
 
 		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
+
 		// Reset state machine
 		reset();
 	}
@@ -73,7 +95,7 @@ public class FunnelFSMSystem {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FunnelFSMState.CLOSED;
+		currentState = FunnelFSMState.IDLE;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -91,12 +113,16 @@ public class FunnelFSMSystem {
 			return;
 		}
 		switch (currentState) {
+			case INTAKE:
+				handleIntakeState(input);
+				break;
+
 			case OUTTAKE:
 				handleOuttakeState(input);
 				break;
 
-			case CLOSED:
-				handleClosedState(input);
+			case IDLE:
+				handleIdleState(input);
 				break;
 
 			default:
@@ -117,9 +143,8 @@ public class FunnelFSMSystem {
 	 */
 	public void updateLogging() {
 		// Telemetry and logging
-		Logger.recordOutput("Funnel Position", funnelServo.get());
+		Logger.recordOutput("Funnel Position", outtakeServo.get());
 		Logger.recordOutput("Funnel State", currentState.toString());
-		Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
 		Logger.recordOutput("Holding Coral?", isHoldingCoral());
 	}
 
@@ -133,19 +158,6 @@ public class FunnelFSMSystem {
 			return true;
 		}
 		return !coralBreakBeam.get(); // true = beam intact
-		// return true; // temp always hold coral
-	}
-
-	/**
-	 * Getter for the status of the funnel's distance sensor.
-	 * Public for access to drive/cv.
-	 * @return distance to reef from distance sensor.
-	 */
-	public double getDistanceToReef() {
-		if (Robot.isSimulation()) {
-			return 0;
-		}
-		return reefDistanceSensor.getRange();
 	}
 
 	/**
@@ -157,14 +169,63 @@ public class FunnelFSMSystem {
 	}
 
 	/* ======================== Private methods ======================== */
+	/**
+ 	 * Decide the next state to transition to. This is a function of the inputs
+ 	 * and the current state of this FSM. This method should not have any side
+ 	 * effects on outputs. In other words, this method should only read or get
+ 	 * values to decide what state to go to.
+ 	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *        the robot is in autonomous mode.
+ 	 * @return FSM state for the next iteration
+ 	 * @deprecated Will be removed after superstructure impl.
+ 	 */
+	private FunnelFSMState nextState(TeleopInput input) {
+		switch (currentState) {
+			case IDLE:
+				if (input.isOuttakeButtonPressed()) {
+					return FunnelFSMState.OUTTAKE;
+				} else if (isHoldingCoral()) {
+					return FunnelFSMState.INTAKE;
+				}
+				return FunnelFSMState.IDLE;
+
+			case OUTTAKE:
+				if (!input.isOuttakeButtonPressed()) {
+					return FunnelFSMState.IDLE;
+				}
+				return FunnelFSMState.OUTTAKE;
+
+			case INTAKE:
+				if (isHoldingCoral()) {
+					return FunnelFSMState.IDLE;
+				}
+				return FunnelFSMState.INTAKE;
+
+			default:
+				throw new IllegalStateException("Invalid state: " + currentState.toString());
+		}
+	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
+	/**
+	 * Handle behavior in INTAKE.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleIntakeState(TeleopInput input) {
+		intakeMotor.setVoltage(Constants.INTAKE_VOLTAGE);
+		outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
+		timerRunning = false;
+	}
+
 	/**
 	 * Handle behavior in OUTTAKE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
+		intakeMotor.setVoltage(0);
+
 		if (!timerRunning) {
 			timerRunning = true;
 			funnelClosedTimer.reset();
@@ -172,7 +233,7 @@ public class FunnelFSMSystem {
 		}
 
 		if (funnelClosedTimer.get() >= 1) {
-			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+			outtakeServo.set(Constants.OUTTAKE_OPEN_POS_ROTS);
 		}
 	}
 
@@ -181,8 +242,9 @@ public class FunnelFSMSystem {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleClosedState(TeleopInput input) {
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+	private void handleIdleState(TeleopInput input) {
+		intakeMotor.setVoltage(0);
+		outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 		timerRunning = false;
 	}
 
@@ -205,7 +267,7 @@ public class FunnelFSMSystem {
 
 		@Override
 		public void execute() {
-			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+			outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 		}
 
 		@Override
@@ -235,7 +297,7 @@ public class FunnelFSMSystem {
 
 		@Override
 		public void execute() {
-			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+			outtakeServo.set(Constants.OUTTAKE_OPEN_POS_ROTS);
 		}
 
 		@Override
@@ -247,7 +309,7 @@ public class FunnelFSMSystem {
 
 		@Override
 		public void end(boolean interrupted) {
-			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+			outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 			timer.stop();
 			timer.reset();
 		}
