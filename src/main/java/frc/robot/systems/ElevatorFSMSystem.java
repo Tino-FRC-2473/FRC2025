@@ -246,32 +246,32 @@ public class ElevatorFSMSystem {
 		}
 		switch (currentState) {
 			case MANUAL:
-				if (input.isGroundButtonPressed()
+				if (input.isSuperGroundButtonPressed()
 					&& !isBottomLimitReached()
-					&& !input.isL4ButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()) {
+					&& !input.isSuperL4ButtonPressed()
+					&& !input.isSuperL2ButtonPressed()
+					&& !input.isSuperL3ButtonPressed()) {
 					return ElevatorFSMState.GROUND;
 				}
-				if (input.isL4ButtonPressed()
+				if (input.isSuperL4ButtonPressed()
 					&& funnelSystem.isHoldingCoral()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()) {
+					&& !input.isSuperGroundButtonPressed()
+					&& !input.isSuperL2ButtonPressed()
+					&& !input.isSuperL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
-				if (input.isL2ButtonPressed()
+				if (input.isSuperL2ButtonPressed()
 					&& funnelSystem.isHoldingCoral()
-					&& !input.isL4ButtonPressed()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL3ButtonPressed()) {
+					&& !input.isSuperL4ButtonPressed()
+					&& !input.isSuperGroundButtonPressed()
+					&& !input.isSuperL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL2;
 				}
-				if (input.isL3ButtonPressed()
+				if (input.isSuperL3ButtonPressed()
 					&& funnelSystem.isHoldingCoral()
-					&& !input.isL4ButtonPressed()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()) {
+					&& !input.isSuperL4ButtonPressed()
+					&& !input.isSuperGroundButtonPressed()
+					&& !input.isSuperL2ButtonPressed()) {
 					return ElevatorFSMState.LEVEL3;
 				}
 				return ElevatorFSMState.MANUAL;
