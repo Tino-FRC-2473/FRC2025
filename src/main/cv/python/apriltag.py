@@ -61,7 +61,7 @@ class AprilTag():
                 pose_list.extend(euler_rvec)
 
                 if(self.cam_name == "source"):
-                    self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
+                    pose_list = self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
                 
                 # print("euler_rvec: ", euler_rvec)
         
