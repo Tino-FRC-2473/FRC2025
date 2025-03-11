@@ -117,21 +117,6 @@ public class TeleopInput {
 	}
 
 	/* ------------------------ Superstructure Drive Controller ------------------------ */
-	/**
-	 * Get the value of the source elevator target button (square).
-	 * @return If the button is pressed
-	 */
-	public boolean isSuperL2ButtonPressed() {
-		return driveController.getSquareButton();
-	}
-
-	/**
-	 * Get the value of the L4 elevator target button (triangle).
-	 * @return If the button is pressed
-	 */
-	public boolean isSuperL4ButtonPressed() {
-		return driveController.getTriangleButton();
-	}
 
 	/**
 	 * Get the value of the ground elevator target button (cross).
@@ -142,6 +127,14 @@ public class TeleopInput {
 	}
 
 	/**
+	 * Get the value of the L2 elevator target button (square).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL2ButtonPressed() {
+		return driveController.getSquareButton();
+	}
+
+	/**
 	 * Get the value of the L3 elevator target button (circle).
 	 * @return If the button is pressed
 	 */
@@ -149,7 +142,23 @@ public class TeleopInput {
 		return driveController.getCircleButton();
 	}
 
+	/**
+	 * Get the value of the L4 elevator target button (triangle).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL4ButtonPressed() {
+		return driveController.getTriangleButton();
+	}
+
 	/* ------------------------ Mech Controller ------------------------ */
+
+	/**
+	 * Get the value of the ground elevator target button (circle).
+	 * @return If the button is pressed
+	 */
+	public boolean isGroundButtonPressed() {
+		return mechController.getCrossButton();
+	}
 
 	/**
 	 * Get the value of the source elevator target button (cross).
@@ -176,14 +185,6 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Get the value of the ground elevator target button (circle).
-	 * @return If the button is pressed
-	 */
-	public boolean isGroundButtonPressed() {
-		return mechController.getCrossButton();
-	}
-
-	/**
 	 * Gets the value of the options button.
 	 * Intended to signify when the climber should go to the next state.
 	 * @return If the options button was pressed this tick
@@ -192,9 +193,9 @@ public class TeleopInput {
 		return mechController.getOptionsButtonPressed();
 	}
 
-		/**
+	/**
 	 * Gets the value of the options button.
-	 * Intended to signify when the climber should go to the next state.
+	 * Intended to signify when the climber should move manually.
 	 * @return If the options button was pressed this tick
 	 */
 	public boolean isClimbManualButtonPressed() {
