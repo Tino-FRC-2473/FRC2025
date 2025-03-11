@@ -17,6 +17,8 @@ import frc.robot.HardwareMap;
 import frc.robot.Robot;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
+import frc.robot.constants.AutoConstants.ParralelCommands;
+import frc.robot.constants.AutoConstants.TrajectoryCommands;
 import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
@@ -51,6 +53,24 @@ public class AutoRoutines {
 		}
 	}
 
+	/**
+	 * Checks all the parallel commands and returns the correct.
+	 * @param commandEntry
+	 * @return the parrallel sequence of commands
+	 */
+	public ParallelCommandGroup checkParallelCommandGroup(ParralelCommands commandEntry) {
+		switch (commandEntry) {
+			case 
+		}
+	}
+
+	public interface IAutoCommand { }
+
+	/**
+	 * Check all the alignment command entries and returns the corresponding command.
+	 * @param commandEntry the alignment command entry.
+	 * @return the corresponding alignment command.
+	 */
 	private Command checkAlignmentCommands(AutoCommands commandEntry) {
 		/* ---- All Red AprilTag Alignment Commands ---- */
 		switch (commandEntry) {
@@ -205,6 +225,15 @@ public class AutoRoutines {
 		}
 	}
 
+	private AutoTrajectory checkDriveTrajectories(TrajectoryCommands trajCmd) {
+		switch (trajCmd) {
+			case S2_R1:
+				return ;
+			default:
+				return null;
+		}
+	}
+
 	private Command checkElevatorCommands(AutoCommands commandEntry) {
 		switch (commandEntry) {
 			case ELEVATOR_GROUND_CMD:
@@ -278,7 +307,7 @@ public class AutoRoutines {
 	public Command generateSequentialAutoWorkflow(Object[] autoStageSupply,
 		boolean throwException) {
 		SequentialCommandGroup seqInstruction = new SequentialCommandGroup();
-		int trajIdx = 0;
+		boolean isFirstTrajectory = true;
 
 		for (int i = 0; i < autoStageSupply.length; i++) {
 			var autoStage = autoStageSupply[i];
@@ -287,7 +316,8 @@ public class AutoRoutines {
 				/* -- Processing drive trajs -- */
 				if (HardwareMap.isDriveHardwarePresent() && paths.containsKey(autoStage)) {
 					AutoTrajectory traj = paths.get(autoStage);
-					if (trajIdx++ == 0) {
+					if (isFirstTrajectory) {
+						isFirstTrajectory = false;
 						seqInstruction.addCommands(traj.resetOdometry());
 						if (Robot.isSimulation()) {
 							initPose = traj.getInitialPose().get();
@@ -331,7 +361,7 @@ public class AutoRoutines {
 							+ " Not adding to sequential flow. ");
 					}
 				}
-			} else if (autoStage.getClass().equals(Object[].class)) {
+			} else if (autoStage.getClass().equals(Object[].class)) { // parallel commands
 
 				ParallelCommandGroup parallelQueue = new ParallelCommandGroup();
 				String[] loggingString = new String[((Object[]) autoStage).length];
@@ -344,7 +374,8 @@ public class AutoRoutines {
 						&& driveSystem != null) {
 						if (paths.containsKey(autoParallelStage)) {
 							AutoTrajectory traj = paths.get(autoParallelStage);
-							if (trajIdx++ == 0) {
+							if (isFirstTrajectory) {
+								isFirstTrajectory = false;
 								parallelQueue.addCommands(
 									traj.resetOdometry().andThen(traj.cmd())
 								);

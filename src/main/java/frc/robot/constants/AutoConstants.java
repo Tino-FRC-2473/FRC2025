@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import edu.wpi.first.math.util.Units;
+import frc.robot.auto.AutoRoutines.IAutoCommand;;
 
 /** These will be constants associated with each auto path in AutoRoutines. */
 public class AutoConstants {
@@ -50,7 +51,15 @@ public class AutoConstants {
 
 	/* -- ALL COMMAND NAME CONSTANTS -- */
 
-	public enum AutoCommands {
+	public enum ParralelCommands implements IAutoCommand {
+		TEST_COMMAND
+	}
+
+	public enum TrajectoryCommands implements IAutoCommand {
+		S2_R1
+	}
+
+	public enum AutoCommands implements IAutoCommand {
 		/* Red Align Reef Tag Commands */
 		R_ALIGN_REEF1_L_TAG_CMD,
 		R_ALIGN_REEF1_R_TAG_CMD,
@@ -93,5 +102,4 @@ public class AutoConstants {
 		INTAKE_CORAL_CMD,
 		OUTTAKE_CORAL_CMD
 	}
-
 }

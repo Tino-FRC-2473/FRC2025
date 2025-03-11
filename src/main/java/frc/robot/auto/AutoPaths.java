@@ -3,7 +3,7 @@ package frc.robot.auto;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-import frc.robot.constants.AutoConstants.AutoCommands;
+import frc.robot.constants.AutoConstants.*;
 
 public class AutoPaths {
 	// public static final Object[] B_AT_ALIGN_TEST = new Object[] {
