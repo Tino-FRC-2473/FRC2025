@@ -226,7 +226,8 @@ public class ElevatorFSMSystem {
 	 */
 	private boolean isBottomLimitReached() {
 		if (Robot.isSimulation()) {
-			return false;
+			return elevatorMotor.getPosition().getValueAsDouble()
+				< Constants.ELEVATOR_INRANGE_VALUE.in(Units.Inches);
 		}
 		return groundLimitSwitch.get(); // switch is normally open
 	}

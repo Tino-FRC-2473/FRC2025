@@ -52,7 +52,9 @@ public class ClimberFSMSystem {
 	 */
 	public ClimberFSMSystem() {
 		// Perform hardware init
-		climberMotor = new TalonFXWrapper(HardwareMap.CAN_ID_CLIMBER);
+		climberMotor = new TalonFXWrapper(
+			HardwareMap.CAN_ID_CLIMBER
+		);
 		climberMotor.setNeutralMode(NeutralModeValue.Brake);
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
@@ -186,6 +188,7 @@ public class ClimberFSMSystem {
 
 			default:
 				targetPosition = Constants.CLIMBER_PID_TARGET_LOW;
+				break;
 		}
 		currentState = state;
 	}
@@ -280,11 +283,19 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleAutomaticState(TeleopInput input) {
-		climberMotor.set(
-			targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
-			? Constants.CLIMB_REDUCED_POWER
-			: Constants.CLIMB_POWER
-		);
+		if (
+			!inRange(
+					climberMotor.getPosition().getValueAsDouble(),
+					targetPosition,
+					Constants.CLIMBER_PID_MARGIN_OF_ERROR)) {
+			climberMotor.set(
+				targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
+				? Constants.CLIMB_REDUCED_POWER
+				: Constants.CLIMB_POWER
+			);
+		} else {
+			climberMotor.set(0);
+		}
 	}
 
 	/**

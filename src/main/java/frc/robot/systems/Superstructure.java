@@ -3,6 +3,7 @@ package frc.robot.systems;
 // WPILib Imports
 
 // Third party Hardware Imports
+import org.littletonrobotics.junction.Logger;
 
 // Robot Imports
 import frc.robot.TeleopInput;
@@ -134,6 +135,8 @@ public class Superstructure {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
+
+		Logger.recordOutput("Super State", currentState);
 	}
 
 	/* ======================== Private methods ======================== */
