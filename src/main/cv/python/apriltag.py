@@ -39,10 +39,15 @@ class AprilTag():
 
         pose_list = []
 
-        num_tags = len(ids) if ids is not None else 0
+        num_tags = len(ids)
         #print(num_tags)
             # Estimate the pose of each detected marker
         for i in range(num_tags):
+            if(self.cam_name == "source"):
+                pose_list.append(ids[i])
+                pose_list.extend(self.distance_to_station_tag(image, ARUCO_LENGTH_METERS).flatten())
+                continue
+
             # Estimate the pose
             tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
             
@@ -60,9 +65,6 @@ class AprilTag():
             euler_rvec = self.rotation_vector_to_euler_angles(rvec)
             # print("robot yaw", tvec)
             pose_list.extend(euler_rvec)
-
-            if(self.cam_name == "source"):
-                pose_list = self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
             
             # print("euler_rvec: ", euler_rvec)
         
