@@ -264,7 +264,7 @@ public class ClimberFSMSystem {
 					return ClimberFSMState.MANUAL;
 				}
 				return ClimberFSMState.IDLE;
-			case CLIMB:
+			case CLIMB: case STOWED: case EXTEND:
 				if (input.isClimbManualButtonPressed() || climberPosSignal.getValueAsDouble()
 					% Constants.CLIMBER_COUNTS_PER_REV > targetPosition
 					|| isLimitSwitchPressed()) {

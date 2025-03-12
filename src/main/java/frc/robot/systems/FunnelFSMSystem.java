@@ -191,7 +191,7 @@ public class FunnelFSMSystem {
 			case IDLE:
 				if (input.isOuttakeButtonPressed()) {
 					return FunnelFSMState.OUTTAKE;
-				} else if (isHoldingCoral()) {
+				} else if (!isHoldingCoral()) {
 					return FunnelFSMState.INTAKE;
 				}
 				return FunnelFSMState.IDLE;
