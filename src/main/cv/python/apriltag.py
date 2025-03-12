@@ -24,6 +24,7 @@ class AprilTag():
         self.NUM_TAGS = 22
         self.detectedIDs = []
         self.INDEXES_PER_TAG = 10
+        self.cam_name = cam_name
 
     def estimate_3d_pose(self, image, ARUCO_LENGTH_METERS):
         #getting the last channel of the image (cv2 populates an image w/ 3 channels of the same info)
