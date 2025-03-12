@@ -146,12 +146,22 @@ class AprilTag():
 
             R, _ = cv2.Rodrigues(rvec)
             # there's a negative for the x position b/c to the left is negative in the opencv2 systems
-            list = [-0.130175, 0.903224, 0.0536]
-            intake_pos = np.array(list)
-            pose_list = R.T @ (tvec - intake_pos)
-            # multiplying by negative one b/c of the way that vector adition works
-            pose_list[2] = -1 * pose_list[2]
-            pose_list[0] = -1 * pose_list[0]
+            ang = np.deg2rad(15) #arbitrary 15 degree angle, replace with STAITON_ANGLE_OFFSET config
+            R_x = np.array([
+                [1, 0, 0],
+                [0, np.cos(ang), -np.sin(ang)],
+                [0, np.sin(ang), np.cos(ang)]
+            ])
+            cp = R_x @ (R.T @ tvec)
+            cp[2] *= -1
+            cp[0] *= -1
+
+            cr = R_x @ R
+            cea = Rotation.from_matrix(cr).as_euler("xyz", degrees=False)
+            
+            pose_list.extend(np.zeros(3))
+            pose_list.extend(cp)
+            pose_list.extend(cea)
 
         return pose_list
 
