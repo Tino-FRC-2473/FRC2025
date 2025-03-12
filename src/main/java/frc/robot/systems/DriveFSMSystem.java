@@ -755,7 +755,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 		}
 
-		alignmentXOff = AutoConstants.SOURCE_X_OFFSET;
+		alignmentXOff = -AutoConstants.SOURCE_X_OFFSET;
 
 		ArrayList<AprilTag> sortedTagList = rpi.getStationAprilTags();
 
