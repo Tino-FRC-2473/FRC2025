@@ -88,7 +88,7 @@ public class TeleopInput {
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveBackButtonPressed() {
+	public boolean getDriveOptionsButtonPressed() {
 		return driveController.getOptionsButton();
 	}
 
@@ -108,23 +108,7 @@ public class TeleopInput {
 		return driveController.getR1Button();
 	}
 
-	/**
-	 * Get the value of the drive share button.
-	 * @return ddrive share button
-	 */
-	public boolean getDriveShareButtonPressed() {
-		return driveController.getShareButton();
-	}
-
 	/* ------------------------ Superstructure Drive Controller ------------------------ */
-
-	/**
-	 * Get the value of the ground elevator target button (cross).
-	 * @return If the button is pressed
-	 */
-	public boolean isSuperGroundButtonPressed() {
-		return driveController.getCrossButton();
-	}
 
 	/**
 	 * Get the value of the L2 elevator target button (square).
@@ -194,12 +178,12 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Gets the value of the options button.
+	 * Gets the value of the share button.
 	 * Intended to signify when the climber should move manually.
-	 * @return If the options button was pressed this tick
+	 * @return If the share button was pressed this tick
 	 */
 	public boolean isClimbManualButtonPressed() {
-		return mechController.getL2Button();
+		return mechController.getShareButton();
 	}
 
 	/**
@@ -212,7 +196,7 @@ public class TeleopInput {
 
 	/**
 	 * Gets the value of the L1 button.
-	 * Intended to signify when the climber should go to the next state.
+	 * Intended to signify when the outtake should open.
 	 * @return If the L1 button was pressed this tick
 	 */
 	public boolean isOuttakeButtonPressed() {
@@ -220,7 +204,7 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Gets the value of the L2 (right bumper) button.
+	 * Gets the value of the L2 (left trigger) button.
 	 * Intended to signify if the mechanisms should stop moving.
 	 * @return If the L2 button was pressed this tick.
 	 */
@@ -229,12 +213,12 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Gets the value of the L1 (left bumper) button.
+	 * Gets the value of the R2 (right trigger) button.
 	 * Intended to signify if the mechanisms should reset after an abort.
-	 * @return If the L1 button was pressed this tick.
+	 * @return If the R2 button was pressed this tick.
 	 */
 	public boolean isResetButtonPressed() {
-		return mechController.getL1ButtonPressed();
+		return mechController.getR2ButtonPressed();
 	}
 
 	/**

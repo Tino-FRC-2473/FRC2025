@@ -406,7 +406,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			drivetrain.setControl(brake);
 		}
 
-		if (input.getDriveBackButtonPressed()) {
+		if (input.getDriveOptionsButtonPressed()) {
 			drivetrain.seedFieldCentric();
 		}
 
