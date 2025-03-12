@@ -131,8 +131,9 @@ class AprilTag():
         results = self.detector.detect(gray)
         pose_list = []
         # print("results from distance to tag", results)
+
+        corners = [r.corners for r in results]
         if(len(corners) > 0):
-            corners = [r.corners for r in results]
             # Testing with coral station apriltag
             marker_points_3d = np.array([[-marker_size/2, -marker_size/2, 0], [marker_size/2, -marker_size/2, 0], [marker_size/2, marker_size/2, 0], [-marker_size/2, marker_size/2, 0]], dtype=np.float32)
             #print("length corners", len(corners))
