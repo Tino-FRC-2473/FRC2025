@@ -49,6 +49,7 @@ import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPi;
+import frc.robot.Robot;
 import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
@@ -290,6 +291,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	* @return Whether the robot is aligned to the target apriltag.
 	*/
 	public boolean isAlignedToTag() {
+		if (Robot.isSimulation()) {
+			return true;
+		}
 		return driveToPoseFinished;
 	}
 

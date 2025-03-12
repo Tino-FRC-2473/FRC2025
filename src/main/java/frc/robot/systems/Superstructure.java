@@ -5,6 +5,8 @@ package frc.robot.systems;
 // Third party Hardware Imports
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Robot;
 // Robot Imports
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
@@ -42,6 +44,8 @@ public class Superstructure {
 	private ElevatorFSMSystem elevatorSystem;
 	private DriveFSMSystem driveSystem;
 	private ClimberFSMSystem climberSystem;
+
+	private Timer scoreTimer = new Timer();
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -208,6 +212,7 @@ public class Superstructure {
 					return SuperFSMState.IDLE;
 				}
 				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL2()) {
+					scoreTimer.restart();
 					return SuperFSMState.SCORE;
 				}
 				if (input.isAbortButtonPressed()) {
@@ -219,6 +224,7 @@ public class Superstructure {
 					return SuperFSMState.IDLE;
 				}
 				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL3()) {
+					scoreTimer.restart();
 					return SuperFSMState.SCORE;
 				}
 				if (input.isAbortButtonPressed()) {
@@ -230,6 +236,7 @@ public class Superstructure {
 					return SuperFSMState.IDLE;
 				}
 				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL3()) {
+					scoreTimer.restart();
 					return SuperFSMState.SCORE;
 				}
 				if (input.isAbortButtonPressed()) {
@@ -237,8 +244,8 @@ public class Superstructure {
 				}
 				return SuperFSMState.RAISE_TO_L4;
 			case SCORE:
-				if (!funnelSystem.isHoldingCoral()
-					&& (funnelSystem.getOuttakeTimeElapsed() > Constants.CORAL_SCORE_TIME_SECS)) {
+				if ((!funnelSystem.isHoldingCoral() || Robot.isSimulation())
+						&& scoreTimer.get() > Constants.CORAL_SCORE_TIME_SECS) {
 					return SuperFSMState.POST_SCORE;
 				}
 				if (input.isAbortButtonPressed()) {
@@ -246,16 +253,16 @@ public class Superstructure {
 				}
 				return SuperFSMState.SCORE;
 			case HAS_CORAL:
-				if (funnelSystem.isHoldingCoral() && (
-					input.isSuperL2ButtonPressed()
-					|| input.isSuperL3ButtonPressed() || input.isSuperL4ButtonPressed())) {
+				if (funnelSystem.isHoldingCoral() && (input.isSuperL2ButtonPressed()
+						|| input.isSuperL3ButtonPressed() || input.isSuperL4ButtonPressed())) {
 					return SuperFSMState.PRE_SCORE;
 				}
 				if (!funnelSystem.isHoldingCoral()) {
 					return SuperFSMState.IDLE;
 				}
 			case POST_SCORE:
-				if (!funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtGround()) {
+				if ((!funnelSystem.isHoldingCoral() || Robot.isSimulation())
+						&& elevatorSystem.isElevatorAtGround()) {
 					return SuperFSMState.IDLE;
 				}
 				if (input.isAbortButtonPressed()) {

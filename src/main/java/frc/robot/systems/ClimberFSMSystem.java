@@ -213,6 +213,9 @@ public class ClimberFSMSystem {
 	 * @return if the climber is STOWED
 	 */
 	public boolean isClimberStowed() {
+		if (Robot.isSimulation()) {
+			return true;
+		}
 		return inRange(
 			climberMotor.getPosition().getValueAsDouble(),
 			Constants.CLIMBER_PID_TARGET_LOW,
@@ -224,6 +227,9 @@ public class ClimberFSMSystem {
 	 * @return if the climber is EXTENDED
 	 */
 	public boolean isClimberExtended() {
+		if (Robot.isSimulation()) {
+			return true;
+		}
 		return inRange(
 			climberMotor.getPosition().getValueAsDouble(),
 			Constants.CLIMBER_PID_TARGET_EXTEND,
@@ -235,6 +241,9 @@ public class ClimberFSMSystem {
 	 * @return if the climber is CLIMBED
 	 */
 	public boolean isClimberClimbed() {
+		if (Robot.isSimulation()) {
+			return true;
+		}
 		return inRange(
 			climberMotor.getPosition().getValueAsDouble(),
 			Constants.CLIMBER_PID_TARGET_CLIMB,
