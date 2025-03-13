@@ -159,7 +159,7 @@ class AprilTag():
     def correct_station_angle(self, rvec):
         R, _ = cv2.Rodrigues(rvec)
         # there's a negative for the x position b/c to the left is negative in the opencv2 systems
-        list = [0, 0, 0.331613]
+        list = [0, 0.331613,0 ]
 
         intake_rvec = np.array(list)
         pose_list = R.T @ (rvec - intake_rvec)
