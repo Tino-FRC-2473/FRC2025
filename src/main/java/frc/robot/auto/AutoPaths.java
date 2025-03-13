@@ -6,28 +6,14 @@ import java.util.HashMap;
 import frc.robot.constants.AutoConstants.AutoCommands;
 
 public class AutoPaths {
-	// public static final Object[] B_AT_ALIGN_TEST = new Object[] {
-	// 	new Object[] {"S3_R6_H", AutoCommands.ELEVATOR_L3_CMD},
-	// 	AutoCommands.DRIVE_BRAKE_CMD,
-	// 	new Object[] {AutoCommands.B_ALIGN_REEF6_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
-	// 	AutoCommands.ELEVATOR_L4_CMD,
-	// 	AutoCommands.OUTTAKE_CORAL_CMD,
-	// 	new Object[] {"R6_StationR", AutoCommands.ELEVATOR_GROUND_CMD},
-	// 	AutoCommands.INTAKE_CORAL_CMD,
-	// 	"StationR_R5 (H)",
-	// 	new Object[] {AutoCommands.B_ALIGN_REEF5_L_TAG_CMD, AutoCommands.ELEVATOR_L3_CMD},
-	// 	AutoCommands.ELEVATOR_L4_CMD,
-	// 	AutoCommands.OUTTAKE_CORAL_CMD,
-	// 	AutoCommands.ELEVATOR_GROUND_CMD
-	// };
-
-	// public static final Object[] R_AT_ALIGN_TEST = new Object[] {
-	// 	"S1_R2_H",
-	// 	new Object[] {AutoCommands.R_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
-	// 	AutoCommands.ELEVATOR_L4_CMD,
-	// 	AutoCommands.OUTTAKE_CORAL_CMD,
-	// 	AutoCommands.ELEVATOR_GROUND_CMD
-	// };
+	public static final Object[] NON_AT_PATH_TEST = new Object[] {
+		"S1_R2_H",
+		AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
+		AutoCommands.DRIVE_BRAKE_CMD,
+		// AutoCommands.ELEVATOR_L4_CMD,
+		// AutoCommands.OUTTAKE_CORAL_CMD,
+		// AutoCommands.ELEVATOR_GROUND_CMD,
+	};
 
 	public static final Object[] R_AT_ALIGN_S1_R23 = new Object[] {
 		"S1_R2_H",
