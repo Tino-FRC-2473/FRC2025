@@ -1,55 +1,37 @@
 package frc.robot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleArrayTopic;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.constants.VisionConstants;
 
+import org.photonvision.PhotonCamera;
+
 /**
-* This class is used to get the data from the Raspberry Pi.
-*
-* @author Jaseer Abdulla
+* This class is used to get the data from the Raspberry Pi using PhotonVision.
 */
 public class RaspberryPi {
-	private NetworkTable reefTable;
-	private NetworkTable sourceTable;
-	private DoubleArraySubscriber reefCamSubscriber;
-	private DoubleArraySubscriber sourceCamSubscriber;
-	private final String reefCamName;
-	private final String sourceCamName;
+	private final PhotonCamera reefCamera;
+	private final PhotonCamera stationCamera;
 
 	/**
 	* Default constructor for the RaspberryPi class.
 	*/
 	public RaspberryPi() {
-		reefTable = NetworkTableInstance.getDefault().getTable("reef_table");
-		DoubleArrayTopic reefCamTopic = reefTable.getDoubleArrayTopic("april_tag_data");
-		reefCamSubscriber = reefCamTopic.subscribe(new double[] {});
-
-		sourceTable = NetworkTableInstance.getDefault().getTable("source_table");
-		DoubleArrayTopic sourceCamTopic = sourceTable.getDoubleArrayTopic("april_tag_data");
-		sourceCamSubscriber = sourceCamTopic.subscribe(new double[] {});
-
-		reefCamName = VisionConstants.REEF_CAM_NAME;
-		sourceCamName = VisionConstants.SOURCE_CAM_NAME;
+		reefCamera = new PhotonCamera(VisionConstants.REEF_CAM_NAME);
+		stationCamera = new PhotonCamera(VisionConstants.SOURCE_CAM_NAME);
 	}
 
 	/**
 	 * Prints the raw data for the april tags on the rpi.
 	 */
 	public void printRawData() {
-		double[] reefRawData = reefCamSubscriber.get();
-		double[] sourceRawData = sourceCamSubscriber.get();
-		System.out.println("Reef Raw Data: " + Arrays.toString(reefRawData));
-		System.out.println("Source Raw Data: " + Arrays.toString(sourceRawData));
+		for (AprilTag tag : getAprilTags()) {
+			System.out.println("AprilTag " + tag.getTagID() + " -> " + tag.getPose().toString());
+		}
 	}
 
 	/**
@@ -58,51 +40,73 @@ public class RaspberryPi {
 	*/
 	public ArrayList<AprilTag> getAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
-		atList.addAll(getAprilTagsSingleCam(reefCamSubscriber, reefCamName));
-		atList.addAll(getAprilTagsSingleCam(sourceCamSubscriber, sourceCamName));
+		atList.addAll(getReefAprilTags());
+		atList.addAll(getStationAprilTags());
 		return atList;
 	}
 
 	/**
-	* Returns a list of all AprilTags from one camera.
-	* @param camSub subscriber for the camera
-	* @param camName camera name
-	* @return A list of visible AprilTags
-	*/
-	public ArrayList<AprilTag> getAprilTagsSingleCam(DoubleArraySubscriber camSub, String camName) {
+	 * Returns a list of all april tags from reef CV camera.
+	 * @return all visible reef april tags.
+	 */
+	public ArrayList<AprilTag> getReefAprilTags() {
 		ArrayList<AprilTag> atList = new ArrayList<>();
-		double[] rawData = camSub.get();
 
-		if (rawData.length == 0) {
-			return atList;
-		}
-
-		for (
-			int i = 0;
-			i < rawData.length;
-			i += VisionConstants.AT_ARR_INC
-		) {
-			atList.add(
-				new AprilTag(
-					(int) rawData[i],
-					camName,
+		var results = reefCamera.getLatestResult();
+		if (results.hasTargets()) {
+			for (var target: results.getTargets()) {
+				AprilTag at = new AprilTag(
+					target.getFiducialId(),
+					reefCamera.getName(),
+					new Translation3d(), // camera vector, unused
 					new Translation3d(
-						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET],
-						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET + 1],
-						rawData[i + VisionConstants.AT_ARR_CAMERA_OFFSET + 2]
-					),
-					new Translation3d(
-						rawData[i + VisionConstants.AT_ARR_TRANSLATION_OFFSET],
-						rawData[i + VisionConstants.AT_ARR_TRANSLATION_OFFSET + 1],
-						rawData[i + VisionConstants.AT_ARR_TRANSLATION_OFFSET + 2]
+						target.getBestCameraToTarget().getY(),
+						target.getBestCameraToTarget().getZ(),
+						target.getBestCameraToTarget().getX()
 					),
 					new Rotation3d(
-						rawData[i + VisionConstants.AT_ARR_ROTATION_OFFSET],
-						rawData[i + VisionConstants.AT_ARR_ROTATION_OFFSET + 1],
-						rawData[i + VisionConstants.AT_ARR_ROTATION_OFFSET + 2]
+						target.getBestCameraToTarget().getRotation().getY(),
+						target.getBestCameraToTarget().getRotation().getZ(),
+						target.getBestCameraToTarget().getRotation().getX()
 					)
-				)
-			);
+				);
+				if (at.getPose().getTranslation().getNorm() < VisionConstants.MAX_TAG_TARGET_DISTANCE_X) {
+					atList.add(at);
+				}
+			}
+		}
+		return atList;
+	}
+
+	/**
+	 * Returns all april tags visible from Station CV Camera.
+	 * @return list of all april tags
+	 */
+	public ArrayList<AprilTag> getStationAprilTags() {
+		ArrayList<AprilTag> atList = new ArrayList<>();
+
+		var results = stationCamera.getLatestResult();
+		if (results.hasTargets()) {
+			for (var target: results.getTargets()) {
+				AprilTag at = new AprilTag(
+					target.getFiducialId(),
+					stationCamera.getName(),
+					new Translation3d(), // camera vector, unused
+					new Translation3d(
+						-target.getBestCameraToTarget().getY(),
+						-target.getBestCameraToTarget().getZ(),
+						-target.getBestCameraToTarget().getX()
+					),
+					new Rotation3d(
+						target.getBestCameraToTarget().getRotation().getY(),
+						target.getBestCameraToTarget().getRotation().getZ(),
+						target.getBestCameraToTarget().getRotation().getX()
+					)
+				);
+				if (at.getPose().getTranslation().getNorm() < VisionConstants.MAX_TAG_TARGET_DISTANCE_X) {
+					atList.add(at);
+				}
+			}
 		}
 		return atList;
 	}
@@ -121,22 +125,6 @@ public class RaspberryPi {
 	}
 
 	/**
-	 * Get all april tags reported from the station camera.
-	 * @return list of all apriltags
-	 */
-	public ArrayList<AprilTag> getStationAprilTags() {
-		return getAprilTagsSingleCam(sourceCamSubscriber, VisionConstants.SOURCE_CAM_NAME);
-	}
-
-	/**
-	 * Get all april tags reported from the reef camera.
-	 * @return list of all april tags
-	 */
-	public ArrayList<AprilTag> getReefAprilTags() {
-		return getAprilTagsSingleCam(reefCamSubscriber, VisionConstants.REEF_CAM_NAME);
-	}
-
-	/**
 	 * Checks if any AprilTags are in view.
 	 * @return A boolean representing if any tags are in view
 	 */
@@ -150,7 +138,7 @@ public class RaspberryPi {
 	 */
 	public AprilTag getClosestTag() {
 		ArrayList<AprilTag> atlist = getAprilTags();
-		if (getAprilTags().size() == 0) {
+		if (atlist.size() == 0) {
 			return null;
 		}
 		return Collections.max(atlist);
