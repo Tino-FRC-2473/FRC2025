@@ -2,12 +2,17 @@ package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
 import com.playingwithfusion.TimeOfFlight;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
+import frc.robot.constants.SimConstants;
+import frc.robot.logging.MechLogging;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
 
@@ -123,8 +128,9 @@ public class FunnelFSMSystem {
 	 */
 	public boolean isHoldingCoral() {
 		if (Robot.isSimulation()) {
-			return true;
+			return MechLogging.getInstance().doesSimRobotHaveCoral();
 		}
+
 		return !coralBreakBeam.get(); // true = beam intact
 		// return true; // temp always hold coral
 	}
@@ -179,6 +185,9 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
+		if (Robot.isSimulation()) {
+			MechLogging.getInstance().dropCoral();
+		}
 		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
 	}
 	/**

@@ -4,7 +4,6 @@
 package frc.robot;
 
 // Java Imports
-import java.util.HashMap;
 
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
@@ -18,7 +17,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 // WPILib Imports
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -34,7 +32,6 @@ import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
-import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
@@ -244,6 +241,14 @@ public class Robot extends LoggedRobot {
 	public void simulationPeriodic() {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem.getMapleSimDrivetrain().update();
+
+			var sim = driveSystem.getMapleSimDrivetrain().getDriveSimulation();
+
+			MechLogging.getInstance().updateDrivetrainValues(
+				sim.getSimulatedDriveTrainPose(),
+				sim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+				sim.getGyroSimulation().getGyroReading()
+			);
 		}
 
 		Logger.recordOutput(
