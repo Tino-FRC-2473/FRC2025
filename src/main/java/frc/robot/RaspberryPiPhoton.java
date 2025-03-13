@@ -71,7 +71,8 @@ public class RaspberryPiPhoton extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getX()
 					)
 				);
-				if (at.getPose().getTranslation().getNorm() < VisionConstants.MAX_TAG_TARGET_DISTANCE_X) {
+				if (at.getPose().getTranslation().getNorm()
+					< VisionConstants.MAX_TAG_TARGET_DISTANCE_X) {
 					atList.add(at);
 				}
 			}
