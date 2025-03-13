@@ -47,6 +47,7 @@ import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPi;
+import frc.robot.RaspberryPiPhoton;
 import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
@@ -166,7 +167,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	public DriveFSMSystem(ElevatorFSMSystem elevatorFSMSystem) {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
-		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPi();
+		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPiPhoton();
 
 		slewRateX = new SlewRateLimiter(DriveConstants.SLEW_RATE);
 		slewRateY = new SlewRateLimiter(DriveConstants.SLEW_RATE);
