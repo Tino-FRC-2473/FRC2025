@@ -43,10 +43,8 @@ class AprilTag():
         #print(num_tags)
             # Estimate the pose of each detected marker
         for i in range(num_tags):
-            if(self.cam_name == "source"):
-                pose_list.append(ids[i])
-                pose_list.extend(self.distance_to_station_tag(image, ARUCO_LENGTH_METERS).flatten())
-                continue
+            
+                
 
             # Estimate the pose
             tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
@@ -60,6 +58,9 @@ class AprilTag():
 
             # original_x = tvec[0]
             # tvec[0] =  (original_x + AT_X_OFFSET)
+            if(self.cam_name == "source"):
+                tvec = self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
+                rvec = self.correct_station_angle(rvec)
 
             pose_list.extend(tvec)
             euler_rvec = self.rotation_vector_to_euler_angles(rvec)
@@ -154,85 +155,98 @@ class AprilTag():
             pose_list[0] = -1 * pose_list[0]
 
         return pose_list
+    
+    def correct_station_angle(self, rvec):
+        R, _ = cv2.Rodrigues(rvec)
+        # there's a negative for the x position b/c to the left is negative in the opencv2 systems
+        list = [0, 0, 0.331613]
 
-def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_relative: Path, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
-    """
-    gets intrinsic parameters for the camera
+        intake_rvec = np.array(list)
+        pose_list = R.T @ (rvec - intake_rvec)
+        # multiplying by negative one b/c of the way that vector adition works
+        pose_list[2] = -1 * pose_list[2]
+        pose_list[0] = -1 * pose_list[0]
 
-    Args: 
-    RES (typle): camera frame width, height in pixels
-    input_dir_relative (string): path to folder with images being used for calibration (relative to this file)
-    output_dir (string): path to folder to save the npy files (relative to this file)
-    square_size (int): size of the squares on the checkerboard you are using to calibrate in meters
-    width (int): the width of the checkerboard referencing the inner corners of the checkerboard you are using to calibrate (usually 2 less than you actual width)
-    height (int): the height of the checerbord referencing the inner corners of the checkerboard you are using to calibrate (usually 2 less than you actual height)
-    file_name (string): name of the file that you would like the npy data to be saved to 
-    bw_camera (bool): set to true if using a monochrome camera otherwise set to false
-    visualize (bool): set to true if you would like to see the calibration images
-    """
-    bw_camera = True
-    # termination criteria
-    # cv2.TERM_CRITERIA_EPS is used below in the corner sub pixel function 
-    # where the euclidean distance between corners detected in calibration images is compared 
-    # and once it reaches the constant epsilon corner sub pixel terminates
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        return pose_list
 
-    # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(8,6,0)
-    objp = np.zeros((height*width, 3), np.float32)
-    objp[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
+    def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_relative: Path, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
+        """
+        gets intrinsic parameters for the camera
 
-    objp = objp * square_size
+        Args: 
+        RES (typle): camera frame width, height in pixels
+        input_dir_relative (string): path to folder with images being used for calibration (relative to this file)
+        output_dir (string): path to folder to save the npy files (relative to this file)
+        square_size (int): size of the squares on the checkerboard you are using to calibrate in meters
+        width (int): the width of the checkerboard referencing the inner corners of the checkerboard you are using to calibrate (usually 2 less than you actual width)
+        height (int): the height of the checerbord referencing the inner corners of the checkerboard you are using to calibrate (usually 2 less than you actual height)
+        file_name (string): name of the file that you would like the npy data to be saved to 
+        bw_camera (bool): set to true if using a monochrome camera otherwise set to false
+        visualize (bool): set to true if you would like to see the calibration images
+        """
+        bw_camera = True
+        # termination criteria
+        # cv2.TERM_CRITERIA_EPS is used below in the corner sub pixel function 
+        # where the euclidean distance between corners detected in calibration images is compared 
+        # and once it reaches the constant epsilon corner sub pixel terminates
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-    # Arrays to store object points and image points from all the images.
-    objpoints = []  # 3d point in real world space
-    imgpoints = []  # 2d points in image plane.
+        # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(8,6,0)
+        objp = np.zeros((height*width, 3), np.float32)
+        objp[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
 
-    input_dir = basePath.joinpath(input_dir_relative)
-    output_dir = basePath.joinpath(output_dir_relative)
+        objp = objp * square_size
 
-    #Path(output_dir).mkdir(exist_ok=True) # create calibration directory if it doesn't exist
-    images = input_dir.iterdir()
+        # Arrays to store object points and image points from all the images.
+        objpoints = []  # 3d point in real world space
+        imgpoints = []  # 2d points in image plane.
 
-    #print(images)
+        input_dir = basePath.joinpath(input_dir_relative)
+        output_dir = basePath.joinpath(output_dir_relative)
 
-    for i, fname in enumerate(images):
-        if not bw_camera:
-            img_path = input_dir.joinpath(fname)
-            img = cv2.imread(img_path)
-            img = cv2.resize(img, RES)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        else:
-            try:
-                img = cv2.imread(input_dir.joinpath(fname), cv2.IMREAD_GRAYSCALE)
+        #Path(output_dir).mkdir(exist_ok=True) # create calibration directory if it doesn't exist
+        images = input_dir.iterdir()
+
+        #print(images)
+
+        for i, fname in enumerate(images):
+            if not bw_camera:
+                img_path = input_dir.joinpath(fname)
+                img = cv2.imread(img_path)
                 img = cv2.resize(img, RES)
-            except Exception as e:
-                print(f"Error reading or resizing image {fname}: {e}")
-                continue
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            else:
+                try:
+                    img = cv2.imread(input_dir.joinpath(fname), cv2.IMREAD_GRAYSCALE)
+                    img = cv2.resize(img, RES)
+                except Exception as e:
+                    print(f"Error reading or resizing image {fname}: {e}")
+                    continue
 
-        # Find the chess board inner corners
-        ret, corners = cv2.findChessboardCorners(img, (width, height), None)
+            # Find the chess board inner corners
+            ret, corners = cv2.findChessboardCorners(img, (width, height), None)
 
-        # If found, add object points, image points (after refining them)
-        if ret:
-            print(f"Image #{(i+1):0>2} : {fname} - Found corners")
-            objpoints.append(objp)
+            # If found, add object points, image points (after refining them)
+            if ret:
+                print(f"Image #{(i+1):0>2} : {fname} - Found corners")
+                objpoints.append(objp)
 
-            corners2 = cv2.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
-            imgpoints.append(corners2)
+                corners2 = cv2.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
+                imgpoints.append(corners2)
 
-            # Draw and display the corners
-            img = cv2.drawChessboardCorners(img, (width, height), corners2, ret)
-        else:
-            print(f"Image #{(i+1):0>2} : {fname} - Could not find corners")
+                # Draw and display the corners
+                img = cv2.drawChessboardCorners(img, (width, height), corners2, ret)
+            else:
+                print(f"Image #{(i+1):0>2} : {fname} - Could not find corners")
 
-        if visualize:
-            cv2.imshow('img',img)
-            cv2.waitKey(0)
+            if visualize:
+                cv2.imshow('img',img)
+                cv2.waitKey(0)
 
-    
-    ret, mtx, dist, rvec, tvec = cv2.calibrateCamera(objpoints, imgpoints, img.shape[::-1], None, None)
+        
+        ret, mtx, dist, rvec, tvec = cv2.calibrateCamera(objpoints, imgpoints, img.shape[::-1], None, None)
 
-    np.save(f"{output_dir}/{file_name}matrix", mtx)
-    np.save(f"{output_dir}/{file_name}dist", dist)
-    print('Calibration complete')
-    
+        np.save(f"{output_dir}/{file_name}matrix", mtx)
+        np.save(f"{output_dir}/{file_name}dist", dist)
+        print('Calibration complete')
+        

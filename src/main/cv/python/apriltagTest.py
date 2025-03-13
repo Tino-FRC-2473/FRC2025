@@ -20,7 +20,7 @@ while True:
     # print("frame size", frame.shape)
     annotated_frame = frame.copy()
     tagData = tag_module.estimate_3d_pose(frame, ARUCO_LENGTH_METERS)
-    print(tagData)
+    print(tagData[9])
 
     #code to debug distance to tag function
     #tags = [10, 0, 0, 0, 3, 3, 3, 9, 9, 9, 11, 0, 0, 0, 2, 2, 2, 9, 9, 9, 12, 0, 0, 0, 1, 1, 1, 9, 9, 9]
