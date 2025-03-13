@@ -115,9 +115,8 @@ public class ElevatorFSMSystem {
 		elevatorMotor.optimizeBusUtilization();
 			// MUST set brake after applying other configs
 
-		// Initialize limit switches
+		// Initialize limit switch
 		groundLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT);
-			//okay for stopping and resetting
 
 		// Reset state machine
 
@@ -210,8 +209,8 @@ public class ElevatorFSMSystem {
 		Logger.recordOutput("Elev Inrage L4?", inRange(getElevatorpos(),
 			Constants.ELEVATOR_TARGET_L4));
 
-		Logger.recordOutput("ROOR POS", elevatorMotor.getRotorPosition().getValueAsDouble());
-		Logger.recordOutput("ROOR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
+		Logger.recordOutput("ROTR POS", elevatorMotor.getRotorPosition().getValueAsDouble());
+		Logger.recordOutput("ROTR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
 	}
 
 	/**
@@ -223,10 +222,11 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
-	 * Handle the elevator states in manual mode.
-	 * @param input The input to the elevator.
+	 * Handle the elevator states under manual superstructure control.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *        the robot is in autonomous mode.
 	 */
-	public void handleStates(TeleopInput input) {
+	public void handleManualStates(TeleopInput input) {
 		currentState = nextState(input);
 	}
 
@@ -372,7 +372,7 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
-	 * Handle behavior in L2.
+	 * Handle behavior in LEVEL2.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
@@ -383,7 +383,7 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
-	 * Handle behavior in L3.
+	 * Handle behavior in LEVEL3.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
@@ -394,7 +394,7 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
-	 * Handle behavior in L4.
+	 * Handle behavior in LEVEL4.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
@@ -402,17 +402,6 @@ public class ElevatorFSMSystem {
 		elevatorMotor.setControl(
 				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
 		);
-	}
-
-	/**
-	 * Is elevator at L4 boolean accessor.
-	 * @return whether or not elevator is at L4.
-	 */
-	public boolean isElevatorAtL4() {
-		if (Robot.isSimulation()) {
-			return true;
-		}
-		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
 	}
 
 	/**
@@ -435,6 +424,17 @@ public class ElevatorFSMSystem {
 			return true;
 		}
 		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3);
+	}
+
+	/**
+	 * Is elevator at L4 boolean accessor.
+	 * @return whether or not elevator is at L4.
+	 */
+	public boolean isElevatorAtL4() {
+		if (Robot.isSimulation()) {
+			return true;
+		}
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
 	}
 
 	/**
@@ -483,6 +483,7 @@ public class ElevatorFSMSystem {
 		}
 	}
 
+	/** A command that waits for one second. */
 	class WaitCommand extends Command {
 		private Timer timer;
 
@@ -531,8 +532,6 @@ public class ElevatorFSMSystem {
 			this.setTarget(Constants.ELEVATOR_TARGET_L4);
 		}
 	}
-
-	// FOR COMMANDS: JUST SET THE STATE (UPDATE IS STILL CALLED). INVESTIGATE WEEK 4.
 
 	/**
 	 * Creates a Command to move the elevator to the ground position.

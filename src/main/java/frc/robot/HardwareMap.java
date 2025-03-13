@@ -45,18 +45,18 @@ public final class HardwareMap {
 	}
 
 	/**
-	 * Check if climber hardware is available to the RoboRIO.
-	 * @return true if climber hardware is present
-	 */
-	public static boolean isClimberHardwarePresent() {
-		return true;
-	}
-
-	/**
 	 * Check if funnel hardware is available to the RoboRIO.
 	 * @return true if funnel hardware is present
 	 */
 	public static boolean isFunnelHardwarePresent() {
+		return true;
+	}
+
+	/**
+	 * Check if climber hardware is available to the RoboRIO.
+	 * @return true if climber hardware is present
+	 */
+	public static boolean isClimberHardwarePresent() {
 		return true;
 	}
 

@@ -201,10 +201,11 @@ public class ClimberFSMSystem {
 	}
 
 	/**
-	 * Handle the elevator states in manual mode.
-	 * @param input The input to the elevator.
+	 * Handle the climber states under manual superstructure control.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *        the robot is in autonomous mode.
 	 */
-	public void handleStates(TeleopInput input) {
+	public void handleManualStates(TeleopInput input) {
 		currentState = nextState(input);
 	}
 

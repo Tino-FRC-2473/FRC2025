@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -27,13 +28,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 // Systems
-import frc.robot.systems.ClimberFSMSystem;
+import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.LEDFSMSystem;
 import frc.robot.systems.Superstructure;
+
 import frc.robot.utils.Elastic;
-import frc.robot.systems.DriveFSMSystem;
 
 // Robot Imports
 import frc.robot.auto.AutoRoutines;
@@ -53,7 +55,6 @@ public class Robot extends LoggedRobot {
 
 	private SendableChooser<String> autoChooser = new SendableChooser<String>();
 	private String autCommand;
-
 
 	private Superstructure superstructure;
 	private ElevatorFSMSystem elevatorSystem;
@@ -93,6 +94,8 @@ public class Robot extends LoggedRobot {
 
 		input = new TeleopInput();
 
+		// Instantiate all systems here
+
 		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
@@ -102,7 +105,6 @@ public class Robot extends LoggedRobot {
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
-		// Instantiate all systems here
 		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
 			if (elevatorSystem != null) {
 				driveSystem = new DriveFSMSystem(elevatorSystem);
@@ -202,6 +204,8 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.reset();
 		}
+
+		superstructure.reset();
 	}
 
 	@Override

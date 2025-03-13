@@ -21,12 +21,12 @@ public class Superstructure {
 	// FSM state definitions
 	public enum SuperFSMState {
 		IDLE,
+		HAS_CORAL,
 		PRE_SCORE,
 		SCORE,
 		RAISE_TO_L2,
 		RAISE_TO_L3,
 		RAISE_TO_L4,
-		HAS_CORAL,
 		POST_SCORE,
 		PRE_CLIMB,
 		CLIMB,
@@ -107,6 +107,9 @@ public class Superstructure {
 			case IDLE:
 				handleIdleState(input);
 				break;
+			case HAS_CORAL:
+				handleHasCoralState(input);
+				break;
 			case PRE_SCORE:
 				handlePreScoreState(input);
 				break;
@@ -119,11 +122,11 @@ public class Superstructure {
 			case RAISE_TO_L4:
 				handleRaiseL4State(input);
 				break;
-			case POST_SCORE:
-				handlePostScoreState(input);
-				break;
 			case SCORE:
 				handleScoreCoralState(input);
+				break;
+			case POST_SCORE:
+				handlePostScoreState(input);
 				break;
 			case PRE_CLIMB:
 				handlePreClimbState(input);
@@ -133,9 +136,6 @@ public class Superstructure {
 				break;
 			case RESET_CLIMB:
 				handleResetClimbState(input);
-				break;
-			case HAS_CORAL:
-				handleHasCoralState(input);
 				break;
 			case ABORT:
 				handleAbortState(input);
@@ -189,6 +189,14 @@ public class Superstructure {
 					return SuperFSMState.PRE_SCORE;
 				}
 				return SuperFSMState.IDLE;
+			case HAS_CORAL:
+				if (funnelSystem.isHoldingCoral() && (input.isSuperL2ButtonPressed()
+						|| input.isSuperL3ButtonPressed() || input.isSuperL4ButtonPressed())) {
+					return SuperFSMState.PRE_SCORE;
+				}
+				if (!funnelSystem.isHoldingCoral()) {
+					return SuperFSMState.IDLE;
+				}
 			case PRE_SCORE:
 				if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
@@ -252,14 +260,6 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.SCORE;
-			case HAS_CORAL:
-				if (funnelSystem.isHoldingCoral() && (input.isSuperL2ButtonPressed()
-						|| input.isSuperL3ButtonPressed() || input.isSuperL4ButtonPressed())) {
-					return SuperFSMState.PRE_SCORE;
-				}
-				if (!funnelSystem.isHoldingCoral()) {
-					return SuperFSMState.IDLE;
-				}
 			case POST_SCORE:
 				if ((!funnelSystem.isHoldingCoral() || Robot.isSimulation())
 						&& elevatorSystem.isElevatorAtGround()) {
@@ -323,6 +323,18 @@ public class Superstructure {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
 		funnelSystem.setState(FunnelFSMState.INTAKE);
+		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	/**.
+	 * Handle behavior in HAS_CORAL
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleHasCoralState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		elevatorSystem.setState(ElevatorFSMState.GROUND);
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -457,17 +469,6 @@ public class Superstructure {
 		funnelSystem.setState(FunnelFSMState.IDLE); // TODO: confirm funnel reset pos
 		climberSystem.setState(ClimberFSMState.STOWED);
 	}
-	/**.
-	 * Handle behavior in HAS_CORAL
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handleHasCoralState(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.IDLE);
-		climberSystem.setState(ClimberFSMState.IDLE);
-	}
 
 	/**
 	 * Handle behavior in MANUAL.
@@ -476,9 +477,8 @@ public class Superstructure {
 	 */
 	private void handleManualState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.handleStates(input);
-		funnelSystem.handleStates(input);
-		climberSystem.handleStates(input);
+		elevatorSystem.handleManualStates(input);
+		funnelSystem.handleManualStates(input);
+		climberSystem.handleManualStates(input);
 	}
-
 }
