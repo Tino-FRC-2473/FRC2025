@@ -12,7 +12,7 @@ public final class HardwareMap {
 	public static final int CAN_ID_CLIMBER =
 		Robot.isSimulation() ? CAN_ID_CLIMBER_SIM : CAN_ID_CLIMBER_REAL; // FINAL
 
-	public static final int CAN_ID_INTAKE = -1; // TBD
+	public static final int CAN_ID_INTAKE = 16; // TBD
 
 	// rio - dio ports
 	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT = 0; // FINAL
