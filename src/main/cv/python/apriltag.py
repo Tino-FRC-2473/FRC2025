@@ -157,7 +157,7 @@ class AprilTag():
             cp[0] *= -1
 
             cr = R_x @ R
-            cea = Rotation.from_matrix(cr).as_euler("xyz", degrees=False)
+            cea = Rotation.from_matrix(cr).as_euler("zyx", degrees=False)
             
             pose_list.extend(np.zeros(3))
             pose_list.extend(cp)
