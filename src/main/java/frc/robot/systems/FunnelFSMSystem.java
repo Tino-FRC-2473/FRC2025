@@ -1,16 +1,11 @@
 package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+
 import frc.robot.constants.Constants;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
@@ -26,7 +21,6 @@ public class FunnelFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
 	public enum FunnelFSMState {
-		INTAKE,
 		OUTTAKE,
 		IDLE
 	}
@@ -40,7 +34,6 @@ public class FunnelFSMSystem {
 	private Servo outtakeServo;
 
 	private DigitalInput coralBreakBeam;
-	private boolean timerRunning;
 	private Timer outtakeTimer = new Timer();
 
 	/* ======================== Constructor ======================== */
@@ -95,10 +88,6 @@ public class FunnelFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case INTAKE:
-				handleIntakeState(input);
-				break;
-
 			case OUTTAKE:
 				handleOuttakeState(input);
 				break;
@@ -174,8 +163,6 @@ public class FunnelFSMSystem {
 			case IDLE:
 				if (input.isOuttakeButtonPressed()) {
 					return FunnelFSMState.OUTTAKE;
-				} else if (!isHoldingCoral()) {
-					return FunnelFSMState.INTAKE;
 				}
 				return FunnelFSMState.IDLE;
 
@@ -185,12 +172,6 @@ public class FunnelFSMSystem {
 				}
 				return FunnelFSMState.OUTTAKE;
 
-			case INTAKE:
-				if (isHoldingCoral()) {
-					return FunnelFSMState.IDLE;
-				}
-				return FunnelFSMState.INTAKE;
-
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -198,30 +179,15 @@ public class FunnelFSMSystem {
 
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
-	 * Handle behavior in INTAKE.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handleIntakeState(TeleopInput input) {
-		outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
-		timerRunning = false;
-	}
-
-	/**
 	 * Handle behavior in OUTTAKE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		if (!timerRunning) {
-			timerRunning = true;
-			outtakeTimer.reset();
-			outtakeTimer.start();
-		}
+		outtakeServo.set(Constants.OUTTAKE_OPEN_POS_ROTS);
 
-		if (outtakeTimer.get() >= 1) {
-			outtakeServo.set(Constants.OUTTAKE_OPEN_POS_ROTS);
-		}
+		outtakeTimer.reset();
+		outtakeTimer.start();
 	}
 
 	/**
@@ -230,8 +196,9 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleIdleState(TeleopInput input) {
-		outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
-		timerRunning = false;
+		if (outtakeTimer.get() >= Constants.CORAL_SCORE_TIME_SECS) {
+			outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
+		}
 	}
 
 	/* ---- Funnel Commands ---- */

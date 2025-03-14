@@ -22,6 +22,10 @@ import frc.robot.Robot;
 // Robot Imports
 import frc.robot.TeleopInput;
 
+/**
+ * Do not use this class as it relies on scrapped intake motor modifications.
+ */
+@Deprecated
 public class FunnelIntakeFSMSystem {
 	/* ======================== Constants ======================== */
 	// FSM state definitions
