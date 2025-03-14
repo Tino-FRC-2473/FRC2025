@@ -17,10 +17,16 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
@@ -56,6 +62,14 @@ public class ElevatorFSMSystem {
 	private DigitalInput groundLimitSwitch;
 
 	private FunnelFSMSystem funnelSystem; // only used for break beam
+
+	private DCMotor gearbox = DCMotor.getKrakenX60(1);
+
+	private LinearSystem<N2, N1, N2> elevatorSystem = LinearSystemId.createElevatorSystem(
+		gearbox, 0, 0, 0);
+
+	private ElevatorSim elevatorSim = new ElevatorSim(elevatorSystem, gearbox, 0, 0, isBottomLimitReached(), 0, null)
+
 
 	/* ======================== Constructor ======================== */
 

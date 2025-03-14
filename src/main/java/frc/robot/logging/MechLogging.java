@@ -58,15 +58,15 @@ public final class MechLogging {
 		return instance;
 	}
 
-	/**
-	 * Drop the coral with the specified pose.
-	 */
-	public void dropCoral() {
-		if (!doesSimRobotHaveCoral) {
-			return;
-		}
-		doesSimRobotHaveCoral = false;
-	}
+	// /**
+	//  * Drop the coral with the specified pose.
+	//  */
+	// public void dropCoral() {
+	// 	if (!doesSimRobotHaveCoral) {
+	// 		return;
+	// 	}
+	// 	doesSimRobotHaveCoral = false;
+	// }
 	
 
 
@@ -102,70 +102,70 @@ public final class MechLogging {
 	 * If it is, checks if it can intake coral
 	 * Finally calls dropCoral to pick up the coral.
 	 */
-	public void intakeCoral() {
-		// Timer
-		Timer timer = new Timer();
-		timer.start();
-		boolean timerRunning = true;
+	// public void intakeCoral() {
+	// 	// Timer
+	// 	Timer timer = new Timer();
+	// 	timer.start();
+	// 	boolean timerRunning = true;
 	
-		double robotHeading = drivetrainPose.getRotation().getRadians();
-		double translationX = SimConstants.WIDTH_IN * Math.cos(robotHeading);
-		double translationY = SimConstants.WIDTH_IN * Math.sin(robotHeading);
-		double robotBackX = drivetrainPose.getX() - translationX;
-		double robotBackY = drivetrainPose.getY() - translationY;
+	// 	double robotHeading = drivetrainPose.getRotation().getRadians();
+	// 	double translationX = SimConstants.WIDTH_IN * Math.cos(robotHeading);
+	// 	double translationY = SimConstants.WIDTH_IN * Math.sin(robotHeading);
+	// 	double robotBackX = drivetrainPose.getX() - translationX;
+	// 	double robotBackY = drivetrainPose.getY() - translationY;
 	
-		try {
-			AprilTagFieldLayout fieldLayout = new AprilTagFieldLayout("../constants/tagAbsPos.json");
-			if (fieldLayout != null) {
-				if (DriverStation.getAlliance().equals(Alliance.Blue)) {
-					Optional<Pose3d> stationLeft = fieldLayout.getTagPose(SimConstants.BLUE_STATION_LEFT_APRILTAG_ID);
-					Optional<Pose3d> stationRight = fieldLayout.getTagPose(SimConstants.BLUE_STATION_RIGHT_APRILTAG_ID);
-					double stationLeftX = 0, stationLeftY = 0, stationRightX = 0, stationRightY = 0;
+	// 	try {
+	// 		AprilTagFieldLayout fieldLayout = new AprilTagFieldLayout("../constants/tagAbsPos.json");
+	// 		if (fieldLayout != null) {
+	// 			if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+	// 				Optional<Pose3d> stationLeft = fieldLayout.getTagPose(SimConstants.BLUE_STATION_LEFT_APRILTAG_ID);
+	// 				Optional<Pose3d> stationRight = fieldLayout.getTagPose(SimConstants.BLUE_STATION_RIGHT_APRILTAG_ID);
+	// 				double stationLeftX = 0, stationLeftY = 0, stationRightX = 0, stationRightY = 0;
 	
-					if (stationLeft.isPresent()) {
-						stationLeftX = stationLeft.get().getX();
-						stationLeftY = stationLeft.get().getY();
-					}
-					if (stationRight.isPresent()) {
-						stationRightX = stationRight.get().getX();
-						stationRightY = stationRight.get().getY();
-					}
+	// 				if (stationLeft.isPresent()) {
+	// 					stationLeftX = stationLeft.get().getX();
+	// 					stationLeftY = stationLeft.get().getY();
+	// 				}
+	// 				if (stationRight.isPresent()) {
+	// 					stationRightX = stationRight.get().getX();
+	// 					stationRightY = stationRight.get().getY();
+	// 				}
 	
-					// Check if the robot is within 2 centimeters of the station
-					double distanceLeft = Math.sqrt(Math.pow(robotBackX - stationLeftX, 2) + Math.pow(robotBackY - stationLeftY, 2));
-					double distanceRight = Math.sqrt(Math.pow(robotBackX - stationRightX, 2) + Math.pow(robotBackY - stationRightY, 2));
-					boolean isInZone = (distanceLeft <= 0.02 || distanceRight <= 0.02);
+	// 				// Check if the robot is within 2 centimeters of the station
+	// 				double distanceLeft = Math.sqrt(Math.pow(robotBackX - stationLeftX, 2) + Math.pow(robotBackY - stationLeftY, 2));
+	// 				double distanceRight = Math.sqrt(Math.pow(robotBackX - stationRightX, 2) + Math.pow(robotBackY - stationRightY, 2));
+	// 				boolean isInZone = (distanceLeft <= 0.02 || distanceRight <= 0.02);
 	
-					double stationAngleLeft = Math.atan2(stationLeftY - robotBackY, stationLeftX - robotBackX);
-					double stationAngleRight = Math.atan2(stationRightY - robotBackY, stationRightX - robotBackX);
-					double robotAngle = drivetrainPose.getRotation().getRadians();
+	// 				double stationAngleLeft = Math.atan2(stationLeftY - robotBackY, stationLeftX - robotBackX);
+	// 				double stationAngleRight = Math.atan2(stationRightY - robotBackY, stationRightX - robotBackX);
+	// 				double robotAngle = drivetrainPose.getRotation().getRadians();
 	
-					boolean isParallel = Math.abs(stationAngleLeft - robotAngle) <= Math.toRadians(5) ||
-										 Math.abs(stationAngleRight - robotAngle) <= Math.toRadians(5);
-					Logger.recordOutput("isParallel", isParallel);
-					Logger.recordOutput("inZone", isInZone);
+	// 				boolean isParallel = Math.abs(stationAngleLeft - robotAngle) <= Math.toRadians(5) ||
+	// 									 Math.abs(stationAngleRight - robotAngle) <= Math.toRadians(5);
+	// 				Logger.recordOutput("isParallel", isParallel);
+	// 				Logger.recordOutput("inZone", isInZone);
 
 
 	
-					if (isInZone && isParallel) {
-						if (!timerRunning) {  // If the timer isn't running, start it
-							timer.start();
-							timerRunning = true;
-						}
-					} else {
-						if (timerRunning) {  // If the robot is out of the zone, stop the timer
-							timer.reset();
-							timerRunning = false;
-						}
-					}
-				}
-			}
-		} catch (IOException error) {
-			System.out.println(error.getMessage());
-		}
-	}
+	// 				if (isInZone && isParallel) {
+	// 					if (!timerRunning) {  // If the timer isn't running, start it
+	// 						timer.start();
+	// 						timerRunning = true;
+	// 					}
+	// 				} else {
+	// 					if (timerRunning) {  // If the robot is out of the zone, stop the timer
+	// 						timer.reset();
+	// 						timerRunning = false;
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	} catch (IOException error) {
+	// 		System.out.println(error.getMessage());
+	// 	}
+	// }
 	
-	// need to check if all along the length of the station if two cm away with some degree of error on angle, then  
+	// // need to check if all along the length of the station if two cm away with some degree of error on angle, then  
 
 
 
@@ -203,83 +203,83 @@ public final class MechLogging {
 		);
 	}
 
-	/**
-	 * Updates the pose for the climber based on encoder position.
-	 * @param encoderSimPosition the simulated location of the climber motor encoder.
-	 */
-	public void updatesClimberPose3d(Angle encoderSimPosition) {
-		climberPose = new Pose3d(
-			SimConstants.CLIMBER_ZERO_POS,
-			new Rotation3d(
-				encoderSimPosition.div(SimConstants.CLIMBER_GEAR_RATIO).in(Radians),
-				0,
-				0
-			)
-		);
-	}
+	// /**
+	//  * Updates the pose for the climber based on encoder position.
+	//  * @param encoderSimPosition the simulated location of the climber motor encoder.
+	//  */
+	// public void updatesClimberPose3d(Angle encoderSimPosition) {
+	// 	climberPose = new Pose3d(
+	// 		SimConstants.CLIMBER_ZERO_POS,
+	// 		new Rotation3d(
+	// 			encoderSimPosition.div(SimConstants.CLIMBER_GEAR_RATIO).in(Radians),
+	// 			0,
+	// 			0
+	// 		)
+	// 	);
+	// }
 
-	/**
-	 * Get the primary elevator pose.
-	 * @return the pose of the inner part of the elevator
-	 */
-	public Pose3d getElevatorStage1() {
-		return elevatorStage1;
-	}
+	// /**
+	//  * Get the primary elevator pose.
+	//  * @return the pose of the inner part of the elevator
+	//  */
+	// public Pose3d getElevatorStage1() {
+	// 	return elevatorStage1;
+	// }
 
-	/**
-	 * Get the secondary elevator pose.
-	 * @return the pose of the inner-most part of the elevator
-	 */
-	public Pose3d getElevatorStage2() {
-		return elevatorStage2;
-	}
+	// /**
+	//  * Get the secondary elevator pose.
+	//  * @return the pose of the inner-most part of the elevator
+	//  */
+	// public Pose3d getElevatorStage2() {
+	// 	return elevatorStage2;
+	// }
 
-	/**
-	 * Get the elevator stage 3 position.
-	 * @return the elevator stage 3 position
-	 */
-	public Pose3d getElevatorStage3() {
-		return elevatorStage3;
-	}
+	// /**
+	//  * Get the elevator stage 3 position.
+	//  * @return the elevator stage 3 position
+	//  */
+	// public Pose3d getElevatorStage3() {
+	// 	return elevatorStage3;
+	// }
 
-	/**
-	 * Get the pose of the climber ligament.
-	 * @return pose of the rotating climber ligament.
-	 */
-	public Pose3d getClimberPose() {
-		return climberPose;
-	}
+	// /**
+	//  * Get the pose of the climber ligament.
+	//  * @return pose of the rotating climber ligament.
+	//  */
+	// public Pose3d getClimberPose() {
+	// 	return climberPose;
+	// }
 
-	/**
-	 * Getter for the array of poses we want to simulate.
-	 * @return the array of poses to display in advantageScope
-	 */
-	public Pose3d[] getRobotPoses() {
-		return new Pose3d[]{
-			getElevatorStage1(),
-			getElevatorStage2(),
-			getElevatorStage3(),
-			getClimberPose()
-		};
-	}
+	// /**
+	//  * Getter for the array of poses we want to simulate.
+	//  * @return the array of poses to display in advantageScope
+	//  */
+	// public Pose3d[] getRobotPoses() {
+	// 	return new Pose3d[]{
+	// 		getElevatorStage1(),
+	// 		getElevatorStage2(),
+	// 		getElevatorStage3(),
+	// 		getClimberPose()
+	// 	};
+	// }
 
-	/**
-	 * Gets if the sim robot has a coral loaded in the robot.
-	 * @return if the sim robot has a coral loaded in the robot
-	 */
-	public boolean doesSimRobotHaveCoral() {
-		return doesSimRobotHaveCoral;
-	}
+	// /**
+	//  * Gets if the sim robot has a coral loaded in the robot.
+	//  * @return if the sim robot has a coral loaded in the robot
+	//  */
+	// public boolean doesSimRobotHaveCoral() {
+	// 	return doesSimRobotHaveCoral;
+	// }
 
-	/**
-	 * Updates the drivetrain values.
-	 * @param pose the pose of the drivetrain
-	 * @param speeds the chassis speeds of the drivetrain
-	 * @param rotation the rotation of the drivetrain
-	 */
-	public void updateDrivetrainValues(Pose2d pose, ChassisSpeeds speeds, Rotation2d rotation) {
-		drivetrainPose = pose;
-		drivetrainChassisSpeeds = speeds;
-		driveRotation = rotation;
-	}
+	// /**
+	//  * Updates the drivetrain values.
+	//  * @param pose the pose of the drivetrain
+	//  * @param speeds the chassis speeds of the drivetrain
+	//  * @param rotation the rotation of the drivetrain
+	//  */
+	// public void updateDrivetrainValues(Pose2d pose, ChassisSpeeds speeds, Rotation2d rotation) {
+	// 	drivetrainPose = pose;
+	// 	drivetrainChassisSpeeds = speeds;
+	// 	driveRotation = rotation;
+	// }
 }

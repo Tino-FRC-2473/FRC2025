@@ -127,9 +127,9 @@ public class FunnelFSMSystem {
 	 * @return whether the limit is reached
 	 */
 	public boolean isHoldingCoral() {
-		if (Robot.isSimulation()) {
-			return MechLogging.getInstance().doesSimRobotHaveCoral();
-		}
+		// if (Robot.isSimulation()) {
+		// 	return MechLogging.getInstance().doesSimRobotHaveCoral();
+		// }
 
 		return !coralBreakBeam.get(); // true = beam intact
 		// return true; // temp always hold coral
@@ -185,9 +185,9 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		if (Robot.isSimulation()) {
-			MechLogging.getInstance().dropCoral();
-		}
+		// if (Robot.isSimulation()) {
+		// 	MechLogging.getInstance().dropCoral();
+		// }
 		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
 	}
 	/**

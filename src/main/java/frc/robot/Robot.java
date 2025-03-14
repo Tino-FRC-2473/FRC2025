@@ -242,14 +242,14 @@ public class Robot extends LoggedRobot {
 		if (HardwareMap.isDriveHardwarePresent()) {
 			driveSystem.getMapleSimDrivetrain().update();
 
-			var sim = driveSystem.getMapleSimDrivetrain().getDriveSimulation();
+		// 	var sim = driveSystem.getMapleSimDrivetrain().getDriveSimulation();
 
-			MechLogging.getInstance().updateDrivetrainValues(
-				sim.getSimulatedDriveTrainPose(),
-				sim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-				sim.getGyroSimulation().getGyroReading()
-			);
-		}
+		// 	MechLogging.getInstance().updateDrivetrainValues(
+		// 		sim.getSimulatedDriveTrainPose(),
+		// 		sim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+		// 		sim.getGyroSimulation().getGyroReading()
+		// 	);
+		// }
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
@@ -285,6 +285,7 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/Poses",
 			MechLogging.getInstance().getRobotPoses()
 		);
+		}
 
 	}
 
