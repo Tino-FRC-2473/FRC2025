@@ -2,6 +2,7 @@ package frc.robot.systems;
 
 
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
@@ -26,7 +27,7 @@ import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.Units;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
@@ -72,9 +73,9 @@ public class ElevatorFSMSystem {
 	private DCMotor gearbox = DCMotor.getKrakenX60(1);
 
 	private LinearSystem<N2, N1, N2> elevatorSystem = LinearSystemId.createElevatorSystem(
-		gearbox, 4, 0.0127, 15); // converted 1/2 in to meters 
+		gearbox, Units.lbsToKilograms(20), Units.inchesToMeters(1.45), 15); // converted 1/2 in to meters 
 
-	private ElevatorSim elevatorSim = new ElevatorSim(elevatorSystem, gearbox, 0, 0.94488, isBottomLimitReached(), 0); // converted 37.2 in to meters 
+	private ElevatorSim elevatorSim = new ElevatorSim(elevatorSystem, gearbox, 0, Constants.ELEVATOR_UPPER_THRESHOLD.in(Meters), true, 0); // converted 37.2 in to meters 
 
 
 	/* ======================== Constructor ======================== */
