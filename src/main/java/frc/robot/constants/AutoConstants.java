@@ -47,6 +47,7 @@ public class AutoConstants {
 	public static final double ALIGN_MAX_R_ACCEL = Math.PI * 0.0;
 	public static final double FF_MIN_RADIUS = 0.2;
 	public static final double FF_MAX_RADIUS = 0.8;
+	public static final double CHOREO_PID_TOLLERANCE = 1e-3;
 
 	public static final int DRIVE_CURRENT_LIMIT_FRAMES = 2;
 

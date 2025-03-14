@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.constants.AutoConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.SimSwerveDrivetrainConfig;
@@ -71,8 +72,8 @@ public class CommandSwerveDrivetrain extends
 			);
 		}
 
-		autoXPid.setTolerance(1e-3);
-		autoYPid.setTolerance(1e-3);
+		autoXPid.setTolerance(AutoConstants.CHOREO_PID_TOLLERANCE);
+		autoYPid.setTolerance(AutoConstants.CHOREO_PID_TOLLERANCE);
 		// setupPathplanner();
 	}
 
