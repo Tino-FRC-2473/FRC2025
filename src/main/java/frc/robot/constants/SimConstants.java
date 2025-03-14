@@ -43,4 +43,6 @@ public class SimConstants {
 	public static final int BLUE_STATION_RIGHT_APRILTAG_ID = 12;
 	public static final int RED_STATION_LEFT_APRILTAG_ID = 1;
 	public static final int RED_STATION_RIGHT_APRILTAG_ID = 2;
+
+	public static final double LOOP_PERIOD_MS = 0.020;
 }
