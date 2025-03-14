@@ -121,5 +121,5 @@ public class SimConstants {
 	public static final double ANGULAR_STD_MEGATAG_2_FACTOR =
 		Double.POSITIVE_INFINITY; // No rotation data available
 
-	public static final double CAM_DISTANCE_READ = 2.5;
+	// public static final double CAM_DISTANCE_READ = 2.5;
 }
