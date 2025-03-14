@@ -74,7 +74,7 @@ public class ElevatorFSMSystem {
 	private LinearSystem<N2, N1, N2> elevatorSystem = LinearSystemId.createElevatorSystem(
 		gearbox, 4, 0.0127, 15); // converted 1/2 in to meters 
 
-	private ElevatorSim elevatorSim = new ElevatorSim(elevatorSystem, gearbox, 0, 0.94488, isBottomLimitReached(), 0, null); // converted 37.2 in to meters 
+	private ElevatorSim elevatorSim = new ElevatorSim(elevatorSystem, gearbox, 0, 0.94488, isBottomLimitReached(), 0); // converted 37.2 in to meters 
 
 
 	/* ======================== Constructor ======================== */
@@ -367,9 +367,10 @@ public class ElevatorFSMSystem {
 
 		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
 			> Constants.KG_CHECK.in(Units.Inches)) {
-			if (!Utils.isSimulation()) {
 				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
-			}
+			/*if (!Utils.isSimulation()) {
+				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
+			}*/
 		} else {
 			elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
 		}
