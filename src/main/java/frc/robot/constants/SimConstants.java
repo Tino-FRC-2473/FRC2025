@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 
 // Values provided by Maple-Sim to reduce commonly found bugs while simulating.
 public class SimConstants {
@@ -43,4 +44,10 @@ public class SimConstants {
 	public static final int BLUE_STATION_RIGHT_APRILTAG_ID = 12;
 	public static final int RED_STATION_LEFT_APRILTAG_ID = 1;
 	public static final int RED_STATION_RIGHT_APRILTAG_ID = 2;
+
+	//conversion from cm to meters
+	public static final double CORAL_STATION_WIDTH_METERS = Units.inchesToMeters(76);
+
+	//max distance coral can be intaked away from station, in meters
+	public static final double MAX_DISTANCE_FROM_STATION = 0.02;
 }

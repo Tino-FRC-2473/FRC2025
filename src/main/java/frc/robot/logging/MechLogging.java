@@ -7,12 +7,14 @@ import static edu.wpi.first.units.Units.Radians;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.io.File;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +27,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.constants.SimConstants;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import edu.wpi.first.hal.AllianceStationID;
 
 public final class MechLogging {
 	private Pose3d elevatorStage1;
@@ -34,9 +38,12 @@ public final class MechLogging {
 
 	private static MechLogging instance = new MechLogging();
 
-	private boolean doesSimRobotHaveCoral = true; // Preloaded 1
-
+	private boolean doesSimRobotHaveCoral = false; // Preloaded 1 -- temporarily false to test
+	private boolean isParallelToStation = false;
+	private boolean isInStationZone = false;
 	private Pose2d drivetrainPose;
+	// Timer
+	private Timer timer = new Timer();
 	private ChassisSpeeds drivetrainChassisSpeeds;
 	private Rotation2d driveRotation;
 
@@ -103,60 +110,129 @@ public final class MechLogging {
 	 * Finally calls dropCoral to pick up the coral.
 	 */
 	public void intakeCoral() {
-		// Timer
-		Timer timer = new Timer();
-		timer.start();
-		boolean timerRunning = true;
+		if (doesSimRobotHaveCoral()) {
+			return;
+		}
+		if (DriverStationSim.getAllianceStationId().equals(AllianceStationID.Unknown))	{
+			return;
+		}
+		
+		
 	
 		double robotHeading = drivetrainPose.getRotation().getRadians();
-		double translationX = SimConstants.WIDTH_IN * Math.cos(robotHeading);
-		double translationY = SimConstants.WIDTH_IN * Math.sin(robotHeading);
+		//Converting width to meters to calculate translation
+		double widthMeters = SimConstants.WIDTH_IN * 0.0254;
+		double translationX = widthMeters * Math.cos(robotHeading);
+		double translationY = widthMeters * Math.sin(robotHeading);
 		double robotBackX = drivetrainPose.getX() - translationX;
 		double robotBackY = drivetrainPose.getY() - translationY;
 	
 		try {
-			AprilTagFieldLayout fieldLayout = new AprilTagFieldLayout("../constants/tagAbsPos.json");
+			File fieldLayoutFile = new File("src/main/java/frc/robot/constants/tagAbsPos.json");
+			AprilTagFieldLayout fieldLayout = new AprilTagFieldLayout(fieldLayoutFile.getAbsolutePath());
 			if (fieldLayout != null) {
-				if (DriverStation.getAlliance().equals(Alliance.Blue)) {
-					Optional<Pose3d> stationLeft = fieldLayout.getTagPose(SimConstants.BLUE_STATION_LEFT_APRILTAG_ID);
-					Optional<Pose3d> stationRight = fieldLayout.getTagPose(SimConstants.BLUE_STATION_RIGHT_APRILTAG_ID);
+				
+				Optional<Pose3d> stationLeft;
+				Optional<Pose3d> stationRight;
+				
+				boolean blueAlliance = DriverStationSim.getAllianceStationId().equals(AllianceStationID.Blue1) || DriverStationSim.getAllianceStationId().equals(AllianceStationID.Blue2) || DriverStationSim.getAllianceStationId().equals(AllianceStationID.Blue3);
+				if (blueAlliance) {
+					stationLeft = fieldLayout.getTagPose(SimConstants.BLUE_STATION_LEFT_APRILTAG_ID);
+					stationRight = fieldLayout.getTagPose(SimConstants.BLUE_STATION_RIGHT_APRILTAG_ID);
 					double stationLeftX = 0, stationLeftY = 0, stationRightX = 0, stationRightY = 0;
-	
-					if (stationLeft.isPresent()) {
+					
+					if (stationLeft != null && stationRight != null){
 						stationLeftX = stationLeft.get().getX();
 						stationLeftY = stationLeft.get().getY();
-					}
-					if (stationRight.isPresent()) {
 						stationRightX = stationRight.get().getX();
 						stationRightY = stationRight.get().getY();
+						double stationAngleLeft = stationLeft.get().getRotation().getZ(); //radians
+						double stationAngleRight = stationRight.get().getRotation().getZ();
+						//slope of the station
+						double leftSlope = -1 * Math.tan(stationAngleLeft);
+						double rightSlope = -1 * Math.tan(stationAngleRight);
+						//finding the change in x and y of the robot from the station
+						double leftXChange = robotBackX - (SimConstants.MAX_DISTANCE_FROM_STATION * Math.cos(stationAngleLeft)) - stationLeftX;
+						double leftYChange = leftXChange * leftSlope;
+						double rightXChange = robotBackX - (SimConstants.MAX_DISTANCE_FROM_STATION * Math.cos(stationAngleLeft)) - stationRightX;
+						double rightYChange = rightXChange * rightSlope;
+						//finding the position on the station where the distance check should apply
+						double leftYMargin = stationLeftY + leftYChange - (SimConstants.MAX_DISTANCE_FROM_STATION * Math.sin(stationAngleLeft));
+						double rightYMargin = stationRightY + rightYChange + (SimConstants.MAX_DISTANCE_FROM_STATION * Math.sin(stationAngleRight));
+						//left station check
+						if (robotBackX < (SimConstants.CORAL_STATION_WIDTH_METERS * 0.5 * Math.cos(stationAngleLeft + (Math.PI/2)) + stationLeftX) && robotBackX > stationLeftX - (SimConstants.CORAL_STATION_WIDTH_METERS * 0.5 * Math.cos(stationAngleLeft + (Math.PI/2)))){
+							if (robotBackY > leftYMargin || robotBackY < rightYMargin){
+								isInStationZone = true;
+							} else {
+								isInStationZone = false;
+							}
+						} else {
+							isInStationZone = false;
+						}
+						
+						double robotAngle = drivetrainPose.getRotation().getRadians();
+		
+						isParallelToStation = Math.abs(stationAngleLeft - robotAngle) <= Math.toRadians(5) ||
+											Math.abs(stationAngleRight - robotAngle) <= Math.toRadians(5);
 					}
-	
-					// Check if the robot is within 2 centimeters of the station
-					double distanceLeft = Math.sqrt(Math.pow(robotBackX - stationLeftX, 2) + Math.pow(robotBackY - stationLeftY, 2));
-					double distanceRight = Math.sqrt(Math.pow(robotBackX - stationRightX, 2) + Math.pow(robotBackY - stationRightY, 2));
-					boolean isInZone = (distanceLeft <= 0.02 || distanceRight <= 0.02);
-	
-					double stationAngleLeft = Math.atan2(stationLeftY - robotBackY, stationLeftX - robotBackX);
-					double stationAngleRight = Math.atan2(stationRightY - robotBackY, stationRightX - robotBackX);
-					double robotAngle = drivetrainPose.getRotation().getRadians();
-	
-					boolean isParallel = Math.abs(stationAngleLeft - robotAngle) <= Math.toRadians(5) ||
-										 Math.abs(stationAngleRight - robotAngle) <= Math.toRadians(5);
-					Logger.recordOutput("isParallel", isParallel);
-					Logger.recordOutput("inZone", isInZone);
 
+				} else {
+					stationLeft = fieldLayout.getTagPose(SimConstants.RED_STATION_LEFT_APRILTAG_ID);
+					stationRight = fieldLayout.getTagPose(SimConstants.RED_STATION_RIGHT_APRILTAG_ID);
+				
+					double stationLeftX = 0, stationLeftY = 0, stationRightX = 0, stationRightY = 0;
+					if (stationLeft != null && stationRight != null){
+						stationLeftX = stationLeft.get().getX();
+						stationLeftY = stationLeft.get().getZ();
+						stationRightX = stationRight.get().getX();
+						stationRightY = stationRight.get().getZ();
+						double stationAngleLeft = stationLeft.get().getRotation().getZ(); //radians
+						double stationAngleRight = stationRight.get().getRotation().getZ();
+						//slope of the station
+						double leftSlope = Math.tan(stationAngleLeft + (Math.PI/2));
+						double rightSlope = Math.tan(stationAngleRight + (Math.PI/2));
+						//finding the change in x and y of the robot from the station
+						double leftXChange = robotBackX - (SimConstants.MAX_DISTANCE_FROM_STATION * Math.cos(stationAngleLeft)) - stationLeftX;
+						double leftYChange = leftXChange * leftSlope;
+						double rightXChange = robotBackX - (SimConstants.MAX_DISTANCE_FROM_STATION * Math.cos(stationAngleRight)) - stationRightX;
+						double rightYChange = rightXChange * rightSlope;
+						//finding the position on the station where the distance check should apply
+						double leftYMargin = stationLeftY + leftYChange + (SimConstants.MAX_DISTANCE_FROM_STATION * Math.sin(stationAngleLeft));
+						double rightYMargin = stationRightY + rightYChange - (SimConstants.MAX_DISTANCE_FROM_STATION * Math.sin(stationAngleRight));
 
-	
-					if (isInZone && isParallel) {
-						if (!timerRunning) {  // If the timer isn't running, start it
-							timer.start();
-							timerRunning = true;
+						//left station check
+						if (robotBackX < (SimConstants.CORAL_STATION_WIDTH_METERS * 0.5 * Math.cos(stationAngleLeft + (Math.PI)) + stationLeftX) && robotBackX > stationLeftX - (SimConstants.CORAL_STATION_WIDTH_METERS * 0.5 * Math.cos(stationAngleLeft + (Math.PI)))){
+							if (robotBackY < leftYMargin || robotBackY > rightYMargin){
+								isInStationZone = true;
+							} else {
+								isInStationZone = false;
+							}
+						} else {
+							isInStationZone = false;
 						}
-					} else {
-						if (timerRunning) {  // If the robot is out of the zone, stop the timer
-							timer.reset();
-							timerRunning = false;
-						}
+
+						double robotAngle = drivetrainPose.getRotation().getRadians();
+		
+						isParallelToStation = Math.abs(stationAngleLeft - robotAngle) <= Math.toRadians(5) ||
+											Math.abs(stationAngleRight - robotAngle) <= Math.toRadians(5);
+					}
+				}
+				if (isInStationZone && isParallelToStation) {
+					System.out.println("Reached #1");
+					if (!timer.isRunning()) {  // If the timer isn't running, start it
+						System.out.println("Reached #2");
+						timer.start();
+					} 
+					System.out.println("reached here");
+					if (timer.hasElapsed(2)){
+						System.out.println("VICTORY");
+						doesSimRobotHaveCoral = true;
+					}
+					
+				} else {
+					if (timer.isRunning()) { 
+						System.out.println("FAILURE"); // If the robot is out of the zone, stop the timer
+						timer.reset();
 					}
 				}
 			}
@@ -164,8 +240,22 @@ public final class MechLogging {
 			System.out.println(error.getMessage());
 		}
 	}
-	
-	// need to check if all along the length of the station if two cm away with some degree of error on angle, then  
+
+	/**
+	 * Checks if the robot is in the station zone.
+	 * @return if the robot is in the station zone
+	 */	
+	public boolean isInStationZone() {
+		return isInStationZone;
+	}
+
+	/**
+	 * Checks if the robot is parallel to the station.
+	 * @return if the robot is parallel to the station
+	 */
+	public boolean isParallelToStation() {
+		return isParallelToStation;
+	}
 
 
 

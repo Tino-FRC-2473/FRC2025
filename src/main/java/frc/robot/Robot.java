@@ -250,6 +250,7 @@ public class Robot extends LoggedRobot {
 				sim.getGyroSimulation().getGyroReading()
 			);
 		}
+		MechLogging.getInstance().intakeCoral();
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
@@ -285,6 +286,22 @@ public class Robot extends LoggedRobot {
 			"FieldSimulation/Poses",
 			MechLogging.getInstance().getRobotPoses()
 		);
+
+		Logger.recordOutput(
+			"IsParallelToStation", 
+			MechLogging.getInstance().isParallelToStation()
+		);
+
+		Logger.recordOutput(
+			"IsInStationZone",
+			MechLogging.getInstance().isInStationZone()
+		);
+
+		Logger.recordOutput(
+			"DoesSimRobotHaveCoral", 
+			MechLogging.getInstance().doesSimRobotHaveCoral()
+		);
+
 
 	}
 
