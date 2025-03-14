@@ -3,18 +3,12 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
-import org.ironmaple.simulation.motorsims.SimulatedBattery;
-
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.jni.CANBusJNI;
-
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Robot;
+import frc.robot.constants.SimConstants;
 
 public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 
@@ -25,9 +19,6 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 	// Sim model for calculations
 	// getSimState() acccesses the default sim
 	private final DCMotorSim motorSimModel;
-
-	//TODO: move this to Constants.java
-	public static final double LOOP_PERIOD_MS = 0.020;
 
 	public static final double SUPPLY_VOLTAGE = 12.;
 
@@ -94,7 +85,7 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 			// use the motor voltage to calculate new position and velocity
 			// using WPILib's DCMotorSim class for physics simulation
 			motorSimModel.setInputVoltage(motorVoltage.in(Volts));
-			motorSimModel.update(LOOP_PERIOD_MS); // assume 20 ms loop time
+			motorSimModel.update(SimConstants.LOOP_PERIOD_MS); // assume 20 ms loop time
 
 			// apply the new rotor position and velocity to the TalonFX;
 			// note that this is rotor position/velocity (before gear ratio), but

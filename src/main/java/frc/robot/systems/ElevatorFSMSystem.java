@@ -39,6 +39,7 @@ import frc.robot.Robot;
 // Robot Imports
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.TalonFXWrapper;
 
@@ -182,18 +183,16 @@ public class ElevatorFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
-
-
+		
 		if (input == null) {
 			return;
 		}
 
 		// sets new input voltages for physical environment
-		TalonFXWrapper newElevatorMotor = (TalonFXWrapper)elevatorMotor;
-		elevatorSim.setInput(newElevatorMotor.getLoggedVelocity() * SimulatedBattery.getBatteryVoltage().in(Volts)); // if this doesn't work, use RoboRioSim voltage estimates 
+		elevatorSim.setInput(elevatorMotor.get() * SimulatedBattery.getBatteryVoltage().in(Volts)); // if this doesn't work, use RoboRioSim voltage estimates 
 
 		// update the loop 
-		elevatorSim.update(newElevatorMotor.LOOP_PERIOD_MS);
+		elevatorSim.update(SimConstants.LOOP_PERIOD_MS);
 
 		// set encoder readings and simulated battery voltages
 		// not sure if we have a set distance function for the encoder sim (our motor sim?)
