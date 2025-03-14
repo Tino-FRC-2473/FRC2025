@@ -239,18 +239,17 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void simulationPeriodic() {
-		if (HardwareMap.isDriveHardwarePresent()) {
-			driveSystem.getMapleSimDrivetrain().update();
+		driveSystem.getMapleSimDrivetrain().update();
 
-			var sim = driveSystem.getMapleSimDrivetrain().getDriveSimulation();
+		var sim = driveSystem.getMapleSimDrivetrain().getDriveSimulation();
 
-			MechLogging.getInstance().updateDrivetrainValues(
-				sim.getSimulatedDriveTrainPose(),
-				sim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-				sim.getGyroSimulation().getGyroReading()
-			);
-		}
-		MechLogging.getInstance().intakeCoral();
+		MechLogging.getInstance().updateDrivetrainValues(
+			sim.getSimulatedDriveTrainPose(),
+			sim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+			sim.getGyroSimulation().getGyroReading()
+		);
+
+		MechLogging.getInstance().intakeCoralIfPossible();
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
@@ -285,16 +284,6 @@ public class Robot extends LoggedRobot {
 		Logger.recordOutput(
 			"FieldSimulation/Poses",
 			MechLogging.getInstance().getRobotPoses()
-		);
-
-		Logger.recordOutput(
-			"IsParallelToStation", 
-			MechLogging.getInstance().isParallelToStation()
-		);
-
-		Logger.recordOutput(
-			"IsInStationZone",
-			MechLogging.getInstance().isInStationZone()
 		);
 
 		Logger.recordOutput(
