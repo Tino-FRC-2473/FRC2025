@@ -126,7 +126,6 @@ public class AutoRoutines {
 					AutoConstants.SOURCE_X_OFFSET,
 					AutoConstants.SOURCE_Y_OFFSET
 				);
-
 			/* ---- All Blue AprilTag Alignment Commands ---- */
 			case B_ALIGN_REEF1_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
@@ -191,14 +190,12 @@ public class AutoRoutines {
 			case B_ALIGN_STATION_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.BLUE_L_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET
+					AutoConstants.SOURCE_X_OFFSET, AutoConstants.SOURCE_Y_OFFSET
 				);
 			case B_ALIGN_STATION_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.BLUE_R_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET
+					AutoConstants.SOURCE_X_OFFSET, AutoConstants.SOURCE_Y_OFFSET
 				);
 			default:
 				return null;
