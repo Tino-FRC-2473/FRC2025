@@ -9,7 +9,7 @@ stateDiagram-v2
 
 state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as IDLE
 state "Abort: <p> Elevator Stop <p> Drive Teleop <p> Funnel Closed <p> Climber Stop" as ABORT
-state "Manual: <p> Elevator Manual <p> Drive Teleop <p> Funnel Manual <p> Climber Manual" as MANUAL
+state "Manual: <p> Drive Teleop <p> Manual FSM Transitions" as MANUAL
 state "Reset: <p> Elevator Ground <p> Drive Teleop <p> Funnel Open <p> Climber Stowed" as RESET
 
 state "Has Coral: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as HAS_CORAL
