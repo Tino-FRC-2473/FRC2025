@@ -203,65 +203,65 @@ public final class MechLogging {
 		);
 	}
 
-	// /**
-	//  * Updates the pose for the climber based on encoder position.
-	//  * @param encoderSimPosition the simulated location of the climber motor encoder.
-	//  */
-	// public void updatesClimberPose3d(Angle encoderSimPosition) {
-	// 	climberPose = new Pose3d(
-	// 		SimConstants.CLIMBER_ZERO_POS,
-	// 		new Rotation3d(
-	// 			encoderSimPosition.div(SimConstants.CLIMBER_GEAR_RATIO).in(Radians),
-	// 			0,
-	// 			0
-	// 		)
-	// 	);
-	// }
+	/**
+	 * Updates the pose for the climber based on encoder position.
+	 * @param encoderSimPosition the simulated location of the climber motor encoder.
+	 */
+	public void updatesClimberPose3d(Angle encoderSimPosition) {
+		climberPose = new Pose3d(
+			SimConstants.CLIMBER_ZERO_POS,
+			new Rotation3d(
+				encoderSimPosition.div(SimConstants.CLIMBER_GEAR_RATIO).in(Radians),
+				0,
+				0
+			)
+		);
+	}
 
-	// /**
-	//  * Get the primary elevator pose.
-	//  * @return the pose of the inner part of the elevator
-	//  */
-	// public Pose3d getElevatorStage1() {
-	// 	return elevatorStage1;
-	// }
+	/**
+	 * Get the primary elevator pose.
+	 * @return the pose of the inner part of the elevator
+	 */
+	public Pose3d getElevatorStage1() {
+		return elevatorStage1;
+	}
 
-	// /**
-	//  * Get the secondary elevator pose.
-	//  * @return the pose of the inner-most part of the elevator
-	//  */
-	// public Pose3d getElevatorStage2() {
-	// 	return elevatorStage2;
-	// }
+	/**
+	 * Get the secondary elevator pose.
+	 * @return the pose of the inner-most part of the elevator
+	 */
+	public Pose3d getElevatorStage2() {
+		return elevatorStage2;
+	}
 
-	// /**
-	//  * Get the elevator stage 3 position.
-	//  * @return the elevator stage 3 position
-	//  */
-	// public Pose3d getElevatorStage3() {
-	// 	return elevatorStage3;
-	// }
+	/**
+	 * Get the elevator stage 3 position.
+	 * @return the elevator stage 3 position
+	 */
+	public Pose3d getElevatorStage3() {
+		return elevatorStage3;
+	}
 
-	// /**
-	//  * Get the pose of the climber ligament.
-	//  * @return pose of the rotating climber ligament.
-	//  */
-	// public Pose3d getClimberPose() {
-	// 	return climberPose;
-	// }
+	/**
+	 * Get the pose of the climber ligament.
+	 * @return pose of the rotating climber ligament.
+	 */
+	public Pose3d getClimberPose() {
+		return climberPose;
+	}
 
-	// /**
-	//  * Getter for the array of poses we want to simulate.
-	//  * @return the array of poses to display in advantageScope
-	//  */
-	// public Pose3d[] getRobotPoses() {
-	// 	return new Pose3d[]{
-	// 		getElevatorStage1(),
-	// 		getElevatorStage2(),
-	// 		getElevatorStage3(),
-	// 		getClimberPose()
-	// 	};
-	// }
+	/**
+	 * Getter for the array of poses we want to simulate.
+	 * @return the array of poses to display in advantageScope
+	 */
+	public Pose3d[] getRobotPoses() {
+		return new Pose3d[]{
+			getElevatorStage1(),
+			getElevatorStage2(),
+			getElevatorStage3(),
+			getClimberPose()
+		};
+	}
 
 	// /**
 	//  * Gets if the sim robot has a coral loaded in the robot.
@@ -271,15 +271,15 @@ public final class MechLogging {
 	// 	return doesSimRobotHaveCoral;
 	// }
 
-	// /**
-	//  * Updates the drivetrain values.
-	//  * @param pose the pose of the drivetrain
-	//  * @param speeds the chassis speeds of the drivetrain
-	//  * @param rotation the rotation of the drivetrain
-	//  */
-	// public void updateDrivetrainValues(Pose2d pose, ChassisSpeeds speeds, Rotation2d rotation) {
-	// 	drivetrainPose = pose;
-	// 	drivetrainChassisSpeeds = speeds;
-	// 	driveRotation = rotation;
-	// }
+	/**
+	 * Updates the drivetrain values.
+	 * @param pose the pose of the drivetrain
+	 * @param speeds the chassis speeds of the drivetrain
+	 * @param rotation the rotation of the drivetrain
+	 */
+	public void updateDrivetrainValues(Pose2d pose, ChassisSpeeds speeds, Rotation2d rotation) {
+		drivetrainPose = pose;
+		drivetrainChassisSpeeds = speeds;
+		driveRotation = rotation;
+	}
 }

@@ -2,6 +2,10 @@ package frc.robot.systems;
 
 
 
+import static edu.wpi.first.units.Units.Volts;
+
+import org.ironmaple.simulation.motorsims.SimulatedBattery;
+
 // WPILib Imports
 
 // Third party Hardware Imports
@@ -25,6 +29,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -66,9 +71,9 @@ public class ElevatorFSMSystem {
 	private DCMotor gearbox = DCMotor.getKrakenX60(1);
 
 	private LinearSystem<N2, N1, N2> elevatorSystem = LinearSystemId.createElevatorSystem(
-		gearbox, 0, 0, 0);
+		gearbox, 4, 0.0127, 15); // converted 1/2 in to meters 
 
-	private ElevatorSim elevatorSim = new ElevatorSim(elevatorSystem, gearbox, 0, 0, isBottomLimitReached(), 0, null)
+	private ElevatorSim elevatorSim = new ElevatorSim(elevatorSystem, gearbox, 0, 0.94488, isBottomLimitReached(), 0, null); // converted 37.2 in to meters 
 
 
 	/* ======================== Constructor ======================== */
@@ -178,9 +183,24 @@ public class ElevatorFSMSystem {
 	 */
 	public void update(TeleopInput input) {
 
+
 		if (input == null) {
 			return;
 		}
+
+		// sets new input voltages for physical environment
+		TalonFXWrapper newElevatorMotor = (TalonFXWrapper)elevatorMotor;
+		elevatorSim.setInput(newElevatorMotor.getLoggedVelocity() * SimulatedBattery.getBatteryVoltage().in(Volts)); // if this doesn't work, use RoboRioSim voltage estimates 
+
+		// update the loop 
+		elevatorSim.update(newElevatorMotor.LOOP_PERIOD_MS);
+
+		// set encoder readings and simulated battery voltages
+		// not sure if we have a set distance function for the encoder sim (our motor sim?)
+
+
+		
+
 		switch (currentState) {
 			case MANUAL:
 				handleManualState(input);
