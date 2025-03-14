@@ -7,12 +7,11 @@ title: Superstructure State Diagram
 
 stateDiagram-v2
 
-state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as IDLE
+state "Idle: <p> Elevator Manual <p> Drive Teleop <p> Funnel Manual Transitions <p> Climber Idle" as IDLE
 state "Abort: <p> Elevator Stop <p> Drive Teleop <p> Funnel Closed <p> Climber Stop" as ABORT
 state "Manual: <p> Drive Teleop <p> Manual FSM Transitions" as MANUAL
 state "Reset: <p> Elevator Ground <p> Drive Teleop <p> Funnel Open <p> Climber Stowed" as RESET
 
-state "Has Coral: <p> Elevator Ground <p> Drive Teleop <p> Funnel Closed <p> Climber Idle" as HAS_CORAL
 state "Pre Score: <p> Elevator Ground <p> Drive Align to Reef <p> Funnel Closed <p> Climber Idle" as PRE_SCORE
 
 state "Raise to L2: <p> Elevator L2 <p> Drive Brake <p> Funnel Closed <p> Climber Idle" as RAISE_L2
@@ -46,7 +45,6 @@ idle_join --> IDLE
 idle_fork --> PRE_CLIMB : climbButtonPressed && isClimberStowed
 idle_fork --> CLIMBING : climbButtonPressed && isClimberExtended
 idle_fork --> RESET_CLIMB : climbButtonPressed && isAtClimbPos
-idle_fork --> HAS_CORAL: hasCoral
 idle_fork --> manual_join: manualButtonPressed
 
 state Climb {
@@ -67,10 +65,9 @@ state Climb {
 }
 
 state Score {
-	%% From Has Coral
-	HAS_CORAL --> PRE_SCORE: hasCoral && (L2ButtonPressed || L3ButtonPressed || L4ButtonPressed)
-	HAS_CORAL --> idle_join: !hasCoral
-	HAS_CORAL --> manual_join: manualButtonPressed
+	idle_fork --> PRE_SCORE: hasCoral && (L2ButtonPressed || L3ButtonPressed || L4ButtonPressed)
+	idle_fork --> idle_join: !hasCoral
+	idke_fork --> manual_join: manualButtonPressed
 
 	%% From Pre Score
 	PRE_SCORE --> score_fork
