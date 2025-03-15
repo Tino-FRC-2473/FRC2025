@@ -49,11 +49,19 @@ public final class MechLogging {
 	private ChassisSpeeds drivetrainChassisSpeeds;
 	private Rotation2d driveRotation;
 	private Timer timer = new Timer();
+	private AprilTagFieldLayout layout;
+
 	private MechLogging() {
 		elevatorStage1 = new Pose3d();
 		elevatorStage2 = new Pose3d();
 		elevatorStage3 = new Pose3d();
 		climberPose = new Pose3d();
+		try{
+			File fieldLayoutFile = new File("src/main/java/frc/robot/constants/tagAbsPos.json");
+			layout = new AprilTagFieldLayout(fieldLayoutFile.getAbsolutePath());
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 	}
 
 	public static final double STAGE_2_RATIO = 1.0 / 3.0;
@@ -85,59 +93,75 @@ public final class MechLogging {
 	 * Finally calls dropCoral to pick up the coral.
 	 */
 	public void intakeCoralIfPossible() {
-		try{
-			File fieldLayoutFile = new File("src/main/java/frc/robot/constants/tagAbsPos.json");
-			AprilTagFieldLayout fieldLayout = new AprilTagFieldLayout(fieldLayoutFile.getAbsolutePath());
-			if(fieldLayout != null){
-				var inZone = isBackOfRobotInStationZone(fieldLayout);
-
-				if(inZone && timer.hasElapsed(2)) {
-					doesSimRobotHaveCoral = true;
-					timer.stop();
-				} else if (inZone && !timer.isRunning()) {
-					timer.start();
-				} else if(!inZone && timer.isRunning()) {
-					timer.stop();
-				}
-				System.out.println(isBackOfRobotInStationZone(fieldLayout));
+		if(layout == null)return;
+		if(layout != null){
+			//System.out.println("not null");
+			var inZone = isBackOfRobotInStationZone(layout);
+			if(inZone && timer.hasElapsed(2)) {
+				doesSimRobotHaveCoral = true;
+				timer.stop();
+			} else if (inZone && !timer.isRunning()) {
+				timer.start();
+			} else if(!inZone && timer.isRunning()) {
+				timer.stop();
 			}
+				//System.out.println(isBackOfRobotInStationZone(fieldLayout));
+		}
 			
 			
-		}catch(IOException error){
-			error.printStackTrace();
 		}
 		
-	}
+	
 
 	public boolean isBackOfRobotInStationZone(AprilTagFieldLayout layout) {
 		var backOfRobotTransform = drivetrainPose.plus(new Transform2d(new Translation2d(SimConstants.WIDTH_IN / 2, SimConstants.LENGTH_IN / 2), driveRotation));
 		//if(blue alliance)
-		if(getAlliance() == Alliance.Blue) {
-			var leftTag = layout.getTagPose(0);
-			var rightTag = layout.getTagPose(1);
-
-			var pointRight = new Transform2d(
-				new Translation2d(
-					SimConstants.CORAL_STATION_WIDTH_METERS/2.0,0), 
-					layout.getTags().get(0).pose.getRotation().toRotation2d()
-				);
-			var pointLeft =  new Transform2d(
-				new Translation2d(-SimConstants.CORAL_STATION_WIDTH_METERS/2.0,0),
-				layout.getTags().get(0).pose.getRotation().toRotation2d()
-			);
-
-			double slopeRight = (pointRight.getY() - drivetrainPose.getY())/(pointRight.getX()-drivetrainPose.getX());
-			double slopeLeft = (pointLeft.getY() - drivetrainPose.getY())/(pointLeft.getX()-drivetrainPose.getX());
-			double slopeStation = drivetrainPose.getY()/(drivetrainPose.getX());
-			System.out.println(slopeRight == slopeStation || slopeLeft == slopeStation);
-			if(slopeRight == slopeStation || slopeLeft == slopeStation){
-				
-				return true;
-			}
+		//System.out.println(getAlliance());
+		//System.out.println(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue);
+		if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue) {
+			
+			System.out.println(arePosesColinear(12, getAlliance()));
+			System.out.println(arePosesColinear(13, getAlliance()));
 		} else {
 			return false;
 		}
 		return false;
+	}
+	private boolean arePosesColinear(int ID, Alliance alliance){
+		var pointRight = new Transform2d(
+				new Translation2d(
+					SimConstants.CORAL_STATION_WIDTH_METERS/2.0,0), 
+					layout.getTags().get(ID).pose.getRotation().toRotation2d()
+				);
+			var pointLeft =  new Transform2d(
+				new Translation2d(-SimConstants.CORAL_STATION_WIDTH_METERS/2.0,0),
+				layout.getTags().get(ID).pose.getRotation().toRotation2d()
+			);
+
+			//Tag at (0,0)
+			System.out.println("point right is " + pointRight);
+			System.out.println("point right Y is " + pointRight.getY());
+			System.out.println("point right X is " + pointRight.getX());
+			System.out.println("right - drive" + (pointRight.getX()-drivetrainPose.getX()));
+			System.out.println("drive train pose y is " + drivetrainPose.getY());
+			double slopeRight = (pointRight.getY() - drivetrainPose.getY())/(pointRight.getX()-drivetrainPose.getX());
+			double slopeLeft = (pointLeft.getY() - drivetrainPose.getY())/(pointLeft.getX()-drivetrainPose.getX());
+			double slopeStation = (pointRight.getY()-pointLeft.getY())/(pointRight.getX()-pointLeft.getX());
+			//System.out.println("slope left is " +slopeLeft);
+			//System.out.println("slope right is " + slopeRight);
+			//double error = isApproxEqual(slopeStation, slopeRight, 0.2);
+			if(isApproxEqual(slopeStation, slopeLeft, 0.5) && isApproxEqual(slopeStation, slopeRight, 0.5) && isApproxEqual(slopeRight, slopeLeft, 0.5)){
+				return true;
+			}
+			return false;
+	}
+	// private double calculateApproxError(double slopeRight, double slopeLeft, double slopeStation){
+	// 	double checkError = Math.abs(slopeStation/slopeLeft);
+	// 	return checkError;
+	// }
+
+	private boolean isApproxEqual(double v1, double v2, double epsilon) {
+		return Math.abs(v1 - v2) < epsilon;
 	}
 
 	private Alliance getAlliance() {
