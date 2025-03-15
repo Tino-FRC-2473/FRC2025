@@ -39,7 +39,9 @@ public class ElevatorFSMSystem {
 		GROUND,
 		LEVEL2,
 		LEVEL3,
-		LEVEL4
+		LEVEL4,
+		HIGH_ALGAE,
+		LOW_ALGAE
 	}
 
 	/* ======================== Private variables ======================== */
@@ -179,6 +181,12 @@ public class ElevatorFSMSystem {
 			case LEVEL4:
 				handleL4State(input);
 				break;
+			case LOW_ALGAE:
+				handleLowAlgaeState(input);
+				break;
+			case HIGH_ALGAE:
+				handleHighAlgaeState(input);
+				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -250,29 +258,53 @@ public class ElevatorFSMSystem {
 					&& !isBottomLimitReached()
 					&& !input.isL4ButtonPressed()
 					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()) {
+					&& !input.isL3ButtonPressed()
+					&& !input.isLowAlgaeButtonPressed()
+					&& !input.isHighAlgaeButtonPressed()) {
 					return ElevatorFSMState.GROUND;
-				}
-				if (input.isL4ButtonPressed()
-					&& funnelSystem.isHoldingCoral()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()) {
-					return ElevatorFSMState.LEVEL4;
 				}
 				if (input.isL2ButtonPressed()
 					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
-					&& !input.isL3ButtonPressed()) {
+					&& !input.isL3ButtonPressed()
+					&& !input.isLowAlgaeButtonPressed()
+					&& !input.isHighAlgaeButtonPressed()) {
 					return ElevatorFSMState.LEVEL2;
 				}
 				if (input.isL3ButtonPressed()
 					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()) {
+					&& !input.isL2ButtonPressed()
+					&& !input.isLowAlgaeButtonPressed()
+					&& !input.isHighAlgaeButtonPressed()) {
 					return ElevatorFSMState.LEVEL3;
+				}
+				if (input.isL4ButtonPressed()
+					&& funnelSystem.isHoldingCoral()
+					&& !input.isGroundButtonPressed()
+					&& !input.isL2ButtonPressed()
+					&& !input.isL3ButtonPressed()
+					&& !input.isLowAlgaeButtonPressed()
+					&& !input.isHighAlgaeButtonPressed()) {
+					return ElevatorFSMState.LEVEL4;
+				}
+				if (input.isLowAlgaeButtonPressed()
+					&& !input.isGroundButtonPressed()
+					&& !input.isL2ButtonPressed()
+					&& !input.isL3ButtonPressed()
+					&& !input.isL4ButtonPressed()
+					&& !input.isHighAlgaeButtonPressed()) {
+					return ElevatorFSMState.LOW_ALGAE;
+				}
+				if (input.isHighAlgaeButtonPressed()
+					&& !input.isGroundButtonPressed()
+					&& !input.isL2ButtonPressed()
+					&& !input.isL3ButtonPressed()
+					&& !input.isL4ButtonPressed()
+					&& !input.isLowAlgaeButtonPressed()) {
+					return ElevatorFSMState.LOW_ALGAE;
 				}
 				return ElevatorFSMState.MANUAL;
 
@@ -300,6 +332,16 @@ public class ElevatorFSMSystem {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL4;
+			case LOW_ALGAE:
+				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_LOW_ALGAE)) {
+					return ElevatorFSMState.MANUAL;
+				}
+				return ElevatorFSMState.LOW_ALGAE;
+			case HIGH_ALGAE:
+				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_HIGH_ALGAE)) {
+					return ElevatorFSMState.MANUAL;
+				}
+				return ElevatorFSMState.HIGH_ALGAE;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -405,6 +447,28 @@ public class ElevatorFSMSystem {
 	}
 
 	/**
+	 * Handle behavior in LOW_ALGAE.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleLowAlgaeState(TeleopInput input) {
+		elevatorMotor.setControl(
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_LOW_ALGAE.in(Units.Inches))
+		);
+	}
+
+	/**
+	 * Handle behavior in HIGH_ALGAE.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 *        the robot is in autonomous mode.
+	 */
+	private void handleHighAlgaeState(TeleopInput input) {
+		elevatorMotor.setControl(
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_HIGH_ALGAE.in(Units.Inches))
+		);
+	}
+
+	/**
 	 * Is elevator at L2 boolean accessor.
 	 * @return whether or not elevator is at L2.
 	 */
@@ -439,7 +503,7 @@ public class ElevatorFSMSystem {
 
 	/**
 	 * Is elevator at ground boolean accessor.
-	 * @return whether or not elevator is at L2.
+	 * @return whether or not elevator is at ground.
 	 */
 	public boolean isElevatorAtGround() {
 		if (Robot.isSimulation()) {

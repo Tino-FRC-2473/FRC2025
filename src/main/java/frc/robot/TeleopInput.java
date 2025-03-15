@@ -15,6 +15,9 @@ public class TeleopInput {
 	private static final int DRIVE_CONTROLLER_PORT = 0;
 	private static final int MECH_CONTROLLER_PORT = 1;
 
+	private static final int DPAD_POV_UP = 0;
+	private static final int DPAD_POV_DOWN = 180;
+
 	/* ======================== Private variables ======================== */
 	// Input objects
 	private PS4Controller mechController;
@@ -166,6 +169,22 @@ public class TeleopInput {
 	 */
 	public boolean isL4ButtonPressed() {
 		return mechController.getTriangleButton();
+	}
+
+	/**
+	 * Get the value of the low algae elevator target button (dpad down).
+	 * @return If the button is pressed
+	 */
+	public boolean isLowAlgaeButtonPressed() {
+		return mechController.getPOV() == DPAD_POV_DOWN;
+	}
+
+	/**
+	 * Get the value of the high algae elevator target button (dpad up).
+	 * @return If the button is pressed
+	 */
+	public boolean isHighAlgaeButtonPressed() {
+		return mechController.getPOV() == DPAD_POV_UP;
 	}
 
 	/**
