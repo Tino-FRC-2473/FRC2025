@@ -12,11 +12,25 @@ public final class Constants {
 	public static final double OUTTAKE_CLOSED_POS_ROTS = 0.25;
 	public static final double OUTTAKE_OPEN_POS_ROTS = 0.8;
 
-	public static final double INTAKE_VOLTAGE = 1; // volts
+	public static final double INTAKE_VOLTAGE = 1; // volts, UNUSED
 
 	public static final double CORAL_SCORE_TIME_SECS = 1.0;
 
-	//Elevator motion profile constants
+	// algae removal constants
+	public static final double ALGAE_DEPLOY_POS = 150;
+
+	public static final double ALGAE_KG = 0.20;
+	public static final double ALGAE_KS = 0.1;
+	public static final double ALGAE_KV = 0.001;
+	public static final double ALGAE_KA = 0.0;
+	public static final double ALGAE_KP = 0.0; // TODO: tune
+	public static final double ALGAE_KI = 0.00;
+	public static final double ALGAE_KD = 0.000;
+
+	public static final double ALGAE_CRUISE_VELO = 10;
+	public static final double ALGAE_TARGET_ACCEL = 25;
+
+	// elevator motion profile constants
 	public static final double ELEVATOR_KG = 0.20;
 	public static final double ELEVATOR_KS = 0.1;
 	public static final double ELEVATOR_KV = 0.001;
@@ -29,7 +43,7 @@ public final class Constants {
 	public static final double ELEVATOR_TARGET_ACCEL = 1800;
 	public static final double ELEVATOR_EXPO_KV = 0.12;
 
-	//Elevator Unit Conversion
+	// Elevator Unit Conversion
 	public static final double ELEVATOR_ROTS_TO_INCHES = 15 / (2 * Math.PI);
 
 	// Encoder Position Constants
@@ -71,7 +85,6 @@ public final class Constants {
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;
 		// this is the lowest possible value since we refresh ourselves
-		// changed from 4 --> 100
 
 	// Add units
 	public static final double INCHES_TO_METERS = 0.0254;

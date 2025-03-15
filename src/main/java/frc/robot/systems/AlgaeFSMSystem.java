@@ -1,6 +1,14 @@
 package frc.robot.systems;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
+
+import frc.robot.HardwareMap;
 
 // WPILib Imports
 
@@ -8,6 +16,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 // Robot Imports
 import frc.robot.TeleopInput;
+import frc.robot.constants.Constants;
+import frc.robot.motors.TalonFXWrapper;
 
 public class AlgaeFSMSystem {
 	/* ======================== Constants ======================== */
@@ -19,6 +29,8 @@ public class AlgaeFSMSystem {
 
 	/* ======================== Private variables ======================== */
 	private AlgaeFSMState currentState;
+
+	private MotionMagicVoltage motionRequest;
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -32,6 +44,43 @@ public class AlgaeFSMSystem {
 	 */
 	public AlgaeFSMSystem() {
 		// Perform hardware init
+		algaeMotor = new TalonFXWrapper(HardwareMap.CAN_ID_ALGAE_REMOVER);
+
+		motionRequest = new MotionMagicVoltage(0);
+
+		var talonFXConfigs = new TalonFXConfiguration();
+
+		var outputConfigs = talonFXConfigs.MotorOutput;
+		outputConfigs.NeutralMode = NeutralModeValue.Brake;
+
+		var slot0Configs = talonFXConfigs.Slot0;
+		slot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
+		slot0Configs.kG = Constants.ALGAE_KG;
+		slot0Configs.kS = Constants.ALGAE_KS;
+		slot0Configs.kV = Constants.ALGAE_KV;
+		slot0Configs.kA = Constants.ALGAE_KA;
+		slot0Configs.kP = Constants.ALGAE_KP;
+		slot0Configs.kI = Constants.ALGAE_KI;
+		slot0Configs.kD = Constants.ALGAE_KD;
+		slot0Configs.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
+
+		var motionMagicConfigs = talonFXConfigs.MotionMagic;
+		motionMagicConfigs.MotionMagicCruiseVelocity = Constants.ALGAE_CRUISE_VELO;
+		motionMagicConfigs.MotionMagicAcceleration = Constants.ALGAE_TARGET_ACCEL;
+
+		algaeMotor.getConfigurator().apply(talonFXConfigs);
+
+		BaseStatusSignal.setUpdateFrequencyForAll(
+				Constants.UPDATE_FREQUENCY_HZ,
+				algaeMotor.getPosition(),
+				algaeMotor.getVelocity(),
+				algaeMotor.getAcceleration(),
+				algaeMotor.getMotorVoltage()
+		);
+
+		algaeMotor.optimizeBusUtilization();
+			// MUST set brake after applying other configs
+		algaeMotor.setPosition(0);
 
 		// Reset state machine
 		reset();
@@ -144,6 +193,7 @@ public class AlgaeFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleStowState(TeleopInput input) {
+		algaeMotor.setControl(motionRequest.withPosition(0));
 	}
 
 	/**
@@ -152,5 +202,6 @@ public class AlgaeFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleDeployState(TeleopInput input) {
+		algaeMotor.setControl(motionRequest.withPosition(Constants.ALGAE_DEPLOY_POS));
 	}
 }
