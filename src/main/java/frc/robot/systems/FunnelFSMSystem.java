@@ -191,7 +191,7 @@ public class FunnelFSMSystem {
 	}
 
 	/**
-	 * Handle behavior in CLOSED.
+	 * Handle behavior in IDLE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
