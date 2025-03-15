@@ -17,6 +17,7 @@ basePath = Path(__file__).resolve().parent
 # max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
 # at 18 in -> max left/right was 4.5 in
 class AprilTag():
+
     def __init__(self, cam_name):
         self.camera_matrix = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}matrix.npy')
         self.dist_coeffs = np.load(f'{basePath}/{AT_NPY_DIR}/{cam_name}dist.npy')
@@ -155,11 +156,56 @@ class AprilTag():
             pose_list[0] = -1 * pose_list[0]
 
         return pose_list
+
+    def fix_distance_to_station(self, image, marker_size):
+        gray = image[:, :, 0]
+        results = self.detector.detect(gray)
+        pose_list = []
+        # print("results from distance to tag", results)
+        corners = [r.corners for r in results]
+        if(len(corners) > 0):
+            corners = [r.corners for r in results]
+            # Testing with coral station apriltag
+            marker_points_3d = np.array([[-marker_size/2, -marker_size/2, 0], [marker_size/2, -marker_size/2, 0], [marker_size/2, marker_size/2, 0], [-marker_size/2, marker_size/2, 0]], dtype=np.float32)
+            #print("length corners", len(corners))
+            image_points_2d = corners[0]
+            #print(len(image_points_2d))
+
+            _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, self.camera_matrix, self.dist_coeffs)
+
+            # transform rvec: Vtr = Rx(Vtc) + Vcr
+            angle = 10 # arbitrary
+            R_x = np.array([
+                [1, 0, 0],
+                [0, np.cos(angle), -np.sin(angle)],
+                [0, np.sin(angle), np.cos(angle)]
+            ])
+            rot_transform = (R_x @ rvec) # returns a 1 by 3 'matrix'
+
+            #print("first value: ", rot_transform[1][0])
+            rot_transform_parsed = np.array([rot_transform[0][0], rot_transform[1][0], rot_transform[2][0]])
+            cam_robot_rot_euler = np.array([0, 0.332, 0]) # euler angle --> rotation vector
+            print("Shape of cam-robot vec: ", cam_robot_rot_euler.shape)
+            tag_robot_rotation = rot_transform_parsed + cam_robot_rot_euler
+            print("tag robot rotation value: ", tag_robot_rotation)
+
+            # transform tvec: Vtr = Rx(Vtc) + Vcr
+            trans_transform = (R_x @ tvec)
+            trans_transform_parsed = np.array([trans_transform[0][0], trans_transform[1][0], trans_transform[2][0]])
+            trans_shift = [-0.130175, 0.903224, 0.0536]
+            cam_robot_trans_euler = np.array(trans_shift)
+            tag_robot_trans = trans_transform_parsed + cam_robot_trans_euler # 1 by 3 'matrix'
+
+            #cvec = np.linalg.inv(tag_robot_trans)
+            pose_list = [tag_robot_trans, tag_robot_rotation]
+
+
+        return pose_list
     
     def correct_station_angle(self, rvec):
         R, _ = cv2.Rodrigues(rvec)
         # there's a negative for the x position b/c to the left is negative in the opencv2 systems
-        list = [0, 0.331613,0 ]
+        list = [0, 0.331613,0]
 
         intake_rvec = np.array(list)
         pose_list = R.T @ (rvec - intake_rvec)
