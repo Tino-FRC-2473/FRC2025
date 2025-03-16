@@ -9,7 +9,7 @@ stateDiagram-v2
 state DEPLOY
 state STOW
 
-DEPLOY --> STOW: Algae button pressed
+DEPLOY --> STOW: Algae button unpressed
 STOW --> DEPLOY: Algae button pressed
 
 ```

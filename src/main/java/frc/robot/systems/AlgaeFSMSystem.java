@@ -176,7 +176,7 @@ public class AlgaeFSMSystem {
 				return AlgaeFSMState.STOW;
 
 			case DEPLOY:
-				if (input.isAlgaeButtonPressed()) {
+				if (!input.isAlgaeButtonPressed()) {
 					return AlgaeFSMState.STOW;
 				}
 				return AlgaeFSMState.DEPLOY;

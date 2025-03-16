@@ -224,11 +224,11 @@ public class TeleopInput {
 
 	/**
 	 * Gets the value of the R1 (right bumper) button.
-	 * Intended to signify if the algae remover should toggle position.
-	 * @return If the R1 button was pressed this tick.
+	 * Intended to signify if the algae remover should extend.
+	 * @return If the R1 button is pressed.
 	 */
 	public boolean isAlgaeButtonPressed() {
-		return mechController.getR1ButtonPressed();
+		return mechController.getR1Button();
 	}
 
 	/**
