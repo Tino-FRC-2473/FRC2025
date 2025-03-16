@@ -10,7 +10,7 @@ public class AutoConstants {
 	public static final double DEG_360 = 360;
 
 	/* -- ALL SOURCE SPECIFIC CONSTANTS -- */
-	public static final double SOURCE_X_OFFSET = Units.inchesToMeters(35.5 / 2 - 6);
+	public static final double SOURCE_X_OFFSET = -(Units.inchesToMeters(35.5 / 2 - 6));
 	public static final double SOURCE_Y_OFFSET = 0;
 
 	public static final int BLUE_L_STATION_ID = 13;
@@ -39,8 +39,8 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double ALIGN_DRIVE_P = 2.2; //1.5;
-	public static final double ALIGN_THETA_P = 1.3; //0.8;
+	public static final double ALIGN_DRIVE_P = 2.2; //4.0;
+	public static final double ALIGN_THETA_P = 1.3; //2.0;
 	public static final double ALIGN_MAX_T_SPEED = 0.0;
 	public static final double ALIGN_MAX_T_ACCEL = 0.0;
 	public static final double ALIGN_MAX_R_SPEED = Math.PI * 0.0;
@@ -50,6 +50,7 @@ public class AutoConstants {
 	public static final double CHOREO_PID_TOLLERANCE = 1e-3;
 
 	public static final int DRIVE_CURRENT_LIMIT_FRAMES = 2;
+
 
 	/* -- ALL COMMAND NAME CONSTANTS -- */
 
@@ -61,6 +62,8 @@ public class AutoConstants {
 		R_ALIGN_REEF2_R_TAG_CMD,
 		R_ALIGN_REEF3_L_TAG_CMD,
 		R_ALIGN_REEF3_R_TAG_CMD,
+		R_ALIGN_REEF4_L_TAG_CMD,
+		R_ALIGN_REEF4_R_TAG_CMD,
 		R_ALIGN_REEF5_L_TAG_CMD,
 		R_ALIGN_REEF5_R_TAG_CMD,
 		R_ALIGN_REEF6_L_TAG_CMD,
@@ -72,6 +75,8 @@ public class AutoConstants {
 		B_ALIGN_REEF2_R_TAG_CMD,
 		B_ALIGN_REEF3_L_TAG_CMD,
 		B_ALIGN_REEF3_R_TAG_CMD,
+		B_ALIGN_REEF4_L_TAG_CMD,
+		B_ALIGN_REEF4_R_TAG_CMD,
 		B_ALIGN_REEF5_L_TAG_CMD,
 		B_ALIGN_REEF5_R_TAG_CMD,
 		B_ALIGN_REEF6_L_TAG_CMD,
@@ -83,9 +88,6 @@ public class AutoConstants {
 		B_ALIGN_STATION_R_TAG_CMD,
 		/* Drive Peripheral Commands */
 		DRIVE_BRAKE_CMD,
-		DRIVE_ROBOT_LEFT_RELATIVE_OFFSET_TIMED_CMD,
-		DRIVE_ROBOT_RIGHT_RELATIVE_OFFSET_TIMED_CMD,
-		DRIVE_WAIT,
 		/* Elevator Commands */
 		ELEVATOR_GROUND_CMD,
 		ELEVATOR_L2_CMD,

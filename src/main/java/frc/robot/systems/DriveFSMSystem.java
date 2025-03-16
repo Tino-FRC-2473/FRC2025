@@ -266,9 +266,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * Performs specific action based on the autoState passed in.
 	 */
 	public void updateAutonomous() {
-		if (Utils.isSimulation()) {
-			getMapleSimDrivetrain().resetSimulationPose();
-		}
+		// if (Utils.isSimulation()) {
+		// 	getMapleSimDrivetrain().resetSimulationPose();
+		// }
 		rpi.printRawData();
 	}
 
