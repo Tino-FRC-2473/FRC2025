@@ -76,4 +76,23 @@ public final class HardwareMap {
 	public static boolean isLEDPresent() {
 		return true;
 	}
+
+	/**
+	 * Check if algae remover hardware is available to the RoboRIO.
+	 * @return true if algae remover hardware is present
+	 */
+	public static boolean isAlgaeHardwarePresent() {
+		return true;
+	}
+
+	/**
+	 * Check if the superstructure hardware is available to the RoboRIO.
+	 * @return true if all required hardware components are present
+	 */
+	public static boolean useSuperStructure() {
+		return isElevatorHardwarePresent()
+			&& isFunnelHardwarePresent()
+			&& isClimberHardwarePresent()
+			&& isAlgaeHardwarePresent();
+	}
 }

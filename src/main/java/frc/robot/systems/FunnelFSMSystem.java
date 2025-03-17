@@ -99,6 +99,10 @@ public class FunnelFSMSystem {
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
+
+		if (!HardwareMap.useSuperStructure()) {
+			handleOverrideState(input);
+		}
 	}
 
 	/**
@@ -144,8 +148,10 @@ public class FunnelFSMSystem {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
  	 *        the robot is in autonomous mode.
 	 */
-	public void handleManualStates(TeleopInput input) {
-		currentState = nextState(input);
+	public void handleOverrideState(TeleopInput input) {
+		if (input != null) {
+			currentState = nextState(input);
+		}
 	}
 
 	/* ======================== Private methods ======================== */

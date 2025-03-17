@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.urcl.URCL;
 
 import com.ctre.phoenix6.Utils;
 
@@ -31,6 +32,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.AlgaeFSMSystem;
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.LEDFSMSystem;
 import frc.robot.systems.Superstructure;
@@ -61,6 +63,7 @@ public class Robot extends LoggedRobot {
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private LEDFSMSystem ledSystem;
+	private AlgaeFSMSystem algaeSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -90,6 +93,7 @@ public class Robot extends LoggedRobot {
 			Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
 		}
 
+		Logger.registerURCL(URCL.startExternal());
 		Logger.start(); // Start logging!
 
 		input = new TeleopInput();
@@ -117,6 +121,10 @@ public class Robot extends LoggedRobot {
 			climberSystem = new ClimberFSMSystem();
 		}
 
+		if (Robot.isSimulation() || HardwareMap.isAlgaeHardwarePresent()) {
+			algaeSystem = new AlgaeFSMSystem();
+		}
+
 		if (HardwareMap.isLEDPresent() && HardwareMap.isDriveHardwarePresent()
 			&& HardwareMap.isElevatorHardwarePresent() && HardwareMap.isFunnelHardwarePresent()
 			&& HardwareMap.isClimberHardwarePresent()) {
@@ -132,12 +140,14 @@ public class Robot extends LoggedRobot {
 			autoChooser.addOption(auto.getKey(), auto.getKey());
 		}
 
-		superstructure = new Superstructure(
-			driveSystem,
-			funnelSystem,
-			elevatorSystem,
-			climberSystem
-		);
+		if (Robot.isSimulation() || HardwareMap.useSuperStructure()) {
+			superstructure = new Superstructure(
+				driveSystem,
+				funnelSystem,
+				elevatorSystem,
+				climberSystem
+			);
+		}
 
 		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 	}
@@ -205,7 +215,13 @@ public class Robot extends LoggedRobot {
 			ledSystem.reset();
 		}
 
-		superstructure.reset();
+		if (algaeSystem != null) {
+			algaeSystem.reset();
+		}
+
+		if (superstructure != null) {
+			superstructure.reset();
+		}
 	}
 
 	@Override
@@ -330,6 +346,10 @@ public class Robot extends LoggedRobot {
 
 		if (ledSystem != null) {
 			ledSystem.updateLogging();
+		}
+
+		if (algaeSystem != null) {
+			algaeSystem.updateLogging();
 		}
 	}
 

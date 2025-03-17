@@ -17,6 +17,8 @@ public class TeleopInput {
 
 	private static final int DPAD_POV_UP = 0;
 	private static final int DPAD_POV_DOWN = 180;
+	private static final int DPAD_POV_RIGHT = 90;
+	private static final int DPAD_POV_LEFT = 270;
 
 	/* ======================== Private variables ======================== */
 	// Input objects
@@ -175,7 +177,7 @@ public class TeleopInput {
 	 * Get the value of the low algae elevator target button (dpad down).
 	 * @return If the button is pressed
 	 */
-	public boolean isLowAlgaeButtonPressed() {
+	public boolean isArmLowStowButtonPressed() {
 		return mechController.getPOV() == DPAD_POV_DOWN;
 	}
 
@@ -183,8 +185,17 @@ public class TeleopInput {
 	 * Get the value of the high algae elevator target button (dpad up).
 	 * @return If the button is pressed
 	 */
-	public boolean isHighAlgaeButtonPressed() {
+	public boolean isArmHighStowButtonPressed() {
 		return mechController.getPOV() == DPAD_POV_UP;
+	}
+
+	/**
+	 * Get the value of the arm remove algae button (dpad right or left).
+	 * @return If the button is pressed
+	 */
+	public boolean isArmRemoveAlgaeButtonPressed() {
+		return mechController.getPOV() == DPAD_POV_RIGHT
+			|| mechController.getPOV() == DPAD_POV_LEFT;
 	}
 
 	/**
@@ -220,15 +231,6 @@ public class TeleopInput {
 	 */
 	public boolean isOuttakeButtonPressed() {
 		return mechController.getL1Button();
-	}
-
-	/**
-	 * Gets the value of the R1 (right bumper) button.
-	 * Intended to signify if the algae remover should extend.
-	 * @return If the R1 button is pressed.
-	 */
-	public boolean isAlgaeButtonPressed() {
-		return mechController.getR1Button();
 	}
 
 	/**

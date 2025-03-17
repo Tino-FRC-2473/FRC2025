@@ -310,7 +310,7 @@ public class Superstructure {
 	private void handleIdleState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.MANUAL);
-		funnelSystem.handleManualStates(input);
+		funnelSystem.handleOverrideState(input);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
 
@@ -453,8 +453,8 @@ public class Superstructure {
 	 */
 	private void handleManualState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.handleManualStates(input);
-		funnelSystem.handleManualStates(input);
-		climberSystem.handleManualStates(input);
+		elevatorSystem.handleOverrideState(input);
+		funnelSystem.handleOverrideState(input);
+		climberSystem.handleOverrideState(input);
 	}
 }

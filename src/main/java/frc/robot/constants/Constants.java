@@ -1,6 +1,9 @@
 package frc.robot.constants;
 
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.Robot;
 
@@ -17,18 +20,25 @@ public final class Constants {
 	public static final double CORAL_SCORE_TIME_SECS = 1.0;
 
 	// algae removal constants
-	public static final double ALGAE_DEPLOY_POS = 150;
+	public static final Angle ARM_TARGET_ALGAE = Units.Radians.of(115); //TODO - TUNE
+	public static final Angle ARM_TARGET_STOWED_LOW = Units.Radians.of(0); //TODO - TUNE
+	public static final Angle ARM_TARGET_STOWED_HIGH = Units.Radians.of(127); //TODO - TUNE
+	public static final Angle ARM_MARGIN_ERR = Units.Radians.of(0.1); //TODO - TUNE
+	public static final Angle ARM_START_POS = Units.Radians.of(0); //TODO - TUNE
 
-	public static final double ALGAE_KG = 0.20;
-	public static final double ALGAE_KS = 0.1;
-	public static final double ALGAE_KV = 0.001;
-	public static final double ALGAE_KA = 0.0;
+	public static final double ALGAE_KG = 0.20; //TODO - TUNE
+	public static final double ALGAE_KS = 0.1; //TODO - TUNE
+	public static final double ALGAE_KV = 0.001; //TODO - TUNE
+	public static final double ALGAE_KA = 0.0; //TODO - TUNE
 	public static final double ALGAE_KP = 0.0; // TODO: tune
-	public static final double ALGAE_KI = 0.00;
-	public static final double ALGAE_KD = 0.000;
+	public static final double ALGAE_KI = 0.00; //TODO - TUNE
+	public static final double ALGAE_KD = 0.000; //TODO - TUNE
 
-	public static final double ALGAE_CRUISE_VELO = 10;
-	public static final double ALGAE_TARGET_ACCEL = 25;
+	public static final AngularVelocity ARM_MAX_VELO = Units.RadiansPerSecond.of(5); //TODO - TUNE
+	public static final AngularAcceleration ARM_MAX_ACCEL =
+		Units.RadiansPerSecondPerSecond.of(10); //TODO - TUNE
+	public static final int ARM_CURRENT_LIMIT = 100;
+	public static final double ARM_GEAR_RATIO = 360 / 15;
 
 	// elevator motion profile constants
 	public static final double ELEVATOR_KG = 0.20;
@@ -75,7 +85,6 @@ public final class Constants {
 	public static final double CLIMBER_COUNTS_PER_REV = 427;
 	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 7;
 
-
 	public static final double CLIMB_POWER = 0.8;
 	public static final double CLIMB_REDUCED_POWER = 0.4;
 
@@ -87,6 +96,8 @@ public final class Constants {
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;
+	public static final int UPDATE_PERIOD_MS = 20;
+	public static final double UPDATE_PERIOD_SECS = 0.020;
 		// this is the lowest possible value since we refresh ourselves
 
 	// Add units

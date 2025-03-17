@@ -191,6 +191,10 @@ public class ElevatorFSMSystem {
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
+		if (!HardwareMap.useSuperStructure()) {
+			handleOverrideState(input);
+		}
+
 		// telemetry and logging
 		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition()
 			.getValueAsDouble());
@@ -234,7 +238,7 @@ public class ElevatorFSMSystem {
 	 * @param input Global TeleopInput if robot in teleop mode or null if
  	 *        the robot is in autonomous mode.
 	 */
-	public void handleManualStates(TeleopInput input) {
+	public void handleOverrideState(TeleopInput input) {
 		currentState = nextState(input);
 	}
 
@@ -259,8 +263,8 @@ public class ElevatorFSMSystem {
 					&& !input.isL4ButtonPressed()
 					&& !input.isL2ButtonPressed()
 					&& !input.isL3ButtonPressed()
-					&& !input.isLowAlgaeButtonPressed()
-					&& !input.isHighAlgaeButtonPressed()) {
+					&& !input.isArmLowStowButtonPressed()
+					&& !input.isArmHighStowButtonPressed()) {
 					return ElevatorFSMState.GROUND;
 				}
 				if (input.isL2ButtonPressed()
@@ -268,8 +272,8 @@ public class ElevatorFSMSystem {
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL3ButtonPressed()
-					&& !input.isLowAlgaeButtonPressed()
-					&& !input.isHighAlgaeButtonPressed()) {
+					&& !input.isArmLowStowButtonPressed()
+					&& !input.isArmHighStowButtonPressed()) {
 					return ElevatorFSMState.LEVEL2;
 				}
 				if (input.isL3ButtonPressed()
@@ -277,8 +281,8 @@ public class ElevatorFSMSystem {
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
-					&& !input.isLowAlgaeButtonPressed()
-					&& !input.isHighAlgaeButtonPressed()) {
+					&& !input.isArmLowStowButtonPressed()
+					&& !input.isArmHighStowButtonPressed()) {
 					return ElevatorFSMState.LEVEL3;
 				}
 				if (input.isL4ButtonPressed()
@@ -286,24 +290,24 @@ public class ElevatorFSMSystem {
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
 					&& !input.isL3ButtonPressed()
-					&& !input.isLowAlgaeButtonPressed()
-					&& !input.isHighAlgaeButtonPressed()) {
+					&& !input.isArmLowStowButtonPressed()
+					&& !input.isArmHighStowButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
-				if (input.isLowAlgaeButtonPressed()
+				if (input.isArmLowStowButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
 					&& !input.isL3ButtonPressed()
 					&& !input.isL4ButtonPressed()
-					&& !input.isHighAlgaeButtonPressed()) {
+					&& !input.isArmHighStowButtonPressed()) {
 					return ElevatorFSMState.LOW_ALGAE;
 				}
-				if (input.isHighAlgaeButtonPressed()
+				if (input.isArmHighStowButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
 					&& !input.isL3ButtonPressed()
 					&& !input.isL4ButtonPressed()
-					&& !input.isLowAlgaeButtonPressed()) {
+					&& !input.isArmLowStowButtonPressed()) {
 					return ElevatorFSMState.LOW_ALGAE;
 				}
 				return ElevatorFSMState.MANUAL;
