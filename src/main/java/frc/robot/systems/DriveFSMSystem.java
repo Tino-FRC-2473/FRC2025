@@ -46,7 +46,6 @@ import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
-import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.HardwareMap;
 import frc.robot.RaspberryPi;
@@ -86,8 +85,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //4% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-
-	private final SwerveLogging logger = new SwerveLogging(MAX_SPEED);
 
 	private CommandSwerveDrivetrain drivetrain;
 	private Rotation2d rotationAlignmentPose;
@@ -562,7 +559,11 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * updates drivetrain logging.
 	 */
 	public void updateLogging() {
-		logger.applyStateLogging(drivetrain.getState());
+		Logger.recordOutput("Drivestate/Pose", drivetrain.getState().Pose);
+		Logger.recordOutput("Drivestate/Heading", drivetrain.getState().RawHeading.getDegrees());
+		Logger.recordOutput("Drivestate/Module States", drivetrain.getState().ModuleStates);
+		Logger.recordOutput("Drivestate/Module Targets", drivetrain.getState().ModuleTargets);
+		Logger.recordOutput("Drivestate/Speeds", drivetrain.getState().Speeds);
 	}
 
 	private Timer alignmentTimer = new Timer();
