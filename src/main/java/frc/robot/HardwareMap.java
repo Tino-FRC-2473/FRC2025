@@ -11,7 +11,6 @@ public final class HardwareMap {
 	private static final int CAN_ID_CLIMBER_REAL = 8;
 	public static final int CAN_ID_CLIMBER =
 		Robot.isSimulation() ? CAN_ID_CLIMBER_SIM : CAN_ID_CLIMBER_REAL; // FINAL
-	public static final int CAN_ID_ALGAE_REMOVER = 20; // TBD
 
 	public static final int CAN_ID_INTAKE = 16; // UNUSED
 
@@ -78,21 +77,12 @@ public final class HardwareMap {
 	}
 
 	/**
-	 * Check if algae remover hardware is available to the RoboRIO.
-	 * @return true if algae remover hardware is present
-	 */
-	public static boolean isAlgaeHardwarePresent() {
-		return true;
-	}
-
-	/**
 	 * Check if the superstructure hardware is available to the RoboRIO.
 	 * @return true if all required hardware components are present
 	 */
 	public static boolean useSuperStructure() {
 		return isElevatorHardwarePresent()
 			&& isFunnelHardwarePresent()
-			&& isClimberHardwarePresent()
-			&& isAlgaeHardwarePresent();
+			&& isClimberHardwarePresent();
 	}
 }

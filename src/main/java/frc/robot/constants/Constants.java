@@ -1,9 +1,6 @@
 package frc.robot.constants;
 
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.Robot;
 
@@ -18,27 +15,6 @@ public final class Constants {
 	public static final double INTAKE_VOLTAGE = 1; // volts, UNUSED
 
 	public static final double CORAL_SCORE_TIME_SECS = 1.0;
-
-	// algae removal constants
-	public static final Angle ARM_TARGET_ALGAE = Units.Radians.of(115); //TODO - TUNE
-	public static final Angle ARM_TARGET_STOWED_LOW = Units.Radians.of(0); //TODO - TUNE
-	public static final Angle ARM_TARGET_STOWED_HIGH = Units.Radians.of(127); //TODO - TUNE
-	public static final Angle ARM_MARGIN_ERR = Units.Radians.of(0.1); //TODO - TUNE
-	public static final Angle ARM_START_POS = Units.Radians.of(0); //TODO - TUNE
-
-	public static final double ALGAE_KG = 0.20; //TODO - TUNE
-	public static final double ALGAE_KS = 0.1; //TODO - TUNE
-	public static final double ALGAE_KV = 0.001; //TODO - TUNE
-	public static final double ALGAE_KA = 0.0; //TODO - TUNE
-	public static final double ALGAE_KP = 0.0; // TODO: tune
-	public static final double ALGAE_KI = 0.00; //TODO - TUNE
-	public static final double ALGAE_KD = 0.000; //TODO - TUNE
-
-	public static final AngularVelocity ARM_MAX_VELO = Units.RadiansPerSecond.of(5); //TODO - TUNE
-	public static final AngularAcceleration ARM_MAX_ACCEL =
-		Units.RadiansPerSecondPerSecond.of(10); //TODO - TUNE
-	public static final int ARM_CURRENT_LIMIT = 100;
-	public static final double ARM_GEAR_RATIO = 360 / 15;
 
 	// elevator motion profile constants
 	public static final double ELEVATOR_KG = 0.20;

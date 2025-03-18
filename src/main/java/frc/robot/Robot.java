@@ -32,7 +32,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
-import frc.robot.systems.AlgaeFSMSystem;
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.LEDFSMSystem;
 import frc.robot.systems.Superstructure;
@@ -63,7 +62,6 @@ public class Robot extends LoggedRobot {
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private LEDFSMSystem ledSystem;
-	private AlgaeFSMSystem algaeSystem;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -119,10 +117,6 @@ public class Robot extends LoggedRobot {
 
 		if (Robot.isSimulation() || HardwareMap.isClimberHardwarePresent()) {
 			climberSystem = new ClimberFSMSystem();
-		}
-
-		if (Robot.isSimulation() || HardwareMap.isAlgaeHardwarePresent()) {
-			algaeSystem = new AlgaeFSMSystem();
 		}
 
 		if (HardwareMap.isLEDPresent() && HardwareMap.isDriveHardwarePresent()
@@ -213,10 +207,6 @@ public class Robot extends LoggedRobot {
 
 		if (ledSystem != null) {
 			ledSystem.reset();
-		}
-
-		if (algaeSystem != null) {
-			algaeSystem.reset();
 		}
 
 		if (superstructure != null) {
@@ -348,9 +338,6 @@ public class Robot extends LoggedRobot {
 			ledSystem.updateLogging();
 		}
 
-		if (algaeSystem != null) {
-			algaeSystem.updateLogging();
-		}
 	}
 
 	/**
