@@ -650,14 +650,20 @@ public class DriveFSMSystem extends SubsystemBase {
 		).getTranslation();
 
 		drivetrain.setControl(
-			pathApplyFieldSpeeds.withSpeeds(
-				new ChassisSpeeds(
-					driveVelocity.getX(),
-					driveVelocity.getY(),
-					thetaVelocity
+			driveFacingAngle.
+				withVelocityX(
+					driveVelocity.getX()
 				)
-			)
+				.withVelocityY(
+					driveVelocity.getY()
+				)
+				.withTargetRateFeedforward(thetaVelocity)
+				.withTargetDirection(target.getRotation())
+				.withHeadingPID(DriveConstants.HEADING_P / 10.0, 0, 0)
+				// .withHeadingPID(0, 0, 0)
+
 		);
+		//drivetrain.setControl(brake);
 
 		rotationAlignmentPose = currPose.getRotation();
 
