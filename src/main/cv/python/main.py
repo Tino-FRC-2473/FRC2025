@@ -7,7 +7,7 @@ import time
 import cv2
 import traceback
 
-print("Waiting 5 seconds... ", end="", flush=True)
+print("Waiting 5 seconds... ", flush=True)
 time.sleep(5)
 print("done")
 
@@ -63,7 +63,7 @@ while True:
     try: 
         initial_frame = input.getFrame()
         annotated_frame = initial_frame.copy()
-        tagData = tag_module.estimate_3d_pose(initial_frame, annotated_frame, ARUCO_LENGTH_METERS)
+        tagData = tag_module.estimate_3d_pose(annotated_frame, ARUCO_LENGTH_METERS)
         annotated_frame = cv2.resize(annotated_frame, AT_RESIZED_RES)
         if(tagData is None):
             print(f"{cam_name} - tagData none")
