@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.io.File;
 
 import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 import org.littletonrobotics.junction.Logger;
 
@@ -227,6 +229,9 @@ public final class MechLogging {
 					if (timer.hasElapsed(2)){
 						System.out.println("VICTORY");
 						doesSimRobotHaveCoral = true;
+						SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(
+    					new Pose2d(drivetrainPose.getX(), drivetrainPose.getY(), Rotation2d.fromDegrees(90))));
+						SimulatedArena.getInstance().addGamePiece(new ReefscapeAlgaeOnField(new Translation2d(drivetrainPose.getX(),drivetrainPose.getY())));
 					}
 					
 				} else {
