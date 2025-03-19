@@ -176,9 +176,8 @@ public final class MechLogging {
 	public void updateElevatorPose3d(Angle encoderSimPosition) {
 		double totalHeight =
 			encoderSimPosition
-				.div(SimConstants.ELEVATOR_GEAR_RATIO)
 				.in(Radians)
-			* SimConstants.ELEVATOR_WINCH_DIAMETER_METERS / 2;
+			* SimConstants.ELEVATOR_SIM_VISUALIZATION_HEIGHT_MULTIPLIER;
 
 		// Stage 1 (bottom stage) moves 1/6 of the total movement
 		elevatorStage1 = new Pose3d(
@@ -211,7 +210,7 @@ public final class MechLogging {
 		climberPose = new Pose3d(
 			SimConstants.CLIMBER_ZERO_POS,
 			new Rotation3d(
-				encoderSimPosition.div(SimConstants.CLIMBER_GEAR_RATIO).in(Radians),
+				encoderSimPosition.times(SimConstants.CLIMBER_SIM_VISUALIZATION_CONSTANT).in(Radians),
 				0,
 				0
 			)

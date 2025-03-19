@@ -5,6 +5,8 @@ package frc.robot.systems;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
@@ -207,6 +209,13 @@ public class ElevatorFSMSystem {
 		// set encoder readings and simulated battery voltages
 		// not sure if we have a set distance function for the encoder sim (our motor sim?)
 
+		if (Robot.isSimulation()) {
+			double partOfWayUp = elevatorSim.getPositionMeters()/Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches));
+			Logger.recordOutput("% way up", partOfWayUp * 100); 
+			elevatorMotor.setPosition(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches) * partOfWayUp);
+		}
+		
+
 
 		
 
@@ -232,7 +241,7 @@ public class ElevatorFSMSystem {
 		currentState = nextState(input);
 
 		// telemetry and logging
-		MechLogging.getInstance().updateElevatorPose3d(Angle.ofBaseUnits(elevatorSim.getPositionMeters()/(SimConstants.ELEVATOR_WINCH_DIAMETER_METERS/2), Radians));
+		MechLogging.getInstance().updateElevatorPose3d(Angle.ofBaseUnits(elevatorSim.getPositionMeters(), Radians));
 
 	}
 
@@ -240,6 +249,7 @@ public class ElevatorFSMSystem {
 	 * Updates the logging information for the elevator system.
 	 */
 	public void updateLogging() {
+		Logger.recordOutput("Elevator height", getElevatorpos().in(Inches));
 		Logger.recordOutput("Elevator encoder", elevatorMotor.getPosition().getValueAsDouble());
 		Logger.recordOutput("Elevator velocity", elevatorMotor.getVelocity().getValueAsDouble());
 
@@ -348,12 +358,13 @@ public class ElevatorFSMSystem {
 	}
 
 	private boolean inRange(Distance currentPos, Distance targetPos) {
-		return (currentPos.compareTo(targetPos.minus(Constants.ELEVATOR_INRANGE_VALUE)) > 0)
-				&& currentPos.compareTo(targetPos.plus(Constants.ELEVATOR_INRANGE_VALUE)) < 0;
+		return (currentPos.compareTo(targetPos.minus(Constants.ELEVATOR_INRANGE_VALUE)) >= 0)
+				&& currentPos.compareTo(targetPos.plus(Constants.ELEVATOR_INRANGE_VALUE)) <= 0;
 	}
 
 	private Distance getElevatorpos() {
-		return Inches.of(elevatorMotor.getPosition().getValueAsDouble());
+		return Inches.of(
+			elevatorMotor.getPosition().getValueAsDouble());
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
@@ -375,8 +386,9 @@ public class ElevatorFSMSystem {
 			}
 		}
 
-		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
-			> Constants.KG_CHECK.in(Inches)) {
+		if (signalInput == 0 
+			// && elevatorMotor.getPosition().getValueAsDouble() > Constants.KG_CHECK.in(Inches)
+			) {
 				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
 			/*if (!Utils.isSimulation()) {
 				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));

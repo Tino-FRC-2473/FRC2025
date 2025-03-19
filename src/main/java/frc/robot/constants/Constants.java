@@ -25,7 +25,7 @@ public final class Constants {
 	public static final double ELEVATOR_KA = 0.0;
 	public static final double ELEVATOR_KP = 1.0;
 	public static final double ELEVATOR_KI = 0.03;
-	public static final double ELEVATOR_KD = 0.000; // may need to tune for going down
+	public static final double ELEVATOR_KD = 0.1; // may need to tune for going down
 
 	public static final double ELEVATOR_CRUISE_VELO = 600;
 	public static final double ELEVATOR_TARGET_ACCEL = 1800;
@@ -43,14 +43,13 @@ public final class Constants {
 	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(19.1);
 	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.3);
 	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
-	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(0.1);
+	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(0.3);
 	public static final Distance KG_CHECK = Units.Inches.of(0.5);
 
 	public static final double ELEVATOR_POWER = 0.8;
 	public static final double ELEVATOR_REDUCED_POWER = 0.5;
 
 	public static final double ELEVATOR_MANUAL_SCALE = 0.5;
-	public static final double ELEVATOR_TARGET_MARGIN = 5;
 
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;

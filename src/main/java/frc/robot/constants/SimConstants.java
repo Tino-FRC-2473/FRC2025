@@ -30,14 +30,13 @@ public class SimConstants {
 	}
 
 	// mech pose logging constants
-	public static final double ELEVATOR_WINCH_DIAMETER_METERS = Units.inchesToMeters(1);
-	public static final double ELEVATOR_GEAR_RATIO = 15; //25.0;
+	public static final double ELEVATOR_SIM_VISUALIZATION_HEIGHT_MULTIPLIER = 2;
 	public static final Translation3d CLIMBER_ZERO_POS = new Translation3d(
 		0.05,
 		0.305,
 		0.412
 		);
-	public static final double CLIMBER_GEAR_RATIO = 50;
+	public static final double CLIMBER_SIM_VISUALIZATION_CONSTANT = 0.0023;
 
 	//done from the viewpoint of the drivers
 	public static final int BLUE_STATION_LEFT_APRILTAG_ID = 13;

@@ -131,7 +131,7 @@ public class FunnelFSMSystem {
 		// 	return MechLogging.getInstance().doesSimRobotHaveCoral();
 		// }
 
-		return !coralBreakBeam.get(); // true = beam intact
+		return Robot.isSimulation() || !coralBreakBeam.get(); // true = beam intact
 		// return true; // temp always hold coral
 	}
 
