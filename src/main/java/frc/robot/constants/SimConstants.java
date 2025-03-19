@@ -97,7 +97,7 @@ public class SimConstants {
 		Units.inchesToMeters(14.56), new Rotation3d(0.0, 0.0, 0.0));
 	public static final Transform3d ROBOT_TO_STATION_CAMERA =
 		new Transform3d(-Units.inchesToMeters(8.875), -Units.inchesToMeters(9.5),
-		Units.inchesToMeters(37.596), new Rotation3d(0.0, 0.0, Math.PI));
+		Units.inchesToMeters(37.596), new Rotation3d(0.0, -Math.toRadians(19), Math.PI));
 
 	// Basic filtering thresholds
 	public static final double MAX_AMBIGUITY = 0.3;

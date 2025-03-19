@@ -8,7 +8,9 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -660,7 +662,6 @@ public class DriveFSMSystem extends SubsystemBase {
 				.withTargetRateFeedforward(thetaVelocity)
 				.withTargetDirection(target.getRotation())
 				.withHeadingPID(DriveConstants.HEADING_P / 10.0, 0, 0)
-				// .withHeadingPID(0, 0, 0)
 
 		);
 		//drivetrain.setControl(brake);
@@ -817,40 +818,47 @@ public class DriveFSMSystem extends SubsystemBase {
 			currPose = drivetrain.getState().Pose;
 		}
 
-		Transform2d robotToCamera;
+		Transform3d robotToCamera;
 		if (aligningToReef) {
 		//TODO: make a reef and station alignment hepler function instead of just one.
-			robotToCamera =
-			new Transform2d(
-				SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
-					// - if u use pose rotation.
-				SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
-					// - if u use pose rotation.
-				SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
-			);
+			// robotToCamera =
+			// new Transform2d(
+			// 	SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
+			// 		// - if u use pose rotation.
+			// 	SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
+			// 		// - if u use pose rotation.
+			// 	SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
+			// );
+			robotToCamera = SimConstants.ROBOT_TO_REEF_CAMERA;
 		} else {
 			robotToCamera =
-			new Transform2d(
-				new Translation2d(
-					SimConstants.ROBOT_TO_STATION_CAMERA.getX(),
-					SimConstants.ROBOT_TO_STATION_CAMERA.getY()
-				),
+			new Transform3d(
+				SimConstants.ROBOT_TO_STATION_CAMERA.getTranslation(),
 				SimConstants.ROBOT_TO_STATION_CAMERA.getRotation()
-				.toRotation2d().rotateBy(Rotation2d.k180deg)
+				.rotateBy(new Rotation3d(Rotation2d.k180deg))
 			);
+			//robotToCamera = SimConstants.ROBOT_TO_STATION_CAMERA;
 		}
 
 		System.out.println("TAG Reached here");
 
 		if (tag != null) {
 			if (Utils.isSimulation()) {
-				alignmentPose2d = currPose
+				alignmentPose2d =
+					new Pose3d(
+						currPose
+					)
 					.transformBy(robotToCamera)
-					.plus(new Transform2d(
+					.plus(new Transform3d(
 						tag.getZ(),
 						(tag.getX()),
-						new Rotation2d(-tag.getPitch())))
+						0.0,
+						new Rotation3d(
+							new Rotation2d(-tag.getPitch())
+						)
+					))
 					.transformBy(robotToCamera.inverse())
+					.toPose2d()
 					.transformBy(
 						new Transform2d(
 							-alignmentXOff,
@@ -860,13 +868,21 @@ public class DriveFSMSystem extends SubsystemBase {
 					);
 
 			} else {
-				alignmentPose2d = currPose
+				alignmentPose2d =
+					new Pose3d(
+						currPose
+					)
 					.transformBy(robotToCamera)
-					.plus(new Transform2d(
+					.plus(new Transform3d(
 						tag.getZ(),
 						(tag.getX()),
-						new Rotation2d(-tag.getPitch())))
+						0.0,
+						new Rotation3d(
+							new Rotation2d(-tag.getPitch())
+						)
+					))
 					.transformBy(robotToCamera.inverse())
+					.toPose2d()
 					.transformBy(
 						new Transform2d(
 							-alignmentXOff,
