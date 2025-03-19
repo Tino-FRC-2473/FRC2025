@@ -76,7 +76,7 @@ public class FunnelIntakeFSMSystem {
 
 		intakeMotor.optimizeBusUtilization();
 
-		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
+		coralBreakBeam = new DigitalInput(HardwareMap.OUTTAKE_BREAK_BEAM_DIO_PORT);
 
 		// Reset state machine
 		reset();
