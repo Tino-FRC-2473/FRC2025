@@ -1,15 +1,18 @@
 package frc.robot.constants;
 
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
 
 // Values provided by Maple-Sim to reduce commonly found bugs while simulating.
 public class SimConstants {
 	public static final double MODULE_STEER_P = 70;
+	public static final double MODULE_STEER_I = 0;
 	public static final double MODULE_STEER_D = 4.5;
+	public static final double MODULE_STEER_S = 0;
+	public static final double MODULE_STEER_V = 1.91;
+	public static final double MODULE_STEER_A = 0;
 
 	public static final double DRIVE_FRICTION_VOLTS = 0.1;
-	public static final double STEER_FRICTION_VOLTS = 0.15;
+	public static final double STEER_FRICTION_VOLTS = 0.05;
 
 	public static final double STEER_INERTIA_KGMS2 = 0.05;
 

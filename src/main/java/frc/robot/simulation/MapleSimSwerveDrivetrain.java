@@ -2,9 +2,11 @@ package frc.robot.simulation;
 
 // CTRE Imports
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -199,9 +201,14 @@ public class MapleSimSwerveDrivetrain {
 				// Disable CanCoder inversion
 				.withEncoderInverted(false)
 				// Adjust steer motor PID gains for simulation
-				.withSteerMotorGains(moduleConstants.SteerMotorGains
+				.withSteerMotorGains(new Slot0Configs()
 						.withKP(SimConstants.MODULE_STEER_P)  // Proportional gain
-						.withKD(SimConstants.MODULE_STEER_D)) // Derivative gain
+						.withKI(SimConstants.MODULE_STEER_I)
+						.withKD(SimConstants.MODULE_STEER_D) // Derivative gain
+						.withKS(SimConstants.MODULE_STEER_S)
+						.withKV(SimConstants.MODULE_STEER_V)
+						.withKA(SimConstants.MODULE_STEER_A)
+						.withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign))
 				// Adjust friction voltages
 				.withDriveFrictionVoltage(Volts.of(SimConstants.DRIVE_FRICTION_VOLTS))
 				.withSteerFrictionVoltage(Volts.of(SimConstants.STEER_FRICTION_VOLTS))
