@@ -477,9 +477,6 @@ public class ElevatorFSMSystem {
 	 * @return whether or not elevator is at L2.
 	 */
 	public boolean isElevatorAtL2() {
-		if (Robot.isSimulation()) {
-			return true;
-		}
 		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2);
 	}
 
@@ -488,9 +485,6 @@ public class ElevatorFSMSystem {
 	 * @return whether or not elevator is at L3.
 	 */
 	public boolean isElevatorAtL3() {
-		if (Robot.isSimulation()) {
-			return true;
-		}
 		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3);
 	}
 
@@ -499,9 +493,6 @@ public class ElevatorFSMSystem {
 	 * @return whether or not elevator is at L4.
 	 */
 	public boolean isElevatorAtL4() {
-		if (Robot.isSimulation()) {
-			return true;
-		}
 		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
 	}
 
@@ -510,9 +501,6 @@ public class ElevatorFSMSystem {
 	 * @return whether or not elevator is at ground.
 	 */
 	public boolean isElevatorAtGround() {
-		if (Robot.isSimulation()) {
-			return true;
-		}
 		return isBottomLimitReached();
 	}
 

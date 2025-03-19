@@ -237,7 +237,7 @@ public class Superstructure {
 				}
 				return SuperFSMState.RAISE_TO_L4;
 			case SCORE:
-				if ((!funnelSystem.isHoldingCoral() || Robot.isSimulation())
+				if ((!funnelSystem.isHoldingCoral())
 						&& scoreTimer.get() > Constants.CORAL_SCORE_TIME_SECS) {
 					return SuperFSMState.POST_SCORE;
 				}
@@ -317,8 +317,8 @@ public class Superstructure {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handlePreScoreState(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.GROUND);
+		driveSystem.setState(DriveFSMState.ALIGN_TO_REEF_TAG_STATE);
+		elevatorSystem.setState(ElevatorFSMState.MANUAL);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
