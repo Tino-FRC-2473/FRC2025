@@ -39,9 +39,7 @@ public class ElevatorFSMSystem {
 		GROUND,
 		LEVEL2,
 		LEVEL3,
-		LEVEL4,
-		HIGH_ALGAE,
-		LOW_ALGAE
+		LEVEL4
 	}
 
 	/* ======================== Private variables ======================== */
@@ -181,12 +179,6 @@ public class ElevatorFSMSystem {
 			case LEVEL4:
 				handleL4State(input);
 				break;
-			case LOW_ALGAE:
-				handleLowAlgaeState(input);
-				break;
-			case HIGH_ALGAE:
-				handleHighAlgaeState(input);
-				break;
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
@@ -294,23 +286,6 @@ public class ElevatorFSMSystem {
 					&& !input.isArmHighStowButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
-				if (input.isArmLowStowButtonPressed()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()
-					&& !input.isL4ButtonPressed()
-					&& !input.isArmHighStowButtonPressed()) {
-					return ElevatorFSMState.LOW_ALGAE;
-				}
-				if (input.isArmHighStowButtonPressed()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()
-					&& !input.isL4ButtonPressed()
-					&& !input.isArmLowStowButtonPressed()) {
-					return ElevatorFSMState.LOW_ALGAE;
-				}
-				return ElevatorFSMState.MANUAL;
 
 			case GROUND:
 				if (isBottomLimitReached() || inRange(getElevatorpos(),
@@ -336,16 +311,6 @@ public class ElevatorFSMSystem {
 					return ElevatorFSMState.MANUAL;
 				}
 				return ElevatorFSMState.LEVEL4;
-			case LOW_ALGAE:
-				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_LOW_ALGAE)) {
-					return ElevatorFSMState.MANUAL;
-				}
-				return ElevatorFSMState.LOW_ALGAE;
-			case HIGH_ALGAE:
-				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_HIGH_ALGAE)) {
-					return ElevatorFSMState.MANUAL;
-				}
-				return ElevatorFSMState.HIGH_ALGAE;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -447,28 +412,6 @@ public class ElevatorFSMSystem {
 	private void handleL4State(TeleopInput input) {
 		elevatorMotor.setControl(
 				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
-		);
-	}
-
-	/**
-	 * Handle behavior in LOW_ALGAE.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handleLowAlgaeState(TeleopInput input) {
-		elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_LOW_ALGAE.in(Units.Inches))
-		);
-	}
-
-	/**
-	 * Handle behavior in HIGH_ALGAE.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 */
-	private void handleHighAlgaeState(TeleopInput input) {
-		elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_HIGH_ALGAE.in(Units.Inches))
 		);
 	}
 

@@ -41,8 +41,6 @@ public final class Constants {
 	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(19.1);
 	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.3);
 	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
-	public static final Distance ELEVATOR_TARGET_LOW_ALGAE = Units.Inches.of(18); // TODO: find val
-	public static final Distance ELEVATOR_TARGET_HIGH_ALGAE = Units.Inches.of(30); // TODO: find val
 
 	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(0.1);
 	public static final Distance KG_CHECK = Units.Inches.of(0.5);
