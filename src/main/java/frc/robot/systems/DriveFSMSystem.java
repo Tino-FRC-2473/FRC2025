@@ -270,6 +270,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (Utils.isSimulation()) {
 			getMapleSimDrivetrain().resetSimulationPose();
 		}
+		rpi.printRawData();
 	}
 
 	/**

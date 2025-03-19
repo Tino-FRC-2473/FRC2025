@@ -19,13 +19,16 @@ import org.littletonrobotics.urcl.URCL;
 
 import com.ctre.phoenix6.Utils;
 
+
 // WPILib Imports
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 // Systems
@@ -36,9 +39,8 @@ import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.LEDFSMSystem;
 import frc.robot.systems.Superstructure;
 
-import frc.robot.utils.Elastic;
-
 // Robot Imports
+import frc.robot.utils.Elastic;
 import frc.robot.auto.AutoRoutines;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
@@ -73,6 +75,8 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void robotInit() {
 		System.out.println("robotInit");
+		WebServer.start(HardwareMap.ELASTIC_WEBSERVER_PORT,
+			Filesystem.getDeployDirectory().getPath());
 
 		Logger.recordMetadata("FRC2025", "Team2473"); // Set a metadata value
 		ntInstance = NetworkTableInstance.getDefault();
@@ -97,7 +101,6 @@ public class Robot extends LoggedRobot {
 		input = new TeleopInput();
 
 		// Instantiate all systems here
-
 		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
@@ -107,6 +110,7 @@ public class Robot extends LoggedRobot {
 			elevatorSystem = new ElevatorFSMSystem(funnelSystem);
 		}
 
+		// Instantiate all systems here
 		if (Robot.isSimulation() || HardwareMap.isDriveHardwarePresent()) {
 			if (elevatorSystem != null) {
 				driveSystem = new DriveFSMSystem(elevatorSystem);
@@ -164,10 +168,10 @@ public class Robot extends LoggedRobot {
 				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
 			);
 
-			// if (Robot.isSimulation()) {
-			// 	driveSystem.getMapleSimDrivetrain().getDriveSimulation()
-			// 		.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
-			// }
+			if (Robot.isSimulation()) {
+				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
+					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+			}
 
 			scheduledCommand.schedule();
 		}
@@ -216,7 +220,9 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		superstructure.update(input);
+		if (superstructure != null) {
+			superstructure.update(input);
+		}
 
 		if (driveSystem != null) {
 			driveSystem.update(input);
@@ -337,7 +343,6 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.updateLogging();
 		}
-
 	}
 
 	/**

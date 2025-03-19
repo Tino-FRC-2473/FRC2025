@@ -24,6 +24,10 @@ class VisionInput:
         self.cap = cv2.VideoCapture(cam_index)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, res[0])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, res[1])
+        # Turn off auto exposure
+        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+        # set exposure time
+        #self.cap.set(cv2.CAP_PROP_EXPOSURE, -12)
         
 
     def getFrame(self):

@@ -1,8 +1,6 @@
 package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
@@ -37,7 +35,6 @@ public class FunnelFSMSystem {
 
 	private DigitalInput coralBreakBeam;
 	private Timer outtakeTimer = new Timer();
-	private LoggedNetworkBoolean simbreakbeam;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -51,12 +48,6 @@ public class FunnelFSMSystem {
 		outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 
 		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
-
-		if (Robot.isSimulation()) {
-			simbreakbeam = new LoggedNetworkBoolean("Holding Coral Selector", false);
-		} else {
-			simbreakbeam = null;
-		}
 
 		// Reset state machine
 		reset();
@@ -139,7 +130,7 @@ public class FunnelFSMSystem {
 	 */
 	public boolean isHoldingCoral() {
 		if (Robot.isSimulation()) {
-			return simbreakbeam.get();
+			return true;
 		}
 		return !coralBreakBeam.get(); // true = beam intact
 	}

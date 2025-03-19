@@ -5,14 +5,13 @@
 title: Climber State Diagram
 ---
 stateDiagram-v2
-state "PID to LOWERED: target set to completely unextended position, within robot frame" as LOWERED
-state "PID to EXTENDED: target set to 90 degrees" as EXTENDED
-state "PID to CLIMB: target set to (TBD) degrees from the horizontal" as CLIMB
-[*] --> LOWERED: start
-
-
-LOWERED --> EXTENDED: advance button pressed
-EXTENDED --> CLIMB: advance button pressed
-CLIMB --> LOWERED: advance button pressed
+state "AUTOMATIC: constant power (depending on target)" as A
+state "MANUAL: constant power" as M
+state "IDLE: 0 power" as I
+[*] --> I
+I --> M: manual button pressed
+M --> I: manual button unpressed
+I --> A: automatic button pressed
+A --> I: target reached or limit switch pressed or manual button pressed
+M --> A: automatic button pressed
 ```
-

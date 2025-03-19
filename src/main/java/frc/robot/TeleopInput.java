@@ -79,7 +79,7 @@ public class TeleopInput {
 	 * Get Square Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveSquareButton() {
+	public boolean getAlignReefButton() {
 		return driveController.getSquareButton();
 	}
 	/**
@@ -89,11 +89,19 @@ public class TeleopInput {
 	public boolean getDriveCircleButton() {
 		return driveController.getCircleButton();
 	}
+
+	/**
+	 * Get drive cross button.
+	 * @return value
+	 */
+	public boolean getDriveCrossButton() {
+		return driveController.getCrossButton();
+	}
 		/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveOptionsButtonPressed() {
+	public boolean getSeedGyroButtonPressed() {
 		return driveController.getOptionsButton();
 	}
 
@@ -101,7 +109,7 @@ public class TeleopInput {
 	 * Get the value of the L1 button.
 	 * @return L1 button value
 	 */
-	public boolean getDriveLeftBumperButton() {
+	public boolean getAlignLeftOffsetButton() {
 		return driveController.getL1Button();
 	}
 
@@ -109,14 +117,22 @@ public class TeleopInput {
 	 * Get the value of the R1 button.
 	 * @return R1 button value
 	 */
-	public boolean getDriveRightBumperButton() {
+	public boolean getAlignRightOffsetButton() {
 		return driveController.getR1Button();
+	}
+
+	/**
+	 * Get the value of the drive share button.
+	 * @return ddrive share button
+	 */
+	public boolean getDriveShareButtonPressed() {
+		return driveController.getShareButton();
 	}
 
 	/* ------------------------ Superstructure Drive Controller ------------------------ */
 
 	/**
-	 * Get the value of the L2 elevator target button (square).
+	 * Get the value of the source L2 target button (square).
 	 * @return If the button is pressed
 	 */
 	public boolean isSuperL2ButtonPressed() {
@@ -139,22 +155,22 @@ public class TeleopInput {
 		return driveController.getTriangleButton();
 	}
 
-	/* ------------------------ Mech Controller ------------------------ */
+	/* ------------------------ Superstructure Drive Controller ------------------------ */
 
 	/**
-	 * Get the value of the ground elevator target button (circle).
+	 * Get the value of the L2 elevator target button (square).
 	 * @return If the button is pressed
 	 */
-	public boolean isGroundButtonPressed() {
-		return mechController.getCrossButton();
+	public boolean isSuperL2ButtonPressed() {
+		return driveController.getSquareButton();
 	}
 
 	/**
-	 * Get the value of the source elevator target button (cross).
+	 * Get the value of the L3 elevator target button (circle).
 	 * @return If the button is pressed
 	 */
-	public boolean isL2ButtonPressed() {
-		return mechController.getSquareButton();
+	public boolean isSuperL3ButtonPressed() {
+		return driveController.getCircleButton();
 	}
 
 	/**
@@ -163,6 +179,33 @@ public class TeleopInput {
 	 */
 	public boolean isL3ButtonPressed() {
 		return mechController.getCircleButton();
+	}
+
+	/**
+	 * Get the value of the L4 elevator target button (triangle).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL4ButtonPressed() {
+		return driveController.getTriangleButton();
+	}
+
+	/* ------------------------ Mech Controller ------------------------ */
+
+	/**
+	 * Get the value of the ground elevator target button (cross).
+	 * @return If the button is pressed
+	 */
+	public boolean isArmHighStowButtonPressed() {
+		return mechController.getPOV() == DPAD_POV_UP;
+	}
+
+	/**
+	 * Get the value of the L3 elevator target button (circle).
+	 * @return If the button is pressed
+	 */
+	public boolean isArmRemoveAlgaeButtonPressed() {
+		return mechController.getPOV() == DPAD_POV_RIGHT
+			|| mechController.getPOV() == DPAD_POV_LEFT;
 	}
 
 	/**
@@ -213,7 +256,7 @@ public class TeleopInput {
 	 * @return If the share button was pressed this tick
 	 */
 	public boolean isClimbManualButtonPressed() {
-		return mechController.getShareButton();
+		return mechController.getL2Button();
 	}
 
 	/**
