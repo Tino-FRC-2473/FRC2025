@@ -37,7 +37,6 @@ import frc.robot.logging.SwerveLogging;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPi;
 import frc.robot.AprilTag;
-import frc.robot.logging.MechLogging;
 
 public class DriveFSMSystem extends SubsystemBase {
 	/* ======================== Constants ======================== */
