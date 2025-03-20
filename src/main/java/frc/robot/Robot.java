@@ -276,14 +276,18 @@ public class Robot extends LoggedRobot {
 		Logger.recordOutput("MatchTime", Utils.getCurrentTimeSeconds());
 
 		Logger.recordOutput(
-			"FieldSimulation/Robot/Primary Elevator Pose",
+			"FieldSimulation/Robot/Stage 1 Elevator Pose",
 			MechLogging.getInstance().getElevatorStage1()
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/Robot/Secondary Elevator Pose",
+			"FieldSimulation/Robot/Stage  2 Elevator Pose",
 			MechLogging.getInstance().getElevatorStage2()
 		);
+
+		Logger.recordOutput(
+			"FieldSimulation/Robot/Stage 3 Elevator Pose",
+			MechLogging.getInstance().getElevatorStage3());
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Climber Pose",
