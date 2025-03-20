@@ -79,7 +79,7 @@ public class TeleopInput {
 	 * Get Square Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveSquareButton() {
+	public boolean getAlignReefButton() {
 		return driveController.getSquareButton();
 	}
 	/**
@@ -89,11 +89,19 @@ public class TeleopInput {
 	public boolean getDriveCircleButton() {
 		return driveController.getCircleButton();
 	}
+
+	/**
+	 * Get drive cross button.
+	 * @return value
+	 */
+	public boolean getDriveCrossButton() {
+		return driveController.getCrossButton();
+	}
 		/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
-	public boolean getDriveOptionsButtonPressed() {
+	public boolean getSeedGyroButtonPressed() {
 		return driveController.getOptionsButton();
 	}
 
@@ -101,7 +109,7 @@ public class TeleopInput {
 	 * Get the value of the L1 button.
 	 * @return L1 button value
 	 */
-	public boolean getDriveLeftBumperButton() {
+	public boolean getAlignLeftOffsetButton() {
 		return driveController.getL1Button();
 	}
 
@@ -109,8 +117,16 @@ public class TeleopInput {
 	 * Get the value of the R1 button.
 	 * @return R1 button value
 	 */
-	public boolean getDriveRightBumperButton() {
+	public boolean getAlignRightOffsetButton() {
 		return driveController.getR1Button();
+	}
+
+	/**
+	 * Get the value of the drive share button.
+	 * @return ddrive share button
+	 */
+	public boolean getDriveShareButtonPressed() {
+		return driveController.getShareButton();
 	}
 
 	/* ------------------------ Superstructure Drive Controller ------------------------ */
@@ -137,6 +153,14 @@ public class TeleopInput {
 	 */
 	public boolean isSuperL4ButtonPressed() {
 		return driveController.getTriangleButton();
+	}
+
+	/**
+	 * Get the value of the intake button (cross).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperIntakeButtonPressed() {
+		return driveController.getCrossButton();
 	}
 
 	/* ------------------------ Mech Controller ------------------------ */
@@ -171,31 +195,6 @@ public class TeleopInput {
 	 */
 	public boolean isL4ButtonPressed() {
 		return mechController.getTriangleButton();
-	}
-
-	/**
-	 * Get the value of the low algae elevator target button (dpad down).
-	 * @return If the button is pressed
-	 */
-	public boolean isArmLowStowButtonPressed() {
-		return mechController.getPOV() == DPAD_POV_DOWN;
-	}
-
-	/**
-	 * Get the value of the high algae elevator target button (dpad up).
-	 * @return If the button is pressed
-	 */
-	public boolean isArmHighStowButtonPressed() {
-		return mechController.getPOV() == DPAD_POV_UP;
-	}
-
-	/**
-	 * Get the value of the arm remove algae button (dpad right or left).
-	 * @return If the button is pressed
-	 */
-	public boolean isArmRemoveAlgaeButtonPressed() {
-		return mechController.getPOV() == DPAD_POV_RIGHT
-			|| mechController.getPOV() == DPAD_POV_LEFT;
 	}
 
 	/**

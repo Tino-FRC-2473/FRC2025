@@ -8,26 +8,22 @@ import java.util.HashMap;
 
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.littletonrobotics.urcl.URCL;
-
 import com.ctre.phoenix6.Utils;
 
 
 // WPILib Imports
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
@@ -56,8 +52,9 @@ public class Robot extends LoggedRobot {
 	private DriveFSMSystem driveSystem;
 	private AutoRoutines autoRoutines;
 
-	private SendableChooser<String> autoChooser = new SendableChooser<String>();
-	private String autCommand;
+	private final LoggedDashboardChooser<String> autoChooser =
+		new LoggedDashboardChooser<>("AUTO CHOOSER");
+	private String autoCommand;
 
 	private Superstructure superstructure;
 	private ElevatorFSMSystem elevatorSystem;
@@ -95,7 +92,6 @@ public class Robot extends LoggedRobot {
 			Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
 		}
 
-		Logger.registerURCL(URCL.startExternal());
 		Logger.start(); // Start logging!
 
 		input = new TeleopInput();
@@ -146,15 +142,13 @@ public class Robot extends LoggedRobot {
 				climberSystem
 			);
 		}
-
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
 	}
 
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
 		Elastic.selectTab("Autonomous");
-		autCommand = getAutonomousCommand();
+		autoCommand = getAutonomousCommand();
 
 		/* If all available auto systems are true, then it will throw exception. */
 		boolean throwException =
@@ -163,9 +157,9 @@ public class Robot extends LoggedRobot {
 			&& HardwareMap.isElevatorHardwarePresent()
 			&& HardwareMap.isFunnelHardwarePresent();
 
-		if (autCommand != null) {
+		if (autoCommand != null) {
 			Command scheduledCommand = autoRoutines.generateSequentialAutoWorkflow(
-				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
+				autoRoutines.getAutoPathHandler().getAllAutos().get(autoCommand), throwException
 			);
 
 			if (Robot.isSimulation()) {
@@ -323,9 +317,7 @@ public class Robot extends LoggedRobot {
 	public void robotPeriodic() {
 		if (driveSystem != null) {
 			driveSystem.updateLogging();
-			// if (HardwareMap.isCVHardwarePresent()) {
-				//driveSystem.updateVisionEstimates();
-			// }
+			//driveSystem.updateVisionEstimates();
 		}
 
 		if (funnelSystem != null) {
@@ -351,6 +343,6 @@ public class Robot extends LoggedRobot {
 	 * @return the selected autonomous command
 	 */
 	public String getAutonomousCommand() {
-		return autoChooser.getSelected();
+		return autoChooser.get();
 	}
 }

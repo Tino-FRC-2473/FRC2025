@@ -12,8 +12,6 @@ public final class HardwareMap {
 	public static final int CAN_ID_CLIMBER =
 		Robot.isSimulation() ? CAN_ID_CLIMBER_SIM : CAN_ID_CLIMBER_REAL; // FINAL
 
-	public static final int CAN_ID_INTAKE = 16; // UNUSED
-
 	// rio - dio ports
 	public static final int ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT = 0; // FINAL
 	public static final int ELEVATOR_TOP_LIMIT_SWITCH_DIO_PORT = 1; // FINAL
@@ -85,6 +83,7 @@ public final class HardwareMap {
 	public static boolean useSuperStructure() {
 		return isElevatorHardwarePresent()
 			&& isFunnelHardwarePresent()
-			&& isClimberHardwarePresent();
+			&& isClimberHardwarePresent()
+			&& isDriveHardwarePresent();
 	}
 }

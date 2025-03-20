@@ -21,6 +21,7 @@ public class Superstructure {
 	// FSM state definitions
 	public enum SuperFSMState {
 		IDLE,
+		INTAKE,
 		PRE_SCORE,
 		SCORE,
 		RAISE_TO_L2,
@@ -103,47 +104,21 @@ public class Superstructure {
 	 */
 	public void update(TeleopInput input) {
 		switch (currentState) {
-			case IDLE:
-				handleIdleState(input);
-				break;
-			case PRE_SCORE:
-				handlePreScoreState(input);
-				break;
-			case RAISE_TO_L2:
-				handleRaiseL2State(input);
-				break;
-			case RAISE_TO_L3:
-				handleRaiseL3State(input);
-				break;
-			case RAISE_TO_L4:
-				handleRaiseL4State(input);
-				break;
-			case SCORE:
-				handleScoreCoralState(input);
-				break;
-			case POST_SCORE:
-				handlePostScoreState(input);
-				break;
-			case PRE_CLIMB:
-				handlePreClimbState(input);
-				break;
-			case CLIMB:
-				handleClimbState(input);
-				break;
-			case RESET_CLIMB:
-				handleResetClimbState(input);
-				break;
-			case ABORT:
-				handleAbortState(input);
-				break;
-			case RESET:
-				handleResetState(input);
-				break;
-			case MANUAL:
-				handleManualState(input);
-				break;
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case IDLE -> handleIdleState(input);
+			case INTAKE -> handleIntakeState(input);
+			case PRE_SCORE -> handlePreScoreState(input);
+			case RAISE_TO_L2 -> handleRaiseL2State(input);
+			case RAISE_TO_L3 -> handleRaiseL3State(input);
+			case RAISE_TO_L4 -> handleRaiseL4State(input);
+			case SCORE -> handleScoreCoralState(input);
+			case POST_SCORE -> handlePostScoreState(input);
+			case PRE_CLIMB -> handlePreClimbState(input);
+			case CLIMB -> handleClimbState(input);
+			case RESET_CLIMB -> handleResetClimbState(input);
+			case ABORT -> handleAbortState(input);
+			case RESET -> handleResetState(input);
+			case MANUAL -> handleManualState(input);
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 		currentState = nextState(input);
 
@@ -189,6 +164,17 @@ public class Superstructure {
 					|| input.isSuperL4ButtonPressed())) {
 					return SuperFSMState.PRE_SCORE;
 				}
+				if (!funnelSystem.isHoldingCoral() && input.isSuperIntakeButtonPressed()) {
+					return SuperFSMState.INTAKE;
+				}
+				return SuperFSMState.IDLE;
+			case INTAKE:
+				if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				if (!funnelSystem.isHoldingCoral()) {
+					return SuperFSMState.INTAKE;
+				}
 				return SuperFSMState.IDLE;
 			case PRE_SCORE:
 				if (input.isAbortButtonPressed()) {
@@ -228,7 +214,7 @@ public class Superstructure {
 				return SuperFSMState.RAISE_TO_L3;
 			case RAISE_TO_L4:
 
-				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL3()) {
+				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL4()) {
 					scoreTimer.restart();
 					return SuperFSMState.SCORE;
 				}
@@ -444,12 +430,24 @@ public class Superstructure {
 	}
 
 	/**
+	 * Handle behavior in INTAKE.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+	 * 	   the robot is in autonomous mode.
+	 */
+	private void handleIntakeState(TeleopInput input) {
+		driveSystem.setState(DriveFSMState.ALIGN_TO_STATION_TAG_STATE);
+		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		funnelSystem.setState(FunnelFSMState.IDLE);
+		climberSystem.setState(ClimberFSMState.IDLE);
+	}
+
+	/**
 	 * Handle behavior in MANUAL.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleManualState(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE);
+		driveSystem.handleOverrideState(input);
 		elevatorSystem.handleOverrideState(input);
 		funnelSystem.handleOverrideState(input);
 		climberSystem.handleOverrideState(input);

@@ -164,23 +164,12 @@ public class ElevatorFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case MANUAL:
-				handleManualState(input);
-				break;
-			case GROUND:
-				handleGroundState(input);
-				break;
-			case LEVEL2:
-				handleL2State(input);
-				break;
-			case LEVEL3:
-				handleL3State(input);
-				break;
-			case LEVEL4:
-				handleL4State(input);
-				break;
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case MANUAL -> handleManualState(input);
+			case GROUND -> handleGroundState(input);
+			case LEVEL2 -> handleL2State(input);
+			case LEVEL3 -> handleL3State(input);
+			case LEVEL4 -> handleL4State(input);
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
 		if (!HardwareMap.useSuperStructure()) {
@@ -254,38 +243,31 @@ public class ElevatorFSMSystem {
 					&& !isBottomLimitReached()
 					&& !input.isL4ButtonPressed()
 					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()
-					&& !input.isArmLowStowButtonPressed()
-					&& !input.isArmHighStowButtonPressed()) {
+					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.GROUND;
 				}
 				if (input.isL2ButtonPressed()
 					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
-					&& !input.isL3ButtonPressed()
-					&& !input.isArmLowStowButtonPressed()
-					&& !input.isArmHighStowButtonPressed()) {
+					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL2;
 				}
 				if (input.isL3ButtonPressed()
 					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isArmLowStowButtonPressed()
-					&& !input.isArmHighStowButtonPressed()) {
+					&& !input.isL2ButtonPressed()) {
 					return ElevatorFSMState.LEVEL3;
 				}
 				if (input.isL4ButtonPressed()
 					&& funnelSystem.isHoldingCoral()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()
-					&& !input.isArmLowStowButtonPressed()
-					&& !input.isArmHighStowButtonPressed()) {
+					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.LEVEL4;
 				}
+				return ElevatorFSMState.MANUAL;
 
 			case GROUND:
 				if (isBottomLimitReached() || inRange(getElevatorpos(),

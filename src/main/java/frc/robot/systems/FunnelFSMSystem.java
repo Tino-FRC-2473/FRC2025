@@ -97,16 +97,9 @@ public class FunnelFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case OUTTAKE:
-				handleOuttakeState(input);
-				break;
-
-			case IDLE:
-				handleIdleState(input);
-				break;
-
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case OUTTAKE -> handleOuttakeState(input);
+			case IDLE -> handleIdleState(input);
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
 		if (!HardwareMap.useSuperStructure()) {
