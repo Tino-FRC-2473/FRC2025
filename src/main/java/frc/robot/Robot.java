@@ -277,12 +277,12 @@ public class Robot extends LoggedRobot {
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Primary Elevator Pose",
-			MechLogging.getInstance().getPrimaryElevatorPose()
+			MechLogging.getInstance().getElevatorStage1()
 		);
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Secondary Elevator Pose",
-			MechLogging.getInstance().getSecondaryElevatorPose()
+			MechLogging.getInstance().getElevatorStage2()
 		);
 
 		Logger.recordOutput(

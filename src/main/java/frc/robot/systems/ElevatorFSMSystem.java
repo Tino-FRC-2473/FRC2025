@@ -1,5 +1,11 @@
 package frc.robot.systems;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Volts;
+
+import org.ironmaple.simulation.motorsims.SimulatedBattery;
+
 // WPILib Imports
 
 // Third party Hardware Imports
@@ -14,10 +20,17 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.Units;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
@@ -54,6 +67,22 @@ public class ElevatorFSMSystem {
 
 	private FunnelFSMSystem funnelSystem;
 
+	private final DCMotor gearbox = DCMotor.getKrakenX60(1);
+
+	private final LinearSystem<N2, N1, N2> elevatorSystem = LinearSystemId.createElevatorSystem(
+		gearbox,
+		Units.lbsToKilograms(10.51),
+		Units.inchesToMeters(1),
+		15);
+
+	private ElevatorSim elevatorSim = new ElevatorSim(
+		elevatorSystem,
+		gearbox,
+		0,
+		Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches)),
+		true,
+		0);
+
 	/* ======================== Constructor ======================== */
 
 	/**
@@ -78,8 +107,8 @@ public class ElevatorFSMSystem {
 		swLimitSwitch.ForwardSoftLimitEnable = true; // enable top limit
 		swLimitSwitch.ReverseSoftLimitEnable = true; // enable bottom limit
 		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_THRESHOLD
-			.in(Units.Inches);
-		swLimitSwitch.ReverseSoftLimitThreshold = Units.Inches.of(0).in(Units.Inches);
+			.in(Inches);
+		swLimitSwitch.ReverseSoftLimitThreshold = Inches.of(0).in(Inches);
 
 		var sensorConfig = talonFXConfigs.Feedback;
 		sensorConfig.SensorToMechanismRatio = Constants.ELEVATOR_ROTS_TO_INCHES;
@@ -163,6 +192,18 @@ public class ElevatorFSMSystem {
 		if (input == null) {
 			return;
 		}
+
+		elevatorSim.setInput(elevatorMotor.get() * SimulatedBattery.getBatteryVoltage().in(Volts));
+		elevatorSim.update(Constants.UPDATE_PERIOD_SECS);
+
+		if (Robot.isSimulation()) {
+			double partOfWayUp =
+				elevatorSim.getPositionMeters()
+				/ Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches));
+			Logger.recordOutput("% way up", partOfWayUp);
+			elevatorMotor.setPosition(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches) * partOfWayUp);
+		}
+
 		switch (currentState) {
 			case MANUAL -> handleManualState(input);
 			case GROUND -> handleGroundState(input);
@@ -175,11 +216,6 @@ public class ElevatorFSMSystem {
 		if (!HardwareMap.useSuperStructure()) {
 			handleOverrideState(input);
 		}
-
-		// telemetry and logging
-		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition()
-			.getValueAsDouble());
-
 	}
 
 	/**
@@ -204,6 +240,11 @@ public class ElevatorFSMSystem {
 
 		Logger.recordOutput("ROTR POS", elevatorMotor.getRotorPosition().getValueAsDouble());
 		Logger.recordOutput("ROTR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
+
+		// telemetry and logging
+		MechLogging.getInstance().updateElevatorPose3d(Angle.ofBaseUnits(
+			elevatorSim.getPositionMeters(), Radians
+		));
 	}
 
 	/**
@@ -306,7 +347,7 @@ public class ElevatorFSMSystem {
 	private boolean isBottomLimitReached() {
 		if (Robot.isSimulation()) {
 			return elevatorMotor.getPosition().getValueAsDouble()
-				< Constants.ELEVATOR_INRANGE_VALUE.in(Units.Inches);
+				< Constants.ELEVATOR_INRANGE_VALUE.in(Inches);
 		}
 		return groundLimitSwitch.get(); // switch is normally open
 	}
@@ -317,7 +358,7 @@ public class ElevatorFSMSystem {
 	}
 
 	private Distance getElevatorpos() {
-		return Units.Inches.of(elevatorMotor.getPosition().getValueAsDouble());
+		return Inches.of(elevatorMotor.getPosition().getValueAsDouble());
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
@@ -340,7 +381,7 @@ public class ElevatorFSMSystem {
 		}
 
 		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
-			> Constants.KG_CHECK.in(Units.Inches)) {
+			> Constants.KG_CHECK.in(Inches)) {
 			if (!Robot.isSimulation()) {
 				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
 			}
@@ -359,7 +400,7 @@ public class ElevatorFSMSystem {
 			elevatorMotor.setPosition(0);
 		} else {
 			elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_GROUND.in(Units.Inches))
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_GROUND.in(Inches))
 			);
 		}
 	}
@@ -371,7 +412,7 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleL2State(TeleopInput input) {
 		elevatorMotor.setControl(
-			motionRequest.withPosition(Constants.ELEVATOR_TARGET_L2.in(Units.Inches))
+			motionRequest.withPosition(Constants.ELEVATOR_TARGET_L2.in(Inches))
 		);
 	}
 
@@ -382,7 +423,7 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleL3State(TeleopInput input) {
 		elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L3.in(Units.Inches))
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L3.in(Inches))
 		);
 	}
 
@@ -393,7 +434,7 @@ public class ElevatorFSMSystem {
 	 */
 	private void handleL4State(TeleopInput input) {
 		elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Inches))
 		);
 	}
 
@@ -438,13 +479,8 @@ public class ElevatorFSMSystem {
 		@Override
 		public void execute() {
 			elevatorMotor.setControl(
-				motionRequest.withPosition(target.in(Units.Inches))
+				motionRequest.withPosition(target.in(Inches))
 			);
-
-			if (Robot.isSimulation()) {
-				MechLogging.getInstance().updateElevatorPose3d(
-						elevatorMotor.getPosition().getValueAsDouble());
-			}
 		}
 
 		@Override
