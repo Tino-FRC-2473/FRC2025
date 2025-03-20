@@ -119,9 +119,7 @@ public class ClimberFSMSystem {
 		}
 		switch (currentState) {
 			case IDLE -> handleIdleState(input);
-			case STOWED -> handleAutomaticState(input);
-			case EXTEND -> handleAutomaticState(input);
-			case CLIMB -> handleAutomaticState(input);
+			case STOWED, EXTEND, CLIMB -> handleAutomaticState(input);
 			case MANUAL -> handleManualState(input);
 			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}

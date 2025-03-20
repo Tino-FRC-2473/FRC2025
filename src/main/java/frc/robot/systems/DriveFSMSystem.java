@@ -250,17 +250,10 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		switch (currentState) {
-			case TELEOP_STATE:
-				handleTeleOpState(input);
-				break;
-			case ALIGN_TO_REEF_TAG_STATE:
-				handleReefTagAlignment(input);
-				break;
-			case ALIGN_TO_STATION_TAG_STATE:
-				handleStationTagAlignment(input);
-				break;
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case TELEOP_STATE -> handleTeleOpState(input);
+			case ALIGN_TO_REEF_TAG_STATE -> handleReefTagAlignment(input);
+			case ALIGN_TO_STATION_TAG_STATE -> handleStationTagAlignment(input);
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
 		if (!HardwareMap.useSuperStructure()) {
