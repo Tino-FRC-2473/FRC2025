@@ -295,6 +295,15 @@ public class Robot extends LoggedRobot {
 		);
 
 		Logger.recordOutput(
+			"FieldSimulation/Robot/Intake Pose",
+			MechLogging.getInstance().getIntakePose()
+		);
+
+		Logger.recordOutput("FieldSimulation/Robot/Outtake Pose",
+			MechLogging.getInstance().getOuttakePose()
+		);
+
+		Logger.recordOutput(
 			"FieldSimulation/Robot/DriveTrain Pose",
 			driveSystem.getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose()
 		);

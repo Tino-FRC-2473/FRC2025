@@ -125,6 +125,22 @@ public final class MechLogging {
 	}
 
 	/**
+	 * Get the pose of the intake.
+	 * @return the pose of the intake
+	 */
+	public Pose3d getIntakePose() {
+		return elevatorStage1;
+	}
+
+	/**
+	 * Get the pose of the outtake.
+	 * @return the pose of the outtake
+	 */
+	public Pose3d getOuttakePose() {
+		return elevatorStage3;
+	}
+
+	/**
 	 * Getter for the array of poses we want to simulate.
 	 * @return the array of poses to display in advantageScope
 	 */
@@ -133,7 +149,9 @@ public final class MechLogging {
 			getElevatorStage1(),
 			getElevatorStage2(),
 			getElevatorStage3(),
-			getClimberPose()
+			getClimberPose(),
+			getIntakePose(),
+			getOuttakePose()
 		};
 	}
 
