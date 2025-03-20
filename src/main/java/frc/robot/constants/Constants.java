@@ -45,11 +45,7 @@ public final class Constants {
 	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(0.1);
 	public static final Distance KG_CHECK = Units.Inches.of(0.5);
 
-	public static final double ELEVATOR_POWER = 0.8;
-	public static final double ELEVATOR_REDUCED_POWER = 0.5;
-
 	public static final double ELEVATOR_MANUAL_SCALE = 0.5;
-
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
 	public static final double CLIMBER_PID_TARGET_EXTEND = 130;
