@@ -258,7 +258,8 @@ public final class MechLogging {
 			getElevatorStage1(),
 			getElevatorStage2(),
 			getElevatorStage3(),
-			getClimberPose()
+			getClimberPose(),
+			getOuttakePose()
 		};
 	}
 
@@ -269,6 +270,10 @@ public final class MechLogging {
 	// public boolean doesSimRobotHaveCoral() {
 	// 	return doesSimRobotHaveCoral;
 	// }
+
+	public Pose3d getOuttakePose() {
+		return elevatorStage3;
+	}
 
 	/**
 	 * Updates the drivetrain values.
