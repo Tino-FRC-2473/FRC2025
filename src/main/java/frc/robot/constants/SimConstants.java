@@ -20,7 +20,7 @@ public class SimConstants {
 	public static final Pose2d BLUE_1_STARTING_POS_M = new Pose2d(
 		7.5856494,
 		6.4390466,
-		new Rotation2d(Math.PI)
+		new Rotation2d(Math.PI).minus(new Rotation2d(Math.PI/3))
 	);
 
 	public static final Pose2d BLUE_2_STARTING_POS_M = new Pose2d(
@@ -32,13 +32,13 @@ public class SimConstants {
 	public static final Pose2d BLUE_3_STARTING_POS_M = new Pose2d(
 		7.5856494,
 		1.5596578,
-		new Rotation2d(Math.PI)
+		new Rotation2d(Math.PI).plus(new Rotation2d(Math.PI/3))
 	);
 
 	public static final Pose2d RED_1_STARTING_POS_M = new Pose2d(
 		9.972452163696289,
 		1.5596578,
-		new Rotation2d()
+		new Rotation2d().plus(new Rotation2d(Math.PI/3))
 	);
 	public static final Pose2d RED_2_STARTING_POS_M = new Pose2d(
 		9.972452163696289,
@@ -48,7 +48,7 @@ public class SimConstants {
 	public static final Pose2d RED_3_STARTING_POS_M = new Pose2d(
 		9.972452163696289,
 		6.4390466,
-		new Rotation2d()
+		new Rotation2d().minus(new Rotation2d(Math.PI/3))
 	);
 
 	// Estimated values for now, need to be calculated later

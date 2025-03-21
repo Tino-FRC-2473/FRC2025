@@ -486,7 +486,7 @@ public class AutoRoutines {
 	 * @return Pose2d initial pose
 	 */
 	public Pose2d getInitialAutoPose() {
-		return initPose; //getStartingAlliancePosition();
+		return getStartingAlliancePosition();
 	}
 
 	private Pose2d getStartingAlliancePosition() {
