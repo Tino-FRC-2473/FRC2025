@@ -2,7 +2,9 @@ package frc.robot.motors;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
+import static java.lang.Math.PI;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -122,5 +124,10 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 	@Override
 	public double getLoggedVoltage() {
 		return getMotorVoltage().getValue().in(Volts);
+	}
+
+	public void setRawPosition(double pos) {
+		motorSimModel.setAngle(pos * 2 * PI);
+		getSimState().setRawRotorPosition(pos);
 	}
 }

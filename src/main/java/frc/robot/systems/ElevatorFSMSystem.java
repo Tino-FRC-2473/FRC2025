@@ -193,16 +193,23 @@ public class ElevatorFSMSystem {
 			return;
 		}
 
-		elevatorSim.setInput(elevatorMotor.get() * SimulatedBattery.getBatteryVoltage().in(Volts));
-		elevatorSim.update(Constants.UPDATE_PERIOD_SECS);
-
 		if (Robot.isSimulation()) {
 			double partOfWayUp =
 				elevatorSim.getPositionMeters()
 				/ Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches));
-			Logger.recordOutput("% way up", partOfWayUp);
-			elevatorMotor.setPosition(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches) * partOfWayUp);
+			// double partOfWayUpPerSecond =
+			// 	elevatorSim.getVelocityMetersPerSecond()
+			// 	/ Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches));
+			Logger.recordOutput("part way up", partOfWayUp);
+			((TalonFXWrapper)elevatorMotor).setRawPosition(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches) * partOfWayUp);
+			// elevatorMotor.getSimState().setRotorVelocity(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches) * partOfWayUpPerSecond);
+
 		}
+
+		elevatorSim.setInputVoltage(elevatorMotor.get() * 12);
+		Logger.recordOutput("elevator setpoint", elevatorMotor.get());
+		Logger.recordOutput("simulated battery", SimulatedBattery.getBatteryVoltage().in(Volts));
+		elevatorSim.update(Constants.UPDATE_PERIOD_SECS);
 
 		switch (currentState) {
 			case MANUAL -> handleManualState(input);
@@ -381,10 +388,8 @@ public class ElevatorFSMSystem {
 		}
 
 		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
-			> Constants.KG_CHECK.in(Inches)) {
-			if (!Robot.isSimulation()) {
-				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
-			}
+			> Constants.KG_CHECK.in(Inches) && !Robot.isSimulation()) {
+			elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
 		} else {
 			elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
 		}
