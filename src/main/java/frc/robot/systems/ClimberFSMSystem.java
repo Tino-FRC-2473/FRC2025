@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 // WPILib Imports
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -25,7 +26,9 @@ public class ClimberFSMSystem {
 	// FSM state definitions
 	public enum ClimberFSMState {
 		MANUAL,
-		AUTOMATIC,
+		STOWED,
+		EXTEND,
+		CLIMB,
 		IDLE
 	}
 
@@ -50,8 +53,16 @@ public class ClimberFSMSystem {
 	 */
 	public ClimberFSMSystem() {
 		// Perform hardware init
-		climberMotor = new TalonFXWrapper(HardwareMap.CAN_ID_CLIMBER);
-		climberMotor.setNeutralMode(NeutralModeValue.Brake);
+		climberMotor = new TalonFXWrapper(
+			HardwareMap.CAN_ID_CLIMBER
+		);
+
+		var talonFXConfigs = new TalonFXConfiguration();
+
+		var outputConfigs = talonFXConfigs.MotorOutput;
+		outputConfigs.NeutralMode = NeutralModeValue.Brake;
+
+		climberMotor.getConfigurator().apply(talonFXConfigs);
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
 			Constants.UPDATE_FREQUENCY_HZ,
@@ -107,22 +118,11 @@ public class ClimberFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case IDLE:
-				handleIdleState(input);
-				break;
-
-			case AUTOMATIC:
-				handleAutomaticState(input);
-				break;
-
-			case MANUAL:
-				handleManualState(input);
-				break;
-
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case IDLE -> handleIdleState(input);
+			case STOWED, EXTEND, CLIMB -> handleAutomaticState(input);
+			case MANUAL -> handleManualState(input);
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
-		currentState = nextState(input);
 
 		if (isLimitSwitchPressed()) {
 			climberMotor.setPosition(Constants.CLIMBER_ENCODER_RESET_POSITION
@@ -131,6 +131,10 @@ public class ClimberFSMSystem {
 				+ Constants.CLIMBER_COUNTS_PER_REV) {
 				targetPosition = Constants.CLIMBER_PID_TARGET_LOW;
 			}
+		}
+
+		if (!HardwareMap.useSuperStructure()) {
+			handleOverrideState(input);
 		}
 
 		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
@@ -158,39 +162,121 @@ public class ClimberFSMSystem {
 		Logger.recordOutput("Climber target position", targetPosition);
 	}
 
+	/**
+	 * Set the state of the FSM.
+	 * @param state The state to set the FSM to.
+	 */
+	public void setState(ClimberFSMState state) {
+		switch (state) {
+			case STOWED:
+				if (climberMotor.getPosition().getValueAsDouble() < 0) {
+					targetPosition = Constants.CLIMBER_PID_TARGET_LOW;
+				} else {
+					targetPosition = Constants.CLIMBER_PID_TARGET_LOW
+						+ Constants.CLIMBER_COUNTS_PER_REV;
+				}
+				break;
+
+			case EXTEND:
+				targetPosition = Constants.CLIMBER_PID_TARGET_EXTEND;
+				break;
+
+			case CLIMB:
+				targetPosition = Constants.CLIMBER_PID_TARGET_CLIMB;
+				break;
+
+			default:
+				targetPosition = Constants.CLIMBER_PID_TARGET_LOW;
+				break;
+		}
+		currentState = state;
+	}
+
+	/**
+	 * Handle the climber states under manual superstructure control.
+	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *        the robot is in autonomous mode.
+	 */
+	public void handleOverrideState(TeleopInput input) {
+		currentState = nextState(input);
+	}
+
+	/**
+	 * Indicates whether the climber position is in the range for being STOWED.
+	 * @return if the climber is STOWED
+	 */
+	public boolean isClimberStowed() {
+		return inRange(
+			climberMotor.getPosition().getValueAsDouble(),
+			Constants.CLIMBER_PID_TARGET_LOW,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR);
+	}
+
+	/**
+	 * Indicates whether the climber position is in the range for being EXTENDED.
+	 * @return if the climber is EXTENDED
+	 */
+	public boolean isClimberExtended() {
+		return inRange(
+			climberMotor.getPosition().getValueAsDouble(),
+			Constants.CLIMBER_PID_TARGET_EXTEND,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR);
+	}
+
+	/**
+	 * Indicates whether the climber position is in the range for being CLIMBED.
+	 * @return if the climber is CLIMBED
+	 */
+	public boolean isClimberClimbed() {
+		return inRange(
+			climberMotor.getPosition().getValueAsDouble(),
+			Constants.CLIMBER_PID_TARGET_CLIMB,
+			Constants.CLIMBER_PID_MARGIN_OF_ERROR);
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
-	 * Decide the next state to transition to. This is a function of the inputs
-	 * and the current state of this FSM. This method should not have any side
-	 * effects on outputs. In other words, this method should only read or get
-	 * values to decide what state to go to.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *	   the robot is in autonomous mode.
-	 * @return FSM state for the next iteration
-	 */
+ 	 * Decide the next state to transition to. This is a function of the inputs
+ 	 * and the current state of this FSM. This method should not have any side
+ 	 * effects on outputs. In other words, this method should only read or get
+ 	 * values to decide what state to go to.
+ 	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *	   the robot is in autonomous mode.
+ 	 * @return FSM state for the next iteration
+ 	 */
 	private ClimberFSMState nextState(TeleopInput input) {
 		switch (currentState) {
 			case IDLE:
 				// copies MANUAL's state transitions
 			case MANUAL:
 				if (input.isClimbAdvanceStateButtonPressed()) {
-					return ClimberFSMState.AUTOMATIC;
+					return ClimberFSMState.CLIMB;
 				}
 				if (input.isClimbManualButtonPressed()) {
 					return ClimberFSMState.MANUAL;
 				}
 				return ClimberFSMState.IDLE;
-			case AUTOMATIC:
+			case CLIMB: case STOWED: case EXTEND:
 				if (input.isClimbManualButtonPressed() || climberPosSignal.getValueAsDouble()
 					% Constants.CLIMBER_COUNTS_PER_REV > targetPosition
-					|| targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
-					&& isLimitSwitchPressed()) {
+					|| isLimitSwitchPressed()) {
 					return ClimberFSMState.IDLE;
 				}
-				return ClimberFSMState.AUTOMATIC;
+				return ClimberFSMState.CLIMB;
 			default:
 				throw new UnsupportedOperationException("Invalid State");
 		}
+	}
+
+	/**
+	 * returns if a value is within a margin of a target.
+	 * @param value the value.
+	 * @param target the target.
+	 * @param margin the margin.
+	 * @return whether the value is in range of the target.
+	 */
+	private boolean inRange(double value, double target, double margin) {
+		return Math.abs(target - value) <= margin;
 	}
 
 	private boolean isLimitSwitchPressed() {
@@ -237,11 +323,19 @@ public class ClimberFSMSystem {
 	 *	   the robot is in autonomous mode.
 	 */
 	private void handleAutomaticState(TeleopInput input) {
-		climberMotor.set(
-			targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
-			? Constants.CLIMB_REDUCED_POWER
-			: Constants.CLIMB_POWER
-		);
+		if (
+			!inRange(
+					climberMotor.getPosition().getValueAsDouble(),
+					targetPosition,
+					Constants.CLIMBER_PID_MARGIN_OF_ERROR)) {
+			climberMotor.set(
+				targetPosition == Constants.CLIMBER_PID_TARGET_CLIMB
+				? Constants.CLIMB_REDUCED_POWER
+				: Constants.CLIMB_POWER
+			);
+		} else {
+			climberMotor.set(0);
+		}
 	}
 
 	/**

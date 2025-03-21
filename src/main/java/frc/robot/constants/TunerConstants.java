@@ -161,8 +161,8 @@ public class TunerConstants {
 	private static final boolean FL_STEER_MOTOR_INV = true;
 	private static final boolean FL_ENCODER_INV = false;
 
-	private static final Distance FL_X_POS = Inches.of(10.75);
-	private static final Distance FL_Y_POS = Inches.of(10.75);
+	private static final Distance FL_X_POS = Inches.of(11.378);
+	private static final Distance FL_Y_POS = Inches.of(11.378);
 
 	// Front Right
 	private static final int FR_DRIVE_MOTOR_ID = 5;
@@ -172,8 +172,8 @@ public class TunerConstants {
 	private static final boolean FR_STEER_MOTOR_INV = true;
 	private static final boolean FR_ENCODER_INV = false;
 
-	private static final Distance FR_X_POS = Inches.of(10.75);
-	private static final Distance FR_Y_POS = Inches.of(-10.75);
+	private static final Distance FR_X_POS = Inches.of(11.378);
+	private static final Distance FR_Y_POS = Inches.of(-11.378);
 
 	// Back Left
 	private static final int BL_DRIVE_MOTOR_ID = 1;
@@ -183,8 +183,8 @@ public class TunerConstants {
 	private static final boolean BL_STEER_MOTOR_INV = true;
 	private static final boolean BL_ENCODER_INV = false;
 
-	private static final Distance BL_X_POS = Inches.of(-10.75);
-	private static final Distance BL_Y_POS = Inches.of(10.75);
+	private static final Distance BL_X_POS = Inches.of(-11.378);
+	private static final Distance BL_Y_POS = Inches.of(11.378);
 
 	// Back Right
 	private static final int BR_DRIVE_MOTOR_ID = 7;
@@ -194,8 +194,8 @@ public class TunerConstants {
 	private static final boolean BR_RIGHT_STEER_MOTOR_INV = true;
 	private static final boolean BR_ENCODER_INV = false;
 
-	private static final Distance BR_X_POS = Inches.of(-10.75);
-	private static final Distance BR_Y_POS = Inches.of(-10.75);
+	private static final Distance BR_X_POS = Inches.of(-11.378);
+	private static final Distance BR_Y_POS = Inches.of(-11.378);
 
 
 	public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration,

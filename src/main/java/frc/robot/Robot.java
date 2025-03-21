@@ -11,6 +11,7 @@ import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -20,20 +21,19 @@ import com.ctre.phoenix6.Utils;
 // WPILib Imports
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 // Systems
-import frc.robot.systems.ClimberFSMSystem;
+import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
+import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.LEDFSMSystem;
-import frc.robot.systems.DriveFSMSystem;
+import frc.robot.systems.Superstructure;
 
 // Robot Imports
 import frc.robot.utils.Elastic;
@@ -52,9 +52,11 @@ public class Robot extends LoggedRobot {
 	private DriveFSMSystem driveSystem;
 	private AutoRoutines autoRoutines;
 
-	private SendableChooser<String> autoChooser = new SendableChooser<String>();
-	private String autCommand;
+	private final LoggedDashboardChooser<String> autoChooser =
+		new LoggedDashboardChooser<>("AUTO CHOOSER");
+	private String autoCommand;
 
+	private Superstructure superstructure;
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
@@ -94,6 +96,7 @@ public class Robot extends LoggedRobot {
 
 		input = new TeleopInput();
 
+		// Instantiate all systems here
 		if (Robot.isSimulation() || HardwareMap.isFunnelHardwarePresent()) {
 			funnelSystem = new FunnelFSMSystem();
 		}
@@ -131,14 +134,21 @@ public class Robot extends LoggedRobot {
 			autoChooser.addOption(auto.getKey(), auto.getKey());
 		}
 
-		SmartDashboard.putData("AUTO CHOOSER", autoChooser);
+		if (Robot.isSimulation() || HardwareMap.useSuperStructure()) {
+			superstructure = new Superstructure(
+				driveSystem,
+				funnelSystem,
+				elevatorSystem,
+				climberSystem
+			);
+		}
 	}
 
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
 		Elastic.selectTab("Autonomous");
-		autCommand = getAutonomousCommand();
+		autoCommand = getAutonomousCommand();
 
 		/* If all available auto systems are true, then it will throw exception. */
 		boolean throwException =
@@ -147,9 +157,9 @@ public class Robot extends LoggedRobot {
 			&& HardwareMap.isElevatorHardwarePresent()
 			&& HardwareMap.isFunnelHardwarePresent();
 
-		if (autCommand != null) {
+		if (autoCommand != null) {
 			Command scheduledCommand = autoRoutines.generateSequentialAutoWorkflow(
-				autoRoutines.getAutoPathHandler().getAllAutos().get(autCommand), throwException
+				autoRoutines.getAutoPathHandler().getAllAutos().get(autoCommand), throwException
 			);
 
 			if (Robot.isSimulation()) {
@@ -196,10 +206,18 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.reset();
 		}
+
+		if (superstructure != null) {
+			superstructure.reset();
+		}
 	}
 
 	@Override
 	public void teleopPeriodic() {
+		if (superstructure != null) {
+			superstructure.update(input);
+		}
+
 		if (driveSystem != null) {
 			driveSystem.update(input);
 		}
@@ -258,18 +276,31 @@ public class Robot extends LoggedRobot {
 		Logger.recordOutput("MatchTime", Utils.getCurrentTimeSeconds());
 
 		Logger.recordOutput(
-			"FieldSimulation/Robot/Primary Elevator Pose",
-			MechLogging.getInstance().getPrimaryElevatorPose()
+			"FieldSimulation/Robot/Stage 1 Elevator Pose",
+			MechLogging.getInstance().getElevatorStage1()
 		);
 
 		Logger.recordOutput(
-			"FieldSimulation/Robot/Secondary Elevator Pose",
-			MechLogging.getInstance().getSecondaryElevatorPose()
+			"FieldSimulation/Robot/Stage  2 Elevator Pose",
+			MechLogging.getInstance().getElevatorStage2()
 		);
+
+		Logger.recordOutput(
+			"FieldSimulation/Robot/Stage 3 Elevator Pose",
+			MechLogging.getInstance().getElevatorStage3());
 
 		Logger.recordOutput(
 			"FieldSimulation/Robot/Climber Pose",
 			MechLogging.getInstance().getClimberPose()
+		);
+
+		Logger.recordOutput(
+			"FieldSimulation/Robot/Intake Pose",
+			MechLogging.getInstance().getIntakePose()
+		);
+
+		Logger.recordOutput("FieldSimulation/Robot/Outtake Pose",
+			MechLogging.getInstance().getOuttakePose()
 		);
 
 		Logger.recordOutput(
@@ -299,6 +330,7 @@ public class Robot extends LoggedRobot {
 	public void robotPeriodic() {
 		if (driveSystem != null) {
 			driveSystem.updateLogging();
+			//driveSystem.updateVisionEstimates();
 		}
 
 		if (funnelSystem != null) {
@@ -324,6 +356,6 @@ public class Robot extends LoggedRobot {
 	 * @return the selected autonomous command
 	 */
 	public String getAutonomousCommand() {
-		return autoChooser.getSelected();
+		return autoChooser.get();
 	}
 }

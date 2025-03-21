@@ -23,8 +23,8 @@ public class VisionConstants {
 	public static final int AT_ARR_TRANSLATION_OFFSET = 4;
 	public static final int AT_ARR_ROTATION_OFFSET = 7;
 
-	public static final String REEF_CAM_NAME = "Reef Cam";
-	public static final String SOURCE_CAM_NAME = "Source Cam";
+	public static final String REEF_CAM_NAME = "Reef_Camera";
+	public static final String SOURCE_CAM_NAME = "Source_Camera";
 
 	public static final String APRIL_TAG_FIELD_LAYOUT_JSON =
 		Filesystem.getDeployDirectory() + "/apriltag/welded/apriltag.json";
