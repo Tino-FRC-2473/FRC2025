@@ -22,7 +22,9 @@ public class Superstructure {
 	public enum SuperFSMState {
 		IDLE,
 		INTAKE,
-		PRE_SCORE,
+		PRE_L2,
+		PRE_L3,
+		PRE_L4,
 		SCORE,
 		RAISE_TO_L2,
 		RAISE_TO_L3,
@@ -106,7 +108,7 @@ public class Superstructure {
 		switch (currentState) {
 			case IDLE -> handleIdleState(input);
 			case INTAKE -> handleIntakeState(input);
-			case PRE_SCORE -> handlePreScoreState(input);
+			case PRE_L2, PRE_L3, PRE_L4 -> handlePreScoreState(input);
 			case RAISE_TO_L2 -> handleRaiseL2State(input);
 			case RAISE_TO_L3 -> handleRaiseL3State(input);
 			case RAISE_TO_L4 -> handleRaiseL4State(input);
@@ -136,18 +138,14 @@ public class Superstructure {
 	 * @return FSM state for the next iteration
 	 */
 	private SuperFSMState nextState(TeleopInput input) {
-
 		if (input == null) {
 			return SuperFSMState.IDLE;
 		}
-
 		if (currentState != SuperFSMState.MANUAL && input.isManualButtonPressed()) {
 			return SuperFSMState.MANUAL;
 		}
-
 		switch (currentState) {
-			case IDLE:
-				if (input.isClimbAdvanceStateButtonPressed()) {
+			case IDLE: if (input.isClimbAdvanceStateButtonPressed()) {
 					if (climberSystem.isClimberStowed()) {
 						return SuperFSMState.PRE_CLIMB;
 					}
@@ -158,42 +156,47 @@ public class Superstructure {
 						return SuperFSMState.RESET_CLIMB;
 					}
 				}
-				if (funnelSystem.isHoldingCoral()
-					&& (input.isSuperL2ButtonPressed()
-					|| input.isSuperL3ButtonPressed()
-					|| input.isSuperL4ButtonPressed())) {
-					return SuperFSMState.PRE_SCORE;
+				if (funnelSystem.isHoldingCoral() && input.isSuperL2ButtonPressed()) {
+					return SuperFSMState.PRE_L2;
+				}
+				if (funnelSystem.isHoldingCoral() && input.isSuperL3ButtonPressed()) {
+					return SuperFSMState.PRE_L3;
+				}
+				if (funnelSystem.isHoldingCoral() && input.isSuperL4ButtonPressed()) {
+					return SuperFSMState.PRE_L4;
 				}
 				if (!funnelSystem.isHoldingCoral() && input.isSuperIntakeButtonPressed()) {
 					return SuperFSMState.INTAKE;
 				}
 				return SuperFSMState.IDLE;
-			case INTAKE:
-				if (input.isAbortButtonPressed()) {
+			case INTAKE: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
 				if (!funnelSystem.isHoldingCoral()) {
 					return SuperFSMState.INTAKE;
 				}
 				return SuperFSMState.IDLE;
-			case PRE_SCORE:
-				if (input.isAbortButtonPressed()) {
+			case PRE_L2: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
 				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
-					if (input.isSuperL2ButtonPressed()) {
-						return SuperFSMState.RAISE_TO_L2;
-					}
-
-					if (input.isSuperL3ButtonPressed()) {
-						return SuperFSMState.RAISE_TO_L3;
-					}
-
-					if (input.isSuperL4ButtonPressed()) {
-						return SuperFSMState.RAISE_TO_L4;
-					}
+					return SuperFSMState.RAISE_TO_L2;
 				}
-				return SuperFSMState.PRE_SCORE;
+				return SuperFSMState.PRE_L2;
+			case PRE_L3: if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
+					return SuperFSMState.RAISE_TO_L3;
+				}
+				return SuperFSMState.PRE_L3;
+			case PRE_L4: if (input.isAbortButtonPressed()) {
+					return SuperFSMState.ABORT;
+				}
+				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
+					return SuperFSMState.RAISE_TO_L4;
+				}
+				return SuperFSMState.PRE_L4;
 			case RAISE_TO_L2:
 				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL2()) {
 					scoreTimer.restart();
@@ -213,7 +216,6 @@ public class Superstructure {
 				}
 				return SuperFSMState.RAISE_TO_L3;
 			case RAISE_TO_L4:
-
 				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL4()) {
 					scoreTimer.restart();
 					return SuperFSMState.SCORE;
@@ -222,8 +224,7 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.RAISE_TO_L4;
-			case SCORE:
-				if ((!funnelSystem.isHoldingCoral())
+			case SCORE:  if ((!funnelSystem.isHoldingCoral())
 						&& scoreTimer.get() > Constants.CORAL_SCORE_TIME_SECS) {
 					return SuperFSMState.POST_SCORE;
 				}
@@ -231,8 +232,7 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.SCORE;
-			case POST_SCORE:
-				if ((!funnelSystem.isHoldingCoral() || Robot.isSimulation())
+			case POST_SCORE:  if ((!funnelSystem.isHoldingCoral() || Robot.isSimulation())
 						&& elevatorSystem.isElevatorAtGround()) {
 					return SuperFSMState.IDLE;
 				}
@@ -240,32 +240,28 @@ public class Superstructure {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.POST_SCORE;
-			case PRE_CLIMB:
-				if (climberSystem.isClimberExtended()) {
+			case PRE_CLIMB:  if (climberSystem.isClimberExtended()) {
 					return SuperFSMState.IDLE;
 				}
 				if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.PRE_CLIMB;
-			case CLIMB:
-				if (climberSystem.isClimberClimbed()) {
+			case CLIMB:  if (climberSystem.isClimberClimbed()) {
 					return SuperFSMState.IDLE;
 				}
 				if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.CLIMB;
-			case RESET_CLIMB:
-				if (climberSystem.isClimberStowed()) {
+			case RESET_CLIMB:  if (climberSystem.isClimberStowed()) {
 					return SuperFSMState.IDLE;
 				}
 				if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
 				return SuperFSMState.RESET_CLIMB;
-			case ABORT:
-				if (input.isResetButtonPressed()) {
+			case ABORT:  if (input.isResetButtonPressed()) {
 					return SuperFSMState.RESET;
 				}
 				return SuperFSMState.ABORT;
@@ -274,13 +270,11 @@ public class Superstructure {
 					return SuperFSMState.IDLE;
 				}
 				return SuperFSMState.RESET;
-			case MANUAL:
-				if (input.isManualButtonPressed()) {
+			case MANUAL:  if (input.isManualButtonPressed()) {
 					return SuperFSMState.IDLE;
 				}
 				return SuperFSMState.MANUAL;
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			default: throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 	}
 
@@ -292,7 +286,7 @@ public class Superstructure {
 	 */
 	private void handleIdleState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
-		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		elevatorSystem.setState(ElevatorFSMState.GROUND);
 		funnelSystem.handleOverrideState(input);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
@@ -304,7 +298,7 @@ public class Superstructure {
 	 */
 	private void handlePreScoreState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.ALIGN_TO_REEF_TAG_STATE);
-		elevatorSystem.setState(ElevatorFSMState.MANUAL);
+		elevatorSystem.setState(ElevatorFSMState.LEVEL2);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
 	}
