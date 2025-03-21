@@ -663,7 +663,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				)
 				.withTargetRateFeedforward(thetaVelocity)
 				.withTargetDirection(target.getRotation())
-				.withHeadingPID(DriveConstants.HEADING_P / 10.0, 0, 0)
+				.withHeadingPID(DriveConstants.ALIGNMENT_HEADING_P, 0, 0)
 
 		);
 		//drivetrain.setControl(brake);
