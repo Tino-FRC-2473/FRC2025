@@ -128,4 +128,6 @@ public class SimConstants {
 		Double.POSITIVE_INFINITY; // No rotation data available
 
 	// public static final double CAM_DISTANCE_READ = 2.5;
+
+	public static final double BATTERY_VOLTAGE = 12.0;
 }

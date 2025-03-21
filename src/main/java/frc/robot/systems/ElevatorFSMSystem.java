@@ -38,6 +38,7 @@ import frc.robot.Robot;
 // Robot Imports
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.TalonFXWrapper;
 
@@ -201,12 +202,15 @@ public class ElevatorFSMSystem {
 			// 	elevatorSim.getVelocityMetersPerSecond()
 			// 	/ Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches));
 			Logger.recordOutput("part way up", partOfWayUp);
-			((TalonFXWrapper)elevatorMotor).setRawPosition(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches) * partOfWayUp);
-			// elevatorMotor.getSimState().setRotorVelocity(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches) * partOfWayUpPerSecond);
+			((TalonFXWrapper) elevatorMotor).setRawPosition(Constants.ELEVATOR_UPPER_THRESHOLD
+				.in(Inches) * partOfWayUp);
+			// elevatorMotor.getSimState()
+			//.setRotorVelocity(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches)
+			//* partOfWayUpPerSecond);
 
 		}
 
-		elevatorSim.setInputVoltage(elevatorMotor.get() * 12);
+		elevatorSim.setInputVoltage(elevatorMotor.get() * SimConstants.BATTERY_VOLTAGE);
 		Logger.recordOutput("elevator setpoint", elevatorMotor.get());
 		Logger.recordOutput("simulated battery", SimulatedBattery.getBatteryVoltage().in(Volts));
 		elevatorSim.update(Constants.UPDATE_PERIOD_SECS);
