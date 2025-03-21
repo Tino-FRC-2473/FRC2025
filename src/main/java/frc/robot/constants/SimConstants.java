@@ -90,6 +90,8 @@ public class SimConstants {
 	public static final String REEF_CAMERA_NAME = "Reef CV Camera";
 	public static final String STATION_CAMERA_NAME = "Station CV Camera";
 
+	public static final double STATION_CAMERA_RAD = Math.toRadians(19);
+
 	// Robot to camera transforms
 	// (Not used by Limelight, configure in web UI instead)
 	public static final Transform3d ROBOT_TO_REEF_CAMERA =
@@ -97,7 +99,7 @@ public class SimConstants {
 		Units.inchesToMeters(14.56), new Rotation3d(0.0, 0.0, 0.0));
 	public static final Transform3d ROBOT_TO_STATION_CAMERA =
 		new Transform3d(-Units.inchesToMeters(8.875), -Units.inchesToMeters(9.5),
-		Units.inchesToMeters(37.596), new Rotation3d(0.0, -Math.toRadians(19), Math.PI));
+		Units.inchesToMeters(37.596), new Rotation3d(0.0, -STATION_CAMERA_RAD, Math.PI));
 
 	// Basic filtering thresholds
 	public static final double MAX_AMBIGUITY = 0.3;

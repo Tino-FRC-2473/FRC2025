@@ -197,6 +197,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		}
 
 		thetaController.enableContinuousInput(-Math.PI, Math.PI);
+		driveController.setTolerance(AutoConstants.DRIVE_TOLERANCE);
+		thetaController.setTolerance(AutoConstants.THETA_TOLERANCE);
 
 		// Reset state machine
 		reset();
@@ -834,8 +836,8 @@ public class DriveFSMSystem extends SubsystemBase {
 			robotToCamera =
 			new Transform3d(
 				SimConstants.ROBOT_TO_STATION_CAMERA.getTranslation(),
-				SimConstants.ROBOT_TO_STATION_CAMERA.getRotation()
-				.rotateBy(new Rotation3d(Rotation2d.k180deg))
+				new Rotation3d(0, SimConstants.STATION_CAMERA_RAD, 0)
+				//.rotateBy(new Rotation3d(Rotation2d.k180deg))
 			);
 			//robotToCamera = SimConstants.ROBOT_TO_STATION_CAMERA;
 		}
@@ -843,57 +845,47 @@ public class DriveFSMSystem extends SubsystemBase {
 		System.out.println("TAG Reached here");
 
 		if (tag != null) {
-			if (Utils.isSimulation()) {
-				alignmentPose2d =
-					new Pose3d(
-						currPose
+			alignmentPose2d =
+				new Pose3d(
+					currPose
+				)
+				.transformBy(robotToCamera)
+				.plus(new Transform3d(
+					tag.getZ(),
+					(tag.getX()),
+					-tag.getY(),
+					new Rotation3d(
+						new Rotation2d(-tag.getPitch())
 					)
-					.transformBy(robotToCamera)
-					.plus(new Transform3d(
-						tag.getZ(),
-						(tag.getX()),
-						0.0,
-						new Rotation3d(
-							new Rotation2d(-tag.getPitch())
-						)
-					))
-					.transformBy(robotToCamera.inverse())
-					.toPose2d()
-					.transformBy(
-						new Transform2d(
-							-alignmentXOff,
-							-alignmentYOff,
-							new Rotation2d()
-						)
-					);
-
-			} else {
-				alignmentPose2d =
-					new Pose3d(
-						currPose
+				))
+				.toPose2d()
+				.transformBy(
+					new Transform2d(
+						-alignmentXOff,
+						-alignmentYOff,
+						new Rotation2d()
 					)
-					.transformBy(robotToCamera)
-					.plus(new Transform3d(
-						tag.getZ(),
-						(tag.getX()),
-						0.0,
-						new Rotation3d(
-							new Rotation2d(-tag.getPitch())
-						)
-					))
-					.transformBy(robotToCamera.inverse())
-					.toPose2d()
-					.transformBy(
-						new Transform2d(
-							-alignmentXOff,
-							-alignmentYOff,
-							new Rotation2d()
-						)
-					);
-			}
+				);
 		}
 
 		if (alignmentPose2d != null) {
+			if (tag != null) {
+				Logger.recordOutput(
+					"TransposedTag",
+					new Pose3d(
+						currPose
+					)
+					.transformBy(robotToCamera)
+					.plus(new Transform3d(
+						tag.getZ(),
+						(tag.getX()),
+						-tag.getY(),
+						new Rotation3d(
+							new Rotation2d(-tag.getPitch())
+						)
+					))
+				);
+			}
 			driveToPose(alignmentPose2d, allianceFlip);
 		}
 
