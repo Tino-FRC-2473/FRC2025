@@ -27,7 +27,7 @@ class VisionInput:
         # Turn off auto exposure
         self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
         # set exposure time
-        #self.cap.set(cv2.CAP_PROP_EXPOSURE, -12)
+        self.cap.set(cv2.CAP_PROP_EXPOSURE, -11)
         
 
     def getFrame(self):

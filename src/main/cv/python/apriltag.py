@@ -185,10 +185,10 @@ class AprilTag():
 
             rot_transform = (R_x @ rvec) # returns a 1 by 3 'matrix'
 
-            print("first value: ", rot_transform[1][0])
+            #print("first value: ", rot_transform[1][0])
             #stores the pose in a np array
             rot_transform_parsed = np.array([rot_transform[0][0], rot_transform[1][0], rot_transform[2][0]])
-            print(rot_transform_parsed)
+            #print(rot_transform_parsed)
             # cam_robot_rot_euler = np.array([0, 0.332, 0]) # euler angle --> rotation vector
             # print("Shape of cam-robot vec: ", cam_robot_rot_euler.shape)
             # tag_robot_rotation = rot_transform_parsed + cam_robot_rot_euler
@@ -197,9 +197,9 @@ class AprilTag():
             # transform tvec: Vtr = Rx(Vtc) + Vcr
 
             #multiply the translation pose by Rx(19)
-            trans_transform = (R_x @ tvec)
+            trans_transform = self.project_translational_vector(tvec)
             trans_transform_parsed = np.array([trans_transform[0][0], trans_transform[1][0], trans_transform[2][0]])
-            print(trans_transform_parsed)
+           # print(trans_transform_parsed)
 
             # trans_shift = [-0.130175, 0.903224, 0.0536]
             # cam_robot_trans_euler = np.array(trans_shift)
@@ -211,7 +211,21 @@ class AprilTag():
 
         return pose_list
     
-   
+    def project_translational_vector(self, tvec):
+        x = tvec[0]
+        y = tvec[1]
+        z = tvec[2]
+
+        squared_sum = x**2 + y**2 + z**2
+        original_magnitude = math.sqrt(squared_sum)
+
+        #finding the new z value setting the y value to be 0
+        #operating under the assumption that your x distances stay the same even as you rotate axis
+        projected_z = math.sqrt(original_magnitude**2 - x**2)
+
+        tvec[2] = original_magnitude
+        return tvec
+        
 
     def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_relative: Path, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
         """
