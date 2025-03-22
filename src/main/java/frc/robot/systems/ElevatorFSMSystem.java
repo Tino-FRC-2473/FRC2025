@@ -72,7 +72,7 @@ public class ElevatorFSMSystem {
 
 	private final LinearSystem<N2, N1, N2> elevatorSystem = LinearSystemId.createElevatorSystem(
 		gearbox,
-		Units.lbsToKilograms(10.51),
+		Units.lbsToKilograms(13.8),
 		Units.inchesToMeters(1),
 		15);
 
@@ -392,7 +392,7 @@ public class ElevatorFSMSystem {
 		}
 
 		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
-			> Constants.KG_CHECK.in(Inches) && !Robot.isSimulation()) {
+			> Constants.KG_CHECK.in(Inches)) {
 			elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
 		} else {
 			elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);

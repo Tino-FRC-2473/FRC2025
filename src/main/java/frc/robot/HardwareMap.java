@@ -84,6 +84,6 @@ public final class HardwareMap {
 		return isElevatorHardwarePresent()
 			&& isFunnelHardwarePresent()
 			&& isClimberHardwarePresent()
-			&& isDriveHardwarePresent();
+			&& isDriveHardwarePresent() && false;
 	}
 }

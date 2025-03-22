@@ -124,8 +124,8 @@ public class SimConstants {
 
 	// Multipliers to apply for MegaTag 2 observations
 	public static final double LINEAR_STD_MEGATAG_2_FACTOR = 0.5; // More stable than full 3D solve
-	public static final double ANGULAR_STD_MEGATAG_2_FACTOR =
-		Double.POSITIVE_INFINITY; // No rotation data available
+	// public static final double ANGULAR_STD_MEGATAG_2_FACTOR =
+	// 	Double.POSITIVE_INFINITY; // No rotation data available
 
 	// public static final double CAM_DISTANCE_READ = 2.5;
 

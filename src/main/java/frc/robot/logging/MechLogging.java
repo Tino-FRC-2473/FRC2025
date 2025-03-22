@@ -32,8 +32,8 @@ public final class MechLogging {
 		climberPose = new Pose3d();
 	}
 
-	public static final double STAGE_2_RATIO = 1.0 / 3.0;
-	public static final double STAGE_3_RATIO = 2.0 / 3.0;
+	public static final double STAGE_2_RATIO = 1.5;
+	public static final double STAGE_3_RATIO = 3.0;
 
 	/**
 	 * Get the instance of the singleton class.

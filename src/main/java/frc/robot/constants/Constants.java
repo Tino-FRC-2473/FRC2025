@@ -18,8 +18,8 @@ public final class Constants {
 	public static final double ELEVATOR_KS = 0.1;
 	public static final double ELEVATOR_KV = 0.001;
 	public static final double ELEVATOR_KA = 0.0;
-	public static final double ELEVATOR_KP = 2.0;
-	public static final double ELEVATOR_KI = 0.00;
+	public static final double ELEVATOR_KP = 1.0;
+	public static final double ELEVATOR_KI = 0.03;
 	public static final double ELEVATOR_KD = 0.00;
 
 	public static final double ELEVATOR_CRUISE_VELO = 600;
