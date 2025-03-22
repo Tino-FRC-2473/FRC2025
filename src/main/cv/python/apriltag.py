@@ -35,6 +35,7 @@ class AprilTag():
 
         ids = [r.tag_id for r in results]
         corners = [r.corners for r in results]
+        
 
         self.detectedIDs = ids
 
@@ -43,10 +44,59 @@ class AprilTag():
         num_tags = len(ids)
         #print(num_tags)
             # Estimate the pose of each detected marker
-        for i in range(num_tags):
-            
-                
+        for i in range(num_tags): 
 
+            # Estimate the pose
+            tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+            
+            pose_list.append(ids[i])
+            pose_list.extend(cvec)
+            
+            #offsets for the z and x positions are currently being accounted for by drive
+            # original_z = tvec[2]
+            # tvec[2] =  original_z + AT_Z_OFFSET
+
+            # original_x = tvec[0]
+            # tvec[0] =  (original_x + AT_X_OFFSET)
+            if(self.cam_name == "source"):
+                tvec = self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
+                rvec = self.correct_station_angle(rvec)
+
+            pose_list.extend(tvec)
+            euler_rvec = self.rotation_vector_to_euler_angles(rvec)
+            # print("robot yaw", tvec)
+            pose_list.extend(euler_rvec)
+            
+            # print("euler_rvec: ", euler_rvec)
+        
+        pose_list = self.sort_tags_distance(pose_list)
+
+        return pose_list
+
+    def estimate_3d_pose_draw(self, image, ARUCO_LENGTH_METERS):
+        #getting the last channel of the image (cv2 populates an image w/ 3 channels of the same info)
+        gray = image[:, :, 0]
+
+        results = self.detector.detect(gray)
+
+        ids = [r.tag_id for r in results]
+        corners = [r.corners for r in results]
+
+        self.detectedIDs = ids
+
+        pose_list = []
+
+        num_tags = len(ids)
+        #print(num_tags)
+            # Estimate the pose of each detected marker
+        for i in range(num_tags):  
+            if(len(corners) > 0): 
+                print(corners)
+                color_img = cv2.cvtColor(image[:, :, 0], cv2.COLOR_GRAY2BGR)
+                contour = np.array(corners, dtype=np.int32).reshape((-1, 1, 2))
+                cv2.drawContours(color_img, [contour], contourIdx=-1, color=(0,0,255), thickness=2)
+                cv2.imshow("color frame", color_img)
+            
             # Estimate the pose
             tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
             
@@ -161,8 +211,10 @@ class AprilTag():
         gray = image[:, :, 0]
         results = self.detector.detect(gray)
         pose_list = []
+
         # print("results from distance to tag", results)
         corners = [r.corners for r in results]
+
         if(len(corners) > 0):
             corners = [r.corners for r in results]
             # Testing with coral station apriltag
@@ -174,46 +226,56 @@ class AprilTag():
             _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, self.camera_matrix, self.dist_coeffs)
 
             # transform rvec: Vtr = Rx(Vtc) + Vcr
-            angle = 10 # arbitrary
+            angle = 0.331613 # 19 degree tilt converted to radians
             R_x = np.array([
                 [1, 0, 0],
                 [0, np.cos(angle), -np.sin(angle)],
                 [0, np.sin(angle), np.cos(angle)]
             ])
+
             rot_transform = (R_x @ rvec) # returns a 1 by 3 'matrix'
 
             #print("first value: ", rot_transform[1][0])
+            #stores the pose in a np array
             rot_transform_parsed = np.array([rot_transform[0][0], rot_transform[1][0], rot_transform[2][0]])
-            cam_robot_rot_euler = np.array([0, 0.332, 0]) # euler angle --> rotation vector
-            print("Shape of cam-robot vec: ", cam_robot_rot_euler.shape)
-            tag_robot_rotation = rot_transform_parsed + cam_robot_rot_euler
-            print("tag robot rotation value: ", tag_robot_rotation)
+            #print(rot_transform_parsed)
+            # cam_robot_rot_euler = np.array([0, 0.332, 0]) # euler angle --> rotation vector
+            # print("Shape of cam-robot vec: ", cam_robot_rot_euler.shape)
+            # tag_robot_rotation = rot_transform_parsed + cam_robot_rot_euler
+            # print("tag robot rotation value: ", tag_robot_rotation)
 
             # transform tvec: Vtr = Rx(Vtc) + Vcr
-            trans_transform = (R_x @ tvec)
+
+            #multiply the translation pose by Rx(19)
+            trans_transform = self.project_translational_vector(tvec)
             trans_transform_parsed = np.array([trans_transform[0][0], trans_transform[1][0], trans_transform[2][0]])
-            trans_shift = [-0.130175, 0.903224, 0.0536]
-            cam_robot_trans_euler = np.array(trans_shift)
-            tag_robot_trans = trans_transform_parsed + cam_robot_trans_euler # 1 by 3 'matrix'
+           # print(trans_transform_parsed)
+
+            # trans_shift = [-0.130175, 0.903224, 0.0536]
+            # cam_robot_trans_euler = np.array(trans_shift)
+            # tag_robot_trans = trans_transform_parsed + cam_robot_trans_euler # 1 by 3 'matrix'
 
             #cvec = np.linalg.inv(tag_robot_trans)
-            pose_list = [tag_robot_trans, tag_robot_rotation]
+            pose_list = [trans_transform_parsed, rot_transform_parsed]
 
 
         return pose_list
     
-    def correct_station_angle(self, rvec):
-        R, _ = cv2.Rodrigues(rvec)
-        # there's a negative for the x position b/c to the left is negative in the opencv2 systems
-        list = [0, 0.331613,0]
+    def project_translational_vector(self, tvec):
+        x = tvec[0]
+        y = tvec[1]
+        z = tvec[2]
 
-        intake_rvec = np.array(list)
-        pose_list = R.T @ (rvec - intake_rvec)
-        # multiplying by negative one b/c of the way that vector adition works
-        pose_list[2] = -1 * pose_list[2]
-        pose_list[0] = -1 * pose_list[0]
+        squared_sum = x**2 + y**2 + z**2
+        original_magnitude = math.sqrt(squared_sum)
 
-        return pose_list
+        #finding the new z value setting the y value to be 0
+        #operating under the assumption that your x distances stay the same even as you rotate axis
+        projected_z = math.sqrt(original_magnitude**2 - x**2)
+
+        tvec[2] = original_magnitude
+        return tvec
+        
 
     def calibrate_camera(RES: tuple[int, int], input_dir_relative: Path, output_dir_relative: Path, square_size: int, width: int, height: int, file_name: str, bw_camera: bool, visualize=False):
         """
