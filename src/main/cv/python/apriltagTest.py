@@ -15,11 +15,12 @@ while True:
     # euler_angles = tag_module.rotation_vector_to_euler_angles(rvec)
     # print("Euler Angles (radians):", euler_angles)
     
-    frame = input.getFrame()
-    cv2.imshow("frame", frame)
+    #frame = input.getFrame()
+    frame = cv2.imread(r"C:/Users/nandi/FRC2025/src/main/cv/python/apriltag.png")
+    #cv2.imshow("frame", frame)
     # print("frame size", frame.shape)
     annotated_frame = frame.copy()
-    tagData = tag_module.estimate_3d_pose(frame, ARUCO_LENGTH_METERS)
+    tagData = tag_module.estimate_3d_pose_draw(frame, ARUCO_LENGTH_METERS)
     #print("estimate 3D pose yaw value", tagData[9])
     # if (len(tagData) > 0):
         # print("tagData[9]: ", tagData[9])

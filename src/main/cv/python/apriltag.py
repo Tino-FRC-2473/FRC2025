@@ -35,6 +35,7 @@ class AprilTag():
 
         ids = [r.tag_id for r in results]
         corners = [r.corners for r in results]
+        
 
         self.detectedIDs = ids
 
@@ -43,10 +44,59 @@ class AprilTag():
         num_tags = len(ids)
         #print(num_tags)
             # Estimate the pose of each detected marker
-        for i in range(num_tags):
-            
-                
+        for i in range(num_tags): 
 
+            # Estimate the pose
+            tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
+            
+            pose_list.append(ids[i])
+            pose_list.extend(cvec)
+            
+            #offsets for the z and x positions are currently being accounted for by drive
+            # original_z = tvec[2]
+            # tvec[2] =  original_z + AT_Z_OFFSET
+
+            # original_x = tvec[0]
+            # tvec[0] =  (original_x + AT_X_OFFSET)
+            if(self.cam_name == "source"):
+                tvec = self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
+                rvec = self.correct_station_angle(rvec)
+
+            pose_list.extend(tvec)
+            euler_rvec = self.rotation_vector_to_euler_angles(rvec)
+            # print("robot yaw", tvec)
+            pose_list.extend(euler_rvec)
+            
+            # print("euler_rvec: ", euler_rvec)
+        
+        pose_list = self.sort_tags_distance(pose_list)
+
+        return pose_list
+
+    def estimate_3d_pose_draw(self, image, ARUCO_LENGTH_METERS):
+        #getting the last channel of the image (cv2 populates an image w/ 3 channels of the same info)
+        gray = image[:, :, 0]
+
+        results = self.detector.detect(gray)
+
+        ids = [r.tag_id for r in results]
+        corners = [r.corners for r in results]
+
+        self.detectedIDs = ids
+
+        pose_list = []
+
+        num_tags = len(ids)
+        #print(num_tags)
+            # Estimate the pose of each detected marker
+        for i in range(num_tags):  
+            if(len(corners) > 0): 
+                print(corners)
+                color_img = cv2.cvtColor(image[:, :, 0], cv2.COLOR_GRAY2BGR)
+                contour = np.array(corners, dtype=np.int32).reshape((-1, 1, 2))
+                cv2.drawContours(color_img, [contour], contourIdx=-1, color=(0,0,255), thickness=2)
+                cv2.imshow("color frame", color_img)
+            
             # Estimate the pose
             tvec, rvec, cvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
             
