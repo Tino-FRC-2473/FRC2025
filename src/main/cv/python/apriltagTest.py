@@ -15,8 +15,9 @@ while True:
     # euler_angles = tag_module.rotation_vector_to_euler_angles(rvec)
     # print("Euler Angles (radians):", euler_angles)
     
-    #frame = input.getFrame()
-    frame = cv2.imread(r"C:/Users/nandi/FRC2025/src/main/cv/python/apriltag.png")
+    frame = input.getFrame()
+    
+    #frame = cv2.imread(r"C:/Users/nandi/FRC2025/src/main/cv/python/apriltag.png")
     #cv2.imshow("frame", frame)
     # print("frame size", frame.shape)
     annotated_frame = frame.copy()

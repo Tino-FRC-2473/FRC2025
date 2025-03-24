@@ -273,7 +273,10 @@ class AprilTag():
         #operating under the assumption that your x distances stay the same even as you rotate axis
         projected_z = math.sqrt(original_magnitude**2 - x**2)
 
+        #changing the z component (front and back)
         tvec[2] = projected_z * math.cos(0.3316)
+        #changing the y component to 0
+        tvec[1] = 0
         return tvec
         
 
