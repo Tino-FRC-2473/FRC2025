@@ -110,7 +110,7 @@ class AprilTag():
             # original_x = tvec[0]
             # tvec[0] =  (original_x + AT_X_OFFSET)
             if(self.cam_name == "source"):
-                tvec = self.distance_to_station_tag(image, ARUCO_LENGTH_METERS)
+                tvec = self.project_translational_vector(image, ARUCO_LENGTH_METERS)
                 rvec = self.correct_station_angle(rvec)
 
             pose_list.extend(tvec)
