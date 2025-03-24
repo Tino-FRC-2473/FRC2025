@@ -10,11 +10,10 @@ public class AutoPaths {
 	public static final Object[] R_AT_ALIGN_S1_2L33 = new Object[] {
 		//"S1_R2_H",
 		new Object[] {AutoCommands.R_ALIGN_REEF2_R_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
-		//AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		//AutoCommands.ELEVATOR_GROUND_CMD,
 		new Object[] {"R2_StationL_H", AutoCommands.ELEVATOR_GROUND_CMD},
-		AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
+		new Object[] {AutoCommands.R_ALIGN_STATION_L_TAG_CMD, AutoCommands.ELEVATOR_GROUND_CMD},
 		AutoCommands.INTAKE_CORAL_CMD,
 		//"StationL_R3_H",
 		new Object[] {AutoCommands.R_ALIGN_REEF3_L_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
@@ -26,7 +25,7 @@ public class AutoPaths {
 		new Object[] {AutoCommands.R_ALIGN_REEF3_R_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
 		//AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
+		//AutoCommands.ELEVATOR_GROUND_CMD,
 	};
 
 	public static final Object[] R_AT_ALIGN_S1_2L22 = new Object[] {
@@ -51,25 +50,25 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S1_2L44 = new Object[] {
-		"S1_R2_H",
-		new Object[] {AutoCommands.R_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
-		AutoCommands.ELEVATOR_L4_CMD,
+		//"S1_R2_H",
+		new Object[] {AutoCommands.R_ALIGN_REEF2_L_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
+		//AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		new Object[] {"R2_StationL_H", AutoCommands.ELEVATOR_GROUND_CMD},
 		AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
 		AutoCommands.INTAKE_CORAL_CMD,
-		"StationL_R4_H",
-		new Object[] {AutoCommands.R_ALIGN_REEF4_L_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
-		AutoCommands.ELEVATOR_L4_CMD,
+		//"StationL_R4_H",
+		new Object[] {AutoCommands.R_ALIGN_REEF4_L_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
+		//AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
-		new Object[] {AutoCommands.ELEVATOR_L2_CMD, "R4_StationL_H"},
-		new Object[] {AutoCommands.ELEVATOR_GROUND_CMD, AutoCommands.R_ALIGN_STATION_L_TAG_CMD},
+		new Object[] {AutoCommands.ELEVATOR_GROUND_CMD, "R4_StationL_H"},
+		AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
 		AutoCommands.INTAKE_CORAL_CMD,
-		"StationL_R4_H",
-		new Object[] {AutoCommands.R_ALIGN_REEF4_R_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
-		AutoCommands.ELEVATOR_L4_CMD,
+		//"StationL_R4_H",
+		new Object[] {AutoCommands.R_ALIGN_REEF4_R_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
+		//AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
+		//AutoCommands.ELEVATOR_GROUND_CMD,
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1L22 = new Object[] {
@@ -96,24 +95,24 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1L33 = new Object[] {
-		"S2_R1_H",
-		new Object[] {AutoCommands.R_ALIGN_REEF1_L_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
-		AutoCommands.ELEVATOR_L4_CMD,
+		//"S2_R1_H",
+		new Object[] {AutoCommands.R_ALIGN_REEF1_L_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
+		//AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		new Object[] {"R1_StationL_H", AutoCommands.ELEVATOR_GROUND_CMD},
 		AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
 		AutoCommands.INTAKE_CORAL_CMD,
 		"StationL_R3_H",
-		new Object[] {AutoCommands.R_ALIGN_REEF3_L_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
-		AutoCommands.ELEVATOR_L4_CMD,
+		new Object[] {AutoCommands.R_ALIGN_REEF3_L_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
+		//AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
 		new Object[] {AutoCommands.ELEVATOR_GROUND_CMD, AutoCommands.R_ALIGN_STATION_L_TAG_CMD},
 		AutoCommands.INTAKE_CORAL_CMD,
 		"StationL_R3_H",
-		new Object[] {AutoCommands.R_ALIGN_REEF3_R_TAG_CMD, AutoCommands.ELEVATOR_L2_CMD},
-		AutoCommands.ELEVATOR_L4_CMD,
+		new Object[] {AutoCommands.R_ALIGN_REEF3_R_TAG_CMD, AutoCommands.ELEVATOR_L4_CMD},
+		//AutoCommands.ELEVATOR_L4_CMD,
 		AutoCommands.OUTTAKE_CORAL_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
+		//AutoCommands.ELEVATOR_GROUND_CMD,
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1L44 = new Object[] {

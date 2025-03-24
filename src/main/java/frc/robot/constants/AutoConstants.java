@@ -10,8 +10,8 @@ public class AutoConstants {
 	public static final double DEG_360 = 360;
 
 	/* -- ALL SOURCE SPECIFIC CONSTANTS -- */
-	public static final double SOURCE_X_OFFSET = (Units.inchesToMeters(35.5 / 2 - 6))
-		- SimConstants.ROBOT_TO_STATION_CAMERA.getX();
+	public static final double SOURCE_X_OFFSET = -Units.inchesToMeters(35.5 / 2 - 6 - 6)
+		+ SimConstants.ROBOT_TO_STATION_CAMERA.getX();
 	public static final double SOURCE_Y_OFFSET = 0;
 
 	public static final int BLUE_L_STATION_ID = 13;
@@ -45,7 +45,7 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double ALIGN_DRIVE_P = 2.2; //2.2; //4.0;
+	public static final double ALIGN_DRIVE_P = 2.5; //2.2; //4.0;
 	public static final double ALIGN_THETA_P = 1.3; //1.3; //2.0;
 	public static final double ALIGN_MAX_T_SPEED = 0.0;
 	public static final double ALIGN_MAX_T_ACCEL = 0.0;
