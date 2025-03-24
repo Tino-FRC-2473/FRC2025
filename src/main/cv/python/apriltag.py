@@ -269,12 +269,8 @@ class AprilTag():
         squared_sum = x**2 + y**2 + z**2
         original_magnitude = math.sqrt(squared_sum)
 
-        #finding the new z value setting the y value to be 0
-        #operating under the assumption that your x distances stay the same even as you rotate axis
-        projected_z = math.sqrt(original_magnitude**2 - x**2)
-
         #changing the z component (front and back)
-        tvec[2] = projected_z * math.cos(0.3316)
+        tvec[2] = original_magnitude * math.cos(0.3316)
         #changing the y component to 0
         tvec[1] = 0
         return tvec
