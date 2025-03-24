@@ -99,26 +99,13 @@ public class LEDFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case REEF_ALIGNED:
-				handleReefAlignedState();
-				break;
-			case STATION_ALIGNED:
-				handleStationAlignedState();
-				break;
-			case OFFSET_FROM_TAG:
-				handleOffsetState();
-				break;
-			case YES_CORAL:
-				handleYesCoralState();
-				break;
-			case NO_CORAL:
-				handleNoCoralState();
-				break;
-			case CLIMB:
-				handleClimbState();
-				break;
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case REEF_ALIGNED -> handleReefAlignedState();
+			case STATION_ALIGNED -> handleStationAlignedState();
+			case OFFSET_FROM_TAG -> handleOffsetState();
+			case YES_CORAL -> handleYesCoralState();
+			case NO_CORAL -> handleNoCoralState();
+			case CLIMB -> handleClimbState();
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
 		// Switch state

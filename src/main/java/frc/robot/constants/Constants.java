@@ -2,7 +2,6 @@ package frc.robot.constants;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
-import frc.robot.Robot;
 
 public final class Constants {
 	// led constants
@@ -12,17 +11,15 @@ public final class Constants {
 	public static final double OUTTAKE_CLOSED_POS_ROTS = 0.25;
 	public static final double OUTTAKE_OPEN_POS_ROTS = 0.8;
 
-	public static final double INTAKE_VOLTAGE = 1; // volts, UNUSED
-
-	public static final double CORAL_SCORE_TIME_SECS = 1.0;
+	public static final double CORAL_SCORE_TIME_SECS = 0.5;
 
 	// elevator motion profile constants
 	public static final double ELEVATOR_KG = 0.20;
 	public static final double ELEVATOR_KS = 0.1;
 	public static final double ELEVATOR_KV = 0.001;
 	public static final double ELEVATOR_KA = 0.0;
-	public static final double ELEVATOR_KP = 2.0;
-	public static final double ELEVATOR_KI = 0.00;
+	public static final double ELEVATOR_KP = 1.0;
+	public static final double ELEVATOR_KI = 0.03;
 	public static final double ELEVATOR_KD = 0.00;
 
 	public static final double ELEVATOR_CRUISE_VELO = 600;
@@ -49,7 +46,7 @@ public final class Constants {
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
 	public static final double CLIMBER_PID_TARGET_EXTEND = 130;
-	public static final double CLIMBER_PID_TARGET_CLIMB = 295;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 310;
 	public static final double CLIMBER_ENCODER_RESET_POSITION = 320;
 
 	public static final double CLIMBER_COUNTS_PER_REV = 427;
@@ -59,10 +56,6 @@ public final class Constants {
 	public static final double CLIMB_REDUCED_POWER = 0.4;
 
 	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 5.0; // seconds
-	public static final double FUNNEL_INOUT_SIM_TIME_SECS
-		= FUNNEL_INOUT_REAL_TIME_SECS * 2; // seconds
-	public static final double FUNNEL_INOUT_TIME_SECS =
-		(Robot.isSimulation()) ? FUNNEL_INOUT_SIM_TIME_SECS : FUNNEL_INOUT_REAL_TIME_SECS;
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;

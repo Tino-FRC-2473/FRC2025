@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.constants.AutoConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.SimSwerveDrivetrainConfig;
@@ -43,9 +44,9 @@ public class CommandSwerveDrivetrain extends
 	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
 		new SwerveRequest.ApplyFieldSpeeds();
 
-	private final PIDController autoXPid = new PIDController(4.8, 0, 0);
-	private final PIDController autoYPid = new PIDController(4.8, 0, 0);
-	private final PIDController autoHeadingPid = new PIDController(0.7, 0, 0);
+	private final PIDController autoXPid = new PIDController(17.5, 0, 0); //17.5
+	private final PIDController autoYPid = new PIDController(17.5, 0, 0); //17.5
+	private final PIDController autoHeadingPid = new PIDController(0.8, 0, 0); // 0.8
 
 	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
 	private Notifier simNotifier;
@@ -70,6 +71,9 @@ public class CommandSwerveDrivetrain extends
 				new Pose2d(0, 0, new Rotation2d())
 			);
 		}
+
+		autoXPid.setTolerance(AutoConstants.CHOREO_PID_TOLLERANCE);
+		autoYPid.setTolerance(AutoConstants.CHOREO_PID_TOLLERANCE);
 		// setupPathplanner();
 	}
 
@@ -165,10 +169,10 @@ public class CommandSwerveDrivetrain extends
 	}
 
 	/**
-	 * Return the chassis speeds of the drivetrain.
-	 * @return chassis speeds
+	 * Return the chassis speeds of the drivetrain relative to the robot.
+	 * @return chassis speeds relative to robot
 	 */
-	public ChassisSpeeds getRobotChassisSpeeds() {
+	public ChassisSpeeds getRobotRelativeChassisSpeeds() {
 		if (Robot.isSimulation()) {
 			return getSimDrivetrain().getDriveSimulation()
 				.getDriveTrainSimulatedChassisSpeedsRobotRelative();
@@ -177,57 +181,22 @@ public class CommandSwerveDrivetrain extends
 		}
 	}
 
-	// /**
-	//  * Configure the auto builder.
-	//  */
-	// public void configureAutoBuilder() {
-	// 	try {
-	// 		AutoBuilder.configure(
-	// 			this::getPose,   // Supplier of current robot pose
-	// 			this::resetPose,         // Consumer for seeding pose against auto
-	// 			this::getRobotChassisSpeeds, // Supplier of current robot speeds
-	// 			// Consumer of ChassisSpeeds and feedforwards to drive the robot
-	// 			(speeds, feedforwards) -> setControl(
-	// 				pathApplyRobotSpeeds.withSpeeds(speeds)
-	// 				.withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-	// 				.withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-	// 			),
-	// 			new PPHolonomicDriveController(
-	// 				// PID constants for translation
-	// 				new PIDConstants(5, 0, 0),
-	// 				// PID constants for rotation
-	// 				new PIDConstants(5, 0, 0)
-	// 			),
-	// 			new RobotConfig(
-	// 				SimConstants.MASS_WITH_BUMPER_LBS,
-	// 				SimConstants.MOI,
-	// 				new ModuleConfig(
-	// 					TunerConstants.WHEEL_RADIUS.baseUnitMagnitude(),
-	// 					AutoConstants.ALIGN_MAX_T_SPEED,
-	// 					SimConstants.WHEEL_COF,
-	// 					DCMotor.getKrakenX60Foc(1),
-	// 					TunerConstants.DRIVE_RATIO,
-	// 					DriveConstants.DRIVE_CURRENT_LIMIT,
-	// 					1
-	// 				),
-	// 				SimConstants.FL_TRANSLATION,
-	// 				SimConstants.FR_TRANSLATION,
-	// 				SimConstants.BL_TRANSLATION,
-	// 				SimConstants.BR_TRANSLATION
-	// 			),
-	// 			// Assume the path needs to be flipped for Red vs Blue, this is normally the case
-	// 			() -> {
-	// 				return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
-	// 			},
-	// 			this // Subsystem for requirements
-	// 		);
-	// 	} catch (Exception ex) {
-	// 		System.out.println("error reached");
-	// 		ex.printStackTrace();
-	// 		DriverStation.reportError(
-	// 			"Failed to load PathPlanner config and configure AutoBuilder",
-	// 			ex.getStackTrace()
-	// 		);
-	// 	}
-	// }
+	/**
+	 * Get the chassis speeds of the drivetrain relative to the field.
+	 * @return chassis speeds relative to field
+	 */
+	public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+		if (Robot.isSimulation()) {
+			return getSimDrivetrain().getDriveSimulation()
+				.getDriveTrainSimulatedChassisSpeedsFieldRelative();
+		} else {
+			// Converts robot relative speeds to field relative
+			// TODO: Determine if getState().Speeds is robot relative or field relative
+			return ChassisSpeeds.fromRobotRelativeSpeeds(
+				getState().Speeds,
+				getPigeon2().getRotation2d()
+			);
+		}
+	}
+
 }

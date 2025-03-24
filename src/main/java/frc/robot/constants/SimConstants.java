@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 // Values provided by Maple-Sim to reduce commonly found bugs while simulating.
@@ -83,21 +84,26 @@ public class SimConstants {
 		);
 
 	// mech pose logging constants
-	public static final double ELEVATOR_WINCH_DIAMETER_METERS = 0.0463296;
-	public static final double ELEVATOR_GEAR_RATIO = 10; //25.0;
+	public static final double ELEVATOR_SIM_VISUALIZATION_HEIGHT_MULTIPLIER = 2;
+	public static final Translation3d CLIMBER_ZERO_POS = new Translation3d(
+		0.05,
+		0.305,
+		0.412
+		);
+	public static final double CLIMBER_SIM_VISUALIZATION_CONSTANT = 0.0023;
 
 	// Camera names, must match names configured on coprocessor
 	public static final String REEF_CAMERA_NAME = "Reef CV Camera";
 	public static final String STATION_CAMERA_NAME = "Station CV Camera";
 
-	// Robot to camera transforms - not entirely accurate, but close enough for simulation
+	// Robot to camera transforms
 	// (Not used by Limelight, configure in web UI instead)
 	public static final Transform3d ROBOT_TO_REEF_CAMERA =
-		new Transform3d(Units.inchesToMeters(6), -Units.inchesToMeters(8.5),
-		0.4, new Rotation3d(0.0, 0.0, 0));
+		new Transform3d(Units.inchesToMeters(7.129), -Units.inchesToMeters(4.306),
+		Units.inchesToMeters(14.56), new Rotation3d(0.0, 0.0, 0.0));
 	public static final Transform3d ROBOT_TO_STATION_CAMERA =
-		new Transform3d(-Units.inchesToMeters(6), -Units.inchesToMeters(8.5),
-		1.016, new Rotation3d(0.0, -0.0, Math.PI));
+		new Transform3d(-Units.inchesToMeters(8.875), -Units.inchesToMeters(9.5),
+		Units.inchesToMeters(37.596), new Rotation3d(0.0, -Math.toRadians(19), Math.PI));
 
 	// Basic filtering thresholds
 	public static final double MAX_AMBIGUITY = 0.3;
@@ -118,8 +124,10 @@ public class SimConstants {
 
 	// Multipliers to apply for MegaTag 2 observations
 	public static final double LINEAR_STD_MEGATAG_2_FACTOR = 0.5; // More stable than full 3D solve
-	public static final double ANGULAR_STD_MEGATAG_2_FACTOR =
-		Double.POSITIVE_INFINITY; // No rotation data available
+	// public static final double ANGULAR_STD_MEGATAG_2_FACTOR =
+	// 	Double.POSITIVE_INFINITY; // No rotation data available
 
-	public static final double CAM_DISTANCE_READ = 2.5;
+	// public static final double CAM_DISTANCE_READ = 2.5;
+
+	public static final double BATTERY_VOLTAGE = 12.0;
 }
