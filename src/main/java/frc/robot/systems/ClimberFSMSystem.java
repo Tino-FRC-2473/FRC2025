@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.util.Units;
@@ -62,6 +63,8 @@ public class ClimberFSMSystem {
 		var outputConfigs = talonFXConfigs.MotorOutput;
 		outputConfigs.NeutralMode = NeutralModeValue.Brake;
 
+		outputConfigs.Inverted = InvertedValue.Clockwise_Positive;
+
 		climberMotor.getConfigurator().apply(talonFXConfigs);
 
 		BaseStatusSignal.setUpdateFrequencyForAll(
@@ -101,7 +104,7 @@ public class ClimberFSMSystem {
 	 */
 	public void reset() {
 		currentState = ClimberFSMState.IDLE;
-		targetPosition = Constants.CLIMBER_PID_TARGET_EXTEND;
+		targetPosition = calculateTargetPosition();
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -257,9 +260,11 @@ public class ClimberFSMSystem {
 				}
 				return ClimberFSMState.IDLE;
 			case CLIMB: case STOWED: case EXTEND:
-				if (input.isClimbManualButtonPressed() || climberPosSignal.getValueAsDouble()
-					% Constants.CLIMBER_COUNTS_PER_REV > targetPosition
-					|| isLimitSwitchPressed()) {
+				if (input.isClimbManualButtonPressed() || 
+					inRange(
+					climberMotor.getPosition().getValueAsDouble(),
+					targetPosition,
+					Constants.CLIMBER_PID_MARGIN_OF_ERROR)) {
 					return ClimberFSMState.IDLE;
 				}
 				return ClimberFSMState.CLIMB;
@@ -290,9 +295,9 @@ public class ClimberFSMSystem {
 
 	private double calculateTargetPosition() {
 		double pos = climberPosSignal.getValueAsDouble();
-		if (pos >= Constants.CLIMBER_PID_TARGET_LOW) {
-			if (pos >= Constants.CLIMBER_PID_TARGET_EXTEND) {
-				if (pos >= Constants.CLIMBER_PID_TARGET_CLIMB) {
+		if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR >= Constants.CLIMBER_PID_TARGET_LOW) {
+			if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR >= Constants.CLIMBER_PID_TARGET_EXTEND) {
+				if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR >= Constants.CLIMBER_PID_TARGET_CLIMB) {
 					return Constants.CLIMBER_PID_TARGET_LOW
 						+ Constants.CLIMBER_COUNTS_PER_REV;
 				} else {
