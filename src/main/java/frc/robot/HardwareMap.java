@@ -32,7 +32,7 @@ public final class HardwareMap {
 	 * @return true if drive hardware is present
 	 */
 	public static boolean isDriveHardwarePresent() {
-		return true;
+		return false;
 	}
 
 	/**
@@ -57,7 +57,7 @@ public final class HardwareMap {
 	 * @return true if climber hardware is present
 	 */
 	public static boolean isClimberHardwarePresent() {
-		return true;
+		return false;
 	}
 
 	/**
@@ -81,9 +81,10 @@ public final class HardwareMap {
 	 * @return true if all required hardware components are present
 	 */
 	public static boolean useSuperStructure() {
-		return isElevatorHardwarePresent()
-			&& isFunnelHardwarePresent()
-			&& isClimberHardwarePresent()
-			&& isDriveHardwarePresent() && false;
+		// return isElevatorHardwarePresent()
+		// 	&& isFunnelHardwarePresent()
+		// 	&& isClimberHardwarePresent()
+		// 	&& isDriveHardwarePresent();
+		return false; // testing purposes
 	}
 }
