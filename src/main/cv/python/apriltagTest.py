@@ -20,8 +20,8 @@ while True:
     #frame = cv2.imread(r"C:/Users/nandi/FRC2025/src/main/cv/python/apriltag.png")
     #cv2.imshow("frame", frame)
     # print("frame size", frame.shape)
-    
-    annotated_frame = frame.copy()
+    if(not ON_RPI): 
+        annotated_frame = frame.copy()
 
     tagData = tag_module.estimate_3d_pose_draw(frame, ARUCO_LENGTH_METERS)
     #print("estimate 3D pose yaw value", tagData[9])
@@ -33,10 +33,9 @@ while True:
     if(len(tagData) > 0):
         print("rotation vector", (tag_module.fix_distance_to_station(annotated_frame, ARUCO_LENGTH_METERS))[1][2])
         #print("translation vector", (tag_module.fix_distance_to_station(annotated_frame, ARUCO_LENGTH_METERS))[0])
-  
 
-    
-    #cv2.imshow('result', annotated_frame)
+    if(not ON_RPI):
+        cv2.imshow('result', annotated_frame)
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
         break
