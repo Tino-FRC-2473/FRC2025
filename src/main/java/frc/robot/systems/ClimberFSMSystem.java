@@ -260,8 +260,8 @@ public class ClimberFSMSystem {
 				}
 				return ClimberFSMState.IDLE;
 			case CLIMB: case STOWED: case EXTEND:
-				if (input.isClimbManualButtonPressed() || 
-					inRange(
+				if (input.isClimbManualButtonPressed()
+					|| inRange(
 					climberMotor.getPosition().getValueAsDouble(),
 					targetPosition,
 					Constants.CLIMBER_PID_MARGIN_OF_ERROR)) {
@@ -295,9 +295,12 @@ public class ClimberFSMSystem {
 
 	private double calculateTargetPosition() {
 		double pos = climberPosSignal.getValueAsDouble();
-		if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR >= Constants.CLIMBER_PID_TARGET_LOW) {
-			if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR >= Constants.CLIMBER_PID_TARGET_EXTEND) {
-				if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR >= Constants.CLIMBER_PID_TARGET_CLIMB) {
+		if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR
+			>= Constants.CLIMBER_PID_TARGET_LOW) {
+			if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR
+				>= Constants.CLIMBER_PID_TARGET_EXTEND) {
+				if (pos + Constants.CLIMBER_PID_MARGIN_OF_ERROR
+					>= Constants.CLIMBER_PID_TARGET_CLIMB) {
 					return Constants.CLIMBER_PID_TARGET_LOW
 						+ Constants.CLIMBER_COUNTS_PER_REV;
 				} else {
