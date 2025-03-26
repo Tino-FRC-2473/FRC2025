@@ -148,6 +148,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private boolean driveToPoseFinished = false;
 	private boolean aligningToReef = false;
+	private boolean canSeeTag =  false;
 		// False => aligning to station, True => aligning to reef
 
 	private final ProfiledPIDController driveController = new ProfiledPIDController(
@@ -267,6 +268,14 @@ public class DriveFSMSystem extends SubsystemBase {
 	 */
 	public void handleOverrideState(TeleopInput input) {
 		currentState = nextState(input);
+	}
+
+	/**
+	 * Checks if the robot can see the tag.
+	 * @return true if the robot can see the tag, false otherwise.
+	 */
+	public boolean canSeeTag() {
+		return canSeeTag;
 	}
 
 	/**
@@ -756,8 +765,10 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (tagID != -1) {
 			aligningToReef = true;
+			canSeeTag = true;
 			handleTagAlignment(input, tagID, true);
 		} else {
+			canSeeTag = false;
 			drivetrain.setControl(brake);
 		}
 	}
