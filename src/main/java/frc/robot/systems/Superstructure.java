@@ -172,7 +172,7 @@ public class Superstructure {
 			case INTAKE: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
-				if (!funnelSystem.isHoldingCoral() && driveSystem.canSeeTag()) {
+				if (!funnelSystem.isHoldingCoral() && input.isSuperIntakeButtonPressed()) {
 					return SuperFSMState.INTAKE;
 				}
 				return SuperFSMState.IDLE;
