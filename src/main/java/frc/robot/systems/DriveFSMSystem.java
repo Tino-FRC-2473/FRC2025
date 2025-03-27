@@ -49,7 +49,7 @@ import frc.robot.constants.VisionConstants;
 import frc.robot.raspberrypi.RaspberryPi;
 import frc.robot.raspberrypi.RaspberryPiPhoton;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
-import frc.robot.simulation.RaspberryPiSim;
+import frc.robot.raspberrypi.RaspberryPiSim;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.AprilTag;
 
