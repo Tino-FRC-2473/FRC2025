@@ -69,14 +69,16 @@ public class TeleopInput {
 		return driveController.getRightY();
 	}
 	/**
-	 * Get Triangle Button Pressed for Drive Controller.
+	 * Get Cross Button Pressed for Drive Controller.
+	 * Used to align the robot to station.
 	 * @return Axis value
 	 */
-	public boolean getDriveTriangleButton() {
-		return driveController.getTriangleButton();
+	public boolean getAlignStationButton() {
+		return driveController.getCrossButton();
 	}
 	/**
 	 * Get Square Button Pressed for Drive Controller.
+	 * Used to align the robot to reef.
 	 * @return Axis value
 	 */
 	public boolean getAlignReefButton() {
@@ -92,12 +94,15 @@ public class TeleopInput {
 
 	/**
 	 * Get drive cross button.
+	 * Damps drivetrain speed.
 	 * @return value
 	 */
-	public boolean getDriveCrossButton() {
-		return driveController.getCrossButton();
+	public boolean getDriveTurtleButton() {
+		// return driveController.getCrossButton();
+		return false;
 	}
-		/**
+	
+	/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */

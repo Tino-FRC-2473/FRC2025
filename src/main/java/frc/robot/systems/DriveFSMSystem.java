@@ -464,7 +464,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			case TELEOP_STATE:
 				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
+				}  else if (input.getAlignStationButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
 					return DriveFSMState.TELEOP_STATE;
@@ -472,7 +472,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			case ALIGN_TO_REEF_TAG_STATE:
 				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
+				}  else if (input.getAlignStationButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
 					return DriveFSMState.TELEOP_STATE;
@@ -480,7 +480,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			case ALIGN_TO_STATION_TAG_STATE:
 				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
+				}  else if (input.getAlignStationButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
 					return DriveFSMState.TELEOP_STATE;
@@ -509,7 +509,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		double constantDamp = 1;
 
 		if (elevatorSystem != null) {
-			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveCrossButton())
+			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveTurtleButton())
 				? DriveConstants.SPEED_DAMP_FACTOR : DriveConstants.NORMAL_DAMP;
 		}
 
