@@ -13,7 +13,6 @@ public class SparkMaxWrapper extends SparkMax implements LoggedMotor {
 	private final DCMotor motorType;
 	private final SparkMaxSim motorSim;
 
-	//TODO: move this to Constants.java
 	public static final double LOOP_PERIOD_MS = 0.020;
 
 	private double targetVelocity = 0;

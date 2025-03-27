@@ -24,7 +24,6 @@ public class TalonFXWrapper extends TalonFX implements LoggedMotor {
 	// getSimState() acccesses the default sim
 	private final DCMotorSim motorSimModel;
 
-	//TODO: move this to Constants.java
 	public static final double LOOP_PERIOD_MS = 0.020;
 
 	/**
