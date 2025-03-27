@@ -1,4 +1,4 @@
-package frc.robot.simulation;
+package frc.robot.raspberrypi;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.AprilTag;
 import frc.robot.constants.SimConstants;
 import frc.robot.constants.VisionConstants;
-import frc.robot.raspberrypi.RaspberryPi;
 
 import java.util.ArrayList;
 import org.photonvision.PhotonCamera;
