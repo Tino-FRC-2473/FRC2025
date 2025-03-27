@@ -44,10 +44,12 @@ public final class MechLogging {
 	private boolean isParallelToStation = false;
 	private boolean isInStationZone = false;
 	private Pose2d drivetrainPose;
+	//private Pose2d spherePose;
 	// Timer
 	private Timer timer = new Timer();
 	private ChassisSpeeds drivetrainChassisSpeeds;
 	private Rotation2d driveRotation;
+	private static final double TEMP_OFFSET = 0.5;
 
 	private MechLogging() {
 		elevatorStage1 = new Pose3d();
@@ -58,6 +60,7 @@ public final class MechLogging {
 
 	public static final double STAGE_2_RATIO = 1.0 / 3.0;
 	public static final double STAGE_3_RATIO = 2.0 / 3.0;
+	double stationLeftX, stationLeftY, stationRightX, stationRightY;
 
 	/**
 	 * Get the instance of the singleton class.
@@ -112,6 +115,7 @@ public final class MechLogging {
 	 * Finally calls dropCoral to pick up the coral.
 	 */
 	public void intakeCoral() {
+		//System.out.println("enterss method");
 		if (doesSimRobotHaveCoral()) {
 			return;
 		}
@@ -139,6 +143,7 @@ public final class MechLogging {
 				
 				boolean blueAlliance = DriverStationSim.getAllianceStationId().equals(AllianceStationID.Blue1) || DriverStationSim.getAllianceStationId().equals(AllianceStationID.Blue2) || DriverStationSim.getAllianceStationId().equals(AllianceStationID.Blue3);
 				if (blueAlliance) {
+					//System.out.println("blue");
 					stationLeft = fieldLayout.getTagPose(SimConstants.BLUE_STATION_LEFT_APRILTAG_ID);
 					stationRight = fieldLayout.getTagPose(SimConstants.BLUE_STATION_RIGHT_APRILTAG_ID);
 					double stationLeftX = 0, stationLeftY = 0, stationRightX = 0, stationRightY = 0;
@@ -179,6 +184,7 @@ public final class MechLogging {
 					}
 
 				} else {
+					//System.out.println("red");
 					stationLeft = fieldLayout.getTagPose(SimConstants.RED_STATION_LEFT_APRILTAG_ID);
 					stationRight = fieldLayout.getTagPose(SimConstants.RED_STATION_RIGHT_APRILTAG_ID);
 				
@@ -205,6 +211,7 @@ public final class MechLogging {
 						//left station check
 						if (robotBackX < (SimConstants.CORAL_STATION_WIDTH_METERS * 0.5 * Math.cos(stationAngleLeft + (Math.PI)) + stationLeftX) && robotBackX > stationLeftX - (SimConstants.CORAL_STATION_WIDTH_METERS * 0.5 * Math.cos(stationAngleLeft + (Math.PI)))){
 							if (robotBackY < leftYMargin || robotBackY > rightYMargin){
+								System.out.println("enters true statement");
 								isInStationZone = true;
 							} else {
 								isInStationZone = false;
@@ -230,8 +237,28 @@ public final class MechLogging {
 						System.out.println("VICTORY");
 						doesSimRobotHaveCoral = true;
 						SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(
-    					new Pose2d(drivetrainPose.getX(), drivetrainPose.getY(), Rotation2d.fromDegrees(90))));
-						SimulatedArena.getInstance().addGamePiece(new ReefscapeAlgaeOnField(new Translation2d(drivetrainPose.getX(),drivetrainPose.getY())));
+							new Pose2d(drivetrainPose.getX(), drivetrainPose.getY(), drivetrainPose.getRotation()))
+						);
+					
+						System.out.println("Coral spawned directly on top of the robot.");
+						Pose2d spawnPose = new Pose2d(drivetrainPose.getX(), drivetrainPose.getY(), drivetrainPose.getRotation());
+						ReefscapeCoralOnField coral = new ReefscapeCoralOnField(spawnPose);
+
+						System.out.println("Attempting to spawn coral at: " + spawnPose);
+						SimulatedArena.getInstance().addGamePiece(coral);
+						System.out.println("Coral spawn added to SimulatedArena.");
+						SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(
+    					new Pose2d(2, 2, Rotation2d.fromDegrees(90))));
+
+						SimulatedArena.getInstance().addGamePiece(new ReefscapeAlgaeOnField(new Translation2d(2,2)));
+
+						Logger.recordOutput("FieldSimulation/Algae", 
+    					SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+						Logger.recordOutput("FieldSimulation/Coral", 
+    					SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+
+						
+
 					}
 					
 				} else {
@@ -245,7 +272,16 @@ public final class MechLogging {
 			System.out.println(error.getMessage());
 		}
 	}
-
+	public void updateElevatorOuttake(){
+		if(DriverStation.getStickButton(0, 1)){
+			Pose3d curPose = getElevatorStage3();
+			Pose3d updatedElevatorPose = new Pose3d(
+                elevatorStage3.getTranslation().plus(new Translation3d(0, 0, TEMP_OFFSET)),
+                elevatorStage3.getRotation()
+            );
+            Logger.recordOutput("ElevatorPose", updatedElevatorPose);
+		}
+	}
 	/**
 	 * Checks if the robot is in the station zone.
 	 * @return if the robot is in the station zone
@@ -376,5 +412,7 @@ public final class MechLogging {
 		drivetrainPose = pose;
 		drivetrainChassisSpeeds = speeds;
 		driveRotation = rotation;
+		//this.spherePose = spherePose;
+
 	}
 }

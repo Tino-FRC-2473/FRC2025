@@ -202,6 +202,8 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.update(input);
 		}
+		MechLogging.getInstance().intakeCoral();
+		//MechLogging.getInstance().updateElevatorOuttake();
 		MotorManager.update();
 		ntInstance.flush();
 	}

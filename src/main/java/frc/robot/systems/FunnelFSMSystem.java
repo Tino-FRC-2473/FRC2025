@@ -84,7 +84,7 @@ public class FunnelFSMSystem {
 
 	/**
 	 * Update FSM based on new inputs. This function only calls the FSM state
-	 * specific handlers.
+	 * specific handlers
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
