@@ -75,7 +75,6 @@ public class CommandSwerveDrivetrain extends
 
 		autoXPid.setTolerance(AutoConstants.CHOREO_PID_TOLERANCE);
 		autoYPid.setTolerance(AutoConstants.CHOREO_PID_TOLERANCE);
-		// setupPathplanner();
 	}
 
 	/**
@@ -192,7 +191,6 @@ public class CommandSwerveDrivetrain extends
 				.getDriveTrainSimulatedChassisSpeedsFieldRelative();
 		} else {
 			// Converts robot relative speeds to field relative
-			// TODO: Determine if getState().Speeds is robot relative or field relative
 			return ChassisSpeeds.fromRobotRelativeSpeeds(
 				getState().Speeds,
 				getPigeon2().getRotation2d()
