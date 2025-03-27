@@ -61,6 +61,7 @@ public final class Constants {
 	public static final int UPDATE_FREQUENCY_HZ = 100;
 	public static final int UPDATE_PERIOD_MS = 20;
 	public static final double UPDATE_PERIOD_SECS = 0.020;
+	public static final double ALIGN_TIME_SECS = 2.5;
 		// this is the lowest possible value since we refresh ourselves
 
 	// Add units

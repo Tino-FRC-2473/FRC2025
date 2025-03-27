@@ -48,6 +48,7 @@ public class Superstructure {
 	private ClimberFSMSystem climberSystem;
 
 	private Timer scoreTimer = new Timer();
+	private Timer alignTimer = new Timer();
 
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
@@ -93,6 +94,11 @@ public class Superstructure {
 	 */
 	public void reset() {
 		currentState = SuperFSMState.IDLE;
+
+		alignTimer.stop();
+		alignTimer.reset();
+		scoreTimer.stop();
+		scoreTimer.reset();
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -179,7 +185,7 @@ public class Superstructure {
 			case PRE_L2: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
-				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
+				if ((funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) || alignFin()) {
 					return SuperFSMState.RAISE_TO_L2;
 				}
 				if (driveSystem.canSeeTag()) {
@@ -189,7 +195,7 @@ public class Superstructure {
 			case PRE_L3: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
-				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
+				if ((funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) || alignFin()) {
 					return SuperFSMState.RAISE_TO_L3;
 				}
 				if (driveSystem.canSeeTag()) {
@@ -199,7 +205,7 @@ public class Superstructure {
 			case PRE_L4: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
-				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
+				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag() || alignFin()) {
 					return SuperFSMState.RAISE_TO_L4;
 				}
 				if (driveSystem.canSeeTag()) {
@@ -287,6 +293,11 @@ public class Superstructure {
 		}
 	}
 
+	private boolean alignFin() {
+		alignTimer.start();
+		return alignTimer.get() > Constants.ALIGN_TIME_SECS;
+	}
+
 	/* ------------------------ FSM state handlers ------------------------ */
 	/**
 	 * Handle behavior in IDLE.
@@ -322,6 +333,8 @@ public class Superstructure {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
+		alignTimer.stop();
+		alignTimer.reset();
 	}
 
 	/**
@@ -334,6 +347,8 @@ public class Superstructure {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
+		alignTimer.stop();
+		alignTimer.reset();
 	}
 
 	/**
@@ -346,6 +361,8 @@ public class Superstructure {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
+		alignTimer.stop();
+		alignTimer.reset();
 	}
 
 	/**
