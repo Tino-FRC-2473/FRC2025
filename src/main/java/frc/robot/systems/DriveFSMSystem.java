@@ -27,7 +27,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.IntSupplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -47,11 +46,11 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.SimConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
+import frc.robot.raspberrypi.RaspberryPi;
+import frc.robot.raspberrypi.RaspberryPiPhoton;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.CommandSwerveDrivetrain;
-import frc.robot.RaspberryPi;
-import frc.robot.RaspberryPiPhoton;
 import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
@@ -96,7 +95,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private boolean driveToPoseRunning = false;
 
 	/* -- cv constants -- */
-	private RaspberryPi rpi = new RaspberryPi();
+	private RaspberryPi rpi;
 	private int tagID = -1;
 	private double alignmentYOff;
 	private double alignmentXOff;
@@ -105,7 +104,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	private ArrayList<Pose2d> aprilTagStationRefPoses = new ArrayList<Pose2d>();
 	private ArrayList<Pose2d> aprilTagVisionPoses = new ArrayList<Pose2d>();
 	private AprilTagFieldLayout aprilTagFieldLayout;
-	private boolean hasLocalized = false;
 
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,
@@ -298,136 +296,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		return driveToPoseFinished;
 	}
 
-		/**
-	 * Update vision measurements according to all seen tags.
-	 */
-	public void updateVisionEstimates() {
-		aprilTagReefRefPoses = new ArrayList<Pose2d>();
-		aprilTagStationRefPoses = new ArrayList<Pose2d>();
-		aprilTagVisionPoses = new ArrayList<Pose2d>();
-		ArrayList<AprilTag> reefTags = rpi.getReefAprilTags();
-		ArrayList<AprilTag> stationTags = rpi.getStationAprilTags();
-
-		System.out.println("REEF: " + reefTags.toString());
-		System.out.println("STATION: " + stationTags.toString());
-
-		Pose2d currPose;
-
-		if (Utils.isSimulation()) {
-			currPose = getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose();
-		} else {
-			currPose = drivetrain.getState().Pose;
-		}
-
-		for (int t = 0; t < reefTags.size(); t++) {
-			AprilTag tag = reefTags.get(t);
-
-			Optional<Pose3d> aprilTagPose3d = aprilTagFieldLayout.getTagPose(tag.getTagID());
-
-			Transform2d robotToCamera =
-				new Transform2d(
-					-SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
-						// - if u use pose rotation.
-					-SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
-						// - if u use pose rotation.
-					SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
-					//.rotateBy(Rotation2d.k180deg)
-				);
-
-			if (!aprilTagPose3d.isEmpty()) {
-				Pose2d imposedPose =
-					aprilTagPose3d.get().toPose2d()
-					.transformBy(
-						new Transform2d(
-							tag.getZ(),
-							tag.getX(),
-							new Rotation2d()
-						)
-					).rotateAround(aprilTagPose3d.get().toPose2d().getTranslation(),
-						new Rotation2d(tag.getPitch()))
-					.transformBy(robotToCamera.inverse());
-
-				aprilTagReefRefPoses.add(
-					imposedPose
-				);
-
-				if (!hasLocalized) {
-					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
-				} else {
-					if (visionEstimateFilter(imposedPose, currPose)) {
-						drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
-					}
-				}
-				hasLocalized = true;
-
-			}
-		}
-
-		// for (int t = 0; t < stationTags.size(); t++) {
-		// 	AprilTag tag = stationTags.get(t);
-
-		// 	Optional<Pose3d> aprilTagPose3d = aprilTagFieldLayout.getTagPose(tag.getTagID());
-
-		// 	Transform2d robotToCamera =
-		// 		new Transform2d(
-		// 			new Translation2d(
-		// 				SimConstants.ROBOT_TO_STATION_CAMERA.getX(),
-		// 				SimConstants.ROBOT_TO_STATION_CAMERA.getY()
-		// 			),
-		// 			SimConstants.ROBOT_TO_STATION_CAMERA.getRotation()
-		// 			.toRotation2d().rotateBy(Rotation2d.k180deg)
-		// 		);
-
-		// 	Pose2d alignmentPose = currPose
-		// 		.transformBy(robotToCamera)
-		// 		.plus(new Transform2d(
-		// 			-tag.getZ(),
-		// 			(tag.getX()),
-		// 			new Rotation2d(-tag.getPitch())))
-		// 		.transformBy(robotToCamera.inverse());
-
-		// 	aprilTagVisionPoses.add(alignmentPose);
-
-		// 	if (!aprilTagPose3d.isEmpty()) {
-
-		// 		Pose2d imposedPose = new Pose2d(
-		// 			new Pose3d(currPose)
-		// 				.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose)))
-		// 				.toPose2d().getTranslation(),
-		// 			aprilTagPose3d.get().getRotation()
-		// 				.toRotation2d().rotateBy(new Rotation2d(tag.getPitch() / 2))
-		// 		).transformBy(
-		// 			robotToCamera.inverse()
-		// 		);
-
-		// 		aprilTagStationRefPoses.add(
-		// 			imposedPose
-		// 		);
-
-		// 		drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
-		// 	}
-		// }
-
-		Logger.recordOutput(
-			"VisionEstimate/ImposedReefList", aprilTagReefRefPoses.toArray(new Pose2d[] {})
-		);
-		Logger.recordOutput(
-			"VisionEstimate/ImposedStationList", aprilTagStationRefPoses.toArray(new Pose2d[] {})
-		);
-		Logger.recordOutput(
-			"VisionEstimate/AllVisionTargets", aprilTagVisionPoses.toArray(new Pose2d[] {})
-		);
-
-	}
-
-	private boolean visionEstimateFilter(Pose2d imposed, Pose2d current) {
-		return
-			(imposed.getTranslation().getDistance(current.getTranslation())
-				< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD
-			&& Math.abs(imposed.getRotation().getRadians() - current.getRotation().getRadians())
-				< VisionConstants.LOCALIZATION_ANGLE_TOLERANCE);
-	}
-
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -535,7 +403,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (input.getSeedGyroButtonPressed()) {
 			drivetrain.seedFieldCentric();
 			rotationAlignmentPose = new Rotation2d();
-			hasLocalized = false;
 		}
 
 		Logger.recordOutput("TeleOp/XSpeed", xSpeed);

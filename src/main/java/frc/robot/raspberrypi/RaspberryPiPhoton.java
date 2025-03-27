@@ -1,8 +1,9 @@
-package frc.robot;
+package frc.robot.raspberrypi;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import frc.robot.AprilTag;
 import frc.robot.constants.VisionConstants;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 /** IO implementation for real robot using PhotonVision. */
-public class RaspberryPiPhoton extends RaspberryPi {
+public class RaspberryPiPhoton implements RaspberryPi {
 	private final PhotonCamera reefCamera;
 	private final PhotonCamera stationCamera;
 
@@ -105,10 +106,7 @@ public class RaspberryPiPhoton extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getX()
 					)
 				);
-				// if (at.getPose().getTranslation().getNorm()
-					// < VisionConstants.MAX_TAG_TARGET_DISTANCE_X) {
 				atList.add(at);
-				// }
 			}
 		}
 		return atList;
@@ -119,8 +117,35 @@ public class RaspberryPiPhoton extends RaspberryPi {
 	 * Not used for teleop functionality.
 	 * @param robotPoseMeters current pose
 	 */
-	@Override
 	public void update(Pose2d robotPoseMeters) {
 		// pass
+	}
+
+	/**
+	 * Gets an AprilTag from the list given a certain tag.
+	 * Not used for this class.
+	 * @param id id of the AprilTag
+	 * @return the AprilTag matching the id
+	 */
+	public AprilTag getAprilTagWithID(int id) {
+		return null;
+	}
+
+	/**
+	 * Checks if any AprilTags are in view.
+	 * Not used for this class.
+	 * @return A boolean representing if any tags are in view
+	 */
+	public boolean canSeeTags() {
+		return false;
+	}
+
+	/**
+	 * Returns the closest AprilTag from any camera.
+	 * Not used for this class.
+	 * @return The closest AprilTag object. If none are in view, returns null.
+	 */
+	public AprilTag getClosestTag() {
+		return null;
 	}
 }

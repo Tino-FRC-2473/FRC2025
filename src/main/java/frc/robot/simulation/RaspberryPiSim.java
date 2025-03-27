@@ -5,9 +5,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.AprilTag;
-import frc.robot.RaspberryPi;
 import frc.robot.constants.SimConstants;
 import frc.robot.constants.VisionConstants;
+import frc.robot.raspberrypi.RaspberryPi;
 
 import java.util.ArrayList;
 import org.photonvision.PhotonCamera;
@@ -16,7 +16,7 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 
 /** IO implementation for physics sim using PhotonVision simulator. */
-public class RaspberryPiSim extends RaspberryPi {
+public class RaspberryPiSim implements RaspberryPi {
 	private static VisionSystemSim visionSim;
 
 	private final PhotonCameraSim reefCameraSim;
@@ -97,9 +97,7 @@ public class RaspberryPiSim extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getX()
 					)
 				);
-				// if (at.getPose().getTranslation().getNorm() < SimConstants.CAM_DISTANCE_READ) {
 				atList.add(at);
-				// }
 			}
 		}
 		return atList;
@@ -130,9 +128,7 @@ public class RaspberryPiSim extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getX()
 					)
 				);
-				// if (at.getPose().getTranslation().getNorm() < SimConstants.CAM_DISTANCE_READ) {
 				atList.add(at);
-				// }
 			}
 		}
 		return atList;
@@ -144,5 +140,33 @@ public class RaspberryPiSim extends RaspberryPi {
 	 */
 	public void update(Pose2d robotPoseMeters) {
 		visionSim.update(robotPoseMeters);
+	}
+
+	/**
+	 * Gets an AprilTag from the list given a certain tag.
+	 * Not used for this class.
+	 * @param id id of the AprilTag
+	 * @return the AprilTag matching the id
+	 */
+	public AprilTag getAprilTagWithID(int id) {
+		return new AprilTag(id, null, null, null, null);
+	}
+
+	/**
+	 * Checks if any AprilTags are in view.
+	 * Not used for this class.
+	 * @return A boolean representing if any tags are in view
+	 */
+	public boolean canSeeTags() {
+		return false;
+	}
+
+	/**
+	 * Returns the closest AprilTag from any camera.
+	 * Not used for this class.
+	 * @return The closest AprilTag object. If none are in view, returns null.
+	 */
+	public AprilTag getClosestTag() {
+		return new AprilTag(0, null, null, null, null);
 	}
 }

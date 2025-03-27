@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.raspberrypi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleArrayTopic;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.AprilTag;
 import frc.robot.constants.VisionConstants;
 
 /**
@@ -18,7 +19,7 @@ import frc.robot.constants.VisionConstants;
 *
 * @author Jaseer Abdulla
 */
-public class RaspberryPi {
+public class RaspberryPiCV implements RaspberryPi {
 	private NetworkTable reefTable;
 	private NetworkTable sourceTable;
 	private DoubleArraySubscriber reefCamSubscriber;
@@ -29,7 +30,7 @@ public class RaspberryPi {
 	/**
 	* Default constructor for the RaspberryPi class.
 	*/
-	public RaspberryPi() {
+	public RaspberryPiCV() {
 		reefTable = NetworkTableInstance.getDefault().getTable("reef_table");
 		DoubleArrayTopic reefCamTopic = reefTable.getDoubleArrayTopic("april_tag_data");
 		reefCamSubscriber = reefCamTopic.subscribe(new double[] {});

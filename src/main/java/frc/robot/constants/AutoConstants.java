@@ -14,6 +14,7 @@ public class AutoConstants {
 		+ SimConstants.ROBOT_TO_STATION_CAMERA.getX();
 	public static final double SOURCE_Y_OFFSET = 0;
 
+	/* -- AUTO CONSTANTS -- */
 	public static final int BLUE_L_STATION_ID = 13;
 	public static final int BLUE_R_STATION_ID = 12;
 	public static final int RED_L_STATION_ID = 1;
@@ -53,7 +54,11 @@ public class AutoConstants {
 	public static final double ALIGN_MAX_R_ACCEL = Math.PI * 0.0;
 	public static final double FF_MIN_RADIUS = 0.2;
 	public static final double FF_MAX_RADIUS = 0.8;
-	public static final double CHOREO_PID_TOLLERANCE = 1e-3;
+
+	public static final double CHOREO_X_P = 17.5;
+	public static final double CHOREO_Y_P = 17.5;
+	public static final double CHOREO_HEADING_P = 0.8;
+	public static final double CHOREO_PID_TOLERANCE = 1e-3;
 	public static final double DRIVE_TOLERANCE = 0.01;
 	public static final double THETA_TOLERANCE = Math.toRadians(1);
 
