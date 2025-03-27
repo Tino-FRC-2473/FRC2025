@@ -101,7 +101,7 @@ public class TeleopInput {
 		// return driveController.getCrossButton();
 		return false;
 	}
-	
+
 	/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value

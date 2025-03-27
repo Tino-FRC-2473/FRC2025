@@ -390,7 +390,7 @@ public class Superstructure {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleClimbState(TeleopInput input) {
-		driveSystem.setState(DriveFSMState.TELEOP_STATE); // TODO: change to drive creep forwards
+		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.CLIMB);
@@ -428,7 +428,7 @@ public class Superstructure {
 	private void handleResetState(TeleopInput input) {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		elevatorSystem.setState(ElevatorFSMState.GROUND);
-		funnelSystem.setState(FunnelFSMState.IDLE); // TODO: confirm funnel reset pos
+		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.STOWED);
 	}
 
