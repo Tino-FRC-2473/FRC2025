@@ -542,7 +542,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				.withVelocityY(ySpeed * allianceOriented.getAsInt())
 				.withTargetDirection(rotationAlignmentPose)
 				.withTargetRateFeedforward(-rotXComp)
-				.withHeadingPID(DriveConstants.HEADING_P, 0, 0)
+				//.withHeadingPID(DriveConstants.HEADING_P, 0, 0)
 			);
 		} else {
 			drivetrain.setControl(

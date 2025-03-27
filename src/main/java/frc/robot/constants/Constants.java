@@ -11,15 +11,15 @@ public final class Constants {
 	public static final double OUTTAKE_CLOSED_POS_ROTS = 0.25;
 	public static final double OUTTAKE_OPEN_POS_ROTS = 0.8;
 
-	public static final double CORAL_SCORE_TIME_SECS = 0.5;
+	public static final double CORAL_SCORE_TIME_SECS = 0.65;
 
 	// elevator motion profile constants
 	public static final double ELEVATOR_KG = 0.20;
 	public static final double ELEVATOR_KS = 0.1;
 	public static final double ELEVATOR_KV = 0.001;
 	public static final double ELEVATOR_KA = 0.0;
-	public static final double ELEVATOR_KP = 1.0;
-	public static final double ELEVATOR_KI = 0.03;
+	public static final double ELEVATOR_KP = 3.0;
+	public static final double ELEVATOR_KI = 0.00;
 	public static final double ELEVATOR_KD = 0.00;
 
 	public static final double ELEVATOR_CRUISE_VELO = 600;

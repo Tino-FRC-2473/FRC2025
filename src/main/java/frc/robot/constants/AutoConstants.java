@@ -39,7 +39,7 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double ALIGN_DRIVE_P = 1.5; //2.2; //4.0;
+	public static final double ALIGN_DRIVE_P = 1.7; //2.2; //4.0;
 	public static final double ALIGN_THETA_P = 1.5; //1.3; //2.0;
 	public static final double ALIGN_MAX_T_SPEED = 0.0;
 	public static final double ALIGN_MAX_T_ACCEL = 0.0;

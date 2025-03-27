@@ -81,10 +81,10 @@ public final class HardwareMap {
 	 * @return true if all required hardware components are present
 	 */
 	public static boolean useSuperStructure() {
-		// return isElevatorHardwarePresent()
-		// 	&& isFunnelHardwarePresent()
-		// 	&& isClimberHardwarePresent()
-		// 	&& isDriveHardwarePresent();
-		return true; // testing purposes
+		return isElevatorHardwarePresent()
+			&& isFunnelHardwarePresent()
+			&& isClimberHardwarePresent()
+			&& isDriveHardwarePresent();
+		// return false; // testing purposes
 	}
 }
