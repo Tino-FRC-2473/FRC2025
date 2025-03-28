@@ -43,6 +43,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 // Robot Imports
 import frc.robot.TeleopInput;
 import frc.robot.constants.AutoConstants;
+import frc.robot.constants.Constants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.SimConstants;
 import frc.robot.constants.TunerConstants;
@@ -690,7 +691,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		rotationAlignmentPose = currPose.getRotation();
 
-		driveToPoseFinished = driveController.atGoal() && thetaController.atGoal();
+		driveToPoseFinished = (driveController.atGoal() && thetaController.atGoal())
+			|| alignmentTimer.get() > Constants.ALIGN_TIME_SECS;
 
 		if (driveToPoseFinished) {
 			alignmentTimer.stop();

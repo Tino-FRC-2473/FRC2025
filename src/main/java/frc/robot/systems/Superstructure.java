@@ -187,7 +187,7 @@ public class Superstructure {
 			case PRE_L2: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
-				if ((funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) || alignFin()) {
+				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
 					return SuperFSMState.RAISE_TO_L2;
 				}
 				if (driveSystem.canSeeTag()) {
@@ -197,7 +197,7 @@ public class Superstructure {
 			case PRE_L3: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
-				if ((funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) || alignFin()) {
+				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
 					return SuperFSMState.RAISE_TO_L3;
 				}
 				if (driveSystem.canSeeTag()) {
@@ -207,7 +207,7 @@ public class Superstructure {
 			case PRE_L4: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
-				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag() || alignFin()) {
+				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
 					return SuperFSMState.RAISE_TO_L4;
 				}
 				if (driveSystem.canSeeTag()) {
@@ -293,21 +293,6 @@ public class Superstructure {
 				return SuperFSMState.MANUAL;
 			default: throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
-	}
-
-	private boolean restartAlignTimer = false;
-
-	private boolean alignFin() {
-		//alignTimer.restart();
-		if (!restartAlignTimer) {
-			restartAlignTimer = true;
-			alignTimer.restart();
-		}
-
-		if (alignTimer.get() > Constants.ALIGN_TIME_SECS) {
-			restartAlignTimer = false;
-		}
-		return alignTimer.get() > Constants.ALIGN_TIME_SECS;
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
