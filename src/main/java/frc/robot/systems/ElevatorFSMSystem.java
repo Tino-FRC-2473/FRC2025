@@ -1,6 +1,10 @@
 package frc.robot.systems;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Volts;
 
+import org.ironmaple.simulation.motorsims.SimulatedBattery;
 
 // WPILib Imports
 
@@ -16,10 +20,17 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.Units;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
@@ -27,6 +38,7 @@ import frc.robot.Robot;
 // Robot Imports
 import frc.robot.TeleopInput;
 import frc.robot.constants.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.TalonFXWrapper;
 
@@ -54,7 +66,23 @@ public class ElevatorFSMSystem {
 	private TalonFX elevatorMotor;
 	private DigitalInput groundLimitSwitch;
 
-	private FunnelFSMSystem funnelSystem; // only used for break beam
+	private FunnelFSMSystem funnelSystem;
+
+	private final DCMotor gearbox = DCMotor.getKrakenX60(1);
+
+	private final LinearSystem<N2, N1, N2> elevatorSystem = LinearSystemId.createElevatorSystem(
+		gearbox,
+		Units.lbsToKilograms(13.8),
+		Units.inchesToMeters(1),
+		15);
+
+	private ElevatorSim elevatorSim = new ElevatorSim(
+		elevatorSystem,
+		gearbox,
+		0,
+		Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches)),
+		true,
+		0);
 
 	/* ======================== Constructor ======================== */
 
@@ -80,8 +108,8 @@ public class ElevatorFSMSystem {
 		swLimitSwitch.ForwardSoftLimitEnable = true; // enable top limit
 		swLimitSwitch.ReverseSoftLimitEnable = true; // enable bottom limit
 		swLimitSwitch.ForwardSoftLimitThreshold = Constants.ELEVATOR_UPPER_THRESHOLD
-			.in(Units.Inches);
-		swLimitSwitch.ReverseSoftLimitThreshold = Units.Inches.of(0).in(Units.Inches);
+			.in(Inches);
+		swLimitSwitch.ReverseSoftLimitThreshold = Inches.of(0).in(Inches);
 
 		var sensorConfig = talonFXConfigs.Feedback;
 		sensorConfig.SensorToMechanismRatio = Constants.ELEVATOR_ROTS_TO_INCHES;
@@ -117,9 +145,8 @@ public class ElevatorFSMSystem {
 		elevatorMotor.optimizeBusUtilization();
 			// MUST set brake after applying other configs
 
-		// Initialize limit switches
+		// Initialize limit switch
 		groundLimitSwitch = new DigitalInput(HardwareMap.ELEVATOR_GROUND_LIMIT_SWITCH_DIO_PORT);
-			//okay for stopping and resetting
 
 		// Reset state machine
 
@@ -166,31 +193,38 @@ public class ElevatorFSMSystem {
 		if (input == null) {
 			return;
 		}
-		switch (currentState) {
-			case MANUAL:
-				handleManualState(input);
-				break;
-			case GROUND:
-				handleGroundState(input);
-				break;
-			case LEVEL2:
-				handleL2State(input);
-				break;
-			case LEVEL3:
-				handleL3State(input);
-				break;
-			case LEVEL4:
-				handleL4State(input);
-				break;
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+
+		if (Robot.isSimulation()) {
+			double partOfWayUp =
+				elevatorSim.getPositionMeters()
+				/ Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches));
+			// double partOfWayUpPerSecond =
+			// 	elevatorSim.getVelocityMetersPerSecond()
+			// 	/ Units.inchesToMeters(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches));
+			Logger.recordOutput("part way up", partOfWayUp);
+			((TalonFXWrapper) elevatorMotor).setRawPosition(Constants.ELEVATOR_UPPER_THRESHOLD
+				.in(Inches) * partOfWayUp);
+			// elevatorMotor.getSimState()
+			//.setRotorVelocity(Constants.ELEVATOR_UPPER_THRESHOLD.in(Inches)
+			//* partOfWayUpPerSecond);
+
 		}
+
+		elevatorSim.setInputVoltage(elevatorMotor.get() * SimConstants.BATTERY_VOLTAGE);
+		Logger.recordOutput("elevator setpoint", elevatorMotor.get());
+		Logger.recordOutput("simulated battery", SimulatedBattery.getBatteryVoltage().in(Volts));
+		elevatorSim.update(Constants.UPDATE_PERIOD_SECS);
+
+		switch (currentState) {
+			case MANUAL -> handleManualState(input);
+			case GROUND -> handleGroundState(input);
+			case LEVEL2 -> handleL2State(input);
+			case LEVEL3 -> handleL3State(input);
+			case LEVEL4 -> handleL4State(input);
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
+		}
+
 		currentState = nextState(input);
-
-		// telemetry and logging
-		MechLogging.getInstance().updateElevatorPose3d(elevatorMotor.getPosition()
-			.getValueAsDouble());
-
 	}
 
 	/**
@@ -213,28 +247,25 @@ public class ElevatorFSMSystem {
 		Logger.recordOutput("Elev Inrage L4?", inRange(getElevatorpos(),
 			Constants.ELEVATOR_TARGET_L4));
 
-		Logger.recordOutput("ROOR POS", elevatorMotor.getRotorPosition().getValueAsDouble());
-		Logger.recordOutput("ROOR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
-	}
+		Logger.recordOutput("ROTR POS", elevatorMotor.getRotorPosition().getValueAsDouble());
+		Logger.recordOutput("ROTR VELO", elevatorMotor.getRotorVelocity().getValueAsDouble());
 
-	/**
-	 * Is elevator at L4 boolean accessor.
-	 * @return whether or not elevator is at L4.
-	 */
-	public boolean isElevatorAtL4() {
-		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
+		// telemetry and logging
+		MechLogging.getInstance().updateElevatorPose3d(Angle.ofBaseUnits(
+			elevatorSim.getPositionMeters(), Radians
+		));
 	}
 
 	/* ======================== Private methods ======================== */
 	/**
-	 * Decide the next state to transition to. This is a function of the inputs
-	 * and the current state of this FSM. This method should not have any side
-	 * effects on outputs. In other words, this method should only read or get
-	 * values to decide what state to go to.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 * @return FSM state for the next iteration
-	 */
+ 	 * Decide the next state to transition to. This is a function of the inputs
+ 	 * and the current state of this FSM. This method should not have any side
+ 	 * effects on outputs. In other words, this method should only read or get
+ 	 * values to decide what state to go to.
+ 	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *        the robot is in autonomous mode.
+ 	 * @return FSM state for the next iteration
+ 	 */
 	private ElevatorFSMState nextState(TeleopInput input) {
 		if (input == null) {
 			return ElevatorFSMState.MANUAL;
@@ -248,14 +279,8 @@ public class ElevatorFSMSystem {
 					&& !input.isL3ButtonPressed()) {
 					return ElevatorFSMState.GROUND;
 				}
-				if (input.isL4ButtonPressed()
-					&& funnelSystem.isHoldingCoral()
-					&& !input.isGroundButtonPressed()
-					&& !input.isL2ButtonPressed()
-					&& !input.isL3ButtonPressed()) {
-					return ElevatorFSMState.LEVEL4;
-				}
 				if (input.isL2ButtonPressed()
+					&& funnelSystem.isHoldingCoral()
 					&& !input.isL4ButtonPressed()
 					&& !input.isGroundButtonPressed()
 					&& !input.isL3ButtonPressed()) {
@@ -267,6 +292,13 @@ public class ElevatorFSMSystem {
 					&& !input.isGroundButtonPressed()
 					&& !input.isL2ButtonPressed()) {
 					return ElevatorFSMState.LEVEL3;
+				}
+				if (input.isL4ButtonPressed()
+					&& funnelSystem.isHoldingCoral()
+					&& !input.isGroundButtonPressed()
+					&& !input.isL2ButtonPressed()
+					&& !input.isL3ButtonPressed()) {
+					return ElevatorFSMState.LEVEL4;
 				}
 				return ElevatorFSMState.MANUAL;
 
@@ -306,7 +338,8 @@ public class ElevatorFSMSystem {
 	 */
 	private boolean isBottomLimitReached() {
 		if (Robot.isSimulation()) {
-			return false;
+			return elevatorMotor.getPosition().getValueAsDouble()
+				< Constants.ELEVATOR_INRANGE_VALUE.in(Inches);
 		}
 		return groundLimitSwitch.get(); // switch is normally open
 	}
@@ -317,7 +350,7 @@ public class ElevatorFSMSystem {
 	}
 
 	private Distance getElevatorpos() {
-		return Units.Inches.of(elevatorMotor.getPosition().getValueAsDouble());
+		return Inches.of(elevatorMotor.getPosition().getValueAsDouble());
 	}
 
 	/* ------------------------ FSM state handlers ------------------------ */
@@ -340,10 +373,8 @@ public class ElevatorFSMSystem {
 		}
 
 		if (signalInput == 0 && elevatorMotor.getPosition().getValueAsDouble()
-			> Constants.KG_CHECK.in(Units.Inches)) {
-			if (!Robot.isSimulation()) {
-				elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
-			}
+			> Constants.KG_CHECK.in(Inches)) {
+			elevatorMotor.setControl(new VoltageOut(Constants.ELEVATOR_KG));
 		} else {
 			elevatorMotor.set(signalInput * Constants.ELEVATOR_MANUAL_SCALE);
 		}
@@ -359,42 +390,74 @@ public class ElevatorFSMSystem {
 			elevatorMotor.setPosition(0);
 		} else {
 			elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_GROUND.in(Units.Inches))
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_GROUND.in(Inches))
 			);
 		}
 	}
 
 	/**
-	 * Handle behavior in L2.
+	 * Handle behavior in LEVEL2.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL2State(TeleopInput input) {
 		elevatorMotor.setControl(
-			motionRequest.withPosition(Constants.ELEVATOR_TARGET_L2.in(Units.Inches))
+			motionRequest.withPosition(Constants.ELEVATOR_TARGET_L2.in(Inches))
 		);
 	}
 
 	/**
-	 * Handle behavior in L3.
+	 * Handle behavior in LEVEL3.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL3State(TeleopInput input) {
 		elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L3.in(Units.Inches))
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L3.in(Inches))
 		);
 	}
 
 	/**
-	 * Handle behavior in L4.
+	 * Handle behavior in LEVEL4.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleL4State(TeleopInput input) {
 		elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Units.Inches))
+				motionRequest.withPosition(Constants.ELEVATOR_TARGET_L4.in(Inches))
 		);
+	}
+
+	/**
+	 * Is elevator at L2 boolean accessor.
+	 * @return whether or not elevator is at L2.
+	 */
+	public boolean isElevatorAtL2() {
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2);
+	}
+
+	/**
+	 * Is elevator at L3 boolean accessor.
+	 * @return whether or not elevator is at L3.
+	 */
+	public boolean isElevatorAtL3() {
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3);
+	}
+
+	/**
+	 * Is elevator at L4 boolean accessor.
+	 * @return whether or not elevator is at L4.
+	 */
+	public boolean isElevatorAtL4() {
+		return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4);
+	}
+
+	/**
+	 * Is elevator at ground boolean accessor.
+	 * @return whether or not elevator is at ground.
+	 */
+	public boolean isElevatorAtGround() {
+		return isBottomLimitReached();
 	}
 
 	/* ---- Elevator Commands ---- */
@@ -406,13 +469,8 @@ public class ElevatorFSMSystem {
 		@Override
 		public void execute() {
 			elevatorMotor.setControl(
-				motionRequest.withPosition(target.in(Units.Inches))
+				motionRequest.withPosition(target.in(Inches))
 			);
-
-			if (Robot.isSimulation()) {
-				MechLogging.getInstance().updateElevatorPose3d(
-						elevatorMotor.getPosition().getValueAsDouble());
-			}
 		}
 
 		@Override
@@ -432,6 +490,7 @@ public class ElevatorFSMSystem {
 		}
 	}
 
+	/** A command that waits for one second. */
 	class WaitCommand extends Command {
 		private Timer timer;
 
@@ -480,8 +539,6 @@ public class ElevatorFSMSystem {
 			this.setTarget(Constants.ELEVATOR_TARGET_L4);
 		}
 	}
-
-	// FOR COMMANDS: JUST SET THE STATE (UPDATE IS STILL CALLED). INVESTIGATE WEEK 4.
 
 	/**
 	 * Creates a Command to move the elevator to the ground position.

@@ -8,6 +8,7 @@ FSM diagrams for each subsystem are located in the [doc](doc) folder.
 * [Elevator FSM](doc/ElevatorFSM.md)
 * [Funnel FSM](doc/FunnelFSM.md)
 * [Climber FSM](doc/ClimberFSM.md)
+* [Superstructure FSM](doc/Superstructure.md)
 
 [![Javadoc](https://github.com/Tino-FRC-2473/FRC2025/actions/workflows/javadoc.yml/badge.svg)](https://github.com/Tino-FRC-2473/FRC2025/actions/workflows/javadoc.yml)
 

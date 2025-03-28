@@ -7,7 +7,7 @@ from config import *
 from argparse import ArgumentParser
 from visionInput import VisionInput, find_camera_index
 
-print("Waiting 5 seconds... ", flush=True)
+print("Waiting 5 seconds... ", end="")
 time.sleep(5)
 print("done")
 
@@ -34,8 +34,8 @@ camera2 = CameraServer.startAutomaticCapture(name2, index2)
 camera1.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
 camera2.setResolution(DRIVER_CAM_RES_X, DRIVER_CAM_RES_Y)
 
-camera1.setFPS(DRIVER_CAM_FPS)
-camera2.setFPS(DRIVER_CAM_FPS)
+camera1.setFPS(10)
+camera2.setFPS(10)
 
 table1 = inst.getTable(f"CameraPublisher/{name1}")
 table2 = inst.getTable(f"CameraPublisher/{name2}")

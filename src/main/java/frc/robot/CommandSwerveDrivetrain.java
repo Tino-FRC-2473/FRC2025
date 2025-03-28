@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.constants.AutoConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.SimSwerveDrivetrainConfig;
@@ -43,9 +44,9 @@ public class CommandSwerveDrivetrain extends
 	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
 		new SwerveRequest.ApplyFieldSpeeds();
 
-	private final PIDController autoXPid = new PIDController(4.8, 0, 0);
-	private final PIDController autoYPid = new PIDController(4.8, 0, 0);
-	private final PIDController autoHeadingPid = new PIDController(0.7, 0, 0);
+	private final PIDController autoXPid = new PIDController(17.5, 0, 0); //17.5
+	private final PIDController autoYPid = new PIDController(17.5, 0, 0); //17.5
+	private final PIDController autoHeadingPid = new PIDController(0.8, 0, 0); // 0.8
 
 	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
 	private Notifier simNotifier;
@@ -70,6 +71,9 @@ public class CommandSwerveDrivetrain extends
 				new Pose2d(0, 0, new Rotation2d())
 			);
 		}
+
+		autoXPid.setTolerance(AutoConstants.CHOREO_PID_TOLLERANCE);
+		autoYPid.setTolerance(AutoConstants.CHOREO_PID_TOLLERANCE);
 		// setupPathplanner();
 	}
 
@@ -165,10 +169,10 @@ public class CommandSwerveDrivetrain extends
 	}
 
 	/**
-	 * Return the chassis speeds of the drivetrain.
-	 * @return chassis speeds
+	 * Return the chassis speeds of the drivetrain relative to the robot.
+	 * @return chassis speeds relative to robot
 	 */
-	public ChassisSpeeds getRobotChassisSpeeds() {
+	public ChassisSpeeds getRobotRelativeChassisSpeeds() {
 		if (Robot.isSimulation()) {
 			return getSimDrivetrain().getDriveSimulation()
 				.getDriveTrainSimulatedChassisSpeedsRobotRelative();
@@ -176,4 +180,22 @@ public class CommandSwerveDrivetrain extends
 			return getState().Speeds;
 		}
 	}
+
+	/**
+	 * Get the chassis speeds of the drivetrain relative to the field.
+	 * @return chassis speeds relative to field
+	 */
+	public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+		if (Robot.isSimulation()) {
+			return getSimDrivetrain().getDriveSimulation()
+				.getDriveTrainSimulatedChassisSpeedsFieldRelative();
+		} else {
+			// Converts robot relative speeds to field relative
+			return ChassisSpeeds.fromRobotRelativeSpeeds(
+				getState().Speeds,
+				getPigeon2().getRotation2d()
+			);
+		}
+	}
+
 }

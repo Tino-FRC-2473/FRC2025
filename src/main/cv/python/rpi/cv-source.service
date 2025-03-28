@@ -1,5 +1,5 @@
 ## To install this file, run:
-## sudo cp /home/pi/cv-python-git/rpi/cv-source.service /etc/systemd/system
+## sudo ln -s /home/pi/cv-python-git/rpi/cv-source.service /etc/systemd/system
 ## Make sure the original path is an absolute path.
 ## Before running this file, make sure config.py is set properly.
 ## Namely, ON_RPI and USE_CLI_ARGUMENTS must be enabled.

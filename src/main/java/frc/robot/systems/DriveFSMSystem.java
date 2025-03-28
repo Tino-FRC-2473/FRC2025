@@ -3,12 +3,17 @@ package frc.robot.systems;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 // WPILib Imports
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -22,7 +27,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.IntSupplier;
 
@@ -39,6 +43,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 // Robot Imports
 import frc.robot.TeleopInput;
 import frc.robot.constants.AutoConstants;
+import frc.robot.constants.Constants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.SimConstants;
 import frc.robot.constants.TunerConstants;
@@ -47,6 +52,7 @@ import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.CommandSwerveDrivetrain;
 import frc.robot.RaspberryPi;
+import frc.robot.RaspberryPiPhoton;
 import frc.robot.AprilTag;
 
 public class DriveFSMSystem extends SubsystemBase {
@@ -82,6 +88,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		.withRotationalDeadband(MAX_ANGULAR_RATE * DriveConstants.ROTATION_DEADBAND) //4% deadband
 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
+		new SwerveRequest.ApplyFieldSpeeds();
 
 	private CommandSwerveDrivetrain drivetrain;
 	private Rotation2d rotationAlignmentPose;
@@ -93,6 +101,12 @@ public class DriveFSMSystem extends SubsystemBase {
 	private int tagID = -1;
 	private double alignmentYOff;
 	private double alignmentXOff;
+
+	private ArrayList<Pose2d> aprilTagReefRefPoses = new ArrayList<Pose2d>();
+	private ArrayList<Pose2d> aprilTagStationRefPoses = new ArrayList<Pose2d>();
+	private ArrayList<Pose2d> aprilTagVisionPoses = new ArrayList<Pose2d>();
+	private AprilTagFieldLayout aprilTagFieldLayout;
+	private boolean hasLocalized = false;
 
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,
@@ -129,29 +143,29 @@ public class DriveFSMSystem extends SubsystemBase {
 
 	private SlewRateLimiter slewRateX;
 	private SlewRateLimiter slewRateY;
-	private SlewRateLimiter slewRateA;
-
-	private Comparator<AprilTag> aComparator = new Comparator<AprilTag>() {
-		@Override
-		public int compare(AprilTag o1, AprilTag o2) {
-			return o1.compareTo(o2);
-		}
-	};
 
 	private ElevatorFSMSystem elevatorSystem;
 
-	private AprilTagFieldLayout aprilTagFieldLayout;
-	private ArrayList<Pose2d> aprilTagReefRefPoses;
-	private ArrayList<Pose2d> aprilTagStationRefPoses;
-	private ArrayList<Pose2d> aprilTagVisionPoses;
-
-	private Timer driveToPoseTimer = new Timer();
 	private boolean driveToPoseFinished = false;
-	private boolean driveToPoseRotateFinished = false;
 	private boolean aligningToReef = false;
-
-	private Pose2d oldAlignmentPose2d = new Pose2d();
+	private boolean canSeeTag =  false;
 		// False => aligning to station, True => aligning to reef
+
+	private final ProfiledPIDController driveController = new ProfiledPIDController(
+		AutoConstants.ALIGN_DRIVE_P, 0, 0, new TrapezoidProfile.Constraints(
+			AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_ACCEL
+		)
+	);
+
+	private final ProfiledPIDController thetaController = new ProfiledPIDController(
+		AutoConstants.ALIGN_THETA_P, 0, 0, new TrapezoidProfile.Constraints(
+			AutoConstants.ALIGN_MAX_R_SPEED, AutoConstants.ALIGN_MAX_R_ACCEL
+		)
+	);
+
+	private double driveErrorAbs;
+	private double thetaErrorAbs;
+	private Translation2d lastSetpointTranslation;
 
 	/* ======================== Private variables ======================== */
 	private DriveFSMState currentState;
@@ -166,11 +180,16 @@ public class DriveFSMSystem extends SubsystemBase {
 	public DriveFSMSystem(ElevatorFSMSystem elevatorFSMSystem) {
 		// Perform hardware init
 		drivetrain = TunerConstants.createDrivetrain();
-		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPi();
+		rpi = (Utils.isSimulation()) ? new RaspberryPiSim() : new RaspberryPiPhoton();
 
 		slewRateX = new SlewRateLimiter(DriveConstants.SLEW_RATE);
 		slewRateY = new SlewRateLimiter(DriveConstants.SLEW_RATE);
-		slewRateA = new SlewRateLimiter(DriveConstants.SLEW_RATE);
+
+		if (elevatorFSMSystem != null) {
+			elevatorSystem = elevatorFSMSystem;
+		} else {
+			elevatorSystem = null;
+		}
 
 		try {
 			aprilTagFieldLayout
@@ -179,11 +198,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			e.printStackTrace();
 		}
 
-		if (elevatorFSMSystem != null) {
-			elevatorSystem = elevatorFSMSystem;
-		} else {
-			elevatorSystem = null;
-		}
+		thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
 		// Reset state machine
 		reset();
@@ -220,9 +235,6 @@ public class DriveFSMSystem extends SubsystemBase {
 				.getSimulatedDriveTrainPose().getRotation()
 				: drivetrain.getState().Pose.getRotation();
 
-		// want to call when the robot is initially running to get a true positional value.
-		//updateVisionEstimates();
-
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
 	}
@@ -234,35 +246,79 @@ public class DriveFSMSystem extends SubsystemBase {
 	 *        the robot is in autonomous mode.
 	 */
 	public void update(TeleopInput input) {
-		//drivetrain.applyOperatorPerspective();
-
 		if (input == null) {
 			return;
 		}
 
 		switch (currentState) {
-			case TELEOP_STATE:
-				handleTeleOpState(input);
-				break;
-			case ALIGN_TO_REEF_TAG_STATE:
-				handleReefTagAlignment(input);
-				break;
-			case ALIGN_TO_STATION_TAG_STATE:
-				handleStationTagAlignment(input);
-				break;
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case TELEOP_STATE -> handleTeleOpState(input);
+			case ALIGN_TO_REEF_TAG_STATE -> handleReefTagAlignment(input);
+			case ALIGN_TO_STATION_TAG_STATE -> handleStationTagAlignment(input);
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
+
 		currentState = nextState(input);
+	}
+
+	/**
+	 * Handles the override state based on the given input.
+	 * @param input The TeleopInput instance containing the current input state.
+	 */
+	public void handleOverrideState(TeleopInput input) {
+		currentState = nextState(input);
+	}
+
+	/**
+	 * Checks if the robot can see the tag.
+	 * @return true if the robot can see the tag, false otherwise.
+	 */
+	public boolean canSeeTag() {
+		int localTagID = -1;
+		ArrayList<AprilTag> sortedTagList = rpi.getReefAprilTags();
+
+		if (DriverStation.getAlliance().get().equals(Alliance.Blue)) {
+			for (AprilTag tag: sortedTagList) {
+				if (localTagID == -1) {
+					for (int id: blueReefTagArray) {
+						if (tag.getTagID() == id) {
+							localTagID = id;
+							break;
+						}
+					}
+				} else {
+					break;
+				}
+			}
+
+		} else if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
+			for (AprilTag tag: sortedTagList) {
+				if (localTagID == -1) {
+					for (int id: redReefTagArray) {
+						if (tag.getTagID() == id) {
+							localTagID = id;
+							break;
+						}
+					}
+				} else {
+					break;
+				}
+			}
+
+		}
+
+		Logger.recordOutput("TagID", tagID);
+
+		canSeeTag = localTagID != -1;
+		return canSeeTag;
 	}
 
 	/**
 	 * Performs specific action based on the autoState passed in.
 	 */
 	public void updateAutonomous() {
-		if (Utils.isSimulation()) {
-			getMapleSimDrivetrain().resetSimulationPose();
-		}
+		// if (Utils.isSimulation()) {
+		// 	getMapleSimDrivetrain().resetSimulationPose();
+		// }
 		rpi.printRawData();
 	}
 
@@ -288,6 +344,144 @@ public class DriveFSMSystem extends SubsystemBase {
 		return driveToPoseFinished;
 	}
 
+	/**
+	 * Sets the current state of the FSM.
+	 * @param state The new state to set.
+	 */
+	public void setState(DriveFSMState state) {
+		currentState = state;
+	}
+
+		/**
+	 * Update vision measurements according to all seen tags.
+	 */
+	public void updateVisionEstimates() {
+		aprilTagReefRefPoses = new ArrayList<Pose2d>();
+		aprilTagStationRefPoses = new ArrayList<Pose2d>();
+		aprilTagVisionPoses = new ArrayList<Pose2d>();
+		ArrayList<AprilTag> reefTags = rpi.getReefAprilTags();
+		ArrayList<AprilTag> stationTags = rpi.getStationAprilTags();
+
+		System.out.println("REEF: " + reefTags.toString());
+		System.out.println("STATION: " + stationTags.toString());
+
+		Pose2d currPose;
+
+		if (Utils.isSimulation()) {
+			currPose = getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose();
+		} else {
+			currPose = drivetrain.getState().Pose;
+		}
+
+		for (int t = 0; t < reefTags.size(); t++) {
+			AprilTag tag = reefTags.get(t);
+
+			Optional<Pose3d> aprilTagPose3d = aprilTagFieldLayout.getTagPose(tag.getTagID());
+
+			Transform2d robotToCamera =
+				new Transform2d(
+					-SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
+						// - if u use pose rotation.
+					-SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
+						// - if u use pose rotation.
+					SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
+					//.rotateBy(Rotation2d.k180deg)
+				);
+
+			if (!aprilTagPose3d.isEmpty()) {
+				Pose2d imposedPose =
+					aprilTagPose3d.get().toPose2d()
+					.transformBy(
+						new Transform2d(
+							tag.getZ(),
+							tag.getX(),
+							new Rotation2d()
+						)
+					).rotateAround(aprilTagPose3d.get().toPose2d().getTranslation(),
+						new Rotation2d(tag.getPitch()))
+					.transformBy(robotToCamera.inverse());
+
+				aprilTagReefRefPoses.add(
+					imposedPose
+				);
+
+				if (!hasLocalized) {
+					drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+				} else {
+					if (visionEstimateFilter(imposedPose, currPose)) {
+						drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+					}
+				}
+				hasLocalized = true;
+
+			}
+		}
+
+		// for (int t = 0; t < stationTags.size(); t++) {
+		// 	AprilTag tag = stationTags.get(t);
+
+		// 	Optional<Pose3d> aprilTagPose3d = aprilTagFieldLayout.getTagPose(tag.getTagID());
+
+		// 	Transform2d robotToCamera =
+		// 		new Transform2d(
+		// 			new Translation2d(
+		// 				SimConstants.ROBOT_TO_STATION_CAMERA.getX(),
+		// 				SimConstants.ROBOT_TO_STATION_CAMERA.getY()
+		// 			),
+		// 			SimConstants.ROBOT_TO_STATION_CAMERA.getRotation()
+		// 			.toRotation2d().rotateBy(Rotation2d.k180deg)
+		// 		);
+
+		// 	Pose2d alignmentPose = currPose
+		// 		.transformBy(robotToCamera)
+		// 		.plus(new Transform2d(
+		// 			-tag.getZ(),
+		// 			(tag.getX()),
+		// 			new Rotation2d(-tag.getPitch())))
+		// 		.transformBy(robotToCamera.inverse());
+
+		// 	aprilTagVisionPoses.add(alignmentPose);
+
+		// 	if (!aprilTagPose3d.isEmpty()) {
+
+		// 		Pose2d imposedPose = new Pose2d(
+		// 			new Pose3d(currPose)
+		// 				.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose)))
+		// 				.toPose2d().getTranslation(),
+		// 			aprilTagPose3d.get().getRotation()
+		// 				.toRotation2d().rotateBy(new Rotation2d(tag.getPitch() / 2))
+		// 		).transformBy(
+		// 			robotToCamera.inverse()
+		// 		);
+
+		// 		aprilTagStationRefPoses.add(
+		// 			imposedPose
+		// 		);
+
+		// 		drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
+		// 	}
+		// }
+
+		Logger.recordOutput(
+			"VisionEstimate/ImposedReefList", aprilTagReefRefPoses.toArray(new Pose2d[] {})
+		);
+		Logger.recordOutput(
+			"VisionEstimate/ImposedStationList", aprilTagStationRefPoses.toArray(new Pose2d[] {})
+		);
+		Logger.recordOutput(
+			"VisionEstimate/AllVisionTargets", aprilTagVisionPoses.toArray(new Pose2d[] {})
+		);
+
+	}
+
+	private boolean visionEstimateFilter(Pose2d imposed, Pose2d current) {
+		return
+			(imposed.getTranslation().getDistance(current.getTranslation())
+				< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD
+			&& Math.abs(imposed.getRotation().getRadians() - current.getRotation().getRadians())
+				< VisionConstants.LOCALIZATION_ANGLE_TOLERANCE);
+	}
+
 	/* ======================== Private methods ======================== */
 	/**
 	 * Decide the next state to transition to. This is a function of the inputs
@@ -304,7 +498,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			case TELEOP_STATE:
 				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
+				}  else if (input.getAlignStationButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
 					return DriveFSMState.TELEOP_STATE;
@@ -312,7 +506,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			case ALIGN_TO_REEF_TAG_STATE:
 				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
+				}  else if (input.getAlignStationButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
 					return DriveFSMState.TELEOP_STATE;
@@ -320,7 +514,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			case ALIGN_TO_STATION_TAG_STATE:
 				if (input.getAlignReefButton()) {
 					return DriveFSMState.ALIGN_TO_REEF_TAG_STATE;
-				}  else if (input.getDriveTriangleButton()) {
+				}  else if (input.getAlignStationButton()) {
 					return DriveFSMState.ALIGN_TO_STATION_TAG_STATE;
 				} else {
 					return DriveFSMState.TELEOP_STATE;
@@ -345,14 +539,11 @@ public class DriveFSMSystem extends SubsystemBase {
 		alignmentYOff = 0;
 		driveToPoseFinished = false;
 		driveToPoseRunning = false;
-		currentLimitFrameCount = 0;
-		driveToPoseRotateFinished = false;
-		oldAlignmentPose2d = new Pose2d();
 
 		double constantDamp = 1;
 
 		if (elevatorSystem != null) {
-			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveCrossButton())
+			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveTurtleButton())
 				? DriveConstants.SPEED_DAMP_FACTOR : DriveConstants.NORMAL_DAMP;
 		}
 
@@ -385,7 +576,7 @@ public class DriveFSMSystem extends SubsystemBase {
 				.withVelocityY(ySpeed * allianceOriented.getAsInt())
 				.withTargetDirection(rotationAlignmentPose)
 				.withTargetRateFeedforward(-rotXComp)
-				//.withHeadingPID(2.5, 0, 0)
+				//.withHeadingPID(DriveConstants.HEADING_P, 0, 0)
 			);
 		} else {
 			drivetrain.setControl(
@@ -398,6 +589,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (input.getSeedGyroButtonPressed()) {
 			drivetrain.seedFieldCentric();
 			rotationAlignmentPose = new Rotation2d();
+			hasLocalized = false;
 		}
 
 		Logger.recordOutput("TeleOp/XSpeed", xSpeed);
@@ -406,153 +598,14 @@ public class DriveFSMSystem extends SubsystemBase {
 	}
 
 	/**
-	 * Update vision measurements according to all seen tags.
-	 */
-	public void updateVisionEstimates() {
-		aprilTagReefRefPoses = new ArrayList<Pose2d>();
-		aprilTagStationRefPoses = new ArrayList<Pose2d>();
-		aprilTagVisionPoses = new ArrayList<Pose2d>();
-		ArrayList<AprilTag> reefTags = rpi.getReefAprilTags();
-		ArrayList<AprilTag> stationTags = rpi.getStationAprilTags();
-
-		System.out.println("REEF: " + reefTags.toString());
-		System.out.println("STATION: " + stationTags.toString());
-
-		Pose2d currPose;
-
-		if (Utils.isSimulation()) {
-			currPose = getMapleSimDrivetrain().getDriveSimulation().getSimulatedDriveTrainPose();
-		} else {
-			currPose = drivetrain.getState().Pose;
-		}
-
-		for (int t = 0; t < reefTags.size(); t++) {
-			AprilTag tag = reefTags.get(t);
-
-			Optional<Pose3d> aprilTagPose3d = aprilTagFieldLayout.getTagPose(tag.getTagID());
-
-			Transform2d robotToCamera =
-				new Transform2d(
-					SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
-						// - if u use pose rotation.
-					SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
-						// - if u use pose rotation.
-					SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
-					.rotateBy(Rotation2d.k180deg)
-				);
-
-			Pose2d alignmentPose = currPose
-				.transformBy(robotToCamera)
-				.plus(new Transform2d(
-					-tag.getZ(),
-					(tag.getX()),
-					new Rotation2d(-tag.getPitch())))
-				.transformBy(robotToCamera.inverse());
-
-			aprilTagVisionPoses.add(alignmentPose);
-
-
-			if (!aprilTagPose3d.isEmpty()) {
-				Pose2d imposedPose = new Pose2d(
-					new Pose3d(currPose)
-						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose)))
-						.toPose2d().getTranslation(),
-					aprilTagPose3d.get().getRotation()
-						.toRotation2d().rotateBy(new Rotation2d(tag.getPitch()))
-					)
-					.transformBy(
-						robotToCamera.inverse()
-					);
-
-				imposedPose = new Pose2d(
-					imposedPose.getX(),
-					imposedPose.getY(),
-					imposedPose.getRotation()
-				);
-
-				aprilTagReefRefPoses.add(
-					imposedPose
-				);
-
-				// drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
-
-			}
-		}
-
-		for (int t = 0; t < stationTags.size(); t++) {
-			AprilTag tag = stationTags.get(t);
-
-			Optional<Pose3d> aprilTagPose3d = aprilTagFieldLayout.getTagPose(tag.getTagID());
-
-			Transform2d robotToCamera =
-				new Transform2d(
-					new Translation2d(
-						SimConstants.ROBOT_TO_STATION_CAMERA.getX(),
-						SimConstants.ROBOT_TO_STATION_CAMERA.getY()
-					),
-					SimConstants.ROBOT_TO_STATION_CAMERA.getRotation()
-					.toRotation2d().rotateBy(Rotation2d.k180deg)
-				);
-
-			Pose2d alignmentPose = currPose
-				.transformBy(robotToCamera)
-				.plus(new Transform2d(
-					-tag.getZ(),
-					(tag.getX()),
-					new Rotation2d(-tag.getPitch())))
-				.transformBy(robotToCamera.inverse());
-
-			aprilTagVisionPoses.add(alignmentPose);
-
-			if (!aprilTagPose3d.isEmpty()) {
-
-				Pose2d imposedPose = new Pose2d(
-					new Pose3d(currPose)
-						.plus(aprilTagPose3d.get().minus(new Pose3d(alignmentPose)))
-						.toPose2d().getTranslation(),
-					aprilTagPose3d.get().getRotation()
-						.toRotation2d().rotateBy(new Rotation2d(tag.getPitch() / 2))
-				).transformBy(
-					robotToCamera.inverse()
-				);
-
-				aprilTagStationRefPoses.add(
-					imposedPose
-				);
-
-				// drivetrain.addVisionMeasurement(imposedPose, Utils.getCurrentTimeSeconds());
-			}
-		}
-
-		Logger.recordOutput(
-			"VisionEstimate/ImposedReefList", aprilTagReefRefPoses.toArray(new Pose2d[] {})
-		);
-		Logger.recordOutput(
-			"VisionEstimate/ImposedStationList", aprilTagStationRefPoses.toArray(new Pose2d[] {})
-		);
-		Logger.recordOutput(
-			"VisionEstimate/AllVisionTargets", aprilTagVisionPoses.toArray(new Pose2d[] {})
-		);
-
-	}
-
-	private boolean visionEstimateFilter(Pose2d imposed, Pose2d current) {
-		return
-			(imposed.getTranslation().getDistance(current.getTranslation())
-				< VisionConstants.LOCALIZATION_TRANSLATIONAL_THRESHOLD
-			&& Math.abs(imposed.getRotation().getRadians() - current.getRotation().getRadians())
-				< VisionConstants.LOCALIZATION_ANGLE_TOLERANCE);
-	}
-
-	/**
 	 * updates drivetrain logging.
 	 */
 	public void updateLogging() {
-		Logger.recordOutput("DriveState/ROBOT POSE", drivetrain.getState().Pose);
-		Logger.recordOutput("DriveState/ROBOT ROT", drivetrain.getPigeon2().getYaw().getValue());
-		Logger.recordOutput("DriveState/Current Swerve States", drivetrain.getState().ModuleStates);
-		Logger.recordOutput("DriveState/Target Swerve States", drivetrain.getState().ModuleTargets);
-		Logger.recordOutput("DriveState/Current Chassis speed", drivetrain.getState().Speeds);
+		Logger.recordOutput("DriveState/RobotPose", drivetrain.getState().Pose);
+		Logger.recordOutput("DriveState/RobotRot", drivetrain.getPigeon2().getYaw().getValue());
+		Logger.recordOutput("DriveState/CurrentSwerveStates", drivetrain.getState().ModuleStates);
+		Logger.recordOutput("DriveState/TargetSwerveStates", drivetrain.getState().ModuleTargets);
+		Logger.recordOutput("DriveState/CurrentChassisSpeeds", drivetrain.getState().Speeds);
 	}
 
 	private Timer alignmentTimer = new Timer();
@@ -571,159 +624,126 @@ public class DriveFSMSystem extends SubsystemBase {
 		if (!driveToPoseRunning) {
 			driveToPoseRunning = true;
 			alignmentTimer.start();
-		}
 
-		double xDiff = target.getX() - currPose.getX();
-		double yDiff = target.getY() - currPose.getY();
-		double aDiff = target.getRotation().getRadians() - currPose.getRotation().getRadians();
+			ChassisSpeeds speeds = (Utils.isSimulation())
+				? getMapleSimDrivetrain().getDriveSimulation()
+					.getDriveTrainSimulatedChassisSpeedsFieldRelative()
+				: drivetrain.getState().Speeds;
 
-		if (aDiff > Math.PI) {
-			aDiff -= 2 * Math.PI;
-		} else if (aDiff < -Math.PI) {
-			aDiff += 2 * Math.PI;
-		}
-
-		//System.out.println(aDiff);
-
-		// double xSpeed;
-		// double ySpeed;
-
-		// double xSpeed =
-		// 	xDiff
-		// 	* AutoConstants.ALIGN_DRIVE_P
-		// 	* MAX_SPEED * allianceOriented.getAsInt();
-
-		// double ySpeed =
-		// 	yDiff
-		// 	* AutoConstants.ALIGN_DRIVE_P
-		// 	* MAX_SPEED * allianceOriented.getAsInt();
-
-		// double rotSpeed =
-		// 	aDiff
-		// 	* AutoConstants.ALIGN_THETA_P
-		// 	* MAX_ANGULAR_RATE;
-
-		double xSpeed = MathUtil.clamp(xDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
-			-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED
-		);
-		double ySpeed = MathUtil.clamp(yDiff * AutoConstants.ALIGN_DRIVE_P * MAX_SPEED,
-			-AutoConstants.ALIGN_MAX_T_SPEED, AutoConstants.ALIGN_MAX_T_SPEED
-		);
-		double rotSpeed = MathUtil.clamp(aDiff * AutoConstants.ALIGN_THETA_P * MAX_ANGULAR_RATE,
-			-AutoConstants.ALIGN_MAX_R_SPEED, AutoConstants.ALIGN_MAX_R_SPEED
-		);
-
-		xSpeed = Math.abs(xDiff) > AutoConstants.DRIVE_TOLERANCE
-			? xSpeed : 0;
-		ySpeed = Math.abs(yDiff) > AutoConstants.DRIVE_TOLERANCE
-			? ySpeed : 0;
-		rotSpeed = Math.abs(aDiff) > AutoConstants.THETA_TOLERANCE
-			? rotSpeed : 0;
-
-		int allianceMultiplier = (aligningToReef) ? 1 : -1;
-
-		if (rotSpeed == 0) {
-			driveToPoseRotateFinished = true;
-		}
-
-		rotationAlignmentPose = drivetrain.getState().Pose.getRotation();
-
-		if (driveToPoseRotateFinished) {
-			drivetrain.setControl(
-				driveFacingAngle
-				.withVelocityX(xSpeed * allianceMultiplier)
-				.withVelocityY(ySpeed * allianceMultiplier)
-				.withTargetRateFeedforward(0)
+			driveController.reset(
+				currPose.getTranslation().getDistance(target.getTranslation()),
+				Math.min(
+					0.0,
+					-new Translation2d(
+						speeds.vxMetersPerSecond,
+						speeds.vyMetersPerSecond
+					).rotateBy(
+						target.getTranslation()
+						.minus(currPose.getTranslation())
+						.getAngle()
+						.unaryMinus()
+					).getX()
+				)
 			);
-		} else {
-			drivetrain.setControl(
-				driveFacingAngle
-				.withVelocityX(xSpeed * allianceMultiplier)
-				.withVelocityY(ySpeed * allianceMultiplier)
+
+			thetaController.reset(currPose.getRotation().getRadians(),
+				speeds.omegaRadiansPerSecond);
+			lastSetpointTranslation = currPose.getTranslation();
+		}
+
+		double currDistance = currPose.getTranslation().getDistance(target.getTranslation());
+		double ffScaler = MathUtil.clamp(
+			(currDistance - AutoConstants.FF_MIN_RADIUS)
+				/ (AutoConstants.FF_MAX_RADIUS - AutoConstants.FF_MIN_RADIUS),
+			0.0,
+			1.0
+		);
+
+		driveErrorAbs = currDistance;
+
+		driveController.reset(
+			lastSetpointTranslation.getDistance(target.getTranslation()),
+			driveController.getSetpoint().velocity
+		);
+
+		double driveVelocityScalar = driveController.getSetpoint().velocity * ffScaler
+			+ driveController.calculate(driveErrorAbs, 0.0);
+		if (currDistance < driveController.getPositionTolerance()) {
+			driveVelocityScalar = 0.0;
+		}
+
+		lastSetpointTranslation = new Pose2d(
+			target.getTranslation(),
+			currPose.getTranslation().minus(target.getTranslation()).getAngle()
+		).transformBy(
+			new Transform2d(
+				new Translation2d(driveController.getSetpoint().position, 0.0),
+				new Rotation2d()
+			)
+		).getTranslation();
+
+		// Calculate theta speed
+		double thetaVelocity = thetaController.getSetpoint().velocity * ffScaler
+			+ thetaController.calculate(
+				currPose.getRotation().getRadians(), target.getRotation().getRadians()
+		);
+		thetaErrorAbs = Math.abs(
+			currPose.getRotation().minus(target.getRotation()).getRadians()
+		);
+
+		if (thetaErrorAbs < thetaController.getPositionTolerance()) {
+			thetaVelocity = 0.0;
+		}
+
+		// Command speeds
+		var driveVelocity = new Pose2d(
+			new Translation2d(),
+			currPose.getTranslation().minus(target.getTranslation())
+			.getAngle()
+		).transformBy(
+			new Transform2d(
+				new Translation2d(driveVelocityScalar, 0.0),
+				new Rotation2d()
+			)
+		).getTranslation();
+
+		drivetrain.setControl(
+			driveFacingAngle.
+				withVelocityX(
+					driveVelocity.getX()
+				)
+				.withVelocityY(
+					driveVelocity.getY()
+				)
+				.withTargetRateFeedforward(thetaVelocity)
 				.withTargetDirection(target.getRotation())
-				.withTargetRateFeedforward(rotSpeed * allianceMultiplier)
-			);
-		}
+				.withHeadingPID(DriveConstants.DRIVE_TO_POSE_HEADING_P, 0, 0)
 
-		Logger.recordOutput("CURR DISTANCE", currPose.getTranslation()
-			.getDistance(oldAlignmentPose2d.getTranslation()));
+		);
+		//drivetrain.setControl(brake);
 
-		driveToPoseFinished = (
-			(xSpeed == 0 && ySpeed == 0 && driveToPoseRotateFinished)
-			|| (oldAlignmentPose2d.getTranslation().getDistance(currPose.getTranslation())
-				<= DriveConstants.DRIVE_POSE_CHECK_LP
-				&& alignmentTimer.get() > DriveConstants.DRIVE_POSE_CHECK_TIMER));
+		rotationAlignmentPose = currPose.getRotation();
 
-		Logger.recordOutput(
-			"DriveToPose/Pose", currPose
-		);
-		Logger.recordOutput(
-			"DriveToPose/Time", driveToPoseTimer.get()
-		);
-		Logger.recordOutput(
-			"DriveToPose/IsRotateFinished", driveToPoseRotateFinished
-		);
-		Logger.recordOutput(
-			"DriveToPose/IsFinished", driveToPoseFinished
-		);
-		Logger.recordOutput(
-			"DriveToPose/XSpeed", xSpeed
-		);
-		Logger.recordOutput(
-			"DriveToPose/YSpeed", ySpeed
-		);
-		Logger.recordOutput(
-			"DriveToPose/RotSpeed", rotSpeed
-		);
-
-		Logger.recordOutput(
-			"DriveToPose/RotDiff",
-				(target.getRotation().getRadians() - currPose.getRotation().getRadians())
-		);
-		Logger.recordOutput(
-			"DriveToPose/XDiff",
-				(target.getX() - currPose.getX())
-		);
-		Logger.recordOutput(
-			"DriveToPose/YDiff",
-				(target.getY() - currPose.getY())
-		);
-		Logger.recordOutput("DriveToPose/TagID", tagID);
-		Logger.recordOutput("DriveToPose/TargetPose", target);
-
-		oldAlignmentPose2d = currPose;
+		driveToPoseFinished = (driveController.atGoal() && thetaController.atGoal())
+			|| alignmentTimer.advanceIfElapsed(Constants.ALIGN_TIME_SECS);
 
 		if (driveToPoseFinished) {
 			alignmentTimer.stop();
 			alignmentTimer.reset();
+			drivetrain.setControl(brake);
 		}
 
+		Logger.recordOutput("DriveToPose/DriveError", driveErrorAbs);
+		Logger.recordOutput("DriveToPose/ThetaError", thetaErrorAbs);
+		Logger.recordOutput("DriveToPose/DriveVelocity", driveVelocityScalar);
+		Logger.recordOutput("DriveToPose/ThetaVelocity", thetaVelocity);
+		Logger.recordOutput("DriveToPose/DriveFinished", driveToPoseFinished);
+		Logger.recordOutput("DriveToPose/DriveSetpoint", driveController.getSetpoint().position);
+		Logger.recordOutput("DriveToPose/ThetaSetpoint", thetaController.getSetpoint().position);
+		Logger.recordOutput("DriveToPose/Time", alignmentTimer.get());
+		Logger.recordOutput("DriveToPose/TargetPose", target);
 
 		return driveToPoseFinished;
-
-		// double xSpeed = -autoXPid.calculate(currPose.getX(), target.getX());
-		// double ySpeed = -autoYPid.calculate(currPose.getY(), target.getY());
-		// double rotSpeed = autoHeadingPid.calculate(
-		// 	currPose.getRotation().getRadians(), target.getRotation().getRadians()
-		// );
-	}
-
-	private int currentLimitFrameCount = 0;
-
-	private void driveMotorCurrentLimitReached() {
-		// boolean currLimitReached = false;
-		// for (SwerveModule mod: drivetrain.getModules()) {
-		// 	currLimitReached = currLimitReached
-		// 		|| ()
-		// 	}
-
-		// if (currLimitReached) {
-		// 	currentLimitFrameCount += 1;
-		// } else {
-		// 	currentLimitFrameCount = 0;
-		// }
-
-		// return currentLimitFrameCount >= AutoConstants.DRIVE_CURRENT_LIMIT_FRAMES;
 	}
 
 	/**
@@ -776,6 +796,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		}
 
+		Logger.recordOutput("TagID", tagID);
+
 		if (tagID != -1) {
 			aligningToReef = true;
 			handleTagAlignment(input, tagID, true);
@@ -800,11 +822,9 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 		}
 
-		alignmentXOff = AutoConstants.SOURCE_X_OFFSET;
+		alignmentXOff = -AutoConstants.SOURCE_X_OFFSET;
 
 		ArrayList<AprilTag> sortedTagList = rpi.getStationAprilTags();
-
-		System.out.println("SORTED TAG LIST" + sortedTagList);
 
 		if (DriverStation.getAlliance().get().equals(Alliance.Blue) && tagID == -1) {
 			for (AprilTag tag: sortedTagList) {
@@ -828,8 +848,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		}
 
-		System.out.println("STATION TAG ALIGNMENT");
-		Logger.recordOutput("Tag ID", tagID);
+		Logger.recordOutput("TagID", tagID);
 
 		if (tagID != -1) {
 			aligningToReef = false;
@@ -856,100 +875,91 @@ public class DriveFSMSystem extends SubsystemBase {
 			currPose = drivetrain.getState().Pose;
 		}
 
-		Transform2d robotToCamera;
+		Transform3d robotToCamera;
 		if (aligningToReef) {
 		//TODO: make a reef and station alignment hepler function instead of just one.
-			robotToCamera =
-			new Transform2d(
-				SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
-					// - if u use pose rotation.
-				SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
-					// - if u use pose rotation.
-				SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
-			);
+			// robotToCamera =
+			// new Transform2d(
+			// 	SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getX(),
+			// 		// - if u use pose rotation.
+			// 	SimConstants.ROBOT_TO_REEF_CAMERA.getTranslation().getY(),
+			// 		// - if u use pose rotation.
+			// 	SimConstants.ROBOT_TO_REEF_CAMERA.getRotation().toRotation2d()
+			// );
+			robotToCamera = SimConstants.ROBOT_TO_REEF_CAMERA;
 		} else {
 			robotToCamera =
-			new Transform2d(
-				new Translation2d(
-					SimConstants.ROBOT_TO_STATION_CAMERA.getX(),
-					SimConstants.ROBOT_TO_STATION_CAMERA.getY()
-				),
+			new Transform3d(
+				SimConstants.ROBOT_TO_STATION_CAMERA.getTranslation(),
 				SimConstants.ROBOT_TO_STATION_CAMERA.getRotation()
-				.toRotation2d().rotateBy(Rotation2d.k180deg)
+				.rotateBy(new Rotation3d(Rotation2d.k180deg))
 			);
+			//robotToCamera = SimConstants.ROBOT_TO_STATION_CAMERA;
 		}
 
 		System.out.println("TAG Reached here");
 
 		if (tag != null) {
 			if (Utils.isSimulation()) {
-				alignmentPose2d = currPose
+				alignmentPose2d =
+					new Pose3d(
+						currPose
+					)
 					.transformBy(robotToCamera)
-					.plus(new Transform2d(
+					.plus(new Transform3d(
 						tag.getZ(),
 						(tag.getX()),
-						new Rotation2d(-tag.getPitch())))
-					.transformBy(robotToCamera.inverse());
-
-				alignmentPose2d = alignmentPose2d.transformBy(
-					new Transform2d(
-						-alignmentXOff,
-						-alignmentYOff,
-						new Rotation2d()
-					)
-				);
+						0.0,
+						new Rotation3d(
+							new Rotation2d(-tag.getPitch())
+						)
+					))
+					.transformBy(robotToCamera.inverse())
+					.toPose2d()
+					.transformBy(
+						new Transform2d(
+							-alignmentXOff,
+							-alignmentYOff,
+							new Rotation2d()
+						)
+					);
 
 			} else {
-				alignmentPose2d = currPose
-					.transformBy(robotToCamera)
-					.plus(new Transform2d(
-						tag.getZ(),
-						-(tag.getX()),
-						new Rotation2d(-tag.getPitch())))
-					.transformBy(robotToCamera.inverse());
-
-				System.out.println("ALIGNMENT X OFF" + alignmentXOff);
-
-				alignmentPose2d = alignmentPose2d.transformBy(
-					new Transform2d(
-						(aligningToReef) ? -alignmentXOff : alignmentXOff,
-						(aligningToReef) ? -alignmentYOff : alignmentYOff,
-						new Rotation2d()
+				alignmentPose2d =
+					new Pose3d(
+						currPose
 					)
-				);
-
-				if (!aligningToReef) {
-					alignmentPose2d = new Pose2d(
-						alignmentPose2d.getTranslation(),
-						currPose.getRotation()
+					.transformBy(robotToCamera)
+					.plus(new Transform3d(
+						tag.getZ(),
+						(tag.getX()),
+						0.0,
+						new Rotation3d(
+							new Rotation2d(-tag.getPitch())
+						)
+					))
+					.transformBy(robotToCamera.inverse())
+					.toPose2d()
+					.transformBy(
+						new Transform2d(
+							-alignmentXOff,
+							-alignmentYOff,
+							new Rotation2d()
+						)
 					);
-				}
-
 			}
-			Logger.recordOutput(
-				"TAG Z", tag.getZ()
-			);
-			Logger.recordOutput(
-				"TAG X", tag.getX()
-			);
-			Logger.recordOutput("Alignment Pose", alignmentPose2d);
-
 		}
 
 		if (alignmentPose2d != null) {
 			driveToPose(alignmentPose2d, allianceFlip);
-		} else {
-			drivetrain.setControl(brake);
-			return;
 		}
 
-		if (driveToPoseFinished) {
+		if (driveToPoseFinished || alignmentPose2d == null) {
 			drivetrain.setControl(
 				drive.withVelocityX(0)
 				.withVelocityY(0)
 				.withRotationalRate(0)
 			);
-			//drivetrain.setControl(brake);
 			return;
 		}
 
@@ -1019,8 +1029,8 @@ public class DriveFSMSystem extends SubsystemBase {
 				alignmentYOff = 0;
 				driveToPoseFinished = false;
 				driveToPoseRunning = false;
-				driveToPoseRotateFinished = false;
 				alignmentPose2d = null;
+
 				alignmentTimerAutoCommand.stop();
 				alignmentTimerAutoCommand.reset();
 			}

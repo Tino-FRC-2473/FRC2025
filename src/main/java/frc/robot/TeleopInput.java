@@ -15,6 +15,11 @@ public class TeleopInput {
 	private static final int DRIVE_CONTROLLER_PORT = 0;
 	private static final int MECH_CONTROLLER_PORT = 1;
 
+	private static final int DPAD_POV_UP = 0;
+	private static final int DPAD_POV_DOWN = 180;
+	private static final int DPAD_POV_RIGHT = 90;
+	private static final int DPAD_POV_LEFT = 270;
+
 	/* ======================== Private variables ======================== */
 	// Input objects
 	private PS4Controller mechController;
@@ -64,14 +69,16 @@ public class TeleopInput {
 		return driveController.getRightY();
 	}
 	/**
-	 * Get Triangle Button Pressed for Drive Controller.
+	 * Get Cross Button Pressed for Drive Controller.
+	 * Used to align the robot to station.
 	 * @return Axis value
 	 */
-	public boolean getDriveTriangleButton() {
-		return driveController.getTriangleButton();
+	public boolean getAlignStationButton() {
+		return driveController.getCrossButton();
 	}
 	/**
 	 * Get Square Button Pressed for Drive Controller.
+	 * Used to align the robot to reef.
 	 * @return Axis value
 	 */
 	public boolean getAlignReefButton() {
@@ -87,12 +94,15 @@ public class TeleopInput {
 
 	/**
 	 * Get drive cross button.
+	 * Damps drivetrain speed.
 	 * @return value
 	 */
-	public boolean getDriveCrossButton() {
-		return driveController.getCrossButton();
+	public boolean getDriveTurtleButton() {
+		// return driveController.getCrossButton();
+		return false;
 	}
-		/**
+
+	/**
 	 * Get Share Button Pressed for Drive Controller.
 	 * @return Axis value
 	 */
@@ -124,14 +134,64 @@ public class TeleopInput {
 		return driveController.getShareButton();
 	}
 
+	/* ------------------------ Superstructure Drive Controller ------------------------ */
+
+	/**
+	 * Get the value of the L2 elevator target button (square).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL2ButtonPressed() {
+		return driveController.getSquareButton();
+	}
+
+	/**
+	 * Get the value of the L3 elevator target button (circle).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL3ButtonPressed() {
+		return driveController.getCircleButton();
+	}
+
+	/**
+	 * Get the value of the L4 elevator target button (triangle).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperL4ButtonPressed() {
+		return driveController.getTriangleButton();
+	}
+
+	/**
+	 * Get the value of the intake button (cross).
+	 * @return If the button is pressed
+	 */
+	public boolean isSuperIntakeButtonPressed() {
+		return driveController.getCrossButton();
+	}
+
 	/* ------------------------ Mech Controller ------------------------ */
 
 	/**
-	 * Get the value of the source L2 target button (square).
+	 * Get the value of the ground elevator target button (circle).
+	 * @return If the button is pressed
+	 */
+	public boolean isGroundButtonPressed() {
+		return mechController.getCrossButton();
+	}
+
+	/**
+	 * Get the value of the source elevator target button (cross).
 	 * @return If the button is pressed
 	 */
 	public boolean isL2ButtonPressed() {
 		return mechController.getSquareButton();
+	}
+
+	/**
+	 * Get the value of the L3 elevator target button (square).
+	 * @return If the button is pressed
+	 */
+	public boolean isL3ButtonPressed() {
+		return mechController.getCircleButton();
 	}
 
 	/**
@@ -140,22 +200,6 @@ public class TeleopInput {
 	 */
 	public boolean isL4ButtonPressed() {
 		return mechController.getTriangleButton();
-	}
-
-	/**
-	 * Get the value of the ground elevator target button (cross).
-	 * @return If the button is pressed
-	 */
-	public boolean isGroundButtonPressed() {
-		return mechController.getCrossButton();
-	}
-
-	/**
-	 * Get the value of the L3 elevator target button (circle).
-	 * @return If the button is pressed
-	 */
-	public boolean isL3ButtonPressed() {
-		return mechController.getCircleButton();
 	}
 
 	/**
@@ -168,12 +212,12 @@ public class TeleopInput {
 	}
 
 	/**
-	 * Gets the value of the L2 button.
-	 * Intended to signify when the climber should manually move.
-	 * @return If the L2 button was pressed this tick
+	 * Gets the value of the share button.
+	 * Intended to signify when the climber should move manually.
+	 * @return If the share button was pressed this tick
 	 */
 	public boolean isClimbManualButtonPressed() {
-		return mechController.getL2Button();
+		return mechController.getShareButton();
 	}
 
 	/**
@@ -186,11 +230,37 @@ public class TeleopInput {
 
 	/**
 	 * Gets the value of the L1 button.
-	 * Intended to signify when the funnel should open.
+	 * Intended to signify when the outtake should open.
 	 * @return If the L1 button was pressed this tick
 	 */
-	public boolean isFunnelButtonPressed() {
+	public boolean isOuttakeButtonPressed() {
 		return mechController.getL1Button();
+	}
+
+	/**
+	 * Gets the value of the L2 (left trigger) button.
+	 * Intended to signify if the mechanisms should stop moving.
+	 * @return If the L2 button was pressed this tick.
+	 */
+	public boolean isAbortButtonPressed() {
+		return mechController.getL2ButtonPressed();
+	}
+
+	/**
+	 * Gets the value of the R2 (right trigger) button.
+	 * Intended to signify if the mechanisms should reset after an abort.
+	 * @return If the R2 button was pressed this tick.
+	 */
+	public boolean isResetButtonPressed() {
+		return mechController.getR2ButtonPressed();
+	}
+
+	/**
+	 * Gets the value of the touchpad (manual) button.
+	 * @return If the touchpad button was pressed this tick.
+	 */
+	public boolean isManualButtonPressed() {
+		return mechController.getR1ButtonPressed();
 	}
 
 	/* ======================== Private methods ======================== */

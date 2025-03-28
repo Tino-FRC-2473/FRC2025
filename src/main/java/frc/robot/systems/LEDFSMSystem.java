@@ -99,26 +99,13 @@ public class LEDFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case REEF_ALIGNED:
-				handleReefAlignedState();
-				break;
-			case STATION_ALIGNED:
-				handleStationAlignedState();
-				break;
-			case OFFSET_FROM_TAG:
-				handleOffsetState();
-				break;
-			case YES_CORAL:
-				handleYesCoralState();
-				break;
-			case NO_CORAL:
-				handleNoCoralState();
-				break;
-			case CLIMB:
-				handleClimbState();
-				break;
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case REEF_ALIGNED -> handleReefAlignedState();
+			case STATION_ALIGNED -> handleStationAlignedState();
+			case OFFSET_FROM_TAG -> handleOffsetState();
+			case YES_CORAL -> handleYesCoralState();
+			case NO_CORAL -> handleNoCoralState();
+			case CLIMB -> handleClimbState();
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
 		// Switch state
@@ -157,7 +144,7 @@ public class LEDFSMSystem {
 		}
 		switch (currentState) {
 			case NO_CORAL:
-				if (climberFSMSystem.getCurrentState().equals(ClimberFSMState.AUTOMATIC)) {
+				if (climberFSMSystem.getCurrentState().equals(ClimberFSMState.CLIMB)) {
 					return LEDFSMState.CLIMB;
 				}
 
@@ -174,7 +161,7 @@ public class LEDFSMSystem {
 				return LEDFSMState.NO_CORAL;
 
 			case YES_CORAL:
-				if (climberFSMSystem.getCurrentState().equals(ClimberFSMState.AUTOMATIC)) {
+				if (climberFSMSystem.getCurrentState().equals(ClimberFSMState.CLIMB)) {
 					return LEDFSMState.CLIMB;
 				}
 
@@ -191,7 +178,7 @@ public class LEDFSMSystem {
 				return LEDFSMState.NO_CORAL;
 
 			case CLIMB:
-				if (!climberFSMSystem.getCurrentState().equals(ClimberFSMState.AUTOMATIC)) {
+				if (!climberFSMSystem.getCurrentState().equals(ClimberFSMState.CLIMB)) {
 					return LEDFSMState.NO_CORAL;
 				}
 				return LEDFSMState.CLIMB;

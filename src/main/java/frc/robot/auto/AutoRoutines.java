@@ -8,6 +8,7 @@ import java.util.Map;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,6 +18,7 @@ import frc.robot.HardwareMap;
 import frc.robot.Robot;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.AutoConstants.AutoCommands;
+import frc.robot.constants.SimConstants;
 import frc.robot.systems.DriveFSMSystem;
 import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
@@ -57,62 +59,62 @@ public class AutoRoutines {
 			case R_ALIGN_REEF1_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_1_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case R_ALIGN_REEF1_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_1_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case R_ALIGN_REEF2_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
-				);
-			case R_ALIGN_REEF3_L_TAG_CMD:
-				return driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
-				);
-			case R_ALIGN_REEF5_L_TAG_CMD:
-				return driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
-				);
-			case R_ALIGN_REEF6_L_TAG_CMD:
-				return driveSystem.alignToTagCommand(
-					AutoConstants.R_REEF_6_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case R_ALIGN_REEF2_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case R_ALIGN_REEF3_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_3_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case R_ALIGN_REEF3_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case R_ALIGN_REEF4_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_4_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case R_ALIGN_REEF4_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_4_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case R_ALIGN_REEF5_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_5_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case R_ALIGN_REEF5_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case R_ALIGN_REEF6_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.R_REEF_6_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case R_ALIGN_REEF6_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.R_REEF_6_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_R_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
 				);
 			case R_ALIGN_STATION_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
@@ -128,74 +130,72 @@ public class AutoRoutines {
 			case B_ALIGN_REEF1_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_1_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case B_ALIGN_REEF1_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_1_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
 				);
 			case B_ALIGN_REEF2_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
-				);
-			case B_ALIGN_REEF3_L_TAG_CMD:
-				return driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
-				);
-			case B_ALIGN_REEF5_L_TAG_CMD:
-				return driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
-				);
-			case B_ALIGN_REEF6_L_TAG_CMD:
-				return driveSystem.alignToTagCommand(
-					AutoConstants.B_REEF_6_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case B_ALIGN_REEF2_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_2_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case B_ALIGN_REEF3_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_3_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case B_ALIGN_REEF3_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_3_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case B_ALIGN_REEF4_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_4_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
+				);
+			case B_ALIGN_REEF4_R_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_4_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case B_ALIGN_REEF5_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_5_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case B_ALIGN_REEF5_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_5_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
+				);
+			case B_ALIGN_REEF6_L_TAG_CMD:
+				return driveSystem.alignToTagCommand(
+					AutoConstants.B_REEF_6_TAG_ID,
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_L_TAG_OFFSET
 				);
 			case B_ALIGN_REEF6_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.B_REEF_6_TAG_ID,
-					AutoConstants.REEF_X_TAG_OFFSET,
-					AutoConstants.REEF_Y_L_TAG_OFFSET
+					AutoConstants.REEF_X_TAG_OFFSET, AutoConstants.REEF_Y_R_TAG_OFFSET
 				);
 			case B_ALIGN_STATION_L_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.BLUE_L_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET
+					AutoConstants.SOURCE_X_OFFSET, AutoConstants.SOURCE_Y_OFFSET
 				);
 			case B_ALIGN_STATION_R_TAG_CMD:
 				return driveSystem.alignToTagCommand(
 					AutoConstants.BLUE_R_STATION_ID,
-					AutoConstants.SOURCE_X_OFFSET,
-					AutoConstants.SOURCE_Y_OFFSET
+					AutoConstants.SOURCE_X_OFFSET, AutoConstants.SOURCE_Y_OFFSET
 				);
 			default:
 				return null;
@@ -287,7 +287,11 @@ public class AutoRoutines {
 					if (trajIdx++ == 0) {
 						seqInstruction.addCommands(traj.resetOdometry());
 						if (Robot.isSimulation()) {
-							initPose = traj.getInitialPose().get();
+							if (traj.getInitialPose().isPresent()) {
+								initPose = traj.getInitialPose().get();
+							} else {
+								initPose = getStartingAlliancePosition();
+							}
 						}
 					}
 
@@ -303,8 +307,7 @@ public class AutoRoutines {
 					} else {
 						System.out.println(
 							" -------------- \n"
-							+ autoStage + " is unavailable."
-							+ "Not adding to sequential flow. ");
+							+ autoStage + " is unavailable." + "Not adding to sequential flow. ");
 					}
 				}
 			} else if (autoStage.getClass().equals(AutoCommands.class)) {
@@ -486,6 +489,36 @@ public class AutoRoutines {
 	 * @return Pose2d initial pose
 	 */
 	public Pose2d getInitialAutoPose() {
-		return initPose;
+		return initPose; //getStartingAlliancePosition();
+	}
+
+	private Pose2d getStartingAlliancePosition() {
+		if (!DriverStation.getAlliance().isEmpty()) {
+			if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+				switch (DriverStation.getLocation().getAsInt()) {
+					case 1:
+						return SimConstants.BLUE_1_STARTING_POS_M;
+					case 2:
+						return SimConstants.BLUE_2_STARTING_POS_M;
+					case (2 + 1):
+						return SimConstants.BLUE_3_STARTING_POS_M;
+					default:
+						return new Pose2d();
+				}
+			} else {
+				switch (DriverStation.getLocation().getAsInt()) {
+					case 1:
+						return SimConstants.RED_1_STARTING_POS_M;
+					case 2:
+						return SimConstants.RED_2_STARTING_POS_M;
+					case (2 + 1):
+						return SimConstants.RED_3_STARTING_POS_M;
+					default:
+						return new Pose2d();
+				}
+			}
+		} else {
+			return new Pose2d();
+		}
 	}
 }

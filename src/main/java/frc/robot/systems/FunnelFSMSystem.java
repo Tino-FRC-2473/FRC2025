@@ -1,12 +1,13 @@
 package frc.robot.systems;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
-import com.playingwithfusion.TimeOfFlight;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+
 import frc.robot.constants.Constants;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
@@ -23,7 +24,7 @@ public class FunnelFSMSystem {
 	// FSM state definitions
 	public enum FunnelFSMState {
 		OUTTAKE,
-		CLOSED
+		IDLE
 	}
 
 	/* ======================== Private variables ======================== */
@@ -32,11 +33,11 @@ public class FunnelFSMSystem {
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
 
-	private Servo funnelServo;
-	private TimeOfFlight reefDistanceSensor;
+	private Servo outtakeServo;
+
 	private DigitalInput coralBreakBeam;
-	private boolean timerRunning;
-	private Timer funnelClosedTimer = new Timer();
+	private Timer outtakeTimer = new Timer();
+	private LoggedNetworkBoolean simbreakbeam;
 
 	/* ======================== Constructor ======================== */
 	/**
@@ -46,12 +47,17 @@ public class FunnelFSMSystem {
 	 */
 	public FunnelFSMSystem() {
 		// Perform hardware init
-		funnelServo = new Servo(HardwareMap.FUNNEL_SERVO_PWM_PORT);
-		funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+		outtakeServo = new Servo(HardwareMap.OUTTAKE_SERVO_PWM_PORT);
+		outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 
-		reefDistanceSensor = new TimeOfFlight(HardwareMap.FUNNEL_TOF_ID);
+		coralBreakBeam = new DigitalInput(HardwareMap.OUTTAKE_BREAK_BEAM_DIO_PORT);
 
-		coralBreakBeam = new DigitalInput(HardwareMap.FUNNEL_BREAK_BEAM_DIO_PORT);
+		if (Robot.isSimulation()) {
+			simbreakbeam = new LoggedNetworkBoolean("Holding Coral Selector", false);
+		} else {
+			simbreakbeam = null;
+		}
+
 		// Reset state machine
 		reset();
 	}
@@ -73,7 +79,7 @@ public class FunnelFSMSystem {
 	 * Ex. if the robot is enabled, disabled, then reenabled.
 	 */
 	public void reset() {
-		currentState = FunnelFSMState.CLOSED;
+		currentState = FunnelFSMState.IDLE;
 
 		// Call one tick of update to ensure outputs reflect start state
 		update(null);
@@ -91,20 +97,20 @@ public class FunnelFSMSystem {
 			return;
 		}
 		switch (currentState) {
-			case OUTTAKE:
-				handleOuttakeState(input);
-				break;
-
-			case CLOSED:
-				handleClosedState(input);
-				break;
-
-			default:
-				throw new IllegalStateException("Invalid state: " + currentState.toString());
+			case OUTTAKE -> handleOuttakeState(input);
+			case IDLE -> handleIdleState(input);
+			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
-		// Switch state
 		currentState = nextState(input);
+	}
+
+	/**
+	 * Returns the funnel outtake timer value.
+	 * @return amount of time the funnel has been opened.
+	 */
+	public double getOuttakeTimeElapsed() {
+		return outtakeTimer.get();
 	}
 
 	/**
@@ -112,9 +118,8 @@ public class FunnelFSMSystem {
 	 */
 	public void updateLogging() {
 		// Telemetry and logging
-		Logger.recordOutput("Funnel Position", funnelServo.get());
+		Logger.recordOutput("Funnel Position", outtakeServo.get());
 		Logger.recordOutput("Funnel State", currentState.toString());
-		Logger.recordOutput("Distance to Reef", reefDistanceSensor.getRange());
 		Logger.recordOutput("Holding Coral?", isHoldingCoral());
 	}
 
@@ -125,49 +130,34 @@ public class FunnelFSMSystem {
 	 */
 	public boolean isHoldingCoral() {
 		if (Robot.isSimulation()) {
-			return true;
+			return simbreakbeam.get();
 		}
 		return !coralBreakBeam.get(); // true = beam intact
-		// return true; // temp always hold coral
-	}
-
-	/**
-	 * Getter for the status of the funnel's distance sensor.
-	 * Public for access to drive/cv.
-	 * @return distance to reef from distance sensor.
-	 */
-	public double getDistanceToReef() {
-		if (Robot.isSimulation()) {
-			return 0;
-		}
-		return reefDistanceSensor.getRange();
 	}
 
 	/* ======================== Private methods ======================== */
 	/**
-	 * Decide the next state to transition to. This is a function of the inputs
-	 * and the current state of this FSM. This method should not have any side
-	 * effects on outputs. In other words, this method should only read or get
-	 * values to decide what state to go to.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
-	 *        the robot is in autonomous mode.
-	 * @return FSM state for the next iteration
-	 */
+ 	 * Decide the next state to transition to. This is a function of the inputs
+ 	 * and the current state of this FSM. This method should not have any side
+ 	 * effects on outputs. In other words, this method should only read or get
+ 	 * values to decide what state to go to.
+ 	 * @param input Global TeleopInput if robot in teleop mode or null if
+ 	 *        the robot is in autonomous mode.
+ 	 * @return FSM state for the next iteration
+ 	 */
 	private FunnelFSMState nextState(TeleopInput input) {
 		switch (currentState) {
-			case OUTTAKE:
-				if (!input.isFunnelButtonPressed()) {
-					return FunnelFSMState.CLOSED;
-				} else {
+			case IDLE:
+				if (input.isOuttakeButtonPressed()) {
 					return FunnelFSMState.OUTTAKE;
 				}
+				return FunnelFSMState.IDLE;
 
-			case CLOSED:
-				if (input.isFunnelButtonPressed()) {
-					return FunnelFSMState.OUTTAKE;
-				} else {
-					return FunnelFSMState.CLOSED;
+			case OUTTAKE:
+				if (!input.isOuttakeButtonPressed()) {
+					return FunnelFSMState.IDLE;
 				}
+				return FunnelFSMState.OUTTAKE;
 
 			default:
 				throw new IllegalStateException("Invalid state: " + currentState.toString());
@@ -181,24 +171,20 @@ public class FunnelFSMSystem {
 	 *        the robot is in autonomous mode.
 	 */
 	private void handleOuttakeState(TeleopInput input) {
-		timerRunning = false;
-		funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+		outtakeServo.set(Constants.OUTTAKE_OPEN_POS_ROTS);
+
+		outtakeTimer.reset();
+		outtakeTimer.start();
 	}
 
 	/**
-	 * Handle behavior in CLOSED.
+	 * Handle behavior in IDLE.
 	 * @param input Global TeleopInput if robot in teleop mode or null if
 	 *        the robot is in autonomous mode.
 	 */
-	private void handleClosedState(TeleopInput input) {
-		if (!timerRunning) {
-			timerRunning = true;
-			funnelClosedTimer.reset();
-			funnelClosedTimer.start();
-		}
-
-		if (funnelClosedTimer.get() >= 1) {
-			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+	private void handleIdleState(TeleopInput input) {
+		if (outtakeTimer.get() >= Constants.CORAL_SCORE_TIME_SECS) {
+			outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 		}
 	}
 
@@ -206,69 +192,50 @@ public class FunnelFSMSystem {
 
 	/** A command that opens the funnel servo. */
 	class IntakeCoralCommand extends Command {
-
-		private Timer timer;
-
-		IntakeCoralCommand() {
-			timer = new Timer();
-		}
-
-		@Override
-		public void initialize() {
-			timer.reset();
-			timer.start();
-		}
-
 		@Override
 		public void execute() {
-			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
+			outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
 		}
 
 		@Override
 		public boolean isFinished() {
 			return isHoldingCoral();
 		}
-
-		@Override
-		public void end(boolean interrupted) {
-			timer.stop();
-			timer.reset();
-		}
 	}
 
 	/** A command that closes the funnel servo. */
 	class OuttakeCoralCommand extends Command {
-		private Timer timer;
+		private Timer autoOuttakeTimer;
 
 		OuttakeCoralCommand() {
-			timer = new Timer();
+			autoOuttakeTimer = new Timer();
 		}
 
 		public void initialize() {
-			timer.start();
+			autoOuttakeTimer.reset();
 		}
 
 		@Override
 		public void execute() {
-			funnelServo.set(Constants.FUNNEL_OUTTAKE_POS_ROTS);
+			outtakeServo.set(Constants.OUTTAKE_OPEN_POS_ROTS);
 		}
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() >= Constants.FUNNEL_INOUT_REAL_TIME_SECS;
+			return autoOuttakeTimer.get() >= Constants.FUNNEL_INOUT_REAL_TIME_SECS;
 		}
 
 		@Override
 		public void end(boolean interrupted) {
-			funnelServo.set(Constants.FUNNEL_CLOSED_POS_ROTS);
-			timer.stop();
-			timer.reset();
+			outtakeServo.set(Constants.OUTTAKE_CLOSED_POS_ROTS);
+			autoOuttakeTimer.stop();
+			autoOuttakeTimer.reset();
 		}
 	}
 
 	/**
-	 * Creates a Command to open the funnel.
-	 * @return A new funnel open command.
+	 * Creates a Command to intake coral.
+	 * @return A new intake coral command.
 	 */
 	public Command intakeCoralCommand() {
 		return new IntakeCoralCommand();
