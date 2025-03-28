@@ -42,6 +42,6 @@ A dedicated branch will be created to track code changes made at each competitio
 - All changes must be commited to this branch prior to the final robot code upload before queueing for each match.
 
 The commit used for each match must be tagged prior to queueing. This is essential for post-match debugging and analysis. Tags should be namespaced under the competition name and indicated the match type `qual` or `playoff`.
-- For instance, qualification match 3 at Pinnacles should be tagged with `comp/ccr/qual_3`.
+- For instance, qualification match 3 at Contra Costa should be tagged with `comp/ccr/qual_3`.
 - Create annotated tags with the `git tag` command. I.e. `git tag -a "comp/ccr/qual_3"`. Write a summary of any code or configuration changes made in the tag description.
 - Tags must be pushed with `--tags` option. I.e `git push origin --tags`.
