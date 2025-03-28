@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -236,31 +237,7 @@ public final class MechLogging {
 					if (timer.hasElapsed(2)){
 						System.out.println("VICTORY");
 						doesSimRobotHaveCoral = true;
-						SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(
-							new Pose2d(drivetrainPose.getX(), drivetrainPose.getY(), drivetrainPose.getRotation()))
-						);
-					
-						System.out.println("Coral spawned directly on top of the robot.");
-						Pose2d spawnPose = new Pose2d(drivetrainPose.getX(), drivetrainPose.getY(), drivetrainPose.getRotation());
-						ReefscapeCoralOnField coral = new ReefscapeCoralOnField(spawnPose);
-
-						System.out.println("Attempting to spawn coral at: " + spawnPose);
-						SimulatedArena.getInstance().addGamePiece(coral);
-						System.out.println("Coral spawn added to SimulatedArena.");
-						SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(
-    					new Pose2d(2, 2, Rotation2d.fromDegrees(90))));
-
-						SimulatedArena.getInstance().addGamePiece(new ReefscapeAlgaeOnField(new Translation2d(2,2)));
-
-						Logger.recordOutput("FieldSimulation/Algae", 
-    					SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
-						Logger.recordOutput("FieldSimulation/Coral", 
-    					SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-
-						
-
 					}
-					
 				} else {
 					if (timer.isRunning()) { 
 						System.out.println("FAILURE"); // If the robot is out of the zone, stop the timer
@@ -381,6 +358,11 @@ public final class MechLogging {
 		return climberPose;
 	}
 
+	public Pose3d getOuttakePose() {
+		var elevStage3 = getElevatorStage3();
+		return elevStage3.plus(new Transform3d(0, 0, SimConstants.OUTTAKE_OFFSET, new Rotation3d()));
+	}
+
 	/**
 	 * Getter for the array of poses we want to simulate.
 	 * @return the array of poses to display in advantageScope
@@ -390,7 +372,9 @@ public final class MechLogging {
 			getElevatorStage1(),
 			getElevatorStage2(),
 			getElevatorStage3(),
-			getClimberPose()
+			getClimberPose(),
+			getElevatorStage1(), // This is the intake but we can make a seperate handler for it after.
+			getOuttakePose()
 		};
 	}
 
