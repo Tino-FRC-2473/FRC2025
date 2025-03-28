@@ -50,4 +50,7 @@ public class SimConstants {
 
 	//max distance coral can be intaked away from station, in meters
 	public static final double MAX_DISTANCE_FROM_STATION = 0.02;
+
+	//Difference between heights of the stage 3 elevator and outtake
+	public static final double OUTTAKE_OFFSET = Units.inchesToMeters(18);
 }
