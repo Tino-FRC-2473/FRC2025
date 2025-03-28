@@ -276,6 +276,42 @@ public class DriveFSMSystem extends SubsystemBase {
 	 * @return true if the robot can see the tag, false otherwise.
 	 */
 	public boolean canSeeTag() {
+		int localTagID = -1;
+		ArrayList<AprilTag> sortedTagList = rpi.getReefAprilTags();
+
+		if (DriverStation.getAlliance().get().equals(Alliance.Blue)) {
+			for (AprilTag tag: sortedTagList) {
+				if (localTagID == -1) {
+					for (int id: blueReefTagArray) {
+						if (tag.getTagID() == id) {
+							localTagID = id;
+							break;
+						}
+					}
+				} else {
+					break;
+				}
+			}
+
+		} else if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
+			for (AprilTag tag: sortedTagList) {
+				if (localTagID == -1) {
+					for (int id: redReefTagArray) {
+						if (tag.getTagID() == id) {
+							localTagID = id;
+							break;
+						}
+					}
+				} else {
+					break;
+				}
+			}
+
+		}
+
+		Logger.recordOutput("TagID", tagID);
+
+		canSeeTag = localTagID != -1;
 		return canSeeTag;
 	}
 
@@ -692,7 +728,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		rotationAlignmentPose = currPose.getRotation();
 
 		driveToPoseFinished = (driveController.atGoal() && thetaController.atGoal())
-			|| alignmentTimer.get() > Constants.ALIGN_TIME_SECS;
+			|| alignmentTimer.advanceIfElapsed(Constants.ALIGN_TIME_SECS);
 
 		if (driveToPoseFinished) {
 			alignmentTimer.stop();
@@ -767,10 +803,8 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (tagID != -1) {
 			aligningToReef = true;
-			canSeeTag = true;
 			handleTagAlignment(input, tagID, true);
 		} else {
-			canSeeTag = false;
 			drivetrain.setControl(brake);
 		}
 	}

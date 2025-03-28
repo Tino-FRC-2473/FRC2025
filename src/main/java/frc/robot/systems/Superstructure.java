@@ -164,13 +164,13 @@ public class Superstructure {
 						return SuperFSMState.RESET_CLIMB;
 					}
 				}
-				if (funnelSystem.isHoldingCoral() && input.isSuperL2ButtonPressed()) {
+				if (funnelSystem.isHoldingCoral() && input.isSuperL2ButtonPressed() && driveSystem.canSeeTag()) {
 					return SuperFSMState.PRE_L2;
 				}
-				if (funnelSystem.isHoldingCoral() && input.isSuperL3ButtonPressed()) {
+				if (funnelSystem.isHoldingCoral() && input.isSuperL3ButtonPressed() && driveSystem.canSeeTag()) {
 					return SuperFSMState.PRE_L3;
 				}
-				if (funnelSystem.isHoldingCoral() && input.isSuperL4ButtonPressed()) {
+				if (funnelSystem.isHoldingCoral() && input.isSuperL4ButtonPressed() && driveSystem.canSeeTag()) {
 					return SuperFSMState.PRE_L4;
 				}
 				if (!funnelSystem.isHoldingCoral() && input.isSuperIntakeButtonPressed()) {
@@ -190,30 +190,26 @@ public class Superstructure {
 				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
 					return SuperFSMState.RAISE_TO_L2;
 				}
-				if (driveSystem.canSeeTag()) {
-					return SuperFSMState.PRE_L2;
-				}
-				return SuperFSMState.IDLE;
+				return SuperFSMState.PRE_L2;
+				//}
+				//return SuperFSMState.IDLE;
 			case PRE_L3: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
 				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
 					return SuperFSMState.RAISE_TO_L3;
-				}
-				if (driveSystem.canSeeTag()) {
+				} else {
 					return SuperFSMState.PRE_L3;
 				}
-				return SuperFSMState.IDLE;
+				//return SuperFSMState.IDLE;
 			case PRE_L4: if (input.isAbortButtonPressed()) {
 					return SuperFSMState.ABORT;
 				}
 				if (funnelSystem.isHoldingCoral() && driveSystem.isAlignedToTag()) {
 					return SuperFSMState.RAISE_TO_L4;
-				}
-				if (driveSystem.canSeeTag()) {
+				} else {
 					return SuperFSMState.PRE_L4;
 				}
-				return SuperFSMState.IDLE;
 			case RAISE_TO_L2:
 				if (funnelSystem.isHoldingCoral() && elevatorSystem.isElevatorAtL2()) {
 					scoreTimer.restart();
