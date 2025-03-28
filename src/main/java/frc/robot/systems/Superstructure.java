@@ -50,6 +50,7 @@ public class Superstructure {
 	private Timer scoreTimer = new Timer();
 	private Timer alignTimer = new Timer();
 
+
 	// Hardware devices should be owned by one and only one system. They must
 	// be private to their owner system and may not be used elsewhere.
 
@@ -131,6 +132,7 @@ public class Superstructure {
 		currentState = nextState(input);
 
 		Logger.recordOutput("Super State", currentState);
+		Logger.recordOutput("Aling TIMER JAWN", alignTimer.get());
 	}
 
 	/* ======================== Private methods ======================== */
@@ -293,8 +295,18 @@ public class Superstructure {
 		}
 	}
 
+	private boolean restartAlignTimer = false;
+
 	private boolean alignFin() {
-		alignTimer.start();
+		//alignTimer.restart();
+		if (!restartAlignTimer) {
+			restartAlignTimer = true;
+			alignTimer.restart();
+		}
+
+		if (alignTimer.get() > Constants.ALIGN_TIME_SECS) {
+			restartAlignTimer = false;
+		}
 		return alignTimer.get() > Constants.ALIGN_TIME_SECS;
 	}
 
@@ -333,8 +345,6 @@ public class Superstructure {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
-		alignTimer.stop();
-		alignTimer.reset();
 	}
 
 	/**
@@ -347,8 +357,6 @@ public class Superstructure {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
-		alignTimer.stop();
-		alignTimer.reset();
 	}
 
 	/**
@@ -361,8 +369,6 @@ public class Superstructure {
 		driveSystem.setState(DriveFSMState.TELEOP_STATE);
 		funnelSystem.setState(FunnelFSMState.IDLE);
 		climberSystem.setState(ClimberFSMState.IDLE);
-		alignTimer.stop();
-		alignTimer.reset();
 	}
 
 	/**

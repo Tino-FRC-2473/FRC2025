@@ -11,7 +11,7 @@ public final class Constants {
 	public static final double OUTTAKE_CLOSED_POS_ROTS = 0.25;
 	public static final double OUTTAKE_OPEN_POS_ROTS = 0.8;
 
-	public static final double CORAL_SCORE_TIME_SECS = 0.65;
+	public static final double CORAL_SCORE_TIME_SECS = 0.95;
 
 	// elevator motion profile constants
 	public static final double ELEVATOR_KG = 0.20;
@@ -36,7 +36,7 @@ public final class Constants {
 	// DO NOT drive above this!
 	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(36);
 	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(19.1);
-	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.3);
+	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.6);
 	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
 
 	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(0.1);

@@ -260,7 +260,7 @@ public class TeleopInput {
 	 * @return If the touchpad button was pressed this tick.
 	 */
 	public boolean isManualButtonPressed() {
-		return mechController.getTouchpadButtonPressed();
+		return mechController.getR1ButtonPressed();
 	}
 
 	/* ======================== Private methods ======================== */
