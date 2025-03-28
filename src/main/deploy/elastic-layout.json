@@ -69,7 +69,7 @@
                 }
               },
               {
-                "title": "IsFinished",
+                "title": "Tag ALIGNED",
                 "x": 512.0,
                 "y": 384.0,
                 "width": 256.0,
@@ -113,16 +113,16 @@
                 }
               },
               {
-                "title": "Elevator State",
-                "x": 0.0,
-                "y": 0.0,
+                "title": "TagID",
+                "x": 1024.0,
+                "y": 384.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Elevator State",
+                  "topic": "/AdvantageKit/RealOutputs/DriveToPose/TagID",
                   "period": 0.06,
-                  "data_type": "string",
+                  "data_type": "int",
                   "show_submit_button": false
                 }
               },
@@ -143,19 +143,6 @@
                 }
               },
               {
-                "title": "XDiff",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/DriveToPose/XDiff",
-                  "period": 0.06,
-                  "data_type": "double"
-                }
-              },
-              {
                 "title": "BatteryVoltage",
                 "x": 0.0,
                 "y": 0.0,
@@ -172,32 +159,27 @@
                   "inverted": false,
                   "orientation": "horizontal"
                 }
+              },
+              {
+                "title": "Elevator State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/Elevator State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               }
             ]
           }
         ],
         "containers": [
           {
-            "title": "photonvision_Port_1188_Output_MJPEG_Server",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 512.0,
-            "type": "Camera Stream",
-            "properties": {
-              "topic": "/CameraPublisher/photonvision_Port_1188_Output_MJPEG_Server",
-              "period": 0.06,
-              "rotation_turns": 0,
-              "compression": 10,
-              "fps": 10,
-              "resolution": [
-                640.0,
-                480.0
-              ]
-            }
-          },
-          {
-            "title": "photonvision_Port_1182_Output_MJPEG_Server",
+            "title": "Reef Cam",
             "x": 0.0,
             "y": 0.0,
             "width": 512.0,
@@ -207,8 +189,27 @@
               "topic": "/CameraPublisher/photonvision_Port_1182_Output_MJPEG_Server",
               "period": 0.06,
               "rotation_turns": 0,
-              "compression": 70,
-              "fps": 10,
+              "compression": 49,
+              "fps": 15,
+              "resolution": [
+                320.0,
+                240.0
+              ]
+            }
+          },
+          {
+            "title": "Station Cam",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 512.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0,
+              "compression": 50,
+              "fps": 15,
               "resolution": [
                 320.0,
                 240.0
@@ -223,8 +224,8 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "List Layout",
-            "x": 1024.0,
+            "title": "Auto Layout",
+            "x": 896.0,
             "y": 0.0,
             "width": 256.0,
             "height": 512.0,
@@ -234,44 +235,50 @@
             },
             "children": [
               {
-                "title": "BatteryVoltage",
-                "x": 0.0,
+                "title": "Auto State",
+                "x": 512.0,
                 "y": 0.0,
-                "width": 128.0,
+                "width": 256.0,
                 "height": 128.0,
-                "type": "Voltage View",
+                "type": "Text Display",
                 "properties": {
-                  "topic": "/AdvantageKit/SystemStats/BatteryVoltage",
+                  "topic": "/SmartDashboard/Auto State",
                   "period": 0.06,
-                  "data_type": "double",
-                  "min_value": 4.0,
-                  "max_value": 13.0,
-                  "divisions": 5,
-                  "inverted": false,
-                  "orientation": "horizontal"
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
-                "title": "MatchTime",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
+                "title": "AUTO CHOOSER",
+                "x": 384.0,
+                "y": 128.0,
+                "width": 256.0,
                 "height": 128.0,
-                "type": "Match Time",
+                "type": "ComboBox Chooser",
                 "properties": {
-                  "topic": "/AdvantageKit/DriverStation/MatchTime",
+                  "topic": "/SmartDashboard/AUTO CHOOSER",
                   "period": 0.06,
-                  "data_type": "double",
-                  "time_display_mode": "Minutes and Seconds",
-                  "red_start_time": 15,
-                  "yellow_start_time": 30
+                  "sort_options": false
                 }
-              },
+              }
+            ]
+          },
+          {
+            "title": "FMS INFO",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 512.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
               {
                 "title": "FMSAttached",
-                "x": 0.0,
+                "x": 512.0,
                 "y": 0.0,
-                "width": 128.0,
+                "width": 256.0,
                 "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
@@ -285,60 +292,45 @@
                 }
               },
               {
-                "title": "Connected Radio",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
+                "title": "MatchNumber",
+                "x": 640.0,
+                "y": 128.0,
+                "width": 256.0,
                 "height": 128.0,
-                "type": "Boolean Box",
+                "type": "Large Text Display",
                 "properties": {
-                  "topic": "/AdvantageKit/RadioStatus/Connected",
+                  "topic": "/AdvantageKit/DriverStation/MatchNumber",
                   "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              }
-            ]
-          },
-          {
-            "title": "List Layout",
-            "x": 1280.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 512.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "AUTO CHOOSER",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "ComboBox Chooser",
-                "properties": {
-                  "topic": "/SmartDashboard/AUTO CHOOSER",
-                  "period": 0.06,
-                  "sort_options": false
+                  "data_type": "int"
                 }
               },
               {
-                "title": "Auto State",
-                "x": 0.0,
-                "y": 0.0,
+                "title": "MatchTime",
+                "x": 512.0,
+                "y": 256.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Match Time",
+                "properties": {
+                  "topic": "/AdvantageKit/DriverStation/MatchTime",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "time_display_mode": "Minutes and Seconds",
+                  "red_start_time": 15,
+                  "yellow_start_time": 30
+                }
+              },
+              {
+                "title": "StationNumber",
+                "x": 384.0,
+                "y": 384.0,
                 "width": 128.0,
                 "height": 128.0,
-                "type": "Text Display",
+                "type": "Large Text Display",
                 "properties": {
-                  "topic": "/SmartDashboard/Auto State",
+                  "topic": "/FMSInfo/StationNumber",
                   "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
+                  "data_type": "int"
                 }
               }
             ]
@@ -349,7 +341,7 @@
             "title": "Pose",
             "x": 0.0,
             "y": 0.0,
-            "width": 1024.0,
+            "width": 256.0,
             "height": 512.0,
             "type": "Field",
             "properties": {
@@ -360,9 +352,44 @@
               "robot_length": 0.85,
               "show_other_objects": true,
               "show_trajectories": true,
-              "field_rotation": 0.0,
+              "field_rotation": 90.0,
               "robot_color": 4294198070,
               "trajectory_color": 4294967295
+            }
+          },
+          {
+            "title": "BatteryVoltage",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/SystemStats/BatteryVoltage",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 4.0,
+              "max_value": 13.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "BrownedOut",
+            "x": 512.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/SystemStats/BrownedOut",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]
