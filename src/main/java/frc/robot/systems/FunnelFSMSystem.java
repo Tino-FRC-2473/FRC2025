@@ -212,7 +212,7 @@ public class FunnelFSMSystem {
 		}
 
 		public void initialize() {
-			autoOuttakeTimer.reset();
+			autoOuttakeTimer.start();
 		}
 
 		@Override

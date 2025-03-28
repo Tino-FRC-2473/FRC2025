@@ -479,7 +479,9 @@ public class ElevatorFSMSystem {
 		}
 
 		@Override
-		public void end(boolean interrupted) { }
+		public void end(boolean interrupted) {
+			System.out.println("ELEVATOR POS AUTO FINISHED");
+		}
 
 		protected void setTarget(Distance newTarget) {
 			this.target = newTarget;
@@ -503,7 +505,7 @@ public class ElevatorFSMSystem {
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() > (1.0 / 2);
+			return timer.get() > (1.0);
 		}
 
 		@Override

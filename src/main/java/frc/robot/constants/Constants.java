@@ -55,7 +55,7 @@ public final class Constants {
 	public static final double CLIMB_POWER = 1.0;
 	public static final double CLIMB_REDUCED_POWER = 0.5;
 
-	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 5.0; // seconds
+	public static final double FUNNEL_INOUT_REAL_TIME_SECS = CORAL_SCORE_TIME_SECS; // seconds
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;
