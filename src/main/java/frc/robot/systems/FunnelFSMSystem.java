@@ -102,9 +102,7 @@ public class FunnelFSMSystem {
 			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
-		if (!HardwareMap.useSuperStructure()) {
-			handleOverrideState(input);
-		}
+		currentState = nextState(input);
 	}
 
 	/**
@@ -135,25 +133,6 @@ public class FunnelFSMSystem {
 			return simbreakbeam.get();
 		}
 		return !coralBreakBeam.get(); // true = beam intact
-	}
-
-	/**
-	 * Set the state of the FSM.
-	 * @param state The state to set the FSM to.
-	 */
-	public void setState(FunnelFSMState state) {
-		currentState = state;
-	}
-
-	/**
-	 * Handle the funnel states under manual superstructure control.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
- 	 *        the robot is in autonomous mode.
-	 */
-	public void handleOverrideState(TeleopInput input) {
-		if (input != null) {
-			currentState = nextState(input);
-		}
 	}
 
 	/* ======================== Private methods ======================== */

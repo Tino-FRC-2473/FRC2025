@@ -51,7 +51,6 @@ import frc.robot.constants.VisionConstants;
 import frc.robot.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.simulation.RaspberryPiSim;
 import frc.robot.CommandSwerveDrivetrain;
-import frc.robot.HardwareMap;
 import frc.robot.RaspberryPi;
 import frc.robot.RaspberryPiPhoton;
 import frc.robot.AprilTag;
@@ -258,9 +257,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
-		if (!HardwareMap.useSuperStructure()) {
-			currentState = nextState(input);
-		}
+		currentState = nextState(input);
 	}
 
 	/**

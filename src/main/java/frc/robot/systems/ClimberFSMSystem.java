@@ -136,9 +136,7 @@ public class ClimberFSMSystem {
 			}
 		}
 
-		if (!HardwareMap.useSuperStructure()) {
-			handleOverrideState(input);
-		}
+		currentState = nextState(input);
 
 		MechLogging.getInstance().updatesClimberPose3d(climberMotor.getPosition().getValue());
 	}
@@ -193,15 +191,6 @@ public class ClimberFSMSystem {
 				break;
 		}
 		currentState = state;
-	}
-
-	/**
-	 * Handle the climber states under manual superstructure control.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
- 	 *        the robot is in autonomous mode.
-	 */
-	public void handleOverrideState(TeleopInput input) {
-		currentState = nextState(input);
 	}
 
 	/**

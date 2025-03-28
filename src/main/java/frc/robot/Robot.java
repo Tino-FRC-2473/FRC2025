@@ -33,7 +33,6 @@ import frc.robot.systems.ElevatorFSMSystem;
 import frc.robot.systems.FunnelFSMSystem;
 import frc.robot.systems.ClimberFSMSystem;
 import frc.robot.systems.LEDFSMSystem;
-import frc.robot.systems.Superstructure;
 
 // Robot Imports
 import frc.robot.utils.Elastic;
@@ -56,7 +55,6 @@ public class Robot extends LoggedRobot {
 		new LoggedDashboardChooser<>("AUTO CHOOSER");
 	private String autoCommand;
 
-	private Superstructure superstructure;
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
@@ -133,15 +131,6 @@ public class Robot extends LoggedRobot {
 			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
 			autoChooser.addOption(auto.getKey(), auto.getKey());
 		}
-
-		if (Robot.isSimulation() || HardwareMap.useSuperStructure()) {
-			superstructure = new Superstructure(
-				driveSystem,
-				funnelSystem,
-				elevatorSystem,
-				climberSystem
-			);
-		}
 	}
 
 	@Override
@@ -206,18 +195,10 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.reset();
 		}
-
-		if (superstructure != null) {
-			superstructure.reset();
-		}
 	}
 
 	@Override
 	public void teleopPeriodic() {
-		if (superstructure != null) {
-			superstructure.update(input);
-		}
-
 		if (driveSystem != null) {
 			driveSystem.update(input);
 		}

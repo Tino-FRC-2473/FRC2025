@@ -224,9 +224,7 @@ public class ElevatorFSMSystem {
 			default -> throw new IllegalStateException("Invalid state: " + currentState.toString());
 		}
 
-		if (!HardwareMap.useSuperStructure()) {
-			handleOverrideState(input);
-		}
+		currentState = nextState(input);
 	}
 
 	/**
@@ -256,23 +254,6 @@ public class ElevatorFSMSystem {
 		MechLogging.getInstance().updateElevatorPose3d(Angle.ofBaseUnits(
 			elevatorSim.getPositionMeters(), Radians
 		));
-	}
-
-	/**
-	 * Set the state of the ElevatorFSM.
-	 * @param state The state to set the ElevatorFSM to.
-	 */
-	public void setState(ElevatorFSMState state) {
-		currentState = state;
-	}
-
-	/**
-	 * Handle the elevator states under manual superstructure control.
-	 * @param input Global TeleopInput if robot in teleop mode or null if
- 	 *        the robot is in autonomous mode.
-	 */
-	public void handleOverrideState(TeleopInput input) {
-		currentState = nextState(input);
 	}
 
 	/* ======================== Private methods ======================== */
