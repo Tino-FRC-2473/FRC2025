@@ -10,7 +10,7 @@ public class AutoConstants {
 	public static final double DEG_360 = 360;
 
 	/* -- ALL SOURCE SPECIFIC CONSTANTS -- */
-	public static final double SOURCE_X_OFFSET = (Units.inchesToMeters(35.5 / 2 - 6));
+	public static final double SOURCE_X_OFFSET = (Units.inchesToMeters(35.5 / 2 - 6 - 4));
 	public static final double SOURCE_Y_OFFSET = 0;
 
 	public static final int BLUE_L_STATION_ID = 13;
@@ -20,8 +20,8 @@ public class AutoConstants {
 
 
 	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2 - 6 - 4);
-	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13) / 2;
-	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13) / 2;
+	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(16) / 2;
+	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(10) / 2;
 	public static final double STATION_Y_L_TAG_OFFSET = -Units.inchesToMeters(16);
 	public static final double STATION_Y_R_TAG_OFFSET = Units.inchesToMeters(16);
 

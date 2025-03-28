@@ -503,12 +503,12 @@ public class ElevatorFSMSystem {
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() > 1;
+			return timer.get() > (1.0 / 2);
 		}
 
 		@Override
 		public void end(boolean interrupted) {
-			timer.reset();
+			timer.stop();
 		}
 	}
 

@@ -34,9 +34,9 @@ public final class Constants {
 
 	public static final Distance ELEVATOR_UPPER_THRESHOLD = Units.Inches.of(37.3);
 	// DO NOT drive above this!
-	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(36);
-	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(19.1);
-	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.6);
+	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(35.166);
+	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(18.2);
+	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.066);
 	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
 
 	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(0.1);
