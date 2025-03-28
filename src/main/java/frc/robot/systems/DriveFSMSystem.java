@@ -543,7 +543,8 @@ public class DriveFSMSystem extends SubsystemBase {
 		double constantDamp = 1;
 
 		if (elevatorSystem != null) {
-			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveTurtleButton())
+			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveTurtleButton()
+				|| input.getDriveCircleButton())
 				? DriveConstants.SPEED_DAMP_FACTOR : DriveConstants.NORMAL_DAMP;
 		}
 

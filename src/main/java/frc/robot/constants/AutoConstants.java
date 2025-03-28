@@ -22,8 +22,8 @@ public class AutoConstants {
 	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2 - 6 - 4);
 	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13) / 2;
 	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13) / 2;
-	public static final double STATION_Y_L_TAG_OFFSET = Units.inchesToMeters(18);
-	public static final double STATION_Y_R_TAG_OFFSET = -Units.inchesToMeters(18);
+	public static final double STATION_Y_L_TAG_OFFSET = -Units.inchesToMeters(16);
+	public static final double STATION_Y_R_TAG_OFFSET = Units.inchesToMeters(16);
 
 	public static final int R_REEF_1_TAG_ID = 10;
 	public static final int R_REEF_2_TAG_ID = 11;
