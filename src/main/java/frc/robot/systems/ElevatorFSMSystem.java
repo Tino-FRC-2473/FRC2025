@@ -313,18 +313,33 @@ public class ElevatorFSMSystem {
 				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2)) {
 					return ElevatorFSMState.MANUAL;
 				}
+
+				if (input.isGroundButtonPressed()) {
+					return ElevatorFSMState.GROUND;
+				}
+
 				return ElevatorFSMState.LEVEL2;
 
 			case LEVEL3:
 				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3)) {
 					return ElevatorFSMState.MANUAL;
 				}
+
+				if (input.isGroundButtonPressed()) {
+					return ElevatorFSMState.GROUND;
+				}
+
 				return ElevatorFSMState.LEVEL3;
 
 			case LEVEL4:
 				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4)) {
 					return ElevatorFSMState.MANUAL;
 				}
+
+				if (input.isGroundButtonPressed()) {
+					return ElevatorFSMState.GROUND;
+				}
+
 				return ElevatorFSMState.LEVEL4;
 
 			default:

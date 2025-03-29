@@ -86,6 +86,7 @@ public class RaspberryPiPhoton extends RaspberryPi {
 			}
 
 			atList.sort(new ATComp());
+			System.out.println(atList.toString());
 		}
 		return atList;
 	}
@@ -115,7 +116,7 @@ public class RaspberryPiPhoton extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getZ(),
 						target.getBestCameraToTarget().getRotation().getX()
 					),
-					target.getArea()
+					target.getYaw()
 				);
 				// if (at.getPose().getTranslation().getNorm()
 					// < VisionConstants.MAX_TAG_TARGET_DISTANCE_X) {
