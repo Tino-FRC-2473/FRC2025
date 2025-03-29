@@ -53,11 +53,11 @@ public final class HardwareMap {
 	}
 
 	/**
-	 * Check if climber hardware is available to the RoboRIO.
+	 * Check if climber hardware is availa%Hble to the RoboRIO.
 	 * @return true if climber hardware is present
 	 */
 	public static boolean isClimberHardwarePresent() {
-		return false;
+		return true;
 	}
 
 	/**

@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 public class AprilTag implements Comparable<AprilTag> {
 	private String camera;
 	private int tagID;
+	private double tagArea;
 
 	/* This is where the camera is positioned relative to the tag. */
 	private Translation3d cameraVector;
@@ -32,19 +33,23 @@ public class AprilTag implements Comparable<AprilTag> {
 	*          The position of the tag relative to the camera
 	* @param   rotVector
 	*          The orientation of the tag relative to the camera
+	* @param   tArea
+	*          The total area occupied by the tag.
 	*/
 	public AprilTag(
 		int id,
 		String camName,
 		Translation3d camVector,
 		Translation3d transVector,
-		Rotation3d rotVector) {
+		Rotation3d rotVector,
+		double tArea) {
 
 		this.tagID = id;
 		this.camera = camName;
 		this.cameraVector = camVector;
 		this.rotationalVector = rotVector;
 		this.translationalVector = transVector;
+		this.tagArea = tArea;
 	}
 
 	/**
@@ -122,6 +127,15 @@ public class AprilTag implements Comparable<AprilTag> {
 	}
 
 	/**
+	 * Get tag area.
+	 * @return tag area
+	 */
+	public double getTagArea() {
+		return tagArea;
+	}
+
+
+	/**
 	* Gets string of position values x,y,z and also pose of image.
 	* @return The{@code String} position with coordinates and pose
 	*/
@@ -139,9 +153,6 @@ public class AprilTag implements Comparable<AprilTag> {
 	 */
 	@Override
 	public int compareTo(AprilTag other) {
-		double dist = getPose().getTranslation().getNorm();
-		double otherDist = other.getPose().getTranslation().getNorm();
-
-		return Double.compare(dist, otherDist);
+		return -Double.compare(tagArea, other.getTagArea());
 	}
 }

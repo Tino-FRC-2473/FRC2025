@@ -100,7 +100,8 @@ public class RaspberryPi {
 						rawData[i + VisionConstants.AT_ARR_ROTATION_OFFSET],
 						rawData[i + VisionConstants.AT_ARR_ROTATION_OFFSET + 1],
 						rawData[i + VisionConstants.AT_ARR_ROTATION_OFFSET + 2]
-					)
+					),
+					0
 				)
 			);
 		}

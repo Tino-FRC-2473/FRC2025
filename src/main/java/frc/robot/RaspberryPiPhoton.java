@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.constants.VisionConstants;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -13,6 +15,12 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class RaspberryPiPhoton extends RaspberryPi {
 	private final PhotonCamera reefCamera;
 	private final PhotonCamera stationCamera;
+
+	class ATComp implements Comparator<AprilTag> {
+		public int compare(AprilTag t1, AprilTag t2) {
+			return t1.compareTo(t2);
+		}
+	};
 
 	/**
 	 * Creates a new RaspberryPiPhoton connecting to real cameras.
@@ -71,10 +79,13 @@ public class RaspberryPiPhoton extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getY(),
 						target.getBestCameraToTarget().getRotation().getZ(),
 						target.getBestCameraToTarget().getRotation().getX()
-					)
+					),
+					target.getArea()
 				);
 				atList.add(at);
 			}
+
+			atList.sort(new ATComp());
 		}
 		return atList;
 	}
@@ -103,7 +114,8 @@ public class RaspberryPiPhoton extends RaspberryPi {
 						target.getBestCameraToTarget().getRotation().getY(),
 						target.getBestCameraToTarget().getRotation().getZ(),
 						target.getBestCameraToTarget().getRotation().getX()
-					)
+					),
+					target.getArea()
 				);
 				// if (at.getPose().getTranslation().getNorm()
 					// < VisionConstants.MAX_TAG_TARGET_DISTANCE_X) {

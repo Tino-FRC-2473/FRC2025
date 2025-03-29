@@ -12,7 +12,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S1_2L33 = new Object[] {
-		//"S1_R2_H",
+		"S1_R2_H",
 		AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -38,7 +38,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S1_2L22 = new Object[] {
-		//"S1_R2_H",
+		"S1_R2_H",
 		AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -65,7 +65,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S1_2L44 = new Object[] {
-		//"S1_R2_H",
+		"S1_R2_H",
 		AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -90,7 +90,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1L22 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.R_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -117,7 +117,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1L33 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.R_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -143,7 +143,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1L44 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.R_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -170,7 +170,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1R44 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.R_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -197,7 +197,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1R55 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.R_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -223,7 +223,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S2_1R66 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.R_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -250,7 +250,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S3_6R66 = new Object[] {
-		//"S3_R6_H",
+		"S3_R6_H",
 		AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -278,7 +278,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S3_6R55 = new Object[] {
-		//"S3_R6_H",
+		"S3_R6_H",
 		AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -304,7 +304,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] R_AT_ALIGN_S3_6R44 = new Object[] {
-		// "S3_R6_H",
+		"S3_R6_H",
 		AutoCommands.R_ALIGN_REEF6_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -375,7 +375,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S1_2L33 = new Object[] {
-		//"S1_R2_H",
+		"S1_R2_H",
 		AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -401,7 +401,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S1_2L2 = new Object[] {
-		//"S1_R2_H",
+		"S1_R2_H",
 		AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -419,7 +419,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S1_2L44 = new Object[] {
-		//"S1_R2_H",
+		"S1_R2_H",
 		AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -446,7 +446,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S2_1L22 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -473,7 +473,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S2_1L33 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -499,7 +499,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S2_1L44 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -526,7 +526,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S2_1R44 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -553,7 +553,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S2_1R55 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -579,7 +579,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S2_1R66 = new Object[] {
-		//"S2_R1_H",
+		"S2_R1_H",
 		AutoCommands.B_ALIGN_REEF1_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -606,7 +606,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S3_6R66 = new Object[] {
-		//"S3_R6_H",
+		"S3_R6_H",
 		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -624,7 +624,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S3_6R55 = new Object[] {
-		//"S3_R6_H",
+		"S3_R6_H",
 		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
@@ -650,7 +650,7 @@ public class AutoPaths {
 	};
 
 	public static final Object[] B_AT_ALIGN_S3_6R44 = new Object[] {
-		//"S3_R6_H",
+		"S3_R6_H",
 		AutoCommands.B_ALIGN_REEF6_L_TAG_CMD,
 		AutoCommands.ELEVATOR_WAIT,
 		AutoCommands.ELEVATOR_L4_CMD,
