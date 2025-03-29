@@ -1018,10 +1018,11 @@ public class DriveFSMSystem extends SubsystemBase {
 			@Override
 			public void execute() {
 				handleTagAlignment(null, id, false);
+				Logger.recordOutput("DriveToPose/AutoTimer", alignmentTimerAutoCommand.get());
 			}
 
 			public boolean isFinished() {
-				return driveToPoseFinished || alignmentTimerAutoCommand.get() > 2;
+				return alignmentTimerAutoCommand.get() > (2 + 1);
 			}
 
 			public void end(boolean interrupted) {
