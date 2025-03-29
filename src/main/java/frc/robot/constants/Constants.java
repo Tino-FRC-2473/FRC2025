@@ -44,12 +44,12 @@ public final class Constants {
 
 	public static final double ELEVATOR_MANUAL_SCALE = 0.5;
 
-	public static final double CLIMBER_COUNTS_PER_REV = 453.6;
+	public static final double CLIMBER_COUNTS_PER_REV = 420;
 	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 3;
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
-	public static final double CLIMBER_PID_TARGET_EXTEND = 130;
-	public static final double CLIMBER_PID_TARGET_CLIMB = 310;
+	public static final double CLIMBER_PID_TARGET_EXTEND = 120.37;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 287.037;
 	public static final double CLIMBER_ENCODER_RESET_POSITION = CLIMBER_COUNTS_PER_REV;
 
 	public static final double CLIMB_POWER = 1.0;

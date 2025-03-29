@@ -1022,7 +1022,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			}
 
 			public boolean isFinished() {
-				return alignmentTimerAutoCommand.get() > (2 + 1);
+				return alignmentTimerAutoCommand.get() > (2);
 			}
 
 			public void end(boolean interrupted) {

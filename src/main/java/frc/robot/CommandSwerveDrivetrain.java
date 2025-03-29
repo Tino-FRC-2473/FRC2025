@@ -44,9 +44,9 @@ public class CommandSwerveDrivetrain extends
 	private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds =
 		new SwerveRequest.ApplyFieldSpeeds();
 
-	private final PIDController autoXPid = new PIDController(17.5, 0, 0); //17.5
-	private final PIDController autoYPid = new PIDController(17.5, 0, 0); //17.5
-	private final PIDController autoHeadingPid = new PIDController(0.8, 0, 0); // 0.8
+	private final PIDController autoXPid = new PIDController(15.0, 0, 0); //17.5
+	private final PIDController autoYPid = new PIDController(15.0, 0, 0); //17.5
+	private final PIDController autoHeadingPid = new PIDController(0.6, 0, 0); // 0.8
 
 	private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
 	private Notifier simNotifier;
