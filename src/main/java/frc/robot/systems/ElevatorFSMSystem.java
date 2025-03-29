@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.HardwareMap;
 import frc.robot.Robot;
 
@@ -516,33 +515,9 @@ public class ElevatorFSMSystem {
 	}
 
 	/** A command that moves the elevator to the Ground position. */
-	class ElevatorGroundCommand extends Command {
-		private Timer timersub = new Timer();
-
-		public void initialize() {
-			timersub.start();
-		}
-
-		@Override
-		public void execute() {
-			elevatorMotor.setControl(
-				motionRequest.withPosition(Constants.ELEVATOR_TARGET_GROUND.in(Inches))
-			);
-			Logger.recordOutput("AELEVATOR TIMER", timersub.get());
-			System.out.println("CALLING GROUND EXECUTE");
-		}
-
-		@Override
-		public boolean isFinished() {
-			System.out.println("ISFINISHED CHECKED");
-			return inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_GROUND) || groundLimitSwitch.get() || timersub.get() > 1.2;
-		}
-
-		@Override
-		public void end(boolean interrupted) {
-			System.out.println("ELEVATOR POS AUTO FINISHED");
-			timersub.stop();
-			timersub.reset();
+	class ElevatorGroundCommand extends ElevatorCommand {
+		ElevatorGroundCommand() {
+			this.setTarget(Constants.ELEVATOR_TARGET_GROUND);
 		}
 	}
 
