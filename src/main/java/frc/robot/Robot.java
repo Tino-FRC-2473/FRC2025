@@ -17,12 +17,15 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import com.ctre.phoenix6.Utils;
 
-
+import choreo.auto.AutoRoutine;
+import edu.wpi.first.wpilibj.DriverStation;
 // WPILib Imports
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -37,6 +40,7 @@ import frc.robot.systems.LEDFSMSystem;
 // Robot Imports
 import frc.robot.utils.Elastic;
 import frc.robot.auto.AutoRoutines;
+import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
@@ -51,14 +55,13 @@ public class Robot extends LoggedRobot {
 	private DriveFSMSystem driveSystem;
 	private AutoRoutines autoRoutines;
 
-	private final LoggedDashboardChooser<String> autoChooser =
-		new LoggedDashboardChooser<>("AUTO CHOOSER");
-	private String autoCommand;
-
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private LEDFSMSystem ledSystem;
+
+	private Command blueCommand;
+	private Command redCommand;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -127,17 +130,66 @@ public class Robot extends LoggedRobot {
 			driveSystem, elevatorSystem, funnelSystem
 		);
 
-		for (HashMap.Entry<String, Object[]> auto
-			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
-			autoChooser.addOption(auto.getKey(), auto.getKey());
-		}
+		redCommand = 
+			autoRoutines.generateSequentialAutoWorkflow(
+				new Object[]{
+				"S1_R2_H",
+				AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
+				AutoCommands.ELEVATOR_L4_CMD,
+				AutoCommands.OUTTAKE_CORAL_CMD,
+				AutoCommands.ELEVATOR_GROUND_CMD,
+				"R2_StationL_H",
+				AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
+				AutoCommands.INTAKE_CORAL_CMD,
+				"StationL_R3_H",
+				AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
+				AutoCommands.ELEVATOR_L4_CMD,
+				AutoCommands.OUTTAKE_CORAL_CMD,
+				AutoCommands.ELEVATOR_GROUND_CMD,
+				AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
+				AutoCommands.INTAKE_CORAL_CMD,
+				"StationL_R3_H",
+				AutoCommands.R_ALIGN_REEF3_R_TAG_CMD,
+				AutoCommands.ELEVATOR_L4_CMD,
+				AutoCommands.OUTTAKE_CORAL_CMD,
+				AutoCommands.ELEVATOR_GROUND_CMD,
+				},
+				true
+			);
+
+		blueCommand = 
+			autoRoutines.generateSequentialAutoWorkflow(
+				new Object[] {
+		"S1_R2_H",
+		AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		"R2_StationL_H",
+		AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3_H",
+		AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
+		AutoCommands.INTAKE_CORAL_CMD,
+		"StationL_R3_H",
+		AutoCommands.B_ALIGN_REEF3_R_TAG_CMD,
+		AutoCommands.ELEVATOR_L4_CMD,
+		AutoCommands.OUTTAKE_CORAL_CMD,
+		AutoCommands.ELEVATOR_GROUND_CMD,
+		},
+			true
+		);
 	}
 
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
 		Elastic.selectTab("Autonomous");
-		autoCommand = getAutonomousCommand();
+		Command scheduledCommand = null;
 
 		/* If all available auto systems are true, then it will throw exception. */
 		boolean throwException =
@@ -146,18 +198,23 @@ public class Robot extends LoggedRobot {
 			&& HardwareMap.isElevatorHardwarePresent()
 			&& HardwareMap.isFunnelHardwarePresent();
 
-		if (autoCommand != null) {
-			Command scheduledCommand = autoRoutines.generateSequentialAutoWorkflow(
-				autoRoutines.getAutoPathHandler().getAllAutos().get(autoCommand), throwException
-			);
-
-			if (Robot.isSimulation()) {
-				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
-					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+			
+		if (!DriverStation.getAlliance().isEmpty()) {
+			if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
+				scheduledCommand = redCommand;
+			} else if (DriverStation.getAlliance().get().equals(Alliance.Blue)) {
+				scheduledCommand = blueCommand;
 			}
-
-			scheduledCommand.schedule();
 		}
+
+		if (Robot.isSimulation()) {
+			driveSystem.getMapleSimDrivetrain().getDriveSimulation()
+				.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+		}
+
+		AutoRoutine ar = autoRoutines.triggerSysRoutine(scheduledCommand);
+		ar.cmd().schedule();
+		
 	}
 
 	@Override
@@ -329,14 +386,5 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.updateLogging();
 		}
-	}
-
-	/**
-	 * Gets the autonomous command selected by the auto chooser.
-	 *
-	 * @return the selected autonomous command
-	 */
-	public String getAutonomousCommand() {
-		return autoChooser.get();
 	}
 }
