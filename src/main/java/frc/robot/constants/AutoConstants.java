@@ -19,7 +19,7 @@ public class AutoConstants {
 	public static final int RED_R_STATION_ID = 2;
 
 
-	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2 - 6 - 4);
+	public static final double REEF_X_TAG_OFFSET = Units.inchesToMeters(35.5 / 2 - 2);
 	public static final double REEF_Y_L_TAG_OFFSET = -Units.inchesToMeters(13) / 2;
 	public static final double REEF_Y_R_TAG_OFFSET = Units.inchesToMeters(13) / 2;
 	public static final double STATION_Y_L_TAG_OFFSET = -Units.inchesToMeters(16);
@@ -39,7 +39,7 @@ public class AutoConstants {
 	public static final int B_REEF_5_TAG_ID = 17;
 	public static final int B_REEF_6_TAG_ID = 22;
 
-	public static final double ALIGN_DRIVE_P = 1.7; //2.2; //4.0;
+	public static final double ALIGN_DRIVE_P = 1.9; //1.7 //2.2; //4.0;
 	public static final double ALIGN_THETA_P = 1.5; //1.3; //2.0;
 	public static final double ALIGN_MAX_T_SPEED = 0.0;
 	public static final double ALIGN_MAX_T_ACCEL = 0.0;
