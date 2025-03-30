@@ -736,10 +736,10 @@ public class DriveFSMSystem extends SubsystemBase {
 				alignmentFFTimer.start();
 			}
 
-			if (!alignmentFFTimer.hasElapsed(0.25)) {
+			if (!alignmentFFTimer.hasElapsed(5)) {
 				drivetrain.setControl(
 						driveRobotCentric
-								.withVelocityX(1));
+								.withVelocityX(-1));
 			} else {
 				alignmentTimer.stop();
 				alignmentTimer.reset();
@@ -973,7 +973,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			driveToPose(alignmentPose2d, allianceFlip);
 		}
 
-		if (driveToPoseFinished || alignmentPose2d == null) {
+		if (alignmentFFComplete || alignmentPose2d == null) {
 			drivetrain.setControl(
 				drive.withVelocityX(0)
 				.withVelocityY(0)
