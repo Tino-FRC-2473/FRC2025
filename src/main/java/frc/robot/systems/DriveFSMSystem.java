@@ -108,6 +108,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	private AprilTagFieldLayout aprilTagFieldLayout;
 	private boolean hasLocalized = false;
 
+	private Timer alignmentFFTimer = new Timer();
+	private boolean alignmentFFComplete = false;
+
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,
 		AutoConstants.B_REEF_2_TAG_ID,
@@ -728,10 +731,23 @@ public class DriveFSMSystem extends SubsystemBase {
 		driveToPoseFinished = (driveController.atGoal() && thetaController.atGoal())
 			|| alignmentTimer.advanceIfElapsed(Constants.ALIGN_TIME_SECS);
 
-		if (driveToPoseFinished) {
-			alignmentTimer.stop();
-			alignmentTimer.reset();
-			drivetrain.setControl(brake);
+		if (driveToPoseFinished && !alignmentFFComplete) {
+			if(!alignmentFFTimer.isRunning()) {
+				alignmentFFTimer.start();
+			}
+
+			if (!alignmentFFTimer.hasElapsed(0.25)) {
+				drivetrain.setControl(
+						driveRobotCentric
+								.withVelocityX(1));
+			} else {
+				alignmentTimer.stop();
+				alignmentTimer.reset();
+				alignmentFFComplete = true;
+				alignmentFFTimer.stop();
+				alignmentFFTimer.reset();
+				drivetrain.setControl(brake);
+			}
 		}
 
 		Logger.recordOutput("DriveToPose/DriveError", driveErrorAbs);
@@ -801,6 +817,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (tagID != -1) {
 			aligningToReef = true;
+			alignmentFFComplete = false;
 			handleTagAlignment(input, tagID, true);
 		} else {
 			drivetrain.setControl(brake);
@@ -852,6 +869,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		Logger.recordOutput("TagID", tagID);
 
 		if (tagID != -1) {
+			alignmentFFComplete = true;
 			aligningToReef = false;
 			handleTagAlignment(input, tagID, true);
 		} else {
