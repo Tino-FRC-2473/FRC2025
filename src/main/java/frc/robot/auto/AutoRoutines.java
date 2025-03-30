@@ -410,17 +410,17 @@ public class AutoRoutines {
 			}
 		}
 
+		if (HardwareMap.isDriveHardwarePresent()) {
+			sysRoutine.active().onTrue(
+				seqInstruction
+				.andThen(driveSystem.brakeCommand())
+				.andThen(getAutoLogCommand(new Object[] {"AUTO COMPLETE"}))
+			);
+
+			return sysRoutine.cmd();
+		}
+
 		return seqInstruction;
-	}
-
-	public AutoRoutine triggerSysRoutine(Command seq) {
-		sysRoutine.active().onTrue(
-			seq
-			.andThen(driveSystem.brakeCommand())
-			.andThen(getAutoLogCommand(new Object[] {"AUTO COMPLETE"}))
-		);
-
-		return sysRoutine;
 	}
 
 	private void generateSysRoutineMap(String deployFolder) {

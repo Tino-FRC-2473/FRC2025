@@ -132,55 +132,13 @@ public class Robot extends LoggedRobot {
 
 		redCommand = 
 			autoRoutines.generateSequentialAutoWorkflow(
-				new Object[]{
-				"S1_R2_H",
-				AutoCommands.R_ALIGN_REEF2_R_TAG_CMD,
-				AutoCommands.ELEVATOR_L4_CMD,
-				AutoCommands.OUTTAKE_CORAL_CMD,
-				AutoCommands.ELEVATOR_GROUND_CMD,
-				"R2_StationL_H",
-				AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
-				AutoCommands.INTAKE_CORAL_CMD,
-				"StationL_R3_H",
-				AutoCommands.R_ALIGN_REEF3_L_TAG_CMD,
-				AutoCommands.ELEVATOR_L4_CMD,
-				AutoCommands.OUTTAKE_CORAL_CMD,
-				AutoCommands.ELEVATOR_GROUND_CMD,
-				AutoCommands.R_ALIGN_STATION_L_TAG_CMD,
-				AutoCommands.INTAKE_CORAL_CMD,
-				"StationL_R3_H",
-				AutoCommands.R_ALIGN_REEF3_R_TAG_CMD,
-				AutoCommands.ELEVATOR_L4_CMD,
-				AutoCommands.OUTTAKE_CORAL_CMD,
-				AutoCommands.ELEVATOR_GROUND_CMD,
-				},
+				autoRoutines.getAutoPathHandler().getAllAutos().get("R_AT_ALIGN_S1_2L33"),
 				true
 			);
 
 		blueCommand = 
 			autoRoutines.generateSequentialAutoWorkflow(
-				new Object[] {
-		"S1_R2_H",
-		AutoCommands.B_ALIGN_REEF2_R_TAG_CMD,
-		AutoCommands.ELEVATOR_L4_CMD,
-		AutoCommands.OUTTAKE_CORAL_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
-		"R2_StationL_H",
-		AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
-		AutoCommands.INTAKE_CORAL_CMD,
-		"StationL_R3_H",
-		AutoCommands.B_ALIGN_REEF3_L_TAG_CMD,
-		AutoCommands.ELEVATOR_L4_CMD,
-		AutoCommands.OUTTAKE_CORAL_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
-		AutoCommands.B_ALIGN_STATION_L_TAG_CMD,
-		AutoCommands.INTAKE_CORAL_CMD,
-		"StationL_R3_H",
-		AutoCommands.B_ALIGN_REEF3_R_TAG_CMD,
-		AutoCommands.ELEVATOR_L4_CMD,
-		AutoCommands.OUTTAKE_CORAL_CMD,
-		AutoCommands.ELEVATOR_GROUND_CMD,
-		},
+					autoRoutines.getAutoPathHandler().getAllAutos().get("B_AT_ALIGN_S1_2L33"),
 			true
 		);
 	}
@@ -212,8 +170,7 @@ public class Robot extends LoggedRobot {
 				.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
 		}
 
-		AutoRoutine ar = autoRoutines.triggerSysRoutine(scheduledCommand);
-		ar.cmd().schedule();
+		scheduledCommand.schedule();
 		
 	}
 
