@@ -153,6 +153,8 @@ public class AprilTag implements Comparable<AprilTag> {
 	 */
 	@Override
 	public int compareTo(AprilTag other) {
-		return -Double.compare(other.getPitch(), getPitch());
+		return Double.compare(
+			Math.hypot(getZ(), getX()), Math.hypot(other.getZ(), other.getX())
+		);
 	}
 }
