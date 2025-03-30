@@ -169,6 +169,7 @@ public class DriveFSMSystem extends SubsystemBase {
 	private double driveErrorAbs;
 	private double thetaErrorAbs;
 	private Translation2d lastSetpointTranslation;
+	private double atOffsetY;
 
 	/* ======================== Private variables ======================== */
 	private DriveFSMState currentState;
@@ -791,11 +792,11 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (input != null) {
 			if (input.getAlignLeftOffsetButton()) {
-				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
+				atOffsetY = AutoConstants.REEF_Y_L_TAG_OFFSET;
 			} else if (input.getAlignRightOffsetButton()) {
-				alignmentYOff = AutoConstants.REEF_Y_R_TAG_OFFSET;
+				atOffsetY = AutoConstants.REEF_Y_R_TAG_OFFSET;
 			} else {
-				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
+				atOffsetY = AutoConstants.REEF_Y_L_TAG_OFFSET;
 			}
 		}
 
@@ -937,6 +938,12 @@ public class DriveFSMSystem extends SubsystemBase {
 		System.out.println("TAG Reached here");
 
 		if (tag != null) {
+			if(tag.getY() < VisionConstants.TAG_USE_OFFSETS_DISTANCE) {
+				alignmentYOff = atOffsetY;
+			} else {
+				alignmentYOff = 0;
+			}
+
 			if (Utils.isSimulation()) {
 				alignmentPose2d =
 					new Pose3d(
