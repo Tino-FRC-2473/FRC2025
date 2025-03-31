@@ -40,6 +40,5 @@ public class VisionConstants {
 	public static final double TAG_TARGET_THETA_RAD = Math.PI / 5;
 	public static final double TAG_Y_L_OFFSET_BASE = AutoConstants.REEF_Y_L_TAG_OFFSET * 2;
 	public static final double TAG_Y_R_OFFSET_BASE = AutoConstants.REEF_Y_R_TAG_OFFSET * 2;
-
-
+	public static final double TAG_USE_OFFSETS_DISTANCE = 0.75;
 }

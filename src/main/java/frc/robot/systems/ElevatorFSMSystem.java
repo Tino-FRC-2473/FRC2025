@@ -313,18 +313,33 @@ public class ElevatorFSMSystem {
 				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L2)) {
 					return ElevatorFSMState.MANUAL;
 				}
+
+				if (input.isGroundButtonPressed()) {
+					return ElevatorFSMState.GROUND;
+				}
+
 				return ElevatorFSMState.LEVEL2;
 
 			case LEVEL3:
 				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L3)) {
 					return ElevatorFSMState.MANUAL;
 				}
+
+				if (input.isGroundButtonPressed()) {
+					return ElevatorFSMState.GROUND;
+				}
+
 				return ElevatorFSMState.LEVEL3;
 
 			case LEVEL4:
 				if (inRange(getElevatorpos(), Constants.ELEVATOR_TARGET_L4)) {
 					return ElevatorFSMState.MANUAL;
 				}
+
+				if (input.isGroundButtonPressed()) {
+					return ElevatorFSMState.GROUND;
+				}
+
 				return ElevatorFSMState.LEVEL4;
 
 			default:
@@ -479,7 +494,9 @@ public class ElevatorFSMSystem {
 		}
 
 		@Override
-		public void end(boolean interrupted) { }
+		public void end(boolean interrupted) {
+			System.out.println("ELEVATOR POS AUTO FINISHED");
+		}
 
 		protected void setTarget(Distance newTarget) {
 			this.target = newTarget;
@@ -503,12 +520,12 @@ public class ElevatorFSMSystem {
 
 		@Override
 		public boolean isFinished() {
-			return timer.get() > 1;
+			return timer.get() > (1.0);
 		}
 
 		@Override
 		public void end(boolean interrupted) {
-			timer.reset();
+			timer.stop();
 		}
 	}
 

@@ -418,9 +418,9 @@ public class AutoRoutines {
 			);
 
 			return sysRoutine.cmd();
-		} else {
-			return seqInstruction;
 		}
+
+		return seqInstruction;
 	}
 
 	private void generateSysRoutineMap(String deployFolder) {
@@ -489,7 +489,7 @@ public class AutoRoutines {
 	 * @return Pose2d initial pose
 	 */
 	public Pose2d getInitialAutoPose() {
-		return initPose; //getStartingAlliancePosition();
+		return getStartingAlliancePosition();
 	}
 
 	private Pose2d getStartingAlliancePosition() {

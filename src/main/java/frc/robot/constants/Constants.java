@@ -34,9 +34,9 @@ public final class Constants {
 
 	public static final Distance ELEVATOR_UPPER_THRESHOLD = Units.Inches.of(37.3);
 	// DO NOT drive above this!
-	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(36);
-	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(19.1);
-	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.6);
+	public static final Distance ELEVATOR_TARGET_L4 = Units.Inches.of(35.166);
+	public static final Distance ELEVATOR_TARGET_L3 = Units.Inches.of(18.2);
+	public static final Distance ELEVATOR_TARGET_L2 = Units.Inches.of(7.066);
 	public static final Distance ELEVATOR_TARGET_GROUND = Units.Inches.of(0);
 
 	public static final Distance ELEVATOR_INRANGE_VALUE = Units.Inches.of(0.1);
@@ -44,18 +44,18 @@ public final class Constants {
 
 	public static final double ELEVATOR_MANUAL_SCALE = 0.5;
 
-	public static final double CLIMBER_COUNTS_PER_REV = 453.6;
+	public static final double CLIMBER_COUNTS_PER_REV = 252;
 	public static final double CLIMBER_PID_MARGIN_OF_ERROR = 3;
 
 	public static final double CLIMBER_PID_TARGET_LOW = 0;
-	public static final double CLIMBER_PID_TARGET_EXTEND = 130;
-	public static final double CLIMBER_PID_TARGET_CLIMB = 310;
+	public static final double CLIMBER_PID_TARGET_EXTEND = 74.75;
+	public static final double CLIMBER_PID_TARGET_CLIMB = 187;
 	public static final double CLIMBER_ENCODER_RESET_POSITION = CLIMBER_COUNTS_PER_REV;
 
 	public static final double CLIMB_POWER = 1.0;
 	public static final double CLIMB_REDUCED_POWER = 0.5;
 
-	public static final double FUNNEL_INOUT_REAL_TIME_SECS = 5.0; // seconds
+	public static final double FUNNEL_INOUT_REAL_TIME_SECS = CORAL_SCORE_TIME_SECS; // seconds
 
 	// Other
 	public static final int UPDATE_FREQUENCY_HZ = 100;

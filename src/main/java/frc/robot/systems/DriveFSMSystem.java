@@ -108,6 +108,9 @@ public class DriveFSMSystem extends SubsystemBase {
 	private AprilTagFieldLayout aprilTagFieldLayout;
 	private boolean hasLocalized = false;
 
+	private Timer alignmentFFTimer = new Timer();
+	private boolean alignmentFFComplete = false;
+
 	private int[] blueReefTagArray = new int[] {
 		AutoConstants.B_REEF_1_TAG_ID,
 		AutoConstants.B_REEF_2_TAG_ID,
@@ -319,7 +322,7 @@ public class DriveFSMSystem extends SubsystemBase {
 		// if (Utils.isSimulation()) {
 		// 	getMapleSimDrivetrain().resetSimulationPose();
 		// }
-		rpi.printRawData();
+		//rpi.printRawData();
 	}
 
 	/**
@@ -539,11 +542,23 @@ public class DriveFSMSystem extends SubsystemBase {
 		alignmentYOff = 0;
 		driveToPoseFinished = false;
 		driveToPoseRunning = false;
+		alignmentFFComplete = false;
+
+		if (alignmentFFTimer.isRunning()) {
+			alignmentFFTimer.stop();
+			alignmentFFTimer.reset();
+		}
+
+		if (alignmentTimer.isRunning()) {
+			alignmentTimer.stop();
+			alignmentTimer.reset();
+		}
 
 		double constantDamp = 1;
 
 		if (elevatorSystem != null) {
-			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveTurtleButton())
+			constantDamp = (elevatorSystem.isElevatorAtL4() || input.getDriveTurtleButton()
+				|| input.getDriveCircleButton())
 				? DriveConstants.SPEED_DAMP_FACTOR : DriveConstants.NORMAL_DAMP;
 		}
 
@@ -651,81 +666,92 @@ public class DriveFSMSystem extends SubsystemBase {
 			lastSetpointTranslation = currPose.getTranslation();
 		}
 
-		double currDistance = currPose.getTranslation().getDistance(target.getTranslation());
-		double ffScaler = MathUtil.clamp(
-			(currDistance - AutoConstants.FF_MIN_RADIUS)
-				/ (AutoConstants.FF_MAX_RADIUS - AutoConstants.FF_MIN_RADIUS),
-			0.0,
-			1.0
-		);
+		if (!driveToPoseFinished) {
+			double currDistance = currPose.getTranslation().getDistance(target.getTranslation());
+			double ffScaler = MathUtil.clamp(
+				(currDistance - AutoConstants.FF_MIN_RADIUS)
+					/ (AutoConstants.FF_MAX_RADIUS - AutoConstants.FF_MIN_RADIUS),
+				0.0,
+				1.0
+			);
 
-		driveErrorAbs = currDistance;
+			driveErrorAbs = currDistance;
 
-		driveController.reset(
-			lastSetpointTranslation.getDistance(target.getTranslation()),
-			driveController.getSetpoint().velocity
-		);
+			driveController.reset(
+				lastSetpointTranslation.getDistance(target.getTranslation()),
+				driveController.getSetpoint().velocity
+			);
 
-		double driveVelocityScalar = driveController.getSetpoint().velocity * ffScaler
-			+ driveController.calculate(driveErrorAbs, 0.0);
-		if (currDistance < driveController.getPositionTolerance()) {
-			driveVelocityScalar = 0.0;
-		}
+			double driveVelocityScalar = driveController.getSetpoint().velocity * ffScaler
+				+ driveController.calculate(driveErrorAbs, 0.0);
+			if (currDistance < driveController.getPositionTolerance()) {
+				driveVelocityScalar = 0.0;
+			}
 
-		lastSetpointTranslation = new Pose2d(
-			target.getTranslation(),
-			currPose.getTranslation().minus(target.getTranslation()).getAngle()
-		).transformBy(
-			new Transform2d(
-				new Translation2d(driveController.getSetpoint().position, 0.0),
-				new Rotation2d()
-			)
-		).getTranslation();
-
-		// Calculate theta speed
-		double thetaVelocity = thetaController.getSetpoint().velocity * ffScaler
-			+ thetaController.calculate(
-				currPose.getRotation().getRadians(), target.getRotation().getRadians()
-		);
-		thetaErrorAbs = Math.abs(
-			currPose.getRotation().minus(target.getRotation()).getRadians()
-		);
-
-		if (thetaErrorAbs < thetaController.getPositionTolerance()) {
-			thetaVelocity = 0.0;
-		}
-
-		// Command speeds
-		var driveVelocity = new Pose2d(
-			new Translation2d(),
-			currPose.getTranslation().minus(target.getTranslation())
-			.getAngle()
-		).transformBy(
-			new Transform2d(
-				new Translation2d(driveVelocityScalar, 0.0),
-				new Rotation2d()
-			)
-		).getTranslation();
-
-		drivetrain.setControl(
-			driveFacingAngle.
-				withVelocityX(
-					driveVelocity.getX()
+			lastSetpointTranslation = new Pose2d(
+				target.getTranslation(),
+				currPose.getTranslation().minus(target.getTranslation()).getAngle()
+			).transformBy(
+				new Transform2d(
+					new Translation2d(driveController.getSetpoint().position, 0.0),
+					new Rotation2d()
 				)
-				.withVelocityY(
-					driveVelocity.getY()
+			).getTranslation();
+
+			// Calculate theta speed
+			double thetaVelocity = thetaController.getSetpoint().velocity * ffScaler
+				+ thetaController.calculate(
+					currPose.getRotation().getRadians(), target.getRotation().getRadians()
+			);
+			thetaErrorAbs = Math.abs(
+				currPose.getRotation().minus(target.getRotation()).getRadians()
+			);
+
+			if (thetaErrorAbs < thetaController.getPositionTolerance()) {
+				thetaVelocity = 0.0;
+			}
+
+			// Command speeds
+			var driveVelocity = new Pose2d(
+				new Translation2d(),
+				currPose.getTranslation().minus(target.getTranslation())
+				.getAngle()
+			).transformBy(
+				new Transform2d(
+					new Translation2d(driveVelocityScalar, 0.0),
+					new Rotation2d()
 				)
-				.withTargetRateFeedforward(thetaVelocity)
-				.withTargetDirection(target.getRotation())
-				.withHeadingPID(DriveConstants.DRIVE_TO_POSE_HEADING_P, 0, 0)
+			).getTranslation();
 
-		);
-		//drivetrain.setControl(brake);
+			drivetrain.setControl(
+				driveFacingAngle.
+					withVelocityX(
+						driveVelocity.getX()
+					)
+					.withVelocityY(
+						driveVelocity.getY()
+					)
+					.withTargetRateFeedforward(thetaVelocity)
+					.withTargetDirection(target.getRotation())
+					.withHeadingPID(DriveConstants.DRIVE_TO_POSE_HEADING_P, 0, 0)
 
-		rotationAlignmentPose = currPose.getRotation();
+			);
 
-		driveToPoseFinished = (driveController.atGoal() && thetaController.atGoal())
-			|| alignmentTimer.advanceIfElapsed(Constants.ALIGN_TIME_SECS);
+			rotationAlignmentPose = currPose.getRotation();
+
+			driveToPoseFinished = (driveController.atGoal() && thetaController.atGoal())
+				|| alignmentTimer.get() > Constants.ALIGN_TIME_SECS;
+
+			Logger.recordOutput("DriveToPose/DriveError", driveErrorAbs);
+			Logger.recordOutput("DriveToPose/ThetaError", thetaErrorAbs);
+			Logger.recordOutput("DriveToPose/DriveVelocity", driveVelocityScalar);
+			Logger.recordOutput("DriveToPose/ThetaVelocity", thetaVelocity);
+			Logger.recordOutput("DriveToPose/DriveFinished", driveToPoseFinished);
+			Logger.recordOutput("DriveToPose/DriveSetpoint",
+				driveController.getSetpoint().position);
+			Logger.recordOutput("DriveToPose/ThetaSetpoint",
+				thetaController.getSetpoint().position);
+		}
 
 		if (driveToPoseFinished) {
 			alignmentTimer.stop();
@@ -733,15 +759,9 @@ public class DriveFSMSystem extends SubsystemBase {
 			drivetrain.setControl(brake);
 		}
 
-		Logger.recordOutput("DriveToPose/DriveError", driveErrorAbs);
-		Logger.recordOutput("DriveToPose/ThetaError", thetaErrorAbs);
-		Logger.recordOutput("DriveToPose/DriveVelocity", driveVelocityScalar);
-		Logger.recordOutput("DriveToPose/ThetaVelocity", thetaVelocity);
-		Logger.recordOutput("DriveToPose/DriveFinished", driveToPoseFinished);
-		Logger.recordOutput("DriveToPose/DriveSetpoint", driveController.getSetpoint().position);
-		Logger.recordOutput("DriveToPose/ThetaSetpoint", thetaController.getSetpoint().position);
 		Logger.recordOutput("DriveToPose/Time", alignmentTimer.get());
 		Logger.recordOutput("DriveToPose/TargetPose", target);
+		Logger.recordOutput("DriveToPose/AlignmentFFTimer", alignmentFFTimer.get());
 
 		return driveToPoseFinished;
 	}
@@ -954,7 +974,7 @@ public class DriveFSMSystem extends SubsystemBase {
 			driveToPose(alignmentPose2d, allianceFlip);
 		}
 
-		if (driveToPoseFinished || alignmentPose2d == null) {
+		if (alignmentFFComplete || alignmentPose2d == null) {
 			drivetrain.setControl(
 				drive.withVelocityX(0)
 				.withVelocityY(0)
@@ -1017,10 +1037,11 @@ public class DriveFSMSystem extends SubsystemBase {
 			@Override
 			public void execute() {
 				handleTagAlignment(null, id, false);
+				Logger.recordOutput("DriveToPose/AutoTimer", alignmentTimerAutoCommand.get());
 			}
 
 			public boolean isFinished() {
-				return driveToPoseFinished || alignmentTimerAutoCommand.get() > 2;
+				return alignmentTimerAutoCommand.get() > (2);
 			}
 
 			public void end(boolean interrupted) {
@@ -1030,6 +1051,13 @@ public class DriveFSMSystem extends SubsystemBase {
 				driveToPoseFinished = false;
 				driveToPoseRunning = false;
 				alignmentPose2d = null;
+				alignmentFFComplete = false;
+
+				alignmentFFTimer.stop();
+				alignmentFFTimer.reset();
+
+				alignmentTimer.stop();
+				alignmentTimer.reset();
 
 				alignmentTimerAutoCommand.stop();
 				alignmentTimerAutoCommand.reset();
