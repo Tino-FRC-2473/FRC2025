@@ -418,9 +418,9 @@ public class AutoRoutines {
 			);
 
 			return sysRoutine.cmd();
-		} else {
-			return seqInstruction;
 		}
+
+		return seqInstruction;
 	}
 
 	private void generateSysRoutineMap(String deployFolder) {

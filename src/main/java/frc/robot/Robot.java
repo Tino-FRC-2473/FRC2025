@@ -17,12 +17,15 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import com.ctre.phoenix6.Utils;
 
-
+import choreo.auto.AutoRoutine;
+import edu.wpi.first.wpilibj.DriverStation;
 // WPILib Imports
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -37,6 +40,7 @@ import frc.robot.systems.LEDFSMSystem;
 // Robot Imports
 import frc.robot.utils.Elastic;
 import frc.robot.auto.AutoRoutines;
+import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
@@ -51,14 +55,13 @@ public class Robot extends LoggedRobot {
 	private DriveFSMSystem driveSystem;
 	private AutoRoutines autoRoutines;
 
-	private final LoggedDashboardChooser<String> autoChooser =
-		new LoggedDashboardChooser<>("AUTO CHOOSER");
-	private String autoCommand;
-
 	private ElevatorFSMSystem elevatorSystem;
 	private FunnelFSMSystem funnelSystem;
 	private ClimberFSMSystem climberSystem;
 	private LEDFSMSystem ledSystem;
+
+	private Command blueCommand;
+	private Command redCommand;
 
 	// Logger
 	private PowerDistribution powerLogger;
@@ -127,17 +130,24 @@ public class Robot extends LoggedRobot {
 			driveSystem, elevatorSystem, funnelSystem
 		);
 
-		for (HashMap.Entry<String, Object[]> auto
-			: autoRoutines.getAutoPathHandler().getAllAutos().entrySet()) {
-			autoChooser.addOption(auto.getKey(), auto.getKey());
-		}
+		redCommand = 
+			autoRoutines.generateSequentialAutoWorkflow(
+				autoRoutines.getAutoPathHandler().getAllAutos().get("R_AT_ALIGN_S1_2L33"),
+				true
+			);
+
+		blueCommand = 
+			autoRoutines.generateSequentialAutoWorkflow(
+					autoRoutines.getAutoPathHandler().getAllAutos().get("B_AT_ALIGN_S1_2L33"),
+			true
+		);
 	}
 
 	@Override
 	public void autonomousInit() {
 		System.out.println("-------- Autonomous Init --------");
 		Elastic.selectTab("Autonomous");
-		autoCommand = getAutonomousCommand();
+		Command scheduledCommand = null;
 
 		/* If all available auto systems are true, then it will throw exception. */
 		boolean throwException =
@@ -146,18 +156,22 @@ public class Robot extends LoggedRobot {
 			&& HardwareMap.isElevatorHardwarePresent()
 			&& HardwareMap.isFunnelHardwarePresent();
 
-		if (autoCommand != null) {
-			Command scheduledCommand = autoRoutines.generateSequentialAutoWorkflow(
-				autoRoutines.getAutoPathHandler().getAllAutos().get(autoCommand), throwException
-			);
-
-			if (Robot.isSimulation()) {
-				driveSystem.getMapleSimDrivetrain().getDriveSimulation()
-					.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+			
+		if (!DriverStation.getAlliance().isEmpty()) {
+			if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
+				scheduledCommand = redCommand;
+			} else if (DriverStation.getAlliance().get().equals(Alliance.Blue)) {
+				scheduledCommand = blueCommand;
 			}
-
-			scheduledCommand.schedule();
 		}
+
+		if (Robot.isSimulation()) {
+			driveSystem.getMapleSimDrivetrain().getDriveSimulation()
+				.setSimulationWorldPose(autoRoutines.getInitialAutoPose());
+		}
+
+		scheduledCommand.schedule();
+		
 	}
 
 	@Override
@@ -329,14 +343,5 @@ public class Robot extends LoggedRobot {
 		if (ledSystem != null) {
 			ledSystem.updateLogging();
 		}
-	}
-
-	/**
-	 * Gets the autonomous command selected by the auto chooser.
-	 *
-	 * @return the selected autonomous command
-	 */
-	public String getAutonomousCommand() {
-		return autoChooser.get();
 	}
 }
