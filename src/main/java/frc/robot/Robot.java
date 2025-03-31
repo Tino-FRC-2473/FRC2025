@@ -4,28 +4,24 @@
 package frc.robot;
 
 // Java Imports
-import java.util.HashMap;
 
 // Third Party Imports
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import com.ctre.phoenix6.Utils;
 
-import choreo.auto.AutoRoutine;
-import edu.wpi.first.wpilibj.DriverStation;
 // WPILib Imports
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -40,7 +36,6 @@ import frc.robot.systems.LEDFSMSystem;
 // Robot Imports
 import frc.robot.utils.Elastic;
 import frc.robot.auto.AutoRoutines;
-import frc.robot.constants.AutoConstants.AutoCommands;
 import frc.robot.logging.MechLogging;
 import frc.robot.motors.MotorManager;
 
@@ -130,13 +125,13 @@ public class Robot extends LoggedRobot {
 			driveSystem, elevatorSystem, funnelSystem
 		);
 
-		redCommand = 
+		redCommand =
 			autoRoutines.generateSequentialAutoWorkflow(
 				autoRoutines.getAutoPathHandler().getAllAutos().get("R_AT_ALIGN_S1_2L33"),
 				true
 			);
 
-		blueCommand = 
+		blueCommand =
 			autoRoutines.generateSequentialAutoWorkflow(
 					autoRoutines.getAutoPathHandler().getAllAutos().get("B_AT_ALIGN_S1_2L33"),
 			true
@@ -156,7 +151,6 @@ public class Robot extends LoggedRobot {
 			&& HardwareMap.isElevatorHardwarePresent()
 			&& HardwareMap.isFunnelHardwarePresent();
 
-			
 		if (!DriverStation.getAlliance().isEmpty()) {
 			if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
 				scheduledCommand = redCommand;
@@ -171,7 +165,6 @@ public class Robot extends LoggedRobot {
 		}
 
 		scheduledCommand.schedule();
-		
 	}
 
 	@Override

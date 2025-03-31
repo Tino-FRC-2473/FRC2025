@@ -169,7 +169,6 @@ public class DriveFSMSystem extends SubsystemBase {
 	private double driveErrorAbs;
 	private double thetaErrorAbs;
 	private Translation2d lastSetpointTranslation;
-	private double atOffsetY;
 
 	/* ======================== Private variables ======================== */
 	private DriveFSMState currentState;
@@ -737,7 +736,6 @@ public class DriveFSMSystem extends SubsystemBase {
 					.withHeadingPID(DriveConstants.DRIVE_TO_POSE_HEADING_P, 0, 0)
 
 			);
-			//drivetrain.setControl(brake);
 
 			rotationAlignmentPose = currPose.getRotation();
 
@@ -755,26 +753,10 @@ public class DriveFSMSystem extends SubsystemBase {
 				thetaController.getSetpoint().position);
 		}
 
-		if (driveToPoseFinished && !alignmentFFComplete && aligningToReef) {
-			if (!alignmentFFTimer.isRunning()) {
-				alignmentFFTimer.start();
-			}
-
-			if (alignmentFFTimer.get() < (1.0 / 2)) {
-				drivetrain.setControl(
-					driveRobotCentric
-						.withVelocityX(2)
-						.withVelocityY(0)
-						.withRotationalRate(0)
-				);
-			} else {
-				alignmentTimer.stop();
-				alignmentTimer.reset();
-				alignmentFFComplete = true;
-				alignmentFFTimer.stop();
-				alignmentFFTimer.reset();
-				drivetrain.setControl(brake);
-			}
+		if (driveToPoseFinished) {
+			alignmentTimer.stop();
+			alignmentTimer.reset();
+			drivetrain.setControl(brake);
 		}
 
 		Logger.recordOutput("DriveToPose/Time", alignmentTimer.get());
@@ -792,11 +774,11 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		if (input != null) {
 			if (input.getAlignLeftOffsetButton()) {
-				atOffsetY = AutoConstants.REEF_Y_L_TAG_OFFSET;
+				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
 			} else if (input.getAlignRightOffsetButton()) {
-				atOffsetY = AutoConstants.REEF_Y_R_TAG_OFFSET;
+				alignmentYOff = AutoConstants.REEF_Y_R_TAG_OFFSET;
 			} else {
-				atOffsetY = AutoConstants.REEF_Y_L_TAG_OFFSET;
+				alignmentYOff = AutoConstants.REEF_Y_L_TAG_OFFSET;
 			}
 		}
 
@@ -938,12 +920,6 @@ public class DriveFSMSystem extends SubsystemBase {
 		System.out.println("TAG Reached here");
 
 		if (tag != null) {
-			if(tag.getY() < VisionConstants.TAG_USE_OFFSETS_DISTANCE) {
-				alignmentYOff = atOffsetY;
-			} else {
-				alignmentYOff = 0;
-			}
-
 			if (Utils.isSimulation()) {
 				alignmentPose2d =
 					new Pose3d(
