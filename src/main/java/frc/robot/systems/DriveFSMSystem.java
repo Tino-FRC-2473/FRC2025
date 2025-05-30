@@ -559,7 +559,7 @@ public class DriveFSMSystem extends SubsystemBase {
 
 		double rotXComp = MathUtil.applyDeadband(
 			input.getDriveRightJoystickX(), DriveConstants.JOYSTICK_DEADBAND)
-			* MAX_ANGULAR_RATE / constantDamp;
+			* MAX_ANGULAR_RATE;
 			// Drive left with negative X (left) ^
 
 		if (rotXComp != 0) {
